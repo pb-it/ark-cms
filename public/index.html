@@ -1,0 +1,199 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <title>XCMS</title>
+
+    <!--<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript"
+        src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.6.1/dist/lazyload.min.js"></script>
+
+    <!--https://trentrichardson.com/examples/timepicker/-->
+    <script type="text/javascript" src="/ext/jquery-ui-timepicker-addon.js"></script>
+
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/gh/pb-it/wing-cms-filter@0.1.2-alpha/dist/jpath.min.js"></script>
+
+    <script type="text/javascript" src="/js/common/web/http.js"></script>
+    <script type="text/javascript" src="/js/common/web/ajax.js"></script>
+    <script type="text/javascript" src="/js/common/common.js"></script>
+    <script type="text/javascript" src="/js/common/file.js"></script>
+
+    <script type="text/javascript" src="/js/index.js"></script>
+    <script type="text/javascript" src="/js/application.js"></script>
+
+    <script type="text/javascript" src="/js/controller/filter/filter.js"></script>
+
+    <script type="text/javascript" src="/js/controller/data/dataservice.js"></script>
+
+    <script type="text/javascript" src="/js/controller/data/cache/cache.js"></script>
+    <script type="text/javascript" src="/js/controller/data/cache/modelcache.js"></script>
+
+    <script type="text/javascript" src="/js/controller/data/profilecontroller.js"></script>
+
+    <script type="text/javascript" src="/js/controller/data/model/modelcontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/data/model/modelattributescontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/data/model/modeldefaultscontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/data/model/modelstatecontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/data/model/modelfiltercontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/data/model/modelpanelconfigcontroller.js"></script>
+
+    <script type="text/javascript" src="/js/controller/controller.js"></script>
+    <script type="text/javascript" src="/js/controller/logger.js"></script>
+    <script type="text/javascript" src="/js/controller/versioncontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/configcontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/statecontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/panelcontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/contextmenucontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/modalcontroller.js"></script>
+    <script type="text/javascript" src="/js/controller/bookmarkcontroller.js"></script>
+
+    <script type="text/javascript" src="/js/model/common/list/list.js"></script>
+    <script type="text/javascript" src="/js/model/common/list/listentry.js"></script>
+    <script type="text/javascript" src="/js/model/common/list/selectablelistentry.js"></script>
+
+    <script type="text/javascript" src="/js/model/common/record.js"></script>
+
+    <script type="text/javascript" src="/js/model/crud/crudobject.js"></script>
+    <script type="text/javascript" src="/js/model/crud/crudcontainer.js"></script>
+
+    <script type="text/javascript" src="/js/model/model.js"></script>
+    <script type="text/javascript" src="/js/model/xmodel.js"></script>
+    <script type="text/javascript" src="/js/model/state.js"></script>
+    <script type="text/javascript" src="/js/model/media.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/node/universalnode.js"></script>
+    <script type="text/javascript" src="/js/view/common/node/selectablenode.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/context-menu/context-menu.js"></script>
+    <script type="text/javascript" src="/js/view/common/context-menu/context-menu-entry.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/form/form.js"></script>
+    <script type="text/javascript" src="/js/view/common/form/formentry.js"></script>
+    <script type="text/javascript" src="/js/view/common/form/basicformentry.js"></script>
+    <script type="text/javascript" src="/js/view/common/form/selectformentry.js"></script>
+    <script type="text/javascript" src="/js/view/common/form/fileformentry.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/list/listvis.js"></script>
+    <script type="text/javascript" src="/js/view/common/list/selectablelistvis.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/menu/menu.js"></script>
+    <script type="text/javascript" src="/js/view/common/menu/menuitem.js"></script>
+    <script type="text/javascript" src="/js/view/common/menu/submenugroup.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/panel/config/panelconfig.js"></script>
+    <script type="text/javascript" src="/js/view/common/panel/config/mediapanelconfig.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/panel/panel.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/dialog.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/panel/tabpanel.js"></script>
+    <script type="text/javascript" src="/js/view/common/panel/canvaspanel.js"></script>
+    <script type="text/javascript" src="/js/view/common/panel/crudpanel.js"></script>
+    <script type="text/javascript" src="/js/view/common/panel/mediapanel.js"></script>
+    <script type="text/javascript" src="/js/view/common/panel/notepanel.js"></script>
+    <script type="text/javascript" src="/js/view/common/panel/wikipanel.js"></script>
+    <script type="text/javascript" src="/js/view/common/panel/containerpanel.js"></script>
+    <script type="text/javascript" src="/js/view/common/panel/collectionpanel.js"></script>
+    <script type="text/javascript" src="/js/view/common/panel/formpanel.js"></script>
+    <script type="text/javascript" src="/js/view/common/panel/jsonpanel.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/select/select.js"></script>
+    <script type="text/javascript" src="/js/view/common/select/option.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/tree/tree.js"></script>
+    <script type="text/javascript" src="/js/view/common/tree/treenode.js"></script>
+
+    <script type="text/javascript" src="/js/view/common/collapsible.js"></script>
+    <script type="text/javascript" src="/js/view/common/icon.js"></script>
+    <script type="text/javascript" src="/js/view/common/fileselect.js"></script>
+    <script type="text/javascript" src="/js/view/common/modal.js"></script>
+    <script type="text/javascript" src="/js/view/common/overlay.js"></script>
+    <script type="text/javascript" src="/js/view/common/dataview.js"></script>
+    <script type="text/javascript" src="/js/view/common/searchform.js"></script>
+    <script type="text/javascript" src="/js/view/common/thumbnail.js"></script>
+
+    <script type="text/javascript" src="/js/view/layout/navigation/side/side-navigation-bar.js"></script>
+    <script type="text/javascript" src="/js/view/layout/navigation/side/side-panel.js"></script>
+
+    <script type="text/javascript" src="/js/view/layout/navigation/top/top-navigation-bar.js"></script>
+    <script type="text/javascript" src="/js/view/layout/navigation/top/breadcrumb.js"></script>
+
+    <script type="text/javascript" src="/js/view/layout/canvas/canvas.js"></script>
+
+    <script type="text/javascript" src="/js/view/panel/crud/add-related-item-panel.js"></script>
+
+    <script type="text/javascript" src="/js/view/panel/model/deletemodelpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/model/editmodelpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/model/editmodeldefaultspanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/model/importmodelpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/model/exportmodelpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/model/addattributecontroller.js"></script>
+
+    <script type="text/javascript" src="/js/view/panel/state/crud-state-panel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/state/selectstatepanel.js"></script>
+
+    <script type="text/javascript" src="/js/view/panel/filter/createfilterpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/filter/managefilterpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/filter/selectfilterpanel.js"></script>
+
+    <script type="text/javascript" src="/js/view/panel/bookmark/manage-bookmark-panel.js"></script>
+
+    <script type="text/javascript" src="/js/view/panel/navigationpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/configpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/cachepanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/createcsvpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/tutorialpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/editsortpanel.js"></script>
+    <script type="text/javascript" src="/js/view/panel/editviewpanel.js"></script>
+
+    <script type="text/javascript" src="/js/view/modelselect.js"></script>
+    <script type="text/javascript" src="/js/view/stateselect.js"></script>
+
+    <script type="text/javascript" src="/js/view/view.js"></script>
+
+    <!--https://trentrichardson.com/examples/timepicker/-->
+    <link type="text/css" rel="stylesheet" href="/ext/jquery-ui-timepicker-addon.css" />
+    <link type="text/css" rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" />
+    <link type="text/css" rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" />
+
+    <link type="text/css" rel="stylesheet" href="/css/layout.css" />
+    <link type="text/css" rel="stylesheet" href="/css/iconbar.css" />
+    <link type="text/css" rel="stylesheet" href="/css/searchcontainer.css" />
+    <link type="text/css" rel="stylesheet" href="/css/tree.css" />
+    <link type="text/css" rel="stylesheet" href="/css/collapsible.css" />
+    <link type="text/css" rel="stylesheet" href="/css/fileselect.css" />
+    <link type="text/css" rel="stylesheet" href="/css/thumbnail.css" />
+    <link type="text/css" rel="stylesheet" href="/css/modal.css" />
+    <link type="text/css" rel="stylesheet" href="/css/canvas.css" />
+    <link type="text/css" rel="stylesheet" href="/css/panel.css" />
+    <link type="text/css" rel="stylesheet" href="/css/crudform.css" />
+    <link type="text/css" rel="stylesheet" href="/css/menu.css" />
+    <link type="text/css" rel="stylesheet" href="/css/contextmenu.css" />
+    <link type="text/css" rel="stylesheet" href="/css/select.css" />
+    <link type="text/css" rel="stylesheet" href="/css/overlay.css" />
+    <link type="text/css" rel="stylesheet" href="/css/note.css" />
+    <link type="text/css" rel="stylesheet" href="/css/wiki.css" />
+    <link type="text/css" rel="stylesheet" href="/css/tab.css" />
+</head>
+
+<body>
+    <div id="sidenav"></div>
+
+    <div id="mainframe">
+        <div id="topnav"></div>
+        <main></main>
+    </div>
+
+    <div id="overlay"></div>
+</body>
+
+</html>

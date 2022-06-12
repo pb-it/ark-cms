@@ -1,0 +1,22 @@
+form.crudform {
+  margin-bottom: 0;
+}
+
+form.crudform > label,
+div.details > div.name {
+  display: inline-block;
+  text-align: right;
+  width: 140px;
+  margin-right: 3;
+}
+
+form.crudform > fieldset,
+form.crudform > input,
+form.crudform > textarea,
+form.crudform > div.select,
+form.crudform > div.value,
+div.details > div.value {
+  display: inline-block;
+  vertical-align: top;
+  max-width: calc(100% - 140px);
+}

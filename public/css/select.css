@@ -1,0 +1,15 @@
+div.select > ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+div.details > div.value > ul.select {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+div.details > div.value > ul.select li {
+    display:inline-block;
+}

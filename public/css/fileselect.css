@@ -1,0 +1,12 @@
+div.file-select > div.box {
+  border: 2px dashed #7f7f7f;
+  text-align: center;
+  vertical-align: middle;
+  padding: 10px 10px 10px 10px;
+  line-height: 10px;
+}
+
+div.file-select > div.box > img {
+  max-width: 100%;
+  max-height: 100%;
+}

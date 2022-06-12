@@ -1,0 +1,25 @@
+#canvas {
+    float: right;
+    width: 100%;
+}
+
+#canvas > ul, div.panel.collection ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#canvas > div#corner {
+    position: fixed;
+    float: left;
+    bottom: 0;
+    right: 0;
+}
+
+#canvas > div#corner > button#top {
+    float: right;
+}
+
+#canvas > div#corner > div#counter {
+    background-color: lightgray;
+}

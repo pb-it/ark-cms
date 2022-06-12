@@ -1,0 +1,27 @@
+div.treegroup {
+  display: none;
+  position: relative;
+  width: max-content;
+  z-index: 3;
+}
+
+div.treegroup.show {
+  display: block;
+}
+
+div.treenode {
+  display: block;
+  position: relative;
+
+  background-color: #3498db;
+  color: white;
+  padding: 12px 16px;
+  margin: 1px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+div.treenode.root {
+  display: inline-block;
+}

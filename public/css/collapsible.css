@@ -1,0 +1,42 @@
+button.collapsible {
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    /*color: #444;*/
+    background-color: #eee;
+    cursor: pointer;
+    padding: 15px;
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid;
+    text-align: left;
+    /*outline: none;*/
+}
+
+button.collapsible:after {
+    content: '\02795';
+    /* Unicode character for "plus" sign (+) */
+    font-size: 13px;
+    color: rgba(0, 0, 0, 0);
+    text-shadow: 0 0 black;
+    float: right;
+    margin-left: 5px;
+}
+
+button.collapsible:hover {
+    background-color: #ccc;
+}
+
+button.collapsible.active:after {
+    content: "\2796";
+    /* Unicode character for "minus" sign (-) */
+}
+
+div.collapsible-content {
+    /*margin-top: 18px;*/
+    padding: 0 18px;
+    overflow: hidden;
+    background-color: #f1f1f1;
+    max-height: 0;
+    transition: max-height 0.2s ease-out;
+}

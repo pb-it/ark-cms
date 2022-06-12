@@ -1,0 +1,28 @@
+div.menu.iconbar {
+  display: block;
+  float: left;
+  width: 54px;
+  height: 100%;
+  background-color: #282a35;
+}
+
+div.menuitem.iconbar {
+  padding: 14px 16px;
+
+  text-align: center;
+  text-decoration: none;
+  box-shadow: none;
+
+  background-color: #282a35;
+  color: white;
+}
+
+div.menuitem.iconbar.active {
+  background-color: #2196f3;
+  color: white;
+}
+
+div.menuitem.iconbar:hover:not(.active) {
+  background-color: #ddd;
+  color: black;
+}

@@ -1,0 +1,11 @@
+div.thumbnail {
+  position: relative;
+  float: left;
+  margin: 1;
+  padding: 1;
+  text-align: center;
+}
+
+div.thumbnail img {
+  max-width: 100%;
+}
