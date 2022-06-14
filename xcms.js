@@ -9,14 +9,14 @@ const webclient = require('./src/common/webclient.js');
 
 const app = express();
 //app.use(express.static(application_root));
-app.use(express.static('public'));
+app.use('/public', express.static(path.join(__dirname, 'public'), {fallthrough: false}));
 app.use(bodyParser.json({ limit: '50mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
 app.get('*', function (req, res, next) {
     /*switch (req.path) {
     }*/
-    res.sendFile(path.join(__dirname + '/public/index.html'));
+    res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 app.post('/curl', async (req, res, next) => {
