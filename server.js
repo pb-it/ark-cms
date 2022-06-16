@@ -1,10 +1,9 @@
-const serverConfig = require('./config/server');
-
-const bodyParser = require('body-parser');
 const path = require('path');
 
 const express = require('express');
+const bodyParser = require('body-parser');
 
+const serverConfig = require('./config/server');
 const webclient = require('./src/common/webclient.js');
 
 function restart() {
@@ -21,19 +20,26 @@ function restart() {
 }
 
 const app = express();
-app.use('/public', express.static(path.join(__dirname, 'public'), {fallthrough: false}));
 app.use(bodyParser.json({ limit: '50mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
+app.get('/robots.txt', function (req, res) {
+    res.type('text/plain');
+    res.send("User-agent: *\nDisallow: /");
+});
+
+app.use('/public', express.static(path.join(__dirname, 'public'), { fallthrough: false }));
+
 var systemRouter = express.Router();
 systemRouter.get('/update', function (req, res) {
-    require("child_process").exec('git pull', function (err, stdout, stderr) {
-        if (err) {
+    var appRoot = path.resolve(__dirname);
+    require("child_process").exec('cd ' + appRoot + ' && git pull && npm update', function (err, stdout, stderr) {
+        if (err)
             console.error(`exec error: ${err}`);
-            return;
+        else {
+            console.log(stdout);
+            restart();
         }
-        console.log(stdout);
-        restart();
     }.bind(this));
     res.send("updating..");
 });

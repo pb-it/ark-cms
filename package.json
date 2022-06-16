@@ -1,12 +1,12 @@
 {
-    "name": "xcms",
-    "version": "1.0.0",
-    "description": "",
-    "main": "xcms.js",
+    "name": "wing-cms",
+    "version": "0.1.0-beta",
+    "description": "Client-side rendered CMS",
+    "main": "server.js",
     "scripts": {
-        "start": "node xcms.js"
+        "start": "node server.js"
     },
-    "author": "",
+    "author": "Patrick Bauer",
     "license": "MIT",
     "dependencies": {
         "body-parser": "^1.19.0",

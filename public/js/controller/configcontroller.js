@@ -91,7 +91,7 @@ class ConfigController {
 
     setDefaultDebugConfig() {
         var conf;
-        if (window.location.hostname === "localhost" || window.location.hostname === "xcms.projectrepository.de") {
+        if (window.location.hostname === "localhost") {
             conf = {
                 'bDebug': true,
                 'ajax': { 'skip': false, 'delay': 0 }

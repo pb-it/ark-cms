@@ -2,7 +2,7 @@ class Application {
 
     controller;
 
-    _name = 'XCMS';
+    _name = 'WING-CMS';
     _appVersion = '0.1.0-beta';
 
     constructor() {
