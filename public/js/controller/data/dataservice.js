@@ -145,7 +145,7 @@ class DataService {
         }
 
         if (!res) {
-            res = await WebClient.fetch(app.controller.getConfigController().getApi() + "/" + typeUrl);
+            res = await WebClient.fetchJson(app.controller.getConfigController().getApi() + "/" + typeUrl);
 
             var cache = this._cache.getModelCache(typeString);
             if (!id && !where && (!limit || limit == -1)) {
