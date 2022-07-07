@@ -4,23 +4,23 @@ class FileCreator {
         var filename = file.name;
         /*if (file.name === "undefined" && file.type)
             filename = FileCreator.createFilenameByDateTime() + '.' + file.type.split('/')[1];*/
-        FileCreator.createFileFromObject(file, filename);
+        FileCreator.createFileFromObject(filename, file);
     }
 
-    static createFileFromObject(obj, filename) {
+    static createFileFromObject(filename, obj) {
         const oUrl = URL.createObjectURL(obj);
-        FileCreator.createFileFromUrl(oUrl, filename);
+        FileCreator.createFileFromUrl(filename, oUrl);
         URL.revokeObjectURL(oUrl);
     }
 
-    static createFileFromText(text, filename) {
+    static createFileFromText(filename, text) {
         //const url = Base64.encodeText(text);
         const url = 'data:text/plain;charset=utf-8,' + encodeURIComponent(text);
 
-        FileCreator.createFileFromUrl(url, filename);
+        FileCreator.createFileFromUrl(filename, url);
 
         /*const blob = new Blob([text], { type: "text/plain" });
-        FileCreator.createFileFromObject(blob, filename);*/
+        FileCreator.createFileFromObject(filename, blob);*/
     }
 
     /**
@@ -30,7 +30,7 @@ class FileCreator {
      * @param {*} url 
      * @param {*} filename 
      */
-    static createFileFromUrl(url, filename) {
+    static createFileFromUrl(filename, url) {
         const a = document.createElement('a');
         a.href = url;
         a.download = filename;
