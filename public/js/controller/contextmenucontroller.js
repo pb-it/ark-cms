@@ -62,10 +62,18 @@ class ContextMenuController {
         if (model.isCollection()) {
             var data = obj.getData();
             if (data.subtype && data.subtype == "playlist") {
-                var cratePlaylistEntry = new ContextMenuEntry("Playlist File", async function () {
-                    File.createPlaylist(this._obj.getAllItems());
+                var createPlaylistEntry = new ContextMenuEntry("Playlist File", async function () {
+                    var objects = this._obj.getAllItems();
+                    if (objects) {
+                        var text = "#EXTM3U\n";
+                        for (var i = 0; i < objects.length; i++) {
+                            text += "#EXTINF:-1," + objects[i].getAttributeValue("title") + "\n";
+                            text += objects[i].getAttributeValue("file") + "\n";
+                        }
+                        FileCreator.createFileFromText("playlist.m3u", text);
+                    }
                 }.bind(panel));
-                createGroup.push(cratePlaylistEntry);
+                createGroup.push(createPlaylistEntry);
             }
 
             var createCsvEntry = new ContextMenuEntry("CSV", async function () {

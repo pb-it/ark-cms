@@ -118,9 +118,10 @@ class MediaPanel extends CrudPanel {
                 }
             }
             if (prop) {
-                if (bConvert)
-                    data[prop] = await File.readUrlBase64(file);
-                else
+                if (bConvert) {
+                    var blob = await WebClient.fetchBlob(file);
+                    data[prop] = await Base64.encodeObject(blob);
+                } else
                     data[prop] = file;
             } else
                 throw new Error("no matching thumbnail attribute defined");

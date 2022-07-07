@@ -61,7 +61,7 @@ class BookmarkController {
 
         var api = app.controller.getConfigController().getApi();
         this._url = api.substring(0, api.length - 3) + "bookmarks";
-        this._bookmarks = await Ajax.fetch(this._url);
+        this._bookmarks = await WebClient.fetch(this._url);
 
         return Promise.resolve();
     }
@@ -72,7 +72,7 @@ class BookmarkController {
 
     async setBookmarks(bookmarks) {
         this._bookmarks = bookmarks;
-        return Ajax.request("PUT", this._url, this._bookmarks);
+        return WebClient.request("PUT", this._url, this._bookmarks);
     }
 
     async addBookmark(state) {

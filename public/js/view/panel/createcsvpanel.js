@@ -88,7 +88,7 @@ class CreateCsvPanel extends Panel {
 
                         text += "\n" + line;
                     }
-                    File.create("data.csv", text);
+                    FileCreator.createFileFromText("data.csv", text);
                     this.dispose();
                 } else
                     alert("Select at least one attribute");

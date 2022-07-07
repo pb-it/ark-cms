@@ -46,7 +46,7 @@ class DeleteModelPanel extends Panel {
                 var id = this._model.getData()['id'];
                 var url = api.substring(0, api.length - 3) + "models/" + id;
                 try {
-                    await Ajax.request("DELETE", url);
+                    await WebClient.request("DELETE", url);
                     this.dispose();
 
                     app.controller.reload();

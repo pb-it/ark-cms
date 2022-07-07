@@ -14,7 +14,7 @@ class ModelController {
         this._models = [];
         var api = this._configController.getApi();
         var url = api.substring(0, api.length - 3) + "models";
-        var apiModels = await Ajax.fetch(url);
+        var apiModels = await WebClient.fetch(url);
         for (var data of apiModels) {
             this._models.push(new XModel(data));
         }

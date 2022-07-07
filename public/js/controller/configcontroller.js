@@ -80,7 +80,7 @@ class ConfigController {
         if (bookmarks)
             config[BookmarkController.CONFIG_BOKKMARK_IDENT] = bookmarks;
 
-        File.create(`models_${File.getDateTime()}.json`, JSON.stringify(config, null, '\t'));
+        FileCreator.createFileFromText(`models_${FileCreator.createFilenameByDateTime()}.json`, JSON.stringify(config, null, '\t'));
 
         return Promise.resolve();
     }

@@ -145,7 +145,7 @@ class DataService {
         }
 
         if (!res) {
-            res = await Ajax.fetch(app.controller.getConfigController().getApi() + "/" + typeUrl);
+            res = await WebClient.fetch(app.controller.getConfigController().getApi() + "/" + typeUrl);
 
             var cache = this._cache.getModelCache(typeString);
             if (!id && !where && (!limit || limit == -1)) {
@@ -236,7 +236,7 @@ class DataService {
         var url = app.controller.getConfigController().getApi() + "/" + typeUrl;
 
         if (method && url) {
-            var resp = await Ajax.request(method, url, data);
+            var resp = await WebClient.request(method, url, data);
             if (resp) {
                 var cache = this._cache.getModelCache(typeString);
                 if (action == ActionEnum.delete) {

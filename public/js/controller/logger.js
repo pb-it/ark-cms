@@ -7,7 +7,7 @@ class Logger {
     }
 
     log(msg) {
-        this._entries.push(new Date().toUTCString() + " [Ajax] " + msg);
+        this._entries.push(new Date().toUTCString() + " [WebClient] " + msg);
     }
 
     getAllEntries() {

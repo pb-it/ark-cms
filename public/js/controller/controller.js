@@ -290,7 +290,7 @@ class Controller {
         this.setLoadingState(true);
         var api = this._configController.getApi();
         var url = api.substring(0, api.length - 3) + "system/restart";
-        await Ajax.request("GET", url);
+        await WebClient.request("GET", url);
         //TODO: sleep?
         this.setLoadingState(false);
         return Promise.resolve();
@@ -300,7 +300,7 @@ class Controller {
         this.setLoadingState(true);
         var api = this._configController.getApi();
         var url = api.substring(0, api.length - 3) + "system/reload";
-        await Ajax.request("GET", url);
+        await WebClient.request("GET", url);
         this.setLoadingState(false);
         return Promise.resolve();
     }

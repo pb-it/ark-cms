@@ -36,7 +36,7 @@ class FileFormEntry extends FormEntry {
                 //const fileToBlob = async (file) => new Blob([new Uint8Array(await file.arrayBuffer())], { type: file.type });
                 //data[name] = await fileToBlob(value);
             } else if (this._attribute['dataType'] === "base64") {
-                data = await File.readFileBase64(file);
+                data = await Base64.encodeObject(file);
             }
         } else
             data = this._value;

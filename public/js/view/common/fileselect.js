@@ -42,7 +42,7 @@ class FileSelect {
                     var source;
                     for (var i = 0, f; f = files[i]; i++) {
                         if (f.type.match('image.*')) {
-                            source = await File.readFileBase64(f); // 'data:image/png;base64,...'
+                            source = await Base64.encodeObject(f); // 'data:image/png;base64,...'
                             this._$box.append("<img src='" + source + "' alt=''>");
                         }
                     }
@@ -58,7 +58,7 @@ class FileSelect {
     async getSelectedFile() {
         var file;
         if (this._$select[0].files[0]) {
-            file = await File.readFileBase64(this._$select[0].files[0]);
+            file = await Base64.encodeObject(this._$select[0].files[0]);
         } else {
             file = this._readImageFromBox();
         }
