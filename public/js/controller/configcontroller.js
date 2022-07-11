@@ -29,13 +29,16 @@ class ConfigController {
         return Promise.resolve();
     }
 
-    async import(models, profiles, bookmarks) {
+    async import(models, routes, profiles, bookmarks) {
         var bError = false;
         app.controller.setLoadingState(true);
         try {
             for (var model of models) {
                 await model.uploadData();
             }
+
+            if (routes)
+                await app.controller.getRouteController().setRoutes(routes);
 
             if (profiles)
                 await app.controller.getProfileController().setProfiles(profiles);
@@ -71,6 +74,10 @@ class ConfigController {
             return model.getData();
         });
         config[ModelController.MODELS_IDENT].sort((a, b) => a.name.localeCompare(b.name));
+
+        var routes = app.controller.getRouteController().getRoutes();
+        if (routes)
+            config[RouteController.CONFIG_ROUTES_IDENT] = routes;
 
         var profiles = app.controller.getProfileController().getProfileConfig();
         if (profiles)

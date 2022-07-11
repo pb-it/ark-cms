@@ -1,15 +1,17 @@
 class ImportModelPanel extends Panel {
 
     _models;
+    _routes;
     _profiles;
     _bookmarks;
 
     _form;
     _listVis;
 
-    constructor(models, profiles, bookmarks) {
+    constructor(models, routes, profiles, bookmarks) {
         super();
 
+        this._routes = routes;
         this._profiles = profiles;
         this._bookmarks = bookmarks;
 
@@ -25,6 +27,14 @@ class ImportModelPanel extends Panel {
 
         if (this._profiles) {
             var skeleton = [
+                {
+                    name: "importRoutes",
+                    label: "Import Routes",
+                    dataType: "boolean",
+                    required: true,
+                    defaultValue: true,
+                    view: "labelRight"
+                },
                 {
                     name: "importProfiles",
                     label: "Import Profiles",
@@ -157,6 +167,12 @@ class ImportModelPanel extends Panel {
         try {
             app.controller.setLoadingState(true);
 
+            var routes;
+            if (this._routes && this._form) {
+                var fData = await this._form.readForm();
+                if (fData['importRoutes'])
+                    routes = this._routes;
+            }
             var profiles;
             if (this._profiles && this._form) {
                 var fData = await this._form.readForm();
@@ -169,7 +185,7 @@ class ImportModelPanel extends Panel {
                 if (fData['importBookmarks'])
                     bookmarks = this._bookmarks;
             }
-            await app.controller.getConfigController().import(models, profiles, bookmarks);
+            await app.controller.getConfigController().import(models, routes, profiles, bookmarks);
 
             this.dispose();
         } catch (error) {

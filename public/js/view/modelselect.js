@@ -104,11 +104,13 @@ class ModelSelect {
                                     const reader = new FileReader();
                                     reader.onload = async function fileReadCompleted() {
                                         var models = [];
+                                        var routes;
                                         var profiles;
                                         var bookmarks;
                                         if (reader.result) {
                                             try {
                                                 var conf = JSON.parse(reader.result);
+                                                routes = conf[RouteController.CONFIG_ROUTES_IDENT];
                                                 profiles = conf[ProfileController.CONFIG_PROFILE_IDENT];
                                                 bookmarks = conf[BookmarkController.CONFIG_BOOKMARK_IDENT];
                                                 var mDataArr = conf[ModelController.MODELS_IDENT];
@@ -122,7 +124,7 @@ class ModelSelect {
                                             }
                                         }
                                         if (models.length > 0 || profiles)
-                                            app.controller.getModalController().openPanelInModal(new ImportModelPanel(models, profiles, bookmarks));
+                                            app.controller.getModalController().openPanelInModal(new ImportModelPanel(models, routes, profiles, bookmarks));
                                         else
                                             alert("File does not contain any applicable data");
                                     };

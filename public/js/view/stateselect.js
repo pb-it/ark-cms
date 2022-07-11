@@ -144,30 +144,30 @@ class StateSelect {
     _renderModelSelect(model) {
         var group = new SubMenuGroup();
 
-        var m;
+        var modelNames;
         var pc = app.controller.getProfileController();
         if (pc.getProfiles())
-            m = pc.getMenu(this._profile);
+            modelNames = pc.getMenu(this._profile);
         else {
             var models = app.controller.getModelController().getModels();
-            m = models.map(function (model) {
+            modelNames = models.map(function (model) {
                 return model.getData()['name'];
             });
         }
-        if (m) {
+        if (modelNames) {
             var conf;
             var menuItem;
             var dummyGroup = new SubMenuGroup();
             var mc = app.controller.getModelController();
-            for (let mo of m) {
-                if (!mo) {
+            for (let modelName of modelNames) {
+                if (!modelName) {
                     conf = {
                         'name': '-'
                     };
                     menuItem = new MenuItem(conf);
-                } else if (mc.isModelDefined(mo) == true) {
+                } else if (mc.isModelDefined(modelName)) {
                     conf = {
-                        'name': mo,
+                        'name': modelName,
                         'click': async function (event, item) {
                             if (item.isActive()) {
                                 group.activateItem();
@@ -180,21 +180,19 @@ class StateSelect {
                     };
                     menuItem = new MenuItem(conf);
                     menuItem.addSubMenuGroup(dummyGroup);
-                    if (model && model === mo)
+                    if (model && model === modelName)
                         menuItem.setActive();
                 } else {
                     conf = {
-                        'name': mo,
+                        'name': modelName,
                         'click': function (event, item) {
                             var state = new State();
-                            state.typeString = mo;
+                            state.typeString = modelName;
                             app.controller.loadState(state, true);
                         }.bind(this)
                     };
-
-
                     menuItem = new MenuItem(conf);
-                    if (model && model === mo)
+                    if (model && model === modelName)
                         menuItem.setActive();
                 }
                 group.addMenuItem(menuItem);

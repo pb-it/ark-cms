@@ -17,6 +17,7 @@ class Controller {
 
     _modelController;
     _profileController;
+    _routeController;
     _bookmarkController;
 
     _panelController;
@@ -47,6 +48,10 @@ class Controller {
 
     getModelController() {
         return this._modelController;
+    }
+
+    getRouteController() {
+        return this._routeController;
     }
 
     getProfileController() {
@@ -90,6 +95,9 @@ class Controller {
 
             this._dataservice = new DataService();
 
+            this._routeController = new RouteController();
+            await this._routeController.init();
+
             this._profileController = new ProfileController();
             await this._profileController.init();
 
@@ -128,7 +136,13 @@ class Controller {
                             this._data = await this._dataservice.fetchDataByState(state);
                     } else {
                         bSpecial = true;
-                        throw new Error("Unknown model '" + typeString + "'");
+                        var rc = app.controller.getRouteController();
+                        var route = rc.getRoute(typeString);
+                        if (route) {
+                            const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+                            new AsyncFunction(route['code'])();
+                        } else
+                            throw new Error("Unknown model '" + typeString + "'");
                     }
                 }
             }
