@@ -15,8 +15,11 @@ class ModelController {
         var api = this._configController.getApi();
         var url = api.substring(0, api.length - 3) + "models";
         var apiModels = await WebClient.fetchJson(url);
+        var model;
         for (var data of apiModels) {
-            this._models.push(new XModel(data));
+            model = new XModel(data);
+            model.init();
+            this._models.push(model);
         }
         return Promise.resolve();
     }

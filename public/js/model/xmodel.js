@@ -6,6 +6,11 @@ class XModel {
         this._data = data;
     }
 
+    init() {
+        if (this._data.actions && this._data.actions.init)
+            eval(this._data.actions.init);
+    }
+
     getData() {
         return this._data;
     }

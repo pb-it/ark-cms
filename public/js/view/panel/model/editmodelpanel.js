@@ -103,6 +103,7 @@ class EditModelPanel extends TabPanel {
             var $d = $('<div/>');
 
             var skeleton = [
+                { name: 'init', tooltip: 'Code is evaluated once during application load.', dataType: 'text' },
                 { name: 'prepare', dataType: 'text' },
                 { name: 'check', dataType: 'text' },
                 { name: 'contextMenuExtensions', label: 'contextMenuExt.', dataType: 'text' }
