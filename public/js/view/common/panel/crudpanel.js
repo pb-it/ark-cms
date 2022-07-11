@@ -167,12 +167,10 @@ class CrudPanel extends CanvasPanel {
             var dataBackup = this._obj.getData();
             var data = await this._readData(false);
 
-            var mdata = this._obj.getModel().getData();
-            if (mdata.actions && mdata.actions.check) {
-                const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-                var check = new AsyncFunction('data', mdata.actions.check);
+            var check = this._obj.getModel().getCheckAction();
+            if (check)
                 data = await check(data);
-            } else
+            else
                 app.controller.showErrorMessage("No check action defined");//nevertheless rerender for thumbnail
 
             this._obj.setData(data);

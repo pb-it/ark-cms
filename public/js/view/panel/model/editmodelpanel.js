@@ -104,7 +104,8 @@ class EditModelPanel extends TabPanel {
 
             var skeleton = [
                 { name: 'prepare', dataType: 'text' },
-                { name: 'check', dataType: 'text' }
+                { name: 'check', dataType: 'text' },
+                { name: 'contextMenuExtensions', label: 'contextMenuExt.', dataType: 'text' }
             ];
             this._actionForm = new Form(skeleton, this._definition['actions']);
             var $form = await this._actionForm.renderForm();
@@ -138,7 +139,7 @@ class EditModelPanel extends TabPanel {
             var $d = $('<div/>');
 
             var skeleton = [{ name: 'json', dataType: 'text', size: '20' }];
-            this._rawForm = new Form(skeleton, { 'json': JSON.stringify(await this.readDefinition(), null, '\t') });
+            this._rawForm = new Form(skeleton, { 'json': JSON.stringify(await this._readDefinition(), null, '\t') });
             var $form = await this._rawForm.renderForm();
             $d.append($form);
 
@@ -148,7 +149,7 @@ class EditModelPanel extends TabPanel {
         return Promise.resolve(panel);
     }
 
-    async readDefinition() {
+    async _readDefinition() {
         var definition = this._definition;
         var defaults = await this._$defaultsPanel.getData();
         if (defaults)
@@ -175,7 +176,7 @@ class EditModelPanel extends TabPanel {
             var fData = await this._rawForm.readForm();
             data = JSON.parse(fData.json);
         } else {
-            data = await this.readDefinition();
+            data = await this._readDefinition();
         }
 
         var bTitle = false;

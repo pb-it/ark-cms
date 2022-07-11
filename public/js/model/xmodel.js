@@ -55,4 +55,20 @@ class XModel {
         else
             return false;
     }
+
+    getCheckAction() {
+        var action;
+        if (this._data.actions && this._data.actions.check) {
+            const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+            action = new AsyncFunction('data', this._data.actions.check);
+        }
+        return action;
+    }
+
+    getContextMenuExtensions() {
+        var action;
+        if (this._data.actions && this._data.actions.contextMenuExtensions)
+            action = new Function('panel', this._data.actions.contextMenuExtensions);
+        return action;
+    }
 }

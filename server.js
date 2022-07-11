@@ -63,10 +63,18 @@ app.get('*', function (req, res, next) {
 });
 
 app.use(function (err, req, res, next) {
-    if (err.statusCode && err.statusMessage)
-        console.error(err.statusCode + ": " + err.statusMessage);
+    var msg;
+    if (err.errno && err.errno == -4058) {
+        if (err.code && err.path)
+            msg = err.code + ": " + err.path;
+    } else if (err.statusCode && err.statusMessage)
+        msg = err.statusCode + ": " + err.statusMessage;
+
+    if (msg)
+        console.error(msg);
     else
         console.error(err);
+
     res.status(500); //res.sendStatus(404);
     if (err) {
         res.send(err);
