@@ -49,7 +49,7 @@ class Thumbnail {
         if (bLazy) {
             $video.addClass('lazy')
                 .attr({
-                    'data-poster': window.location.origin + "/public/images/thumbnail.jpg",
+                    'data-poster': window.location.origin + "/public/images/missing_image.png",
                     'data-preload': 'auto', //auto|metadata|none
                 });
         }
@@ -151,12 +151,12 @@ class Thumbnail {
         if ($thumbnail)
             this._$thumbnail.append($thumbnail);
         else
-            this._$thumbnail.append(Thumbnail.renderThumbnailImage(window.location.origin + "/public/images/broken-image.webp", this._config, this._bLazy));
+            this._$thumbnail.append(Thumbnail.renderThumbnailImage(window.location.origin + "/public/images/missing_image.png", this._config, this._bLazy));
 
         if (mediaType && mediaType === 'video') {
             var $hint = $(document.createElement('img'))
                 .attr({
-                    "src": window.location.origin + "/public/images/movie-clapperboard-512x512.png",
+                    "src": window.location.origin + "/public/images/video_file.png",
                 })
                 .css({
                     "width": 30,
