@@ -1,10 +1,25 @@
 # wing-cms
 
+[![Node.js version](https://img.shields.io/badge/Node.js->=12-brightgreen.svg)](https://nodejs.org)
+[![License](https://img.shields.io/github/license/pb-it/wing-cms?label=license&style=yellow)](https://github.com/pb-it/wing-cms/blob/main/LICENSE)
+
 
 ## Description
 Client-side rendered CMS application(JAM-stack) for usage with an API provided by a headless CMS backend
 
-## Usage
+
+## Usage / Getting Started
+
+
+#### Requirements
+
+**Supported operating systems:**
+
+- Ubuntu LTS / Debian 9.x
+- Windows 10/11
+- Docker
+
+> ℹ️ **_NOTE:_** Other operating systems may also work, but these are not tested nor officially supported at this time.
 
 
 #### Installation
@@ -13,13 +28,46 @@ npm install
 ```
 
 
+### Configuration
+
+Server configuration is defined in ./config/server.js.
+
+By default the application uses port 4000.
+
+
 #### Run
 ```bash
 npm run start
 ```
 
 
+Browse 'http://localhost:4000'
+
+
+### Docker
+
+
+#### Build
+```bash
+docker build . -t <image name>
+```
+
+#### Run
+```bash
+docker run -p 4000:4000 -d <image name>
+```
+
+or
+
+```bash
+# with interactive bash
+docker run -p 4000:4000 -it <image name> /bin/bash
+```
+
 ## Changelog
+
+
+## Roadmap
 
 
 ## Frequently Asked Questions
@@ -38,9 +86,27 @@ Loading icon is from [Ahm masum, CC BY-SA 4.0 <https://creativecommons.org/licen
 
 'video_file.png' is from [Icons8, Free for commercial use](https://icon-icons.com/icon/video-file/54125)
 
-## Disclaimer
-⚠️This application is currently developed under the purpose of usage in private domains/networks. When you are going to use it in an public domain please consider local law / restrictions / constraints. For example this may include the duty of adding an imprint / legal notice / legal disclosure, etc. to the website.⚠️
+## Caveats
+
+⚠️**WARNING**⚠️
+
+This application is currently developed under the purpose of usage in private domains/networks. When you are going to use it in an public domain please consider local law / restrictions / constraints. For example this may include the duty of adding an imprint / legal notice / legal disclosure, etc. to the website.
+
+
+## Disclaimer of Warranty & Limitation of Liability
+
+See [MIT License](./LICENSE) for details.
+
+---
+
+**REMINDER**
+
+* Use this software at your own risk
+* Backup your data
+* Verify and dry test your data before doing a production run
+
+---
 
 ## License
 
-[MIT](https://github.com/pb-it/wing-cms/blob/main/LICENSE)
+[MIT License](./LICENSE)
