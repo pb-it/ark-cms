@@ -27,8 +27,7 @@ class XModel {
     }
 
     async uploadData() {
-        var api = app.controller.getConfigController().getApi();
-        var url = api.substring(0, api.length - 3) + "models";
+        var url = app.controller.getConfigController().getApiOrigin() + "/models";
         return WebClient.request("PUT", url, this._data);
     }
 

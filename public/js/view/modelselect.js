@@ -133,7 +133,7 @@ class ModelSelect {
                             });
                         $input.click();
                     } catch (error) {
-                        app.controller.showError("Reading of file failed");
+                        app.controller.showError(error, "Reading of file failed");
                     }
                 }.bind(this)
             };

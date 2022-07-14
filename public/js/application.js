@@ -3,7 +3,6 @@ class Application {
     controller;
 
     _name = 'WING-CMS';
-    _appVersion = '0.1.0-beta';
 
     constructor() {
         this.controller = new Controller(new Model(), new View());
@@ -13,15 +12,9 @@ class Application {
         return this._name;
     }
 
-    getAppVersion() {
-        return this._appVersion;
-    }
-
     async run() {
         try {
             if (await this.controller.initController()) {
-                VersionController.checkVersion();
-
                 var state;
                 try {
                     state = State.getStateFromUrl();

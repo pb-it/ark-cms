@@ -56,7 +56,7 @@ class WikiPanel extends CrudPanel {
         this._$page.empty();
         if (edit) {
             this._$page.addClass("cellEditing");
-            //this.$note.html("<p name='note' contenteditable>" + NotePanel._convertToHtml(originalContent) + "</p>");
+            //this.$note.html("<p name='note' contenteditable>" + encodeText(originalContent) + "</p>");
             var $text = $("<textarea>")
                 .css({
                     "width": "100%",

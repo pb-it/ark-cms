@@ -105,7 +105,7 @@ class CrudObject {
 
     static _buildUrl(cdn, val) {
         if (cdn.startsWith('.')) {
-            var api = app.controller.getConfigController().getApi();
+            var api = app.controller.getConfigController().getApiOrigin();
             const url = new URL(api);
             cdn = url.protocol + "//" + url.hostname + "/" + cdn.substr(2);
         }

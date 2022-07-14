@@ -6,6 +6,7 @@ class Controller {
     _logger;
 
     _configController;
+    _versionController;
     _stateController;
 
     _bLoading = false;
@@ -40,6 +41,10 @@ class Controller {
 
     getConfigController() {
         return this._configController;
+    }
+
+    getVersionController() {
+        return this._versionController;
     }
 
     getStateController() {
@@ -80,6 +85,9 @@ class Controller {
 
         this._configController = new ConfigController();
         await this._configController.initConfigController();
+
+        this._versionController = new VersionController();
+        await this._versionController.initVersionController();
 
         this._logger = new Logger();
 
@@ -302,8 +310,7 @@ class Controller {
 
     async restartApi() {
         this.setLoadingState(true);
-        var api = this._configController.getApi();
-        var url = api.substring(0, api.length - 3) + "system/restart";
+        var url = app.controller.getConfigController().getApiOrigin() + "/system/restart";
         await WebClient.request("GET", url);
         //TODO: sleep?
         this.setLoadingState(false);
@@ -312,8 +319,7 @@ class Controller {
 
     async reloadModels() {
         this.setLoadingState(true);
-        var api = this._configController.getApi();
-        var url = api.substring(0, api.length - 3) + "system/reload";
+        var url = app.controller.getConfigController().getApiOrigin() + "/system/reload";
         await WebClient.request("GET", url);
         this.setLoadingState(false);
         return Promise.resolve();

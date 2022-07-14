@@ -59,8 +59,7 @@ class BookmarkController {
             }
         }*/
 
-        var api = app.controller.getConfigController().getApi();
-        this._url = api.substring(0, api.length - 3) + "bookmarks";
+        this._url = app.controller.getConfigController().getApiOrigin() + "/bookmarks";
         this._bookmarks = await WebClient.fetchJson(this._url);
 
         return Promise.resolve();

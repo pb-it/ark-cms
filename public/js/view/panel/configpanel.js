@@ -40,8 +40,8 @@ class ConfigPanel extends TabPanel {
                 { name: 'bDebug', label: 'Debug Mode', dataType: 'boolean', required: true, defaultValue: false }
             ];
             this._data = {
-                'api': cc.getApi(),
-                'version': VersionController.getVersion(),
+                'api': cc.getApiOrigin() + "/api",
+                'version': app.controller.getVersionController().getAppVersion(),
                 'bDebug': cc.getDebugConfig()['bDebug']
             };
             this._form = new Form(skeleton, this._data);
@@ -69,7 +69,7 @@ class ConfigPanel extends TabPanel {
                     var bReload = false;
                     var fdata = await this._form.readForm();
                     if (this._data['version'] !== fdata['version']) {
-                        VersionController.setVersion(fdata['version']);
+                        app.controller.getVersionController().setVerssetAppVersionion(fdata['version']);
                         bReload = true;
                     }
                     if (this._data['api'] !== fdata['api']) {

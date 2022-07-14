@@ -1,17 +1,5 @@
 class NotePanel extends CrudPanel {
 
-    /**
-     * encode HTML / prevent interpretation of tags: '<meta>' -> '&lt;meta;&gt;'
-     * @param {*} text 
-     * @returns 
-     */
-    static _convertToHtml(text) {
-        text = text.replace(/[\u00A0-\u9999<>\&]/g, function (i) {
-            return '&#' + i.charCodeAt(0) + ';';
-        });
-        return replaceLineBreak(replaceApostrophe(text));
-    }
-
     _$note;
 
     constructor(config, obj) {
@@ -56,14 +44,14 @@ class NotePanel extends CrudPanel {
         var note = this._obj.getData().note;
         if (edit) {
             this._$note.addClass("cellEditing");
-            //this.$note.html("<p name='note' contenteditable>" + NotePanel._convertToHtml(originalContent) + "</p>");
+            //this.$note.html("<p name='note' contenteditable>" + encodeText(originalContent) + "</p>");
             this._$note.html("<textarea name='note'>" + note + "</textarea>"); //cols='40' rows='5'
             this._$note.children().first().focus();
         } else {
             this._$note.removeClass("cellEditing");
             var html;
             if (note)
-                html = NotePanel._convertToHtml(note)
+                html = encodeText(note)
             else
                 html = "";
             this._$note.html(html);

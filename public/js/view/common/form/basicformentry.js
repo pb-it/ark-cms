@@ -146,11 +146,61 @@ class BasicFormEntry extends FormEntry {
                         .attr('id', this._id)
                         .val(value);
                     break;
+                case "enumeration":
+                    var options = this._attribute['options'];
+                    if (this._attribute['view'] === 'radio') {
+                        this._$input = $('<fieldset/>')
+                            .attr('name', name);
+
+                        this._$input.append($('<legend/>').text(this.getLabel()));
+
+                        var $input;
+                        var $label;
+                        var v;
+                        for (var o of options) {
+                            v = o['value'];
+                            $input = $('<input/>')
+                                .attr('type', 'radio')
+                                .attr('name', this._id)
+                                .attr('id', v)
+                                .val(v)
+                                .prop('disabled', o['disabled'])
+                                .prop('checked', (value === v));
+                            this._$input.append($input);
+
+                            $label = $('<label/>')
+                                .attr('for', v)
+                                .text(v);
+                            this._$input.append($label);
+                        }
+                    } else if (this._attribute['view'] === 'select') {
+                        this._$input = $('<select/>')
+                            .attr('name', name)
+                            .attr('id', name);
+
+                        var $option = $('<option/>', { value: '' }).text('undefined');
+                        if (this._attribute.required)
+                            $option.attr('hidden', true);
+                        else if (value === '')
+                            $option.prop('selected', true);
+                        this._$input.append($option);
+
+                        var v;
+                        for (var o of options) {
+                            v = o['value'];
+                            $option = $('<option/>', { value: v }).text(v);
+                            $option.prop('disabled', o['disabled'])
+                            if (value === v)
+                                $option.prop('selected', true);
+                            this._$input.append($option);
+                        }
+                    }
+                    break;
                 case "text":
                 case "json":
                     var rows;
                     var cols;
-                    if (this._attribute.size) {
+                    if (this._attribute['size']) {
                         var parts = this._attribute.size.split(',');
                         if (parts.length > 0) {
                             rows = parts[0];
@@ -176,7 +226,7 @@ class BasicFormEntry extends FormEntry {
                             e.preventDefault();
                             //TODO: ident selection
                             var input = this[0];
-                            if (input.selectionStart && input.selectionStart >= '0') {
+                            if (input.selectionStart != undefined && input.selectionStart >= '0') {
                                 var cursorPosition = input.selectionStart;
                                 var txt = this.val();
                                 this.val(txt.slice(0, cursorPosition) + '\t' + txt.slice(cursorPosition));
@@ -188,50 +238,6 @@ class BasicFormEntry extends FormEntry {
                             return false;
                         }
                     }.bind(this._$input));
-                    break;
-                case "enumeration":
-                    var options = this._attribute['options'];
-                    if (this._attribute.view === 'radio') {
-                        this._$input = $('<fieldset/>')
-                            .attr('name', name);
-
-                        this._$input.append($('<legend/>').text(this.getLabel()));
-
-                        var $input;
-                        var $label;
-                        for (var v of options) {
-                            $input = $('<input/>')
-                                .attr('type', 'radio')
-                                .attr('name', this._id)
-                                .attr('id', v)
-                                .val(v)
-                                .prop('checked', (value === v));
-                            this._$input.append($input);
-
-                            $label = $('<label/>')
-                                .attr('for', v)
-                                .text(v);
-                            this._$input.append($label);
-                        }
-                    } else if (this._attribute.view === 'select') {
-                        this._$input = $('<select/>')
-                            .attr('name', name)
-                            .attr('id', name);
-
-                        var $option = $('<option/>', { value: '' }).text('undefined');
-                        if (this._attribute.required)
-                            $option.attr('hidden', true);
-                        else if (value === '')
-                            $option.prop('selected', true);
-                        this._$input.append($option);
-
-                        for (var v of options) {
-                            $option = $('<option/>', { value: v }).text(v);
-                            if (value === v)
-                                $option.prop('selected', true);
-                            this._$input.append($option);
-                        }
-                    }
                     break;
                 default:
                     this._$input = $('<div/>')

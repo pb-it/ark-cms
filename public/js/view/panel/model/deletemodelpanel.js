@@ -42,9 +42,8 @@ class DeleteModelPanel extends Panel {
             .css({ 'float': 'right' })
             .click(async function (event) {
                 event.preventDefault();
-                var api = app.controller.getConfigController().getApi();
                 var id = this._model.getData()['id'];
-                var url = api.substring(0, api.length - 3) + "models/" + id;
+                var url = app.controller.getConfigController().getApiOrigin() + "/models/" + id;
                 try {
                     await WebClient.request("DELETE", url);
                     this.dispose();

@@ -68,7 +68,7 @@ class ConfigController {
             models = app.controller.getModelController().getModels();
 
         var config = {};
-        config[MODEL_VERSION_IDENT] = app.getAppVersion();
+        config[MODEL_VERSION_IDENT] = app.controller.getVersionController().getAppVersion();
 
         config[ModelController.MODELS_IDENT] = models.map(function (model) {
             return model.getData();
@@ -120,13 +120,17 @@ class ConfigController {
         }
     }
 
-    getApi() {
-        var api;
-        if (this._api && this._api.endsWith('/'))
-            api = this._api.substr(0, this._api.length - 1);
-        else
-            api = this._api;
-        return api;
+    getApiOrigin() {
+        var oUrl;
+        if (this._api) {
+            const url = new URL(this._api);
+            oUrl = url.origin;
+            /*if (this._api.endsWith('/'))
+                oUrl = this._api.substr(0, this._api.length - 5);
+            else
+                oUrl = this._api.substr(0, this._api.length - 4);*/
+        }
+        return oUrl;
     }
 
     setDefaultApi() {

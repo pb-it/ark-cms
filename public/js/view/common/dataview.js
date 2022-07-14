@@ -1,27 +1,22 @@
 class DataView {
 
-    static _encode(text) {
+    static _parseText(text) {
         var res = "";
         var index;
         var arr = text.split('<html>');
-        res += DataView._convertToHtml(arr[0]);
+        res += encodeText(arr[0]);
         for (var i = 1; i < arr.length; i++) {
             index = arr[i].indexOf('</html>');
             if (index >= 0) {
                 index += 7;
-                res += arr[i].substring(0, index)
-                res += DataView._convertToHtml(arr[i].substring(index));
+                res += arr[i].substring(0, index).replace(/\n/g, "")
+                    .replace(/[\t ]+\</g, "<")
+                    .replace(/\>[\t ]+\</g, "><")
+                    .replace(/\>[\t ]+$/g, ">");
+                res += encodeText(arr[i].substring(index));
             }
         }
         return res;
-    }
-
-    static _convertToHtml(text) {
-        //return text.replace(/<link>([A-ZÄÖÜa-zäöüß@µ§$%!?0-9_\s\/\\\=\:\.\'\"\;\,\#\&\|\-\+\~\*\>]*)<\/link>/g, '<a href="$1">$1</a>');
-        text = text.replace(/[\u00A0-\u9999<>\&]/g, function (i) {
-            return '&#' + i.charCodeAt(0) + ';';
-        });
-        return replaceLineBreak(replaceApostrophe(text));
     }
 
     static async renderData(skeleton, data) {
@@ -31,6 +26,7 @@ class DataView {
         if (skeleton) {
             var field;
             var name;
+            var view;
             var value;
 
             var $name;
@@ -59,13 +55,34 @@ class DataView {
                             case "decimal":
                             case "double":
                             case "string":
-                            case "text":
                             case "enumeration":
+                            case "text":
                             case "json":
                                 if (data && data[name]) {
-                                    if (typeof data[name] === 'string' || data[name] instanceof String)
-                                        value = DataView._encode(data[name]);
-                                    else
+                                    if (typeof data[name] === 'string' || data[name] instanceof String) {
+                                        view = field['view'];
+                                        if (view) {
+                                            switch (view) {
+                                                case 'plain': //preformatted / WYSIWYG
+                                                    $value.addClass('pre');
+                                                    value = encodeText(data[name]);
+                                                    break;
+                                                case 'html':
+                                                    value = data[name];
+                                                    break;
+                                                case 'markdown':
+                                                    value = data[name]; //TODO:
+                                                    break;
+                                                case 'combined':
+                                                default:
+                                                    $value.addClass('pre');
+                                                    value = DataView._parseText(data[name]);
+                                            }
+                                        } else {
+                                            $value.addClass('pre');
+                                            value = DataView._parseText(data[name]);
+                                        }
+                                    } else
                                         value = data[name];
                                 } else
                                     value = "";

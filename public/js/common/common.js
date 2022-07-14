@@ -19,6 +19,19 @@ function debounce(func, wait, immediate) {
     };
 }
 
+/**
+ * encode for HTML / prevent interpretation of tags: '<meta>' -> '&lt;meta;&gt;'
+ * @param {*} text 
+ * @returns 
+ */
+function encodeText(text) {
+    //return text.replace(/<link>([A-ZÄÖÜa-zäöüß@µ§$%!?0-9_\s\/\\\=\:\.\'\"\;\,\#\&\|\-\+\~\*\>]*)<\/link>/g, '<a href="$1">$1</a>');
+    text = text.replace(/[\u00A0-\u9999<>\&]/g, function (i) {
+        return '&#' + i.charCodeAt(0) + ';';
+    });
+    return replaceLineBreak(replaceApostrophe(text));
+}
+
 function replaceApostrophe(str) {
     return (str + '').replace(/'/g, '&apos;');
 }

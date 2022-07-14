@@ -2,20 +2,55 @@ class EditViewPanel extends TabPanel {
 
     static getPanelViewForm(data) {
         var skeleton = [
-            { name: 'paneltype', label: 'panelType', dataType: 'enumeration', options: ['CrudPanel', 'MediaPanel', 'CollectionPanel', 'NotePanel', 'WikiPanel'], view: 'select' },
-            { name: "details", dataType: "enumeration", options: ['none', 'title', 'all'], view: 'select' },
-            { name: "display", dataType: "enumeration", options: ['block', 'inline-block'], view: 'select' },
-            { name: "float", dataType: "enumeration", options: ['none', 'left'], view: 'select' }
+            {
+                name: 'paneltype',
+                label: 'panelType',
+                dataType: 'enumeration',
+                options: [{ 'value': 'CrudPanel' }, { 'value': 'MediaPanel' }, { 'value': 'CollectionPanel' }, { 'value': 'NotePanel' }, { 'value': 'WikiPanel' }],
+                view: 'select'
+            },
+            {
+                name: "details",
+                dataType: "enumeration",
+                options: [{ 'value': 'none' }, { 'value': 'title' }, { 'value': 'all' }],
+                view: 'select'
+            },
+            {
+                name: "display",
+                dataType: "enumeration",
+                options: [{ 'value': 'block' }, { 'value': 'inline-block' }],
+                view: 'select'
+            },
+            {
+                name: "float",
+                dataType: "enumeration",
+                options: [{ 'value': 'none' }, { 'value': 'left' }],
+                view: 'select'
+            }
         ];
         return new Form(skeleton, data);
     }
 
     static getThumbnailViewForm(data) {
         var skeleton = [
-            { name: "format", dataType: "enumeration", options: ['custom', '16/9', '4/3'], view: 'select' },
-            { name: "width", dataType: "integer" },
-            { name: "height", dataType: "integer" },
-            { name: "autoplay", dataType: "boolean" }
+            {
+                name: "format",
+                dataType: "enumeration",
+                options: [{ 'value': 'custom' }, { 'value': '16/9' }, { 'value': '4/3' }],
+                view: 'select'
+            },
+            {
+                name: "width",
+                dataType: "integer"
+            },
+            {
+                name: "height",
+                dataType: "integer"
+            },
+            {
+                name: "autoplay",
+                dataType: "boolean"
+            }
         ];
         return new Form(skeleton, data);
     }

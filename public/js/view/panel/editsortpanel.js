@@ -3,7 +3,7 @@ class EditSortPanel extends Panel {
     static getSortForm(model, sort) {
         var attributes = model.getModelAttributesController().getAttributes(true);
         var sortAttr = attributes.filter(function (x) { return !(x['dataType'] === 'relation' || x['dataType'] === 'blob' || x['dataType'] === 'base64') });
-        var options = sortAttr.map(function (x) { return x['name'] });
+        var options = sortAttr.map(function (x) { return { 'value': x['name'] } });
         var skeleton = [
             {
                 name: 'sortCriteria',
@@ -12,7 +12,7 @@ class EditSortPanel extends Panel {
                 options: options,
                 view: 'select'
             },
-            { name: 'sort', dataType: 'enumeration', options: ['asc', 'desc'], required: true, defaultValue: 'asc', view: 'select' }
+            { name: 'sort', dataType: 'enumeration', options: [{ 'value': 'asc' }, { 'value': 'desc' }], required: true, defaultValue: 'asc', view: 'select' }
         ];
         var data = {};
         if (sort) {

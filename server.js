@@ -33,6 +33,12 @@ app.get('/robots.txt', function (req, res) {
 app.use('/public', express.static(path.join(__dirname, 'public'), { fallthrough: false }));
 
 var systemRouter = express.Router();
+systemRouter.get('/info', function (req, res) {
+    var pkg = require('./package.json');
+    var info = {};
+    info['version'] = pkg['version'];
+    res.json(info);
+});
 systemRouter.get('/update', function (req, res) {
     var appRoot = path.resolve(__dirname);
     require("child_process").exec('cd ' + appRoot + ' && git pull && npm update', function (err, stdout, stderr) {

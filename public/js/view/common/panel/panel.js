@@ -39,7 +39,12 @@ class Panel {
 
         await this._init();
 
-        this._$panel.append(await this._renderContent());
+        try {
+            var content = await this._renderContent();
+            this._$panel.append(content);
+        } catch (error) {
+            app.controller.showError(error, "Rendering panel failed");
+        }
 
         await this._teardown();
 

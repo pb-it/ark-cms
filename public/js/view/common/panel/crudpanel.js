@@ -115,7 +115,7 @@ class CrudPanel extends CanvasPanel {
                 break;
             case DetailsEnum.title:
                 $div = $('<div/>')
-                    .html(DataView._convertToHtml(this._obj.getTitle()));
+                    .html(encodeText(this._obj.getTitle()));
                 break;
             case DetailsEnum.none:
         }

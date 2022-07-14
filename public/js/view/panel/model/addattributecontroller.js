@@ -20,7 +20,24 @@ class AddAttributeController {
             {
                 name: 'dataType',
                 dataType: 'enumeration',
-                options: ['boolean', 'integer', 'decimal', 'double', 'string', 'text', 'url', 'json', 'time', 'date', 'datetime', 'timestamp', 'enumeration', 'relation', 'blob', 'base64'],
+                options: [
+                    { 'value': 'boolean' },
+                    { 'value': 'integer' },
+                    { 'value': 'decimal' },
+                    { 'value': 'double' },
+                    { 'value': 'string' },
+                    { 'value': 'text' },
+                    { 'value': 'url' },
+                    { 'value': 'json' },
+                    { 'value': 'time' },
+                    { 'value': 'date' },
+                    { 'value': 'datetime' },
+                    { 'value': 'timestamp' },
+                    { 'value': 'enumeration' },
+                    { 'value': 'relation' },
+                    { 'value': 'blob' },
+                    { 'value': 'base64' }
+                ],
                 view: 'select',
                 required: true
             }
@@ -62,21 +79,48 @@ class AddAttributeController {
                 case 'boolean':
                     skeleton = [
                         { 'name': 'required', 'dataType': 'boolean' },
-                        { 'name': 'defaultValue', 'dataType': 'enumeration', 'options': ['none/null', 'true', 'false'], 'view': 'select' }
+                        {
+                            'name': 'defaultValue',
+                            'dataType': 'enumeration',
+                            'options': [
+                                { 'value': 'none/null' },
+                                { 'value': 'true' },
+                                { 'value': 'false' }
+                            ],
+                            'view': 'select'
+                        }
                     ];
                     break;
                 case 'string':
                     skeleton = [
-                        { 'name': 'length', 'dataType': 'string' },
+                        { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' },
                         { 'name': 'unique', 'dataType': 'boolean' },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'string' }
                     ];
                     break;
                 case 'text':
+                    skeleton = [
+                        { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' },
+                        {
+                            'name': 'view',
+                            'dataType': 'enumeration',
+                            'options': [
+                                { 'value': 'plain' },
+                                { 'value': 'html' },
+                                { 'value': 'combined' },
+                                { 'value': 'markdown', 'disabled': true }
+                            ],
+                            'view': 'select'
+                        },
+                        { 'name': 'size', 'dataType': 'string' },
+                        { 'name': 'required', 'dataType': 'boolean' },
+                        { 'name': 'defaultValue', 'dataType': 'string' }
+                    ];
+                    break;
                 case 'json':
                     skeleton = [
-                        { 'name': 'length', 'dataType': 'string' },
+                        { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' },
                         { 'name': 'size', 'dataType': 'string' },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'string' }
@@ -95,7 +139,7 @@ class AddAttributeController {
                         {
                             'name': 'view',
                             'dataType': 'enumeration',
-                            'options': ['select', 'radio'],
+                            'options': [{ 'value': 'select' }, { 'value': 'radio' }],
                             'view': 'select',
                             'required': true,
                             'defaultValue': 'select'
@@ -107,7 +151,8 @@ class AddAttributeController {
                             'tooltip': 'separate options with semicolon(;) and without whitespaces'
                         },
                         { 'name': 'required', 'dataType': 'boolean' },
-                        { 'name': 'defaultValue', 'dataType': 'string' }
+                        { 'name': 'defaultValue', 'dataType': 'string' },
+                        { 'name': 'bUseString', 'label': 'Use basic string datatype.', 'dataType': 'boolean', 'view': 'labelRight', 'required': true, 'defaultValue': false }
                     ];
                     break;
                 case 'time':
@@ -152,9 +197,9 @@ class AddAttributeController {
                     attributes.filter(function (x) { return x['dataType'] === "relation" && x['dataType'] });
                     for (var name of names) {
                         if (name !== mName && exist.indexOf(name) == -1)
-                            options.push(name);
+                            options.push({ 'value': name });
                     }
-                    options = options.sort((a, b) => a.localeCompare(b));
+                    options = options.sort((a, b) => a['value'].localeCompare(b['value']));
 
                     skeleton = [
                         { 'name': 'model', 'dataType': 'enumeration', 'options': options, 'view': 'select', 'required': true },
@@ -278,32 +323,15 @@ class AddAttributeController {
                     if (data.length) {
                         if (!isNaN(data.length)) {
                             var length = parseInt(data.length);
-                            if (length > 0 && length < 256)
+                            if (length > 0 && length <= 65535) //TODO: 65535 bytes - depends on database and character encoding
                                 this._data.length = data.length;
                             else
-                                throw new Error("Field 'length' has to be between 0 and 256");
+                                throw new Error("Field 'length' has to be between 0 and 65,535");
                         } else
                             throw new Error("Field 'length' is not a number");
                     }
                     if (data.unique)
                         this._data.unique = data.unique;
-                    break;
-                case 'text':
-                case 'json':
-                    /*if (data.length) {
-                        if (!isNaN(data.length)) {
-                            var length = parseInt(data.length);
-                            if (length > 0 && length < 65536)
-                                this._data.length = data.length;
-                            else
-                                throw new Error("Field 'length' has to be between 0 and 65,536");
-                        } else
-                            throw new Error("Field 'length' is not a number");
-                    }*/
-                    if (data.length) //MEDIUMTEXT / LONGTEXT
-                        this._data.length = data.length;
-                    if (data.size)
-                        this._data.size = data.size;
                     break;
                 case 'url':
                     if (data.length) {
@@ -321,7 +349,17 @@ class AddAttributeController {
                     break;
                 case 'enumeration':
                     this._data['view'] = data['view'];
-                    this._data['options'] = data['options'].split(';');
+                    this._data['options'] = data['options'].split(';').map(function (x) { return { 'value': x } });
+                    this._data['bUseString'] = data['bUseString'];
+                    break;
+                case 'text':
+                case 'json':
+                    if (data.length) //TODO: MEDIUMTEXT / LONGTEXT
+                        this._data.length = data.length;
+                    if (data.view)
+                        this._data.view = data.view;
+                    if (data.size)
+                        this._data.size = data.size;
                     break;
                 case 'time':
                 case 'date':

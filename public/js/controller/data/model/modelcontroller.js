@@ -12,9 +12,14 @@ class ModelController {
 
     async init() {
         this._models = [];
-        var api = this._configController.getApi();
-        var url = api.substring(0, api.length - 3) + "models";
-        var apiModels = await WebClient.fetchJson(url);
+        var url = app.controller.getConfigController().getApiOrigin();
+        var infoUrl = url + "/system/info";
+        var info = await WebClient.fetchJson(infoUrl);
+        var appVersion = app.controller.getVersionController().getAppVersion();
+        if (appVersion != info['version'])
+            alert('API version does not match client version. Consider updating!')
+        var modelsUrl = url + "/models";
+        var apiModels = await WebClient.fetchJson(modelsUrl);
         var model;
         for (var data of apiModels) {
             model = new XModel(data);

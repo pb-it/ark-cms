@@ -23,9 +23,23 @@ class EditModelDefaultsPanel extends Panel {
         var mac = this._model.getModelAttributesController();
         var attributes = mac.getAttributes();
         var stringAttr = attributes.filter(function (x) { return (x['dataType'] === 'string' || x['dataType'] === 'text' || x['dataType'] === 'enumeration') });
-        var stringAttrNames = stringAttr.map(function (x) { return x['name'] });
+        var stringAttrNames = stringAttr.map(function (x) { return { 'value': x['name'] } });
 
-        var skeleton = [{ name: 'paneltype', label: 'panelType', dataType: 'enumeration', options: ['CrudPanel', 'MediaPanel', 'CollectionPanel', 'NotePanel', 'WikiPanel'], view: 'select' }];
+        var skeleton = [
+            {
+                name: 'paneltype',
+                label: 'panelType',
+                dataType: 'enumeration',
+                options: [
+                    { 'value': 'CrudPanel' },
+                    { 'value': 'MediaPanel' },
+                    { 'value': 'CollectionPanel' },
+                    { 'value': 'NotePanel' },
+                    { 'value': 'WikiPanel' }
+                ],
+                view: 'select'
+            }
+        ];
 
         var mpcc = this._model.getModelPanelConfigController();
         var panelConfig = mpcc.getPanelConfig();
@@ -96,14 +110,14 @@ class EditModelDefaultsPanel extends Panel {
             return model.getData()['name'];
         });
         var mName = this._model.getName();
-        var mOptions = names.filter(function (x) { return x !== mName });
+        var mOptions = names.filter(function (x) { return x !== mName }).map(function (x) { return { 'value': x } });
 
         var attributes = mac.getAttributes();
         var stringAttr = attributes.filter(function (x) { return x['dataType'] === 'string' });
-        var sOptions = stringAttr.map(function (x) { return x['name'] });
+        var sOptions = stringAttr.map(function (x) { return { 'value': x['name'] } });
 
         var stringOrEnumAttr = attributes.filter(function (x) { return (x['dataType'] === 'string' || x['dataType'] === 'enumeration') });
-        var aOptions = stringOrEnumAttr.map(function (x) { return x['name'] });
+        var aOptions = stringOrEnumAttr.map(function (x) { return { 'value': x['name'] } });
 
         var collectionModel = mdc.getDefaultCollectionModel();
         if (collectionModel)
