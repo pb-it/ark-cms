@@ -187,7 +187,7 @@ class EditModelPanel extends TabPanel {
 
         if (bTitle || data['id']) {
             await this._model.setData(data);
-            app.controller.reload();
+            app.controller.reloadApplication();
             this.dispose();
         } else {
             var panel = new Panel();
@@ -225,7 +225,7 @@ class EditModelPanel extends TabPanel {
                     event.preventDefault();
 
                     await this._model.setData(data);
-                    app.controller.reload();
+                    app.controller.reloadApplication();
 
                     panel.dispose();
                     this.dispose();

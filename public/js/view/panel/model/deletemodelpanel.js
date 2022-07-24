@@ -48,7 +48,7 @@ class DeleteModelPanel extends Panel {
                     await WebClient.request("DELETE", url);
                     this.dispose();
 
-                    app.controller.reload();
+                    app.controller.reloadApplication();
                 } catch (error) {
                     app.controller.showError(error);
                 }

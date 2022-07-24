@@ -12,6 +12,10 @@ class Menu {
         this._items = [];
     }
 
+    clearMenu() {
+        this._items = [];
+    }
+
     addMenuItem(item, active) {
         this._items.push(item);
         if (active)

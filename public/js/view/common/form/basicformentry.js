@@ -245,7 +245,7 @@ class BasicFormEntry extends FormEntry {
                         .html("&lt;" + this._attribute['dataType'] + "&gt;");
             }
         }
-        if (this._attribute.readonly)
+        if (this._attribute['readonly']) //editable
             this._$input.attr('disabled', true);
         return Promise.resolve(this._$input);
     }

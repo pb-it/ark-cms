@@ -9,13 +9,13 @@ class CrudObject {
      * @param {*} newdata - in contrast to full objects of olddata the releations only consist of the ids
      * @returns 
      */
-    static getChanges(skeleton, olddata, newdata) {
+    static getChanges(skeleton, olddata, newdata, bIncludeHidden) {
         var relevant;
         if (skeleton && newdata) {
             relevant = {};
             var property;
             for (var field of skeleton) {
-                if (!field.hidden) {
+                if (!field.hidden || bIncludeHidden) {
                     property = field.name;
                     if (field['dataType']) {
                         switch (field['dataType']) {
@@ -132,10 +132,11 @@ class CrudObject {
 
     _typeString;
     _model;
+    _skeleton;
     _data;
     _title;
 
-    incomplete;
+    _bIncomplete; //TODO: unused
 
     constructor(typeString, data) {
         this._typeString = typeString;
@@ -152,7 +153,16 @@ class CrudObject {
     }
 
     getSkeleton(bAddOptions) {
-        return this._model.getModelAttributesController().getAttributes(bAddOptions);
+        var skeleton;
+        if (this._skeleton)
+            skeleton = this._skeleton;
+        else
+            skeleton = this._model.getModelAttributesController().getAttributes(bAddOptions);
+        return skeleton;
+    }
+
+    setSkeleton(skeleton) {
+        this._skeleton = skeleton;
     }
 
     getData() {

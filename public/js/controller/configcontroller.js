@@ -52,8 +52,8 @@ class ConfigController {
         }
         if (!bError) {
             try {
-                await app.controller.reloadModels();
-                app.controller.reload();
+                await app.controller.getApiController().reloadModels();
+                app.controller.reloadApplication();
             } catch (error) {
                 app.controller.setLoadingState(false);
                 app.controller.showError(error, "Automatic reloading of models failed. Please restart your backend manually!");

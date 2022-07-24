@@ -1,6 +1,7 @@
 class SideNavigationBar {
 
     _$sideNav;
+    _$iconBar;
 
     _iconBar;
     _sidePanel;
@@ -9,10 +10,9 @@ class SideNavigationBar {
         this._$sideNav = $('div#sidenav');
 
         this._iconBar = new Menu();
-        this._initIconBar();
-        var $div = this._iconBar.renderMenu();
-        $div.addClass('iconbar');
-        this._$sideNav.append($div);
+        this._$iconBar = this._iconBar.renderMenu();
+        this._$iconBar.addClass('iconbar');
+        this._$sideNav.append(this._$iconBar);
 
         this._sidePanel = new SidePanel();
         this._$sideNav.append(this._sidePanel.renderSidePanel());
@@ -34,10 +34,14 @@ class SideNavigationBar {
     }
 
     renderSideNavigationBar() {
+        this._initIconBar();
+        this._iconBar.renderMenu();
         this.close();
     }
 
     _initIconBar() {
+        this._iconBar.clearMenu();
+
         var conf = {
             'style': 'iconbar',
             'icon': "home",
@@ -50,45 +54,47 @@ class SideNavigationBar {
         var menuItem = new MenuItem(conf);
         this._iconBar.addMenuItem(menuItem, true);
 
-        conf = {
-            'style': 'iconbar',
-            'icon': "redo",
-            'tooltip': "Reload",
-            'click': function (event, icon) {
-                this.close();
-                var state = app.controller.getStateController().getState();
-                state.bIgnoreCache = true;
-                app.controller.loadState(state);
-            }.bind(this)
-        };
-        menuItem = new MenuItem(conf);
-        this._iconBar.addMenuItem(menuItem);
+        if (app.controller.isInDebugMode()) {
+            conf = {
+                'style': 'iconbar',
+                'icon': "redo",
+                'tooltip': "Reload",
+                'click': function (event, icon) {
+                    this.close();
+                    var state = app.controller.getStateController().getState();
+                    state.bIgnoreCache = true;
+                    app.controller.loadState(state);
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            this._iconBar.addMenuItem(menuItem);
 
-        conf = {
-            'style': 'iconbar',
-            'icon': "compass",
-            'tooltip': "Navigate",
-            'click': async function (event, icon) {
-                this.close();
+            conf = {
+                'style': 'iconbar',
+                'icon': "compass",
+                'tooltip': "Navigate",
+                'click': async function (event, icon) {
+                    this.close();
 
-                return app.controller.getModalController().openPanelInModal(new NavigationPanel());
-            }.bind(this)
-        };
-        menuItem = new MenuItem(conf);
-        this._iconBar.addMenuItem(menuItem);
+                    return app.controller.getModalController().openPanelInModal(new NavigationPanel());
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            this._iconBar.addMenuItem(menuItem);
 
-        conf = {
-            'style': 'iconbar',
-            'icon': "clipboard",
-            'tooltip': "Cache",
-            'click': async function (event, icon) {
-                this.close();
+            conf = {
+                'style': 'iconbar',
+                'icon': "clipboard",
+                'tooltip': "Cache",
+                'click': async function (event, icon) {
+                    this.close();
 
-                return app.controller.getModalController().openPanelInModal(new CachePanel());
-            }.bind(this)
-        };
-        menuItem = new MenuItem(conf);
-        this._iconBar.addMenuItem(menuItem);
+                    return app.controller.getModalController().openPanelInModal(new CachePanel());
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            this._iconBar.addMenuItem(menuItem);
+        }
 
         conf = {
             'style': 'iconbar',
@@ -139,19 +145,21 @@ class SideNavigationBar {
         menuItem = new MenuItem(conf);
         this._iconBar.addMenuItem(menuItem);
 
-        conf = {
-            'style': 'iconbar',
-            'icon': "bookmark",
-            'tooltip': "Bookmarks",
-            'click': async function (event, icon) {
-                this.close();
+        if (app.controller.isInDebugMode()) {
+            conf = {
+                'style': 'iconbar',
+                'icon': "bookmark",
+                'tooltip': "Bookmarks",
+                'click': async function (event, icon) {
+                    this.close();
 
-                var config = { 'minWidth': '1000px' };
-                return app.controller.getModalController().openPanelInModal(new ManageBookmarkPanel(config));
-            }.bind(this)
-        };
-        menuItem = new MenuItem(conf);
-        this._iconBar.addMenuItem(menuItem);
+                    var config = { 'minWidth': '1000px' };
+                    return app.controller.getModalController().openPanelInModal(new ManageBookmarkPanel(config));
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            this._iconBar.addMenuItem(menuItem);
+        }
     }
 
     close() {

@@ -52,11 +52,6 @@ class ContextMenuController {
         var addGroup = [];
         var setGroup = [];
 
-        var entry = new ContextMenuEntry("JSON", async function () {
-            return app.controller.getModalController().openPanelInModal(new JsonPanel(this.getObject().getData()));
-        }.bind(panel));
-        showGroup.push(entry);
-
         ContextMenuController.addEntriesForAllAttributes(panel, showGroup, setGroup, addGroup);
 
         if (model.isCollection()) {
@@ -315,9 +310,17 @@ class ContextMenuController {
         entries.push(new ContextMenuEntry("Details", function () {
             this.openInModal(ActionEnum.read);
         }.bind(panel)));
+
+        if (app.controller.isInDebugMode()) {
+            entries.push(new ContextMenuEntry("JSON", async function () {
+                return app.controller.getModalController().openPanelInModal(new JsonPanel(this.getObject().getData()));
+            }.bind(panel)));
+        }
+
         entries.push(new ContextMenuEntry("Edit", function () {
             this.openInModal(ActionEnum.update);
         }.bind(panel)));
+
         entries.push(new ContextMenuEntry("Delete", function () {
             var selected = app.controller.getSelected();
             if (!selected || selected.length == 0 || (selected.length == 1 && selected[0] == this))
@@ -338,11 +341,7 @@ class ContextMenuController {
                             app.controller.showError(error);
                         }
 
-                        var state = app.controller.getStateController().getState();
-                        /*var ds = app.controller.getDataService();
-                        var cache = ds.getCache();
-                        cache.updateCachedTypeMaps(null, state.typeString);*/
-                        app.controller.loadState(state);
+                        app.controller.reloadState();
                     }
                 }.bind(this));
             }

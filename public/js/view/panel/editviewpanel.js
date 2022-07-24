@@ -77,8 +77,7 @@ class EditViewPanel extends TabPanel {
         this._$viewPanel = await this._createViewPanel();
         this._panels.push(this._$viewPanel);
 
-        var debugConfig = app.controller.getConfigController().getDebugConfig();
-        if (debugConfig && debugConfig['bDebug']) {
+        if (app.controller.isInDebugMode()) {
             this._$jsonPanel = await this._createJsonPanel();
             this._panels.push(this._$jsonPanel);
         }

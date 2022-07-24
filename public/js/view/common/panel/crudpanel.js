@@ -168,9 +168,28 @@ class CrudPanel extends CanvasPanel {
             var data = await this._readData(false);
 
             var check = this._obj.getModel().getCheckAction();
-            if (check)
+            if (check) {
                 data = await check(data);
-            else
+                //hidden attributes which got changed must be made visible
+                var copy = [];
+                var replacement;
+                for (var attribute of this._skeleton) {
+                    replacement = undefined;
+                    if (attribute['hidden']) {
+                        name = attribute['name'];
+                        if (data[name]) {
+                            replacement = { ...attribute };
+                            replacement['hidden'] = false;
+                            replacement['readonly'] = true;
+                        }
+                    }
+                    if (replacement)
+                        copy.push(replacement);
+                    else
+                        copy.push(attribute);
+                }
+                this._obj.setSkeleton(copy);
+            } else
                 app.controller.showErrorMessage("No check action defined");//nevertheless rerender for thumbnail
 
             this._obj.setData(data);

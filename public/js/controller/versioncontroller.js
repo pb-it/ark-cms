@@ -31,11 +31,26 @@ class VersionController {
         return Promise.resolve();
     }
 
+    async checkForUpdates() {
+        try {
+            app.controller.setLoadingState(true);
+            var url = 'https://raw.githubusercontent.com/pb-it/wing-cms/main/package.json';
+            var pkg = await WebClient.fetchJson(url);
+            var version = pkg['version'];
+            if (version === this._appVersion)
+                alert('You are up to date');
+            else
+                alert("Version '" + version + "' available");
+        } catch (error) {
+            app.controller.showError(error);
+        } finally {
+            app.controller.setLoadingState(false);
+        }
+        return Promise.resolve();
+    }
+
     getAppVersion() {
-        var version;
-        if (window.localStorage)
-            version = window.localStorage.getItem(APP_VERSION_IDENT);
-        return version;
+        return this._appVersion;
     }
 
     setAppVersion(version) {

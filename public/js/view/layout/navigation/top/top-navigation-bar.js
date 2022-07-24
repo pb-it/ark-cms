@@ -35,16 +35,6 @@ class TopNavigationBar {
         var menuItem = new MenuItem(conf);
 
         var subMenuGroup = new SubMenuGroup('down', 'right');
-        var debugConfig = app.controller.getConfigController().getDebugConfig();
-        if (debugConfig && debugConfig['bDebug']) {
-            conf = {
-                'name': 'Eval',
-                'click': function (event) {
-                    alert("use F12 to eval");
-                }
-            };
-            subMenuGroup.addMenuItem(new MenuItem(conf));
-        }
 
         conf = {
             'icon': "user",

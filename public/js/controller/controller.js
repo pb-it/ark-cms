@@ -6,6 +6,7 @@ class Controller {
     _logger;
 
     _configController;
+    _apiController;
     _versionController;
     _stateController;
 
@@ -41,6 +42,10 @@ class Controller {
 
     getConfigController() {
         return this._configController;
+    }
+
+    getApiController() {
+        return this._apiController;
     }
 
     getVersionController() {
@@ -86,6 +91,10 @@ class Controller {
         this._configController = new ConfigController();
         await this._configController.initConfigController();
 
+        this._apiController = new ApiController(this._configController.getApiOrigin());
+
+        this._modalController = new ModalController(); //VersionController may open a modal
+
         this._versionController = new VersionController();
         await this._versionController.initVersionController();
 
@@ -95,7 +104,6 @@ class Controller {
         this._view.init(); //TODO: untidy/unlovely that view depends on parsed state
 
         this._panelController = new PanelController();
-        this._modalController = new ModalController();
 
         try {
             this._modelController = new ModelController(this._configController);
@@ -308,25 +316,25 @@ class Controller {
         return changed;
     }
 
-    async restartApi() {
-        this.setLoadingState(true);
-        var url = app.controller.getConfigController().getApiOrigin() + "/system/restart";
-        await WebClient.request("GET", url);
-        //TODO: sleep?
-        this.setLoadingState(false);
-        return Promise.resolve();
-    }
-
-    async reloadModels() {
-        this.setLoadingState(true);
-        var url = app.controller.getConfigController().getApiOrigin() + "/system/reload";
-        await WebClient.request("GET", url);
-        this.setLoadingState(false);
-        return Promise.resolve();
-    }
-
-    reload() {
+    reloadApplication() {
         this.setLoadingState(true);
         location.reload();
+    }
+
+    reloadState() {
+        var state = this.getStateController().getState();
+        /*var ds = app.controller.getDataService();
+        var cache = ds.getCache();
+        cache.updateCachedTypeMaps(null, state.typeString);*/
+        this.loadState(state);
+    }
+
+    isInDebugMode() {
+        var res = false;
+        var debugConfig = this._configController.getDebugConfig();
+        if (debugConfig && debugConfig['bDebug']) {
+            res = true;
+        }
+        return res;
     }
 }

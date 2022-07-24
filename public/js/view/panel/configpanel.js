@@ -60,30 +60,41 @@ class ConfigPanel extends TabPanel {
                 }.bind(this));
             $div.append($clear);
 
+            var $clear = $('<button>')
+                .text('Check for Updates')
+                .click(function (event) {
+                    event.stopPropagation();
+
+                    app.controller.getVersionController().checkForUpdates();
+                }.bind(this));
+            $div.append($clear);
+
             var $apply = $('<button>')
                 .css({ 'float': 'right' })
-                .text('Apply and reload')
+                .text('Apply and Reload')
                 .click(async function (event) {
                     event.stopPropagation();
 
-                    var bReload = false;
+                    var bReloadApp = false;
                     var fdata = await this._form.readForm();
                     if (this._data['version'] !== fdata['version']) {
-                        app.controller.getVersionController().setVerssetAppVersionion(fdata['version']);
-                        bReload = true;
+                        app.controller.getVersionController().setAppVersion(fdata['version']);
+                        bReloadApp = true;
                     }
                     if (this._data['api'] !== fdata['api']) {
                         cc.setApi(fdata['api']);
-                        bReload = true;
+                        bReloadApp = true;
                     }
                     var conf = cc.getDebugConfig();
                     conf['bDebug'] = fdata['bDebug']
                     cc.setDebugConfig(conf);
 
-                    if (bReload)
-                        app.controller.reload();
-                    else
+                    if (bReloadApp)
+                        app.controller.reloadApplication();
+                    else {
+                        app.controller.reloadState();
                         this.dispose();
+                    }
                 }.bind(this));
             $div.append($apply);
             return Promise.resolve($div);

@@ -16,8 +16,7 @@ class ManageBookmarkPanel extends TabPanel {
         this._$managePanel = await this._createManagePanel();
         this._panels.push(this._$managePanel);
 
-        var debugConfig = app.controller.getConfigController().getDebugConfig();
-        if (debugConfig && debugConfig['bDebug']) {
+        if (app.controller.isInDebugMode()) {
             this._$jsonPanel = await this._createJsonPanel();
             this._panels.push(this._$jsonPanel);
         }
