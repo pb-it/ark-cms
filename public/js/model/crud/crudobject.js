@@ -15,7 +15,7 @@ class CrudObject {
             relevant = {};
             var property;
             for (var field of skeleton) {
-                if (!field.hidden || bIncludeHidden) {
+                if (!field['hidden'] || bIncludeHidden) {
                     property = field.name;
                     if (field['dataType']) {
                         switch (field['dataType']) {
@@ -34,24 +34,34 @@ class CrudObject {
                                 break;
                             case "relation":
                                 if (newdata[property]) {
-                                    if (field.multiple) {
+                                    if (field['multiple']) {
                                         if (Array.isArray(newdata[property])) {
+                                            var newIds = [];
+                                            for (var item of newdata[property]) {
+                                                if (isNaN(item)) {
+                                                    if (item['id'])
+                                                        newIds.push(item['id']);
+                                                } else
+                                                    newIds.push(item);
+                                            }
+
                                             if (olddata[property] && olddata[property].length > 0) {
-                                                if (newdata[property].length == olddata[property].length) {
-                                                    var ids = olddata[property].map(function (data) {
+                                                if (newIds.length == olddata[property].length) {
+                                                    var oldIds = olddata[property].map(function (data) {
                                                         return data['id'];
                                                     });
-                                                    for (var id of ids) {
-                                                        if (newdata[property].indexOf(id) == -1) {
-                                                            relevant[property] = newdata[property];
+
+                                                    for (var id of oldIds) {
+                                                        if (newIds.indexOf(id) == -1) {
+                                                            relevant[property] = newIds;
                                                             break;
                                                         }
                                                     }
                                                 } else
-                                                    relevant[property] = newdata[property];
+                                                    relevant[property] = newIds;
                                             } else {
-                                                if (newdata[property].length > 0)
-                                                    relevant[property] = newdata[property];
+                                                if (newIds.length > 0)
+                                                    relevant[property] = newIds;
                                             }
                                         } else
                                             throw new Error("An unexpected error occurred");
@@ -59,8 +69,8 @@ class CrudObject {
                                         var id;
                                         if (Number.isInteger(newdata[property]))
                                             id = newdata[property];
-                                        else
-                                            throw new Error("An unexpected error occurred");
+                                        else if (newdata[property]['id'])
+                                            id = newdata[property]['id'];
                                         if (!olddata[property] || olddata[property]['id'] != id) {
                                             relevant[property] = id;
                                         }

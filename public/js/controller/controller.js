@@ -32,8 +32,19 @@ class Controller {
         this._selected = [];
     }
 
-    getLogger() {
-        return this._logger;
+    getLogger(name) {
+        var logger;
+        if (!name)
+            name = '';
+        if (this._logger)
+            logger = this._logger[name];
+        else
+            this._logger = [];
+        if (!logger) {
+            logger = new Logger();
+            this._logger[name] = logger;
+        }
+        return logger;
     }
 
     getView() {
@@ -97,8 +108,6 @@ class Controller {
 
         this._versionController = new VersionController();
         await this._versionController.initVersionController();
-
-        this._logger = new Logger();
 
         this._stateController = new StateController();
         this._view.init(); //TODO: untidy/unlovely that view depends on parsed state

@@ -111,13 +111,13 @@ class DataService {
         var res;
         var typeUrl;
         var sortlessUrl;
-        var bSort = false;
         var model = app.controller.getModelController().getModel(typeString);
         var cache = this._cache.getModelCache(typeString);
 
         if (bIgnoreCache)
             typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
         else {
+            var bSort = false;
             if (id) {
                 res = cache.getEntry(id);
                 if (Array.isArray(id) && id.length != res.length)
@@ -142,6 +142,12 @@ class DataService {
                         bSort = true;
                 }
             }
+
+            if (bSort)
+                res = DataService._sort(model, sort, res);
+
+            if (res && limit && res.length > limit)
+                res = res.slice(0, limit);
         }
 
         if (!res) {
@@ -173,13 +179,11 @@ class DataService {
 
             //TODO: fix sort which may have been destroyed by jpath filters with 'or' concatenation
             if (sort)
-                bSort = true;
+                res = DataService._sort(model, sort, res);
         }
+
         if (search)
             res = Filter.filterStr(res, search);
-
-        if (bSort)
-            res = DataService._sort(model, sort, res);
 
         return Promise.resolve(res);
     }

@@ -161,51 +161,58 @@ class CrudPanel extends CanvasPanel {
      * @returns
      */
     async _checkData() {
-        try {
-            app.controller.setLoadingState(true);
+        if (this._form) {
+            try {
+                app.controller.setLoadingState(true);
 
-            var dataBackup = this._obj.getData();
-            var data = await this._readData(false);
-
-            var check = this._obj.getModel().getCheckAction();
-            if (check) {
-                data = await check(data);
-                //hidden attributes which got changed must be made visible
-                var copy = [];
-                var replacement;
-                for (var attribute of this._skeleton) {
-                    replacement = undefined;
-                    if (attribute['hidden']) {
-                        name = attribute['name'];
-                        if (data[name]) {
-                            replacement = { ...attribute };
-                            replacement['hidden'] = false;
-                            replacement['readonly'] = true;
+                var data;
+                var check = this._obj.getModel().getCheckAction();
+                if (check) {
+                    data = await this._readData(false);
+                    data = await check(data);
+                    if (data) {
+                        //hidden attributes which got changed must be made visible
+                        var copy = [];
+                        var replacement;
+                        for (var attribute of this._skeleton) {
+                            replacement = undefined;
+                            if (attribute['hidden']) {
+                                name = attribute['name'];
+                                if (data[name]) {
+                                    replacement = { ...attribute };
+                                    replacement['hidden'] = false;
+                                    replacement['readonly'] = true;
+                                }
+                            }
+                            if (replacement)
+                                copy.push(replacement);
+                            else
+                                copy.push(attribute);
                         }
+                        this._obj.setSkeleton(copy);
                     }
-                    if (replacement)
-                        copy.push(replacement);
-                    else
-                        copy.push(attribute);
-                }
-                this._obj.setSkeleton(copy);
-            } else
-                app.controller.showErrorMessage("No check action defined");//nevertheless rerender for thumbnail
+                } else
+                    app.controller.showErrorMessage("No check action defined");//nevertheless rerender for thumbnail
 
-            this._obj.setData(data);
-            await this.render();
-            this._obj.setData(dataBackup);
-        } catch (error) {
-            app.controller.showError(error, "Check failed")
-        }
-        finally {
-            app.controller.setLoadingState(false);
+                var dataBackup = this._obj.getData();
+                this._obj.setData(data);
+                await this.render();
+                this._obj.setData(dataBackup);
+            } catch (error) {
+                app.controller.showError(error)
+            }
+            finally {
+                app.controller.setLoadingState(false);
+            }
         }
         return Promise.resolve();
     }
 
     async _readData(bValidate) {
-        return this._form.readForm(bValidate);
+        var data;
+        if (this._form)
+            data = await this._form.readForm(bValidate);
+        return data;
     }
 
     async _getChanges(bValidate, oldData) {
@@ -219,7 +226,7 @@ class CrudPanel extends CanvasPanel {
                     oldData = {};
             }
             var newData = await this._readData(bValidate);
-            changed = await CrudObject.getChanges(this._skeleton, oldData, newData);
+            changed = CrudObject.getChanges(this._skeleton, oldData, newData);
         }
         return Promise.resolve(changed);
     }
@@ -391,14 +398,13 @@ class CrudPanel extends CanvasPanel {
                 var prop = model.getModelDefaultsController().getDefaultThumbnailProperty();
                 if (prop) {
                     if (droptype === "contents") {
-                        app.controller.getModalController().openConfirmModal("Change thumbnail?", async function (confirm) {
-                            if (confirm) {
-                                var obj = new Object();
-                                obj[prop] = id;
-                                await this._obj.update(obj);
-                                this.render();
-                            }
-                        }.bind(this))
+                        var bConfirmaltion = await app.controller.getModalController().openConfirmModal("Change thumbnail?");
+                        if (bConfirmaltion) {
+                            var obj = new Object();
+                            obj[prop] = id;
+                            await this._obj.update(obj);
+                            this.render();
+                        }
                     }
                 }
             } else if (model.isCollection()) {

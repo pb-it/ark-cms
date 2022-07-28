@@ -35,13 +35,14 @@ class Select {
             optData = await app.controller.getDataService().fetchData(this._typeString);
 
         if (selected && selected.length > 0) {
-            var ids;
-            if (selected.some(isNaN)) {
-                var ids = selected.map(function (data) {
-                    return data.id;
-                });
-            } else
-                ids = selected;
+            var ids = [];
+            for (var item of selected) {
+                if (isNaN(item)) {
+                    if (item['id'])
+                        ids.push(item['id']);
+                } else
+                    ids.push(item);
+            }
 
             for (var data of optData) {
                 if (Number.isInteger(data))

@@ -268,27 +268,27 @@ class BasicFormEntry extends FormEntry {
                                 data = false;
                             break;
                         case "integer":
-                            if (bValidate) {
-                                if (!isNaN(value))
-                                    data = parseInt(value);
-                                else {
+                            if (!isNaN(value))
+                                data = parseInt(value);
+                            else {
+                                if (bValidate) {
                                     this._$input.focus();
                                     throw new Error("Field '" + this._attribute['name'] + "' is not an valid integer");
-                                }
-                            } else
-                                data = value;
+                                } else
+                                    data = value;
+                            }
                             break;
                         case "decimal":
                         case "double":
-                            if (bValidate) {
-                                if (!isNaN(value))
-                                    data = parseFloat(value);
-                                else {
+                            if (!isNaN(value))
+                                data = parseFloat(value);
+                            else {
+                                if (bValidate) {
                                     this._$input.focus();
                                     throw new Error("Field '" + this._attribute['name'] + "' is not an valid " + this._attribute['dataType']);
-                                }
-                            } else
-                                data = value;
+                                } else
+                                    data = value;
+                            }
                             break;
                         default:
                             data = value;

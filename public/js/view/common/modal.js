@@ -44,6 +44,10 @@ class Modal {
         return Promise.resolve();
     }
 
+    getPanel() {
+        return this._panel;
+    }
+
     open($content) {
         this._$modalContent.append($content);
 
@@ -73,10 +77,9 @@ class Modal {
         if (this._panel && typeof this._panel._getChanges === "function") {
             var changes = await this._panel._getChanges(false);
             if (changes) {
-                app.controller.getModalController().openConfirmModal("Discard changes?", async function (confirm) {
-                    if (confirm)
-                        this.close();
-                }.bind(this));
+                var bConfirmaltion = await app.controller.getModalController().openConfirmModal("Discard changes?");
+                if (bConfirmaltion)
+                    this.close();
             } else
                 this.close();
         } else

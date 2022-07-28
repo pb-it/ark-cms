@@ -321,30 +321,30 @@ class ContextMenuController {
             this.openInModal(ActionEnum.update);
         }.bind(panel)));
 
-        entries.push(new ContextMenuEntry("Delete", function () {
+        entries.push(new ContextMenuEntry("Delete", async function () {
             var selected = app.controller.getSelected();
             if (!selected || selected.length == 0 || (selected.length == 1 && selected[0] == this))
                 this.openInModal(ActionEnum.delete);
             else {
-                app.controller.getModalController().openConfirmModal("Delete all selected items?", async function (confirm) {
-                    if (confirm == true) {
-                        app.controller.setLoadingState(true);
+                var bConfirmaltion = await app.controller.getModalController().openConfirmModal("Delete all selected items?");
+                if (bConfirmaltion) {
+                    app.controller.setLoadingState(true);
 
-                        try {
-                            for (var i = 0; i < selected.length; i++) {
-                                await selected[i].getObject().delete();
-                            }
-
-                            app.controller.setLoadingState(false);
-                        } catch (error) {
-                            app.controller.setLoadingState(false);
-                            app.controller.showError(error);
+                    try {
+                        for (var i = 0; i < selected.length; i++) {
+                            await selected[i].getObject().delete();
                         }
 
-                        app.controller.reloadState();
+                        app.controller.setLoadingState(false);
+                    } catch (error) {
+                        app.controller.setLoadingState(false);
+                        app.controller.showError(error);
                     }
-                }.bind(this));
+
+                    app.controller.reloadState();
+                }
             }
+            return Promise.resolve();
         }.bind(panel)));
         return entries;
     }

@@ -7,7 +7,7 @@ class EditSortPanel extends Panel {
         var skeleton = [
             {
                 name: 'sortCriteria',
-                tooltip: 'default sort depends on used database but is mostly newest records first',
+                tooltip: 'if undefined default sort depends on used database but most common is newest records first',
                 dataType: 'enumeration',
                 options: options,
                 view: 'select'
@@ -34,8 +34,14 @@ class EditSortPanel extends Panel {
     async _renderContent() {
         var $div = $('<div/>');
 
+        var sort;
         var state = app.controller.getStateController().getState();
-        this._form = EditSortPanel.getSortForm(state.getModel(), state['sort']);
+        var model = state.getModel();
+        if (state['sort'])
+            sort = state['sort'];
+        else
+            sort = model.getModelDefaultsController().getDefaultSort();
+        this._form = EditSortPanel.getSortForm(model, sort);
         var $form = await this._form.renderForm();
 
         $div.append($form);

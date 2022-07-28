@@ -42,6 +42,10 @@ class ModalController {
         this._stack = [];
     }
 
+    getModals() {
+        return this._stack;
+    }
+
     isModalOpen() {
         return this._stack.length > 0;
     }
@@ -77,34 +81,55 @@ class ModalController {
         return Promise.resolve();
     }
 
-    async openConfirmModal(msg, callback) {
-        var modal = app.controller.getModalController().addModal();
+    static async openCrudObjectInModal(action, obj) {
+        return new Promise(async function (resolve, reject) {
+            var model = obj.getModel();
+            var mpcc = model.getModelPanelConfigController();
+            var panelConfig = mpcc.getPanelConfig(action, DetailsEnum.all);
 
+            var panel = PanelController.createPanelForObject(obj, panelConfig);
 
+            panelConfig.crudCallback = async function (data) {
+                panel.dispose(); //modal.close();
+                resolve(data);
+            };
 
-        var $d = $('<div/>')
-            .html("<br/>" + msg + "<br/><br/>");
+            var modal = app.controller.getModalController().addModal();
+            /*modal.setCloseCallback(function () {
+                resolve();
+            });*/
+            await modal.openPanel(panel);
+            return Promise.resolve();
+        });
+    }
 
-        $d.append($('<button/>')
-            .text("No")
-            .click(async function (event) {
-                event.preventDefault();
-                callback(false);
-                modal.close();
-            }.bind(this)));
+    async openConfirmModal(msg) {
+        return new Promise(function (resolve, reject) {
+            var modal = app.controller.getModalController().addModal();
 
-        $d.append(SPACE);
+            var $d = $('<div/>')
+                .html("<br/>" + msg + "<br/><br/>");
 
-        $d.append($('<button/>')
-            .text("Yes")
-            .css({ 'float': 'right' })
-            .click(async function (event) {
-                event.preventDefault();
-                callback(true);
-                modal.close();
-            }.bind(this)));
+            $d.append($('<button/>')
+                .text("No")
+                .click(async function (event) {
+                    event.preventDefault();
+                    modal.close();
+                    resolve(false);
+                }.bind(this)));
 
-        modal.open($d);
-        return Promise.resolve();
+            $d.append(SPACE);
+
+            $d.append($('<button/>')
+                .text("Yes")
+                .css({ 'float': 'right' })
+                .click(async function (event) {
+                    event.preventDefault();
+                    modal.close();
+                    resolve(true);
+                }.bind(this)));
+
+            modal.open($d);
+        });
     }
 }

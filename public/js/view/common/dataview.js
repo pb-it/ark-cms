@@ -24,7 +24,7 @@ class DataView {
             .addClass('details');
 
         if (skeleton) {
-            var field;
+            var attribute;
             var name;
             var view;
             var value;
@@ -32,15 +32,15 @@ class DataView {
             var $name;
             var $value;
             for (var i = 0; i < skeleton.length; i++) {
-                field = skeleton[i];
-                if (!field.hidden || field.hidden == false) {
-                    name = field.name;
+                attribute = skeleton[i];
+                if (!attribute['hidden'] || attribute['hidden'] == false) {
+                    name = attribute['name'];
 
                     $name = $('<div/>').addClass('name').html(name + ":");
                     $value = $('<div/>').addClass('value');
 
-                    if (field['dataType']) {
-                        switch (field['dataType']) {
+                    if (attribute['dataType']) {
+                        switch (attribute['dataType']) {
                             case "boolean":
                                 if (data && (data[name] == 0 || data[name] == 1 || data[name] == false || data[name] == true)) {
                                     value = data[name];
@@ -60,7 +60,7 @@ class DataView {
                             case "json":
                                 if (data && data[name]) {
                                     if (typeof data[name] === 'string' || data[name] instanceof String) {
-                                        view = field['view'];
+                                        view = attribute['view'];
                                         if (view) {
                                             switch (view) {
                                                 case 'plain': //preformatted / WYSIWYG
@@ -129,8 +129,8 @@ class DataView {
                                 break;
                             case "url":
                                 if (data && data[name]) {
-                                    if (field.cdn)
-                                        value = CrudObject._buildUrl(field.cdn, data[name]);
+                                    if (attribute['cdn'])
+                                        value = CrudObject._buildUrl(attribute['cdn'], data[name]);
                                     else
                                         value = data[name];
                                     $value.html("<a href='" + value + "' target='_blank'>" + data[name] + "</a><br>");
@@ -138,35 +138,7 @@ class DataView {
                                 break;
                             case "relation":
                                 if (data && data[name]) {
-                                    var $list = $('<ul/>').addClass('select');
-                                    var $li;
-                                    var model = app.controller.getModelController().getModel(field.model);
-                                    var mpcc = model.getModelPanelConfigController();
-                                    var panelConfig = mpcc.getPanelConfig();
-                                    var panel;
-                                    if (field.multiple && Array.isArray(data[name])) {
-                                        var ids = data[name].map(function (x) { return x.id });
-                                        var objs = [];
-                                        var add;
-                                        for (var j = 0; j < Math.ceil(ids.length / 100); j++) {
-                                            add = await app.controller.getDataService().fetchObjectById(field.model, ids.slice(j * 100, (j + 1) * 100));
-                                            objs.push(...add);
-                                        }
-                                        for (var obj of objs) {
-                                            $li = $("<li/>").attr({ 'data-id': obj.getData().id })
-                                                .css({ 'clear': 'left' });
-                                            panel = PanelController.createPanelForObject(obj, panelConfig);
-                                            $li.append(await panel.render());
-                                            $list.append($li);
-                                        }
-                                    } else {
-                                        var obj = await app.controller.getDataService().fetchObjectById(field.model, data[name].id);
-                                        $li = $("<li/>").attr({ 'data-id': obj.getData().id })
-                                            .css({ 'clear': 'left' });
-                                        panel = PanelController.createPanelForObject(obj, panelConfig);
-                                        $li.append(await panel.render());
-                                        $list.append($li);
-                                    }
+                                    var $list = await DataView.renderRelation(attribute, data[name]);
                                     $value.append($list);
                                 }
                                 break;
@@ -206,7 +178,7 @@ class DataView {
                                     $value.html("");
                                 break;
                             default:
-                                $value.html("&lt;" + field['dataType'] + "&gt;");
+                                $value.html("&lt;" + attribute['dataType'] + "&gt;");
                         }
                     }
                     $div.append($name);
@@ -216,5 +188,44 @@ class DataView {
             }
         }
         return Promise.resolve($div);
+    }
+
+    static async renderRelation(attribute, data) {
+        var modelName = attribute['model'];
+        var $list = $('<ul/>').addClass('select');
+        var $li;
+        var model = app.controller.getModelController().getModel(modelName);
+        var mpcc = model.getModelPanelConfigController();
+        var panelConfig = mpcc.getPanelConfig();
+        var panel;
+        if (attribute['multiple'] && Array.isArray(data)) {
+            var ids = data.map(function (x) { return x['id'] });
+            var objs = [];
+            var add;
+            for (var j = 0; j < Math.ceil(ids.length / 100); j++) {
+                add = await app.controller.getDataService().fetchObjectById(modelName, ids.slice(j * 100, (j + 1) * 100));
+                objs.push(...add);
+            }
+            for (var obj of objs) {
+                $li = $("<li/>").attr({ 'data-id': obj.getData().id })
+                    .css({ 'clear': 'left' });
+                panel = PanelController.createPanelForObject(obj, panelConfig);
+                $li.append(await panel.render());
+                $list.append($li);
+            }
+        } else {
+            var id = data['id'];
+            if (id) {
+                var obj = await app.controller.getDataService().fetchObjectById(modelName, id);
+                if (obj) {
+                    $li = $("<li/>").attr({ 'data-id': obj.getData()['id'] })
+                        .css({ 'clear': 'left' });
+                    panel = PanelController.createPanelForObject(obj, panelConfig);
+                    $li.append(await panel.render());
+                    $list.append($li);
+                }
+            }
+        }
+        return Promise.resolve($list);
     }
 }

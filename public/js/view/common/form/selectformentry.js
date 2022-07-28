@@ -12,7 +12,9 @@ class SelectFormEntry extends FormEntry {
 
         if (this._attribute['readonly']) {
             this._value = value;
-            $div.append(JSON.stringify(value)); //TODO: reuse rendering of select from dataview
+
+            var $list = await DataView.renderRelation(this._attribute, value);
+            $div.append($list);
         } else {
             this._select = new Select(this._id, this._attribute['model'], this._form.getCallback());
 

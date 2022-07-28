@@ -109,8 +109,8 @@ class ConfigPanel extends TabPanel {
             var $div = $('<div/>')
                 .css({ 'padding': '10' });
 
-            for (var entry of app.controller.getLogger().getAllEntries()) {
-                $div.append(entry + "<br/>");
+            for (var entry of app.controller.getLogger().getAllLogEntries()) {
+                $div.append(entry.toString() + "<br/>");
             }
 
             return Promise.resolve($div);

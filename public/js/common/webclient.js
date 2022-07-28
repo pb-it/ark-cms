@@ -1,6 +1,9 @@
 class WebClient {
 
     static request(method, url, data) {
+        var logger = app.controller.getLogger();
+        var msg = method + " " + url;
+        logger.addLogEntry(new LogEntry(msg, 'WebClient'));
         return new Promise(function (resolve, reject) {
             function error() {
                 var err = {
