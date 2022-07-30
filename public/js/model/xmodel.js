@@ -1,9 +1,14 @@
 class XModel {
 
     _data;
+    _id;
+    _version;
 
-    constructor(data) {
+    constructor(data, version) {
         this._data = data;
+        this._id = data['id'];
+        delete data['id'];
+        this._version = version;
     }
 
     init() {
@@ -22,12 +27,21 @@ class XModel {
         return Promise.resolve();
     }
 
+    getId() {
+        return this._id;
+    }
+
     getName() {
         return this._data['name'];
     }
 
     async uploadData() {
-        var url = app.controller.getConfigController().getApiOrigin() + "/models";
+        var version;
+        if (this._version)
+            version = this._version;
+        else
+            version = app.controller.getVersionController().getAppVersion();
+        var url = app.controller.getConfigController().getApiOrigin() + "/models?v=" + encodeURIComponent(version);
         return WebClient.request("PUT", url, this._data);
     }
 

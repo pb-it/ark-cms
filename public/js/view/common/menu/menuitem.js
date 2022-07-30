@@ -75,6 +75,11 @@ class MenuItem {
         return $div;
     }
 
+    addNotification(text) {
+        var $bubble = $('<span/>').addClass('bubble').text(text);
+        this._$div.append($bubble);
+    }
+
     getName() {
         var res;
         if (this._conf.name)

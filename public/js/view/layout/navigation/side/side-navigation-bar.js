@@ -1,21 +1,35 @@
 class SideNavigationBar {
 
     _$sideNav;
-    _$iconBar;
 
-    _iconBar;
+    _topIconBar;
+    _$topIconBar;
+
+    _bottomIconBar;
+    _$bottomIconBar;
+
+    _confMenuItem;
+
     _sidePanel;
+    _$sidePanel;
 
     constructor() {
         this._$sideNav = $('div#sidenav');
 
-        this._iconBar = new Menu();
-        this._$iconBar = this._iconBar.renderMenu();
-        this._$iconBar.addClass('iconbar');
-        this._$sideNav.append(this._$iconBar);
+        this._topIconBar = new Menu();
+        this._$topIconBar = this._topIconBar.renderMenu();
+        this._$topIconBar.addClass('iconbar');
+        this._$sideNav.append(this._$topIconBar);
+
+        this._bottomIconBar = new Menu();
+        this._$bottomIconBar = this._bottomIconBar.renderMenu();
+        this._$bottomIconBar.addClass('iconbar');
+        this._$bottomIconBar.css({ 'position': 'absolute', 'bottom': 0, 'left': 0 });
+        this._$sideNav.append(this._$bottomIconBar);
 
         this._sidePanel = new SidePanel();
-        this._$sideNav.append(this._sidePanel.renderSidePanel());
+        this._$sidePanel = this._sidePanel.renderSidePanel();
+        this._$sideNav.append(this._$sidePanel);
 
         window.addEventListener('click', function (event) {
             var node = $(event.target);
@@ -34,69 +48,134 @@ class SideNavigationBar {
     }
 
     renderSideNavigationBar() {
-        this._initIconBar();
-        this._iconBar.renderMenu();
+        this._initTopIconBar();
+        this._topIconBar.renderMenu();
+
+        this._initBottomIconBar();
+        this._bottomIconBar.renderMenu();
+
+        if (!app.controller.hasConnection())
+            this._confMenuItem.addNotification('!');
+
         this.close();
     }
 
-    _initIconBar() {
-        this._iconBar.clearMenu();
+    _initTopIconBar() {
+        this._topIconBar.clearMenu();
 
-        var conf = {
-            'style': 'iconbar',
-            'icon': "home",
-            'tooltip': "Home",
-            'click': function (event, icon) {
-                this.close();
-                app.controller.loadState(new State(), true);
-            }.bind(this)
-        };
-        var menuItem = new MenuItem(conf);
-        this._iconBar.addMenuItem(menuItem, true);
-
-        if (app.controller.isInDebugMode()) {
-            conf = {
+        if (app.controller.hasConnection()) {
+            var conf = {
                 'style': 'iconbar',
-                'icon': "redo",
-                'tooltip': "Reload",
+                'icon': "home",
+                'tooltip': "Home",
                 'click': function (event, icon) {
                     this.close();
-                    var state = app.controller.getStateController().getState();
-                    state.bIgnoreCache = true;
-                    app.controller.loadState(state);
+                    app.controller.loadState(new State(), true);
                 }.bind(this)
             };
-            menuItem = new MenuItem(conf);
-            this._iconBar.addMenuItem(menuItem);
+            var menuItem = new MenuItem(conf);
+            this._topIconBar.addMenuItem(menuItem, true);
+
+            if (app.controller.isInDebugMode()) {
+                conf = {
+                    'style': 'iconbar',
+                    'icon': "redo",
+                    'tooltip': "Reload",
+                    'click': function (event, icon) {
+                        this.close();
+                        var state = app.controller.getStateController().getState();
+                        state.bIgnoreCache = true;
+                        app.controller.loadState(state);
+                    }.bind(this)
+                };
+                menuItem = new MenuItem(conf);
+                this._topIconBar.addMenuItem(menuItem);
+
+                conf = {
+                    'style': 'iconbar',
+                    'icon': "compass",
+                    'tooltip': "Navigate",
+                    'click': async function (event, icon) {
+                        this.close();
+
+                        return app.controller.getModalController().openPanelInModal(new NavigationPanel());
+                    }.bind(this)
+                };
+                menuItem = new MenuItem(conf);
+                this._topIconBar.addMenuItem(menuItem);
+
+                conf = {
+                    'style': 'iconbar',
+                    'icon': "clipboard",
+                    'tooltip': "Cache",
+                    'click': async function (event, icon) {
+                        this.close();
+
+                        return app.controller.getModalController().openPanelInModal(new CachePanel());
+                    }.bind(this)
+                };
+                menuItem = new MenuItem(conf);
+                this._topIconBar.addMenuItem(menuItem);
+            }
 
             conf = {
                 'style': 'iconbar',
-                'icon': "compass",
-                'tooltip': "Navigate",
+                'icon': "cube",
+                'tooltip': "Models",
                 'click': async function (event, icon) {
-                    this.close();
-
-                    return app.controller.getModalController().openPanelInModal(new NavigationPanel());
+                    var activeIcon = this._topIconBar.getActiveItem();
+                    if (activeIcon != icon) {
+                        this._topIconBar.activateItem(icon);
+                        await this._sidePanel.showModelSelect();
+                    } else {
+                        this.close();
+                    }
                 }.bind(this)
             };
             menuItem = new MenuItem(conf);
-            this._iconBar.addMenuItem(menuItem);
+            this._topIconBar.addMenuItem(menuItem);
 
             conf = {
                 'style': 'iconbar',
-                'icon': "clipboard",
-                'tooltip': "Cache",
+                'icon': "database",
+                'tooltip': "Data",
                 'click': async function (event, icon) {
-                    this.close();
-
-                    return app.controller.getModalController().openPanelInModal(new CachePanel());
+                    //event.preventDefault();
+                    //event.stopPropagation();
+                    var activeIcon = this._topIconBar.getActiveItem();
+                    if (activeIcon != icon) {
+                        this._topIconBar.activateItem(icon);
+                        await this._sidePanel.showStateSelect();
+                    } else {
+                        this.close();
+                    }
                 }.bind(this)
             };
             menuItem = new MenuItem(conf);
-            this._iconBar.addMenuItem(menuItem);
+            this._topIconBar.addMenuItem(menuItem);
+
+            if (app.controller.isInDebugMode()) {
+                conf = {
+                    'style': 'iconbar',
+                    'icon': "bookmark",
+                    'tooltip': "Bookmarks",
+                    'click': async function (event, icon) {
+                        this.close();
+
+                        var config = { 'minWidth': '1000px' };
+                        return app.controller.getModalController().openPanelInModal(new ManageBookmarkPanel(config));
+                    }.bind(this)
+                };
+                menuItem = new MenuItem(conf);
+                this._topIconBar.addMenuItem(menuItem);
+            }
         }
+    }
 
-        conf = {
+    _initBottomIconBar() {
+        this._bottomIconBar.clearMenu();
+
+        var conf = {
             'style': 'iconbar',
             'icon': "cog",
             'tooltip': "Configuration",
@@ -106,64 +185,12 @@ class SideNavigationBar {
                 return app.controller.getModalController().openPanelInModal(new ConfigPanel());
             }.bind(this)
         };
-        menuItem = new MenuItem(conf);
-        this._iconBar.addMenuItem(menuItem);
-
-        conf = {
-            'style': 'iconbar',
-            'icon': "cube",
-            'tooltip': "Models",
-            'click': async function (event, icon) {
-                var activeIcon = this._iconBar.getActiveItem();
-                if (activeIcon != icon) {
-                    this._iconBar.activateItem(icon);
-                    await this._sidePanel.showModelSelect();
-                } else {
-                    this.close();
-                }
-            }.bind(this)
-        };
-        menuItem = new MenuItem(conf);
-        this._iconBar.addMenuItem(menuItem);
-
-        conf = {
-            'style': 'iconbar',
-            'icon': "database",
-            'tooltip': "Data",
-            'click': async function (event, icon) {
-                //event.preventDefault();
-                //event.stopPropagation();
-                var activeIcon = this._iconBar.getActiveItem();
-                if (activeIcon != icon) {
-                    this._iconBar.activateItem(icon);
-                    await this._sidePanel.showStateSelect();
-                } else {
-                    this.close();
-                }
-            }.bind(this)
-        };
-        menuItem = new MenuItem(conf);
-        this._iconBar.addMenuItem(menuItem);
-
-        if (app.controller.isInDebugMode()) {
-            conf = {
-                'style': 'iconbar',
-                'icon': "bookmark",
-                'tooltip': "Bookmarks",
-                'click': async function (event, icon) {
-                    this.close();
-
-                    var config = { 'minWidth': '1000px' };
-                    return app.controller.getModalController().openPanelInModal(new ManageBookmarkPanel(config));
-                }.bind(this)
-            };
-            menuItem = new MenuItem(conf);
-            this._iconBar.addMenuItem(menuItem);
-        }
+        this._confMenuItem = new MenuItem(conf);
+        this._bottomIconBar.addMenuItem(this._confMenuItem);
     }
 
     close() {
-        this._iconBar.activateItem();
+        this._topIconBar.activateItem();
         this._sidePanel.hideSidePanel();
     }
 }

@@ -1,6 +1,5 @@
 class SearchForm {
 
-    _$searchContainer;
     _$searchForm;
     _$searchField;
     _timer;
@@ -9,9 +8,6 @@ class SearchForm {
     }
 
     initSearchForm() {
-        this._$searchContainer = $('<div/>')
-            .prop('id', 'searchContainer');
-
         this._$searchForm = $('<form/>')
             .prop('id', 'searchForm');
 
@@ -25,11 +21,10 @@ class SearchForm {
             .prop('type', 'submit')
             .append("<i class='fa fa-search'></i>");
 
-        this._$searchContainer.append(this._$searchForm);
         this._$searchForm.append(this._$searchField);
         this._$searchForm.append($button);
 
-        return this._$searchContainer;
+        return this._$searchForm;
     }
 
     renderSearchForm() {

@@ -1,6 +1,6 @@
 class DataService {
 
-    static _sort(model, sort, arr) {
+    static sortData(model, sort, arr) {
         if (arr) {
             var parts = sort.split(":");
             if (parts.length == 2) {
@@ -144,7 +144,7 @@ class DataService {
             }
 
             if (bSort)
-                res = DataService._sort(model, sort, res);
+                res = DataService.sortData(model, sort, res);
 
             if (res && limit && res.length > limit)
                 res = res.slice(0, limit);
@@ -179,7 +179,7 @@ class DataService {
 
             //TODO: fix sort which may have been destroyed by jpath filters with 'or' concatenation
             if (sort)
-                res = DataService._sort(model, sort, res);
+                res = DataService.sortData(model, sort, res);
         }
 
         if (search)

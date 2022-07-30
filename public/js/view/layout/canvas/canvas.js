@@ -116,7 +116,7 @@ class Canvas {
     showContent(content) {
         this._$list.empty();
         this._$list.append(content);
-        this._$corner.show();
+        this._renderCorner();
     }
 
     async showData(data, typeString, action) {
@@ -206,8 +206,16 @@ class Canvas {
         this._loaded = 0;
         this._$list.empty();
         await this._load();
-        this._$corner.show();
+        this._renderCorner();
         return Promise.resolve();
+    }
+
+    _renderCorner() {
+        var state = app.controller.getStateController().getState();
+        if (state && state.getModel())
+            this._$corner.show();
+        else
+            this._$corner.hide();
     }
 
     async _load() {

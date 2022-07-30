@@ -10,6 +10,8 @@ class Controller {
     _versionController;
     _stateController;
 
+    _bConnection = false;
+
     _bLoading = false;
     _selected;
 
@@ -97,6 +99,7 @@ class Controller {
 
     async initController() {
         var bInitDone = false;
+        this._bConnection = false;
         this.setLoadingState(true);
 
         this._configController = new ConfigController();
@@ -129,6 +132,7 @@ class Controller {
             this._bookmarkController = new BookmarkController();
             await this._bookmarkController.init();
 
+            this._bConnection = true;
             bInitDone = true;
         } catch (error) {
             this.showError(error, "Connection to API failed");
@@ -138,10 +142,15 @@ class Controller {
         return Promise.resolve(bInitDone);
     }
 
+    hasConnection() {
+        return this._bConnection;
+    }
+
     async loadState(state, push, replace) {
         this._data = null;
         try {
-            this._modalController.closeAll();
+            if (!this._versionController.isTutorial())
+                this._modalController.closeAll();
 
             this.setLoadingState(true);
 
@@ -218,10 +227,12 @@ class Controller {
         }
 
         console.log(error);
-        this.showErrorMessage(msg);
+        this._modalController.openErrorModal(error, msg);
     }
 
     showErrorMessage(msg) {
+        var logger = this.getLogger();
+        logger.addLogEntry(new LogEntry(msg, SeverityEnum.ERROR));
         alert(msg);
     }
 

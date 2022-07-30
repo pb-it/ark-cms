@@ -4,6 +4,8 @@ class VersionController {
 
     _appVersion;
 
+    _bTutorial = false;
+
     constructor() {
     }
 
@@ -22,6 +24,7 @@ class VersionController {
                     bSet = true;
                 }
             } else {
+                this._bTutorial = true;
                 app.controller.getModalController().openPanelInModal(new TutorialPanel());
                 bSet = true;
             }
@@ -29,6 +32,10 @@ class VersionController {
                 this.setAppVersion(this._appVersion);
         }
         return Promise.resolve();
+    }
+
+    isTutorial() {
+        return this._bTutorial;
     }
 
     async checkForUpdates() {

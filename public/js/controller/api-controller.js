@@ -7,19 +7,19 @@ class ApiController {
     }
 
     async reloadModels() {
-        this.setLoadingState(true);
+        app.controller.setLoadingState(true);
         var url = this._origin + "/system/reload";
         await WebClient.request("GET", url);
-        this.setLoadingState(false);
+        app.controller.setLoadingState(false);
         return Promise.resolve();
     }
 
     async restartApi() {
-        this.setLoadingState(true);
+        app.controller.setLoadingState(true);
         var url = this._origin + "/system/restart";
         await WebClient.request("GET", url);
         //TODO: sleep?
-        this.setLoadingState(false);
+        app.controller.setLoadingState(false);
         return Promise.resolve();
     }
 

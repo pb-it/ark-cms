@@ -1,8 +1,13 @@
 class TopNavigationBar {
 
     _$topNavigationBar;
+
     _breadcrumb;
+
     _searchForm;
+    _$searchForm;
+    _$searchContainer;
+
     _$menu;
 
     constructor() {
@@ -16,14 +21,25 @@ class TopNavigationBar {
         this._$topNavigationBar.append(this._$menu);
 
         this._searchForm = new SearchForm();
-        var $searchForm = this._searchForm.initSearchForm();
-        //$searchForm.css({ 'float': 'right' });
-        this._$topNavigationBar.append($searchForm);
+        this._$searchForm = this._searchForm.initSearchForm();
+
+        this._$searchContainer = $('<div/>')
+            .prop('id', 'searchContainer');
+        //this._$searchContainer.css({ 'float': 'right' });
+
+        this._$topNavigationBar.append(this._$searchContainer);
     }
 
     renderTopNavigationBar() {
         this._breadcrumb.renderBreadcrumb();
-        this._searchForm.renderSearchForm();
+
+        this._$searchContainer.empty();
+        var state = app.controller.getStateController().getState();
+        if (state && state.getModel()) {
+            this._$searchContainer.append(this._$searchForm);
+            this._searchForm.renderSearchForm();
+        }
+
         this._renderMenu();
     }
 

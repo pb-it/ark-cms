@@ -20,7 +20,7 @@ class ModelCache {
             if (this._completeRecordSet) {
                 if (this._defaultSort) {
                     this._completeRecordSet.push(data);
-                    this._completeRecordSet = DataService._sort(this._model, this._defaultSort, this._completeRecordSet);
+                    this._completeRecordSet = DataService.sortData(this._model, this._defaultSort, this._completeRecordSet);
                 } else
                     this._completeRecordSet.unshift(data);
             }
@@ -77,7 +77,7 @@ class ModelCache {
         if (sort) {
             var sorted;
             if (this._defaultSort && this._defaultSort != sort)
-                sorted = DataService._sort(this._model, this._defaultSort, [...res]);
+                sorted = DataService.sortData(this._model, this._defaultSort, [...data]);
         }
         if (!sorted)
             sorted = data;

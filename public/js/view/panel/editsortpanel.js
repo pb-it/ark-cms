@@ -7,7 +7,7 @@ class EditSortPanel extends Panel {
         var skeleton = [
             {
                 name: 'sortCriteria',
-                tooltip: 'if undefined default sort depends on used database but most common is newest records first',
+                tooltip: 'if undefined default sort depends on used database but most common is oldest record first',
                 dataType: 'enumeration',
                 options: options,
                 view: 'select'

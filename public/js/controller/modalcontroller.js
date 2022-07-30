@@ -132,4 +132,37 @@ class ModalController {
             modal.open($d);
         });
     }
+
+    async openErrorModal(error, msg) {
+        return new Promise(function (resolve, reject) {
+            var modal = app.controller.getModalController().addModal();
+
+            var $d = $('<div/>')
+                .html("<br/>ERROR:\n" + msg + "<br/><br/>")
+                .addClass('pre');
+
+            $d.append($('<button/>')
+                .text("Send E-Mail")
+                .click(async function (event) {
+                    event.preventDefault();
+
+                    var str = error.toString();
+                    //var str = JSON.stringify(error, null, '\t'); //ReferenceError must be flattened to retrieve stack trace: https://stackoverflow.com/questions/8779249/how-to-stringify-inherited-objects-to-json
+                    window.location.href = 'mailto:support@pb-it.at?subject=ERROR: ' + encodeURIComponent(msg) + '&body=' + encodeURIComponent(str);
+                }.bind(this)));
+
+            $d.append(SPACE);
+
+            $d.append($('<button/>')
+                .text("OK")
+                .css({ 'float': 'right' })
+                .click(async function (event) {
+                    event.preventDefault();
+                    modal.close();
+                    resolve();
+                }.bind(this)));
+
+            modal.open($d);
+        });
+    }
 }

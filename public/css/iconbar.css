@@ -1,28 +1,40 @@
 div.menu.iconbar {
-  display: block;
-  float: left;
-  width: 54px;
-  height: 100%;
-  background-color: #282a35;
+    display: block;
+    float: left;
+    width: 54px;
+    background-color: #282a35;
 }
 
 div.menuitem.iconbar {
-  padding: 14px 16px;
+    padding: 14px 16px;
 
-  text-align: center;
-  text-decoration: none;
-  box-shadow: none;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: none;
 
-  background-color: #282a35;
-  color: white;
+    background-color: #282a35;
+    color: white;
 }
 
 div.menuitem.iconbar.active {
-  background-color: #2196f3;
-  color: white;
+    background-color: #2196f3;
+    color: white;
 }
 
 div.menuitem.iconbar:hover:not(.active) {
-  background-color: #ddd;
-  color: black;
+    background-color: #ddd;
+    color: black;
+}
+
+span.bubble {
+    position: relative;
+    top: -8px;
+    display: inline-block;
+    text-align: center;
+    font-size: .75rem;
+    line-height: 1rem;
+    min-width: 1rem;
+    border-radius: .5rem;
+    color: #fff;
+    background: #f9423a
 }

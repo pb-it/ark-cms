@@ -113,11 +113,12 @@ class CrudPanel extends CanvasPanel {
                         this._openEdit();
                     }.bind(this)));
                 break;
+            case DetailsEnum.none:
+                break;
             case DetailsEnum.title:
+            default:
                 $div = $('<div/>')
                     .html(encodeText(this._obj.getTitle()));
-                break;
-            case DetailsEnum.none:
         }
         return Promise.resolve($div);
     }

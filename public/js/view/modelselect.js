@@ -103,6 +103,7 @@ class ModelSelect {
                                 if (this.files.length == 1) {
                                     const reader = new FileReader();
                                     reader.onload = async function fileReadCompleted() {
+                                        var version;
                                         var models = [];
                                         var routes;
                                         var profiles;
@@ -110,13 +111,14 @@ class ModelSelect {
                                         if (reader.result) {
                                             try {
                                                 var conf = JSON.parse(reader.result);
+                                                version = conf[MODEL_VERSION_IDENT];
                                                 routes = conf[RouteController.CONFIG_ROUTES_IDENT];
                                                 profiles = conf[ProfileController.CONFIG_PROFILE_IDENT];
                                                 bookmarks = conf[BookmarkController.CONFIG_BOOKMARK_IDENT];
                                                 var mDataArr = conf[ModelController.MODELS_IDENT];
                                                 if (mDataArr) {
                                                     for (var mData of mDataArr) {
-                                                        models.push(new XModel(mData));
+                                                        models.push(new XModel(mData, version));
                                                     }
                                                 }
                                             } catch (error) {

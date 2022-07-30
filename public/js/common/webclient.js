@@ -3,7 +3,7 @@ class WebClient {
     static request(method, url, data) {
         var logger = app.controller.getLogger();
         var msg = method + " " + url;
-        logger.addLogEntry(new LogEntry(msg, 'WebClient'));
+        logger.addLogEntry(new LogEntry(msg, SeverityEnum.INFO, 'WebClient'));
         return new Promise(function (resolve, reject) {
             function error() {
                 var err = {
