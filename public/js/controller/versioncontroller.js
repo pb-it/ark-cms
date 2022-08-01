@@ -4,7 +4,7 @@ class VersionController {
 
     _appVersion;
 
-    _bTutorial = false;
+    _bModal = false;
 
     constructor() {
     }
@@ -20,22 +20,56 @@ class VersionController {
                 last = window.localStorage.getItem(APP_VERSION_IDENT);
             if (last) {
                 if (last !== this._appVersion) {
-                    ; //TODO: show changelog
+                    this.viewUpdateInfo();
                     bSet = true;
                 }
             } else {
-                this._bTutorial = true;
                 app.controller.getModalController().openPanelInModal(new TutorialPanel());
                 bSet = true;
             }
-            if (bSet)
+            if (bSet) {
                 this.setAppVersion(this._appVersion);
+                this._bModal = true;
+            }
         }
         return Promise.resolve();
     }
 
-    isTutorial() {
-        return this._bTutorial;
+    viewUpdateInfo() {
+        var panel = new Panel();
+
+        var $d = $('<div/>')
+            .css({ 'padding': '10' });
+
+        $d.append("<b>Info:</b><br/>");
+        $d.append("You are now using version '" + this._appVersion + "' of this application.<br/><br/>");
+
+        var $skip = $('<button>')
+            .text('View Changelog')
+            .click(async function (event) {
+                event.stopPropagation();
+
+                window.open('https://github.com/pb-it/wing-cms/blob/main/CHANGELOG.md');
+            }.bind(this));
+        $d.append($skip);
+        var $ok = $('<button>')
+            .text('OK')
+            .css({ 'float': 'right' })
+            .click(async function (event) {
+                event.stopPropagation();
+
+                this.dispose();
+                return Promise.resolve();
+            }.bind(panel));
+        $d.append($ok);
+
+        panel.setContent($d);
+
+        app.controller.getModalController().openPanelInModal(panel);
+    }
+
+    hasOpenModal() {
+        return this._bModal;
     }
 
     async checkForUpdates() {

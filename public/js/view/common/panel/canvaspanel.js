@@ -1,3 +1,6 @@
+/**
+ * Panel for usage in container (canvas, select, etc.)
+ */
 class CanvasPanel extends Panel {
 
     _title;
@@ -78,11 +81,11 @@ class CanvasPanel extends Panel {
     }
 
     _initContextMenu() {
-        this._$panel.on("contextmenu.panel", function (event) {
+        this._$panel.on("contextmenu.panel", async function (event) {
             event.preventDefault();
             event.stopPropagation(); // stop propagation to container
             if (!this._bSelected)
-                app.controller.select(event.ctrlKey, event.shiftKey, this);
+                await app.controller.select(event.ctrlKey, event.shiftKey, this);
             ContextMenuController.renderMenu(event.pageX, event.pageY, this);
         }.bind(this));
     }

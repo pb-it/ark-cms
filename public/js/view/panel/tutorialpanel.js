@@ -25,7 +25,7 @@ class TutorialPanel extends Panel {
                     }.bind(this));
                 $div.append($skip);
                 var $continue = $('<button>')
-                    .text('Continue')
+                    .text('Start')
                     .css({ 'float': 'right' })
                     .click(async function (event) {
                         event.stopPropagation();
@@ -35,7 +35,7 @@ class TutorialPanel extends Panel {
                 $div.append($continue);
                 break;
             case 2:
-                $div.append("to be continued ...<br/><br/>");
+                $div.append("under construction - coming soon ...<br/><br/>");
                 $div.append("<img src=\"https://c.tenor.com/_4YgA77ExHEAAAAd/rick-roll.gif\"/>");
                 $div.append("<br/><br/>");
 

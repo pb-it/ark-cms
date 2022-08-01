@@ -7,6 +7,20 @@ const bodyParser = require('body-parser');
 const serverConfig = require('./config/server');
 const webclient = require('./src/common/webclient.js');
 
+async function update() {
+    console.log("[App] Processing update request..");
+    var appRoot = path.resolve(__dirname);
+    return new Promise((resolve, reject) => {
+        require("child_process").exec('cd ' + appRoot + ' && git pull && npm install', function (err, stdout, stderr) {
+            if (err)
+                reject(err);
+            else {
+                resolve(stdout);
+            }
+        }.bind(this));
+    });
+}
+
 function restart() {
     if (!serverConfig.pm2) {
         process.on("exit", function () {
@@ -39,17 +53,32 @@ systemRouter.get('/info', function (req, res) {
     info['version'] = pkg['version'];
     res.json(info);
 });
-systemRouter.get('/update', function (req, res) {
-    var appRoot = path.resolve(__dirname);
-    require("child_process").exec('cd ' + appRoot + ' && git pull && npm update', function (err, stdout, stderr) {
-        if (err)
-            console.error(`exec error: ${err}`);
+systemRouter.get('/update', async function (req, res) {
+    var msg;
+    var bUpdated = false;
+    try {
+        msg = await update();
+        console.log(msg);
+        var bUpToDate = 'Already up to date.';
+        if (msg.startsWith(bUpToDate))
+            console.log("[App] " + bUpToDate);
         else {
-            console.log(stdout);
-            restart();
+            console.log("[App] ✔ Updated");
+            bUpdated = true;
         }
-    }.bind(this));
-    res.send("updating..");
+    } catch (error) {
+        if (error['message'])
+            msg = error['message'];
+        else
+            msg = error;
+        console.error(msg);
+        console.log("[App] ✘ Update failed");
+    } finally {
+        res.send(msg.replace('\n', '<br/>'));
+    }
+    if (bUpdated)
+        this.restart();
+    return Promise.resolve();
 });
 systemRouter.post('/curl', async (req, res, next) => {
     var url = req.body.url;
@@ -89,5 +118,5 @@ app.use(function (err, req, res, next) {
 });
 
 app.listen(serverConfig.port, () => {
-    console.log("✔ Express server listening on port %d in %s mode", serverConfig.port, app.get('env'));
+    console.log("[Express] ✔ Server listening on port %d in %s mode", serverConfig.port, app.get('env'));
 });

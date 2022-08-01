@@ -166,10 +166,9 @@ class CrudPanel extends CanvasPanel {
             try {
                 app.controller.setLoadingState(true);
 
-                var data;
+                var data = await this._readData(false);
                 var check = this._obj.getModel().getCheckAction();
                 if (check) {
-                    data = await this._readData(false);
                     data = await check(data);
                     if (data) {
                         //hidden attributes which got changed must be made visible

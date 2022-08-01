@@ -18,21 +18,44 @@ class ModelCache {
     cache(action, url, data) {
         if (action && action == ActionEnum.create) {
             if (this._completeRecordSet) {
-                if (this._defaultSort) {
-                    this._completeRecordSet.push(data);
+                this._completeRecordSet.push(data);
+                if (this._defaultSort)
                     this._completeRecordSet = DataService.sortData(this._model, this._defaultSort, this._completeRecordSet);
-                } else
-                    this._completeRecordSet.unshift(data);
             }
             this._urls = []; // delete outdated queries
         }
         this._urls[url] = data;
         if (Array.isArray(data)) {
-            for (var d of data) {
+            for (var d of data)
                 this._dataCache[d['id']] = d;
-            }
         } else
             this._dataCache[data['id']] = data;
+
+        if (this._completeRecordSet) {
+            var arr = [];
+            if (Array.isArray(data)) {
+                var map = new Map();
+                for (var d of data)
+                    map.set(d['id'], d);
+
+                var x;
+                for (var d of this._completeRecordSet) {
+                    x = map.get(d['id']);
+                    if (x)
+                        arr.push(x);
+                    else
+                        arr.push(d);
+                }
+            } else {
+                for (var d of this._completeRecordSet) {
+                    if (d['id'] == data['id'])
+                        arr.push(data);
+                    else
+                        arr.push(d);
+                }
+            }
+            this._completeRecordSet = arr;
+        }
     }
 
     delete(id) {

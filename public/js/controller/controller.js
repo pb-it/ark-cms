@@ -149,7 +149,7 @@ class Controller {
     async loadState(state, push, replace) {
         this._data = null;
         try {
-            if (!this._versionController.isTutorial())
+            if (!this._versionController.hasOpenModal())
                 this._modalController.closeAll();
 
             this.setLoadingState(true);

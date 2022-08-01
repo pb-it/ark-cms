@@ -81,7 +81,7 @@ class ModalController {
         return Promise.resolve();
     }
 
-    static async openCrudObjectInModal(action, obj) {
+    async openCrudObjectInModal(action, obj) {
         return new Promise(async function (resolve, reject) {
             var model = obj.getModel();
             var mpcc = model.getModelPanelConfigController();

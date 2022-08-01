@@ -66,6 +66,7 @@ docker run -p 4000:4000 -it <image name> /bin/bash
 
 ## Changelog
 
+[Changelog](./CHANGELOG.md)
 
 ## Roadmap
 

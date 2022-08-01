@@ -33,12 +33,14 @@ class TopNavigationBar {
     renderTopNavigationBar() {
         this._breadcrumb.renderBreadcrumb();
 
-        this._$searchContainer.empty();
+
         var state = app.controller.getStateController().getState();
         if (state && state.getModel()) {
-            this._$searchContainer.append(this._$searchForm);
+            if (this._$searchContainer.children().length == 0)
+                this._$searchContainer.append(this._$searchForm);
             this._searchForm.renderSearchForm();
-        }
+        } else
+            this._$searchContainer.empty();
 
         this._renderMenu();
     }
