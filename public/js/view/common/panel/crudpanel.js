@@ -32,7 +32,7 @@ class CrudPanel extends CanvasPanel {
 
         await super._init();
 
-        //@depricated - don't make the apllication depend on data stored in the visualization
+        //@depricated - don't make the application depend on data stored in the visualization
         //this._$panel.attr("data-type", this._obj.getTypeString());
         //this._$panel.attr("data-id", this._obj.getData().id);
 

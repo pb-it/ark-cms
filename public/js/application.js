@@ -13,6 +13,7 @@ class Application {
     }
 
     async run() {
+        var bLoaded = false;
         try {
             if (await this.controller.initController()) {
                 var state;
@@ -22,12 +23,16 @@ class Application {
                     this.controller.showError(error, "404: Not Found");
                 }
 
-                if (state)
+                if (state) {
                     await this.controller.loadState(state);
+                    bLoaded = true;
+                }
             }
         } catch (err) {
             console.log(err);
         }
+        if (!bLoaded)
+            this.controller.getView().init();
         return Promise.resolve();
     }
 }

@@ -9,10 +9,10 @@ class DataView {
             index = arr[i].indexOf('</html>');
             if (index >= 0) {
                 index += 7;
-                res += arr[i].substring(0, index).replace(/\n/g, "")
+                res += '<div>' + arr[i].substring(0, index).replace(/\n/g, "")
                     .replace(/[\t ]+\</g, "<")
                     .replace(/\>[\t ]+\</g, "><")
-                    .replace(/\>[\t ]+$/g, ">");
+                    .replace(/\>[\t ]+$/g, ">") + '</div>';
                 res += encodeText(arr[i].substring(index));
             }
         }

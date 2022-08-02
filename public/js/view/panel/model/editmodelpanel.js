@@ -47,6 +47,8 @@ class EditModelPanel extends TabPanel {
                 var fData = await this._rawForm.readForm();
                 this._definition = JSON.parse(fData.json);
                 await this._model.setData(this._definition, false);
+            } else {
+                this._definition = await this._readDefinition();
             }
             return Promise.resolve();
         }.bind(this));
@@ -240,5 +242,10 @@ class EditModelPanel extends TabPanel {
             await app.controller.getModalController().openPanelInModal(panel);
         }
         Promise.resolve();
+    }
+
+    async _getChanges() {
+        var changed = (JSON.stringify(this._originalModel.getData()) !== JSON.stringify(await this._readDefinition()))
+        return Promise.resolve(changed);
     }
 }

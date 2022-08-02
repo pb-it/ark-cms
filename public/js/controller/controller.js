@@ -113,7 +113,7 @@ class Controller {
         await this._versionController.initVersionController();
 
         this._stateController = new StateController();
-        this._view.init(); //TODO: untidy/unlovely that view depends on parsed state
+        //this._view.init(); //TODO: untidy/unlovely that view depends on parsed state
 
         this._panelController = new PanelController();
 
