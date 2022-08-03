@@ -29,26 +29,35 @@ class EditModelPanel extends TabPanel {
         await super._init();
 
         this._$attributesPanel = await this._createAttributesPanel();
-        this._$defaultsPanel = new EditModelDefaultsPanel(this._model);
-        this._$actionsPanel = await this._createActionsPanel();
-        this._$extensionsPanel = await this._createExtensionsPanel();
-        this._$rawPanel = await this._createRawPanel();
-
         this._panels.push(this._$attributesPanel);
+
+        this._$defaultsPanel = new EditModelDefaultsPanel(this._model);
         this._panels.push(this._$defaultsPanel);
-        this._panels.push(this._$actionsPanel);
-        this._panels.push(this._$extensionsPanel);
-        this._panels.push(this._$rawPanel);
+
+        if (app.controller.isInDebugMode()) {
+            this._$actionsPanel = await this._createActionsPanel();
+            this._panels.push(this._$actionsPanel);
+
+            this._$extensionsPanel = await this._createExtensionsPanel();
+            this._panels.push(this._$extensionsPanel);
+
+            this._$rawPanel = await this._createRawPanel();
+            this._panels.push(this._$rawPanel);
+        }
 
         await this.openTab(this._$attributesPanel);
 
         this.setTabSwitchCallback(async function (oldTab, newTab) {
-            if (oldTab == this._$rawPanel) {
-                var fData = await this._rawForm.readForm();
-                this._definition = JSON.parse(fData.json);
-                await this._model.setData(this._definition, false);
-            } else {
-                this._definition = await this._readDefinition();
+            try {
+                if (oldTab == this._$rawPanel) {
+                    var fData = await this._rawForm.readForm();
+                    this._definition = JSON.parse(fData.json);
+                    await this._model.setData(this._definition, false);
+                } else {
+                    this._definition = await this._readDefinition();
+                }
+            } catch (error) {
+                app.controller.showError(error);
             }
             return Promise.resolve();
         }.bind(this));
@@ -154,18 +163,18 @@ class EditModelPanel extends TabPanel {
 
     async _readDefinition() {
         var definition = this._definition;
-        var defaults = await this._$defaultsPanel.getData();
+        var defaults = shrink(await this._$defaultsPanel.getData());
         if (defaults)
             definition['defaults'] = defaults;
 
         if (this._actionForm) {
             var fData = await this._actionForm.readForm();
-            if (Object.keys(fData).length > 0)
+            if (!isEmpty(fData))
                 definition['actions'] = fData;
         }
 
         if (this._extensionForm) {
-            fData = await this._extensionForm.readForm();
+            var fData = await this._extensionForm.readForm();
             if (fData['extensions'])
                 definition['extensions'] = fData['extensions'];
         }
@@ -245,7 +254,9 @@ class EditModelPanel extends TabPanel {
     }
 
     async _getChanges() {
-        var changed = (JSON.stringify(this._originalModel.getData()) !== JSON.stringify(await this._readDefinition()))
-        return Promise.resolve(changed);
+        var org = JSON.stringify(this._originalModel.getData());
+        var current = JSON.stringify(await this._readDefinition());
+        var bChanged = (org !== current);
+        return Promise.resolve(bChanged);
     }
 }

@@ -109,8 +109,11 @@ class AddAttributeController {
                                 { 'value': 'plain' },
                                 { 'value': 'html' },
                                 { 'value': 'combined' },
-                                { 'value': 'markdown', 'disabled': true }
+                                { 'value': 'markdown' },
+                                { 'value': 'auto', 'disabled': true },
                             ],
+                            'tooltip': `Default behavior is as \'combined\' which forces the browser to interpret and render the text inbetween \<html\>/\</html\> tags.
+To prevent this change the view to \'plain\'.`,
                             'view': 'select'
                         },
                         { 'name': 'size', 'dataType': 'string' },

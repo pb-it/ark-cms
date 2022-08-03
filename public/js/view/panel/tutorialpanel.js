@@ -14,7 +14,7 @@ class TutorialPanel extends Panel {
         switch (this._page) {
             case 1:
                 $div.append("Welcome!<br/><br/>");
-                $div.append("This tutorial with guide you throw the basics.<br/><br/>");
+                $div.append("This tutorial with guide you through the basics.<br/><br/>");
 
                 var $skip = $('<button>')
                     .text('Skip')

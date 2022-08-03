@@ -31,7 +31,7 @@ class SideNavigationBar {
         this._$sidePanel = this._sidePanel.renderSidePanel();
         this._$sideNav.append(this._$sidePanel);
 
-        window.addEventListener('click', function (event) {
+        window.addEventListener('click.sidenav', function (event) {
             var node = $(event.target);
             var bInside = node.is(this._$sideNav);
             while (!bInside) {
@@ -120,7 +120,7 @@ class SideNavigationBar {
 
             conf = {
                 'style': 'iconbar',
-                'icon': "cube",
+                'icon': "pen-ruler",
                 'tooltip': "Models",
                 'click': async function (event, icon) {
                     var activeIcon = this._topIconBar.getActiveItem();

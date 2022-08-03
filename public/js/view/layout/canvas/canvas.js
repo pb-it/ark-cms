@@ -65,15 +65,26 @@ class Canvas {
             }
         }.bind(this));
 
-        window.addEventListener('click', function (event) {
+        $(window).off('click.canvas');
+        $(window).on('click.canvas', function (event) {
             if (!app.controller.getModalController().isModalOpen()) {
                 try {
-                    if (event.target && event.target.classList && !(event.target.classList.contains('panel') || event.target.classList.contains('thumbnail'))) {
-                        var parent = event.target.parentNode;
-                        if (!(parent && parent.classList && parent.classList.contains('thumbnail'))) {
-                            if (!(event.ctrlKey || event.shiftKey))
-                                app.controller.clearSelected();
+                    var bClear = false;
+                    if (event.target && event.target.classList) {
+                        if (!(event.target.classList.contains('panel') || event.target.classList.contains('thumbnail'))) {
+                            var parent = event.target.parentNode;
+                            if (parent && parent.classList) {
+                                if (!(parent.classList.contains('panel') || parent.classList.contains('thumbnail')))
+                                    bClear = true;
+                            } else
+                                bClear = true;
                         }
+                    } else
+                        bClear = true;
+
+                    if (bClear) {
+                        if (!(event.ctrlKey || event.shiftKey))
+                            app.controller.clearSelected();
                     }
                 } catch (error) {
                     console.log(error);

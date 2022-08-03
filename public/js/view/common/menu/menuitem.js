@@ -59,7 +59,7 @@ class MenuItem {
                     this._subMenuGroup.toggleSubMenuGroup();
                 }.bind(this));
 
-                window.addEventListener('click', function (event) {
+                window.addEventListener('click.menuitem', function (event) {
                     if (event.target != this._$div[0] && event.target.parentNode != this._$div[0] && this._subMenuGroup) {
                         this._subMenuGroup.hideSubMenuGroup();
                     }

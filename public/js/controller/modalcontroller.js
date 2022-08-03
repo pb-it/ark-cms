@@ -146,9 +146,8 @@ class ModalController {
                 .click(async function (event) {
                     event.preventDefault();
 
-                    var str = error.toString();
-                    //var str = JSON.stringify(error, null, '\t'); //ReferenceError must be flattened to retrieve stack trace: https://stackoverflow.com/questions/8779249/how-to-stringify-inherited-objects-to-json
-                    window.location.href = 'mailto:support@pb-it.at?subject=ERROR: ' + encodeURIComponent(msg) + '&body=' + encodeURIComponent(str);
+                    var str = JSON.stringify(flatten(error), null, '\t'); //ReferenceError must be flattened to retrieve stack trace
+                    window.location.href = 'mailto:support@pb-it.at?subject=' + encodeURIComponent(error.toString()) + '&body=' + encodeURIComponent(str);
                 }.bind(this)));
 
             $d.append(SPACE);

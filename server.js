@@ -1,4 +1,6 @@
+const os = require('os');
 const path = require('path');
+const fs = require('fs');
 
 const express = require('express');
 const cors = require('cors');
@@ -7,22 +9,40 @@ const bodyParser = require('body-parser');
 const serverConfig = require('./config/server');
 const webclient = require('./src/common/webclient.js');
 
+const VcsEnum = Object.freeze({ GIT: 'git', SVN: 'svn' });
+
+var vcs;
+if (fs.existsSync('.git'))
+    vcs = VcsEnum.GIT;
+else if (fs.existsSync('.svn'))
+    vcs = VcsEnum.SVN;
+
 async function update() {
     console.log("[App] Processing update request..");
-    var appRoot = path.resolve(__dirname);
-    return new Promise((resolve, reject) => {
-        require("child_process").exec('cd ' + appRoot + ' && git pull && npm install', function (err, stdout, stderr) {
-            if (err)
-                reject(err);
-            else {
-                resolve(stdout);
-            }
-        }.bind(this));
-    });
+    if (vcs) {
+        var updateCmd;
+        if (vcs === VcsEnum.GIT)
+            updateCmd = 'git pull';
+        else if (vcs === VcsEnum.SVN)
+            updateCmd = 'svn update';
+
+        var appRoot = path.resolve(__dirname);
+        return new Promise((resolve, reject) => {
+
+            require("child_process").exec('cd ' + appRoot + ' && ' + updateCmd + ' && npm install', function (err, stdout, stderr) {
+                if (err)
+                    reject(err);
+                else {
+                    resolve(stdout);
+                }
+            }.bind(this));
+        });
+    } else
+        throw new Error('No version control system detected');
 }
 
 function restart() {
-    if (!serverConfig.pm2) {
+    if (!serverConfig['processManager']) {
         process.on("exit", function () {
             require("child_process").spawn(process.argv.shift(), process.argv, {
                 cwd: process.cwd(),
@@ -51,6 +71,7 @@ systemRouter.get('/info', function (req, res) {
     var pkg = require('./package.json');
     var info = {};
     info['version'] = pkg['version'];
+    info['vcs'] = vcs;
     res.json(info);
 });
 systemRouter.get('/update', async function (req, res) {
@@ -59,9 +80,13 @@ systemRouter.get('/update', async function (req, res) {
     try {
         msg = await update();
         console.log(msg);
-        var bUpToDate = 'Already up to date.';
-        if (msg.startsWith(bUpToDate))
-            console.log("[App] " + bUpToDate);
+        var strUpToDate;
+        if (vcs === VcsEnum.GIT)
+            strUpToDate = 'Already up to date.';
+        else if (vcs === VcsEnum.SVN)
+            strUpToDate = 'Updating \'.\':' + os.EOL + 'At revision';
+        if (msg.startsWith(strUpToDate))
+            console.log("[App] Already up to date");
         else {
             console.log("[App] ✔ Updated");
             bUpdated = true;
@@ -77,7 +102,7 @@ systemRouter.get('/update', async function (req, res) {
         res.send(msg.replace('\n', '<br/>'));
     }
     if (bUpdated)
-        this.restart();
+        restart();
     return Promise.resolve();
 });
 systemRouter.post('/curl', async (req, res, next) => {

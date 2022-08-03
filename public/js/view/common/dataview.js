@@ -71,7 +71,11 @@ class DataView {
                                                     value = data[name];
                                                     break;
                                                 case 'markdown':
-                                                    value = data[name]; //TODO:
+                                                    const converter = new showdown.Converter();
+                                                    value = converter.makeHtml(data[name]);
+                                                    break;
+                                                case 'auto':
+                                                    //TODO:
                                                     break;
                                                 case 'combined':
                                                 default:

@@ -64,9 +64,16 @@ or
 docker run -p 4000:4000 -it <image name> /bin/bash
 ```
 
+
+## Documentation
+
+Check our [wiki pages][wiki] for examples and a more in-depth documentation.
+
+
 ## Changelog
 
-[Changelog](./CHANGELOG.md)
+See [Changelog](./CHANGELOG.md)
+
 
 ## Roadmap
 
@@ -86,6 +93,16 @@ Loading icon is from [Ahm masum, CC BY-SA 4.0 <https://creativecommons.org/licen
 'image_missing.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/image-missing/92832)
 
 'video_file.png' is from [Icons8, Free for commercial use](https://icon-icons.com/icon/video-file/54125)
+
+### Credits for Dependencies
+
+[jQuery](https://jquery.com/)
+
+[jQuery-Timepicker-Addon](https://github.com/trentrichardson/jQuery-Timepicker-Addon)
+
+[showdown](https://github.com/showdownjs/showdown)
+
+Check header of [index.html](./public/index.html) and [package.json](./package.json) for futher information
 
 ## Caveats
 

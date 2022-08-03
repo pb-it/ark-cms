@@ -1,5 +1,64 @@
 const SPACE = "&nbsp;";
 
+function isEmpty(value) {
+    if (value === null || value === undefined)
+        return true;
+    else if (Array.isArray(value))
+        return value.every(isEmpty);
+    else if (typeof (value) === 'object')
+        return Object.values(value).every(isEmpty);
+    else
+        return false;
+}
+
+function shrink(obj) {
+    var newObj;
+    if (typeof (obj) === 'object') {
+        //Object.keys(obj).forEach(key => obj[key] === undefined && delete obj[key]);
+
+        newObj = null;
+        Object.keys(obj).forEach((key) => {
+            var value = shrink(obj[key]);
+            if (value) {
+                if (!newObj)
+                    newObj = {};
+                newObj[key] = value;
+            }
+        });
+    } else
+        newObj = obj;
+    return newObj;
+}
+
+function getAllPropertyNames(obj) {
+    var props = [];
+    do {
+        Object.getOwnPropertyNames(obj).forEach((prop) => {
+            if (props.indexOf(prop) === -1)
+                props.push(prop);
+        });
+    } while ((obj = Object.getPrototypeOf(obj)));
+    return props;
+};
+
+/**
+ * https://stackoverflow.com/questions/8779249/how-to-stringify-inherited-objects-to-json
+ * @param {*} obj 
+ * @returns 
+ */
+function flatten(obj) {
+    var newObj = {};
+    var props = getAllPropertyNames(obj);
+    props.forEach((prop) => {
+        newObj[prop] = obj[prop];
+    });
+    return newObj;
+}
+
+function getPrettyJSON(obj) {
+    return JSON.stringify(obj, function (key, value) { return isEmpty(value) ? undefined : value; }, '\t');
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
