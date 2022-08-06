@@ -99,6 +99,7 @@ See [changelog](./CHANGELOG.md)
  - [jQuery](https://jquery.com/)
  - [jQuery-Timepicker-Addon](https://github.com/trentrichardson/jQuery-Timepicker-Addon)
  - [showdown](https://github.com/showdownjs/showdown)
+ - [jsdiff](https://github.com/kpdecker/jsdiff)
 
 Check header of [index.html](./public/index.html) and [package.json](./package.json) for futher information
 

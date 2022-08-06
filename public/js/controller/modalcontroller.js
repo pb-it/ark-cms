@@ -104,6 +104,9 @@ class ModalController {
     }
 
     async openConfirmModal(msg) {
+        /*var bConfirm = confirm(msg);
+        return Promise.resolve(bConfirm);*/
+
         return new Promise(function (resolve, reject) {
             var modal = app.controller.getModalController().addModal();
 
@@ -162,6 +165,37 @@ class ModalController {
                 }.bind(this)));
 
             modal.open($d);
+        });
+    }
+
+    async openDiffJsonModal(oldobj, newObj) {
+        return new Promise(async function (resolve, reject) {
+            var modal = app.controller.getModalController().addModal();
+
+            var $div = $('<div/>');
+
+            var panel = new DiffJsonPanel(oldobj, newObj);
+            $div.append(await panel.render());
+
+            $div.append($('<button/>')
+                .text("Abort")
+                .click(async function (event) {
+                    event.preventDefault();
+                    modal.close();
+                    resolve(false);
+                }.bind(this)));
+
+            $div.append($('<button/>')
+                .text("OK")
+                .css({ 'float': 'right' })
+                .click(async function (event) {
+                    event.preventDefault();
+                    modal.close();
+                    resolve(true);
+                }.bind(this)));
+
+            modal.open($div);
+            return Promise.resolve();
         });
     }
 }

@@ -191,6 +191,24 @@ class EditModelPanel extends TabPanel {
             data = await this._readDefinition();
         }
 
+        var oldObj = this._originalModel.getData();
+        var newObj = await this._readDefinition();
+        var org = JSON.stringify(oldObj);
+        var current = JSON.stringify(newObj);
+        var bChanged = (org !== current);
+        if (bChanged) {
+            if (app.controller.isInDebugMode()) {
+                var bConfirm = await app.controller.getModalController().openDiffJsonModal(oldObj, newObj);
+                if (!bConfirm)
+                    return Promise.resolve();
+            }
+        } else {
+            alert('Nothing changed');
+            this.dispose();
+            return Promise.resolve();
+        }
+
+
         var bTitle = false;
         var defaults = data['defaults'];
         if (defaults && defaults['title'])
@@ -250,7 +268,7 @@ class EditModelPanel extends TabPanel {
             panel.setContent($div);
             await app.controller.getModalController().openPanelInModal(panel);
         }
-        Promise.resolve();
+        return Promise.resolve();
     }
 
     async _getChanges() {
