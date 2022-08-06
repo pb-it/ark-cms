@@ -1,5 +1,9 @@
 class DataView {
 
+    static getSyntax(str) {
+        return /^data:text\/(.*?);charset=utf-8$/ig.exec(str)[1]; //regex
+    }
+
     static _parseText(text) {
         var res = "";
         var index;
@@ -28,6 +32,8 @@ class DataView {
             var name;
             var view;
             var value;
+
+            var index;
 
             var $name;
             var $value;
@@ -60,31 +66,37 @@ class DataView {
                             case "json":
                                 if (data && data[name]) {
                                     if (typeof data[name] === 'string' || data[name] instanceof String) {
-                                        view = attribute['view'];
+                                        value = data[name];
+                                        if (attribute['bSyntaxPrefix']) {
+                                            index = value.indexOf(','); //data:text/plain;charset=utf-8,
+                                            if (index > -1) {
+                                                view = DataView.getSyntax(value.substr(0, index));
+                                                value = value.substr(index + 1);
+                                            }
+                                        } else
+                                            view = attribute['view'];
                                         if (view) {
                                             switch (view) {
-                                                case 'plain': //preformatted / WYSIWYG
-                                                    $value.addClass('pre');
-                                                    value = encodeText(data[name]);
-                                                    break;
                                                 case 'html':
-                                                    value = data[name];
+                                                    break;
+                                                case 'plain+html':
+                                                    $value.addClass('pre');
+                                                    value = DataView._parseText(value);
                                                     break;
                                                 case 'markdown':
                                                     const converter = new showdown.Converter();
-                                                    value = converter.makeHtml(data[name]);
+                                                    value = converter.makeHtml(value);
                                                     break;
-                                                case 'auto':
-                                                    //TODO:
-                                                    break;
-                                                case 'combined':
+                                                case 'csv':
+                                                case 'xml':
+                                                case 'plain': //preformatted / WYSIWYG
                                                 default:
                                                     $value.addClass('pre');
-                                                    value = DataView._parseText(data[name]);
+                                                    value = encodeText(value);
                                             }
                                         } else {
                                             $value.addClass('pre');
-                                            value = DataView._parseText(data[name]);
+                                            value = DataView._parseText(value);
                                         }
                                     } else
                                         value = data[name];

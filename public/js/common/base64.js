@@ -47,7 +47,7 @@ class Base64 {
 
     static base64toFile(base64Data, filename) {
         var arr = base64Data.split(',');
-        var mime = arr[0].match(/:(.*?);/)[1];
+        var mime = arr[0].match(/:(.*?);/)[1]; //regex
         var bstr = atob(arr[1]);
         var n = bstr.length;
         var u8arr = new Uint8Array(n);

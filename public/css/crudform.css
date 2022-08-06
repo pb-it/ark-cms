@@ -28,3 +28,7 @@ div.details>div.value.pre {
 div.details>div.value.pre>div {
     white-space: initial;
 }
+
+div.details>div.value code {
+    background-color: var(--color-code);
+}

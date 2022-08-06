@@ -1,3 +1,7 @@
+:root {
+    --color-code: #ffffff;
+}
+
 div.pre {
     white-space: pre-wrap;
 }

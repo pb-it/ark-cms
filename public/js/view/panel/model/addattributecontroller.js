@@ -104,17 +104,31 @@ class AddAttributeController {
                         { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' },
                         {
                             'name': 'view',
+                            'label': 'syntax',
                             'dataType': 'enumeration',
                             'options': [
+                                { 'value': '<auto>', 'disabled': true },
+                                { 'value': 'csv' },
+                                { 'value': 'xml' },
+                                { 'value': 'json', 'disabled': true },
                                 { 'value': 'plain' },
                                 { 'value': 'html' },
-                                { 'value': 'combined' },
-                                { 'value': 'markdown' },
-                                { 'value': 'auto', 'disabled': true },
+                                { 'value': 'plain+html' },
+                                { 'value': 'markdown' }
                             ],
-                            'tooltip': `Default behavior is as \'combined\' which forces the browser to interpret and render the text inbetween \<html\>/\</html\> tags.
-To prevent this change the view to \'plain\'.`,
+                            'tooltip': `Default behavior is as \'plain\' which may result in WYSIWYG.
+\'plain+html\' enables you to mix preformatted plain text with interpret and rendered html-code between \<html\>/\</html\> tags.`,
                             'view': 'select'
+                        },
+                        {
+                            'name': 'bSyntaxPrefix',
+                            'label': 'individual syntax',
+                            'tooltip': `Choose syntax individual for every entry.
+An media / MIME type string will be prepended to your data.
+You will not see this information in forms, but it is stored with your actual string in the database and consumes space.`,
+                            'dataType': 'boolean',
+                            'required': true,
+                            'defaultValue': false
                         },
                         { 'name': 'size', 'dataType': 'string' },
                         { 'name': 'required', 'dataType': 'boolean' },
@@ -361,6 +375,8 @@ To prevent this change the view to \'plain\'.`,
                         this._data.length = data.length;
                     if (data.view)
                         this._data.view = data.view;
+                    if (data.bSyntaxPrefix)
+                        this._data.bSyntaxPrefix = data.bSyntaxPrefix;
                     if (data.size)
                         this._data.size = data.size;
                     break;

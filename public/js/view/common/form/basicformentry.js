@@ -1,6 +1,7 @@
 class BasicFormEntry extends FormEntry {
 
     _$input;
+    _$syntax;
 
     constructor(form, attribute) {
         super(form, attribute);
@@ -12,7 +13,7 @@ class BasicFormEntry extends FormEntry {
 
     async renderValue(value) {
         var name = this._attribute.name;
-
+        var $div = $('<div/>').addClass('value');
         var size;
 
         if (this._attribute['dataType']) {
@@ -198,6 +199,28 @@ class BasicFormEntry extends FormEntry {
                     break;
                 case "text":
                 case "json":
+                    if (this._attribute['dataType'] === "text") {
+                        if (this._attribute['bSyntaxPrefix']) {
+                            var syntax;
+                            var index = value.indexOf(','); //data:text/plain;charset=utf-8,
+                            if (index > -1) {
+                                syntax = DataView.getSyntax(value.substr(0, index));
+                                value = value.substr(index + 1);
+                            }
+
+                            this._$syntax = $('<select/>');
+                            var options = ['plain', 'csv', 'xml', 'html', 'plain+html', 'markdown'];
+                            var $option;
+                            for (var i of options) {
+                                $option = $('<option/>').attr('value', i).text(i);
+                                if (syntax && syntax === i)
+                                    $option.prop('selected', true);
+                                this._$syntax.append($option);
+                            };
+                            $div.append(this._$syntax);
+                            $div.append('<br/>');
+                        }
+                    }
                     var rows;
                     var cols;
                     if (this._attribute['size']) {
@@ -247,7 +270,9 @@ class BasicFormEntry extends FormEntry {
         }
         if (this._attribute['readonly']) //editable
             this._$input.attr('disabled', true);
-        return Promise.resolve(this._$input);
+
+        $div.append(this._$input);
+        return Promise.resolve($div);
     }
 
     async readValue(bValidate = true) {
@@ -289,6 +314,12 @@ class BasicFormEntry extends FormEntry {
                                 } else
                                     data = value;
                             }
+                            break;
+                        case "text":
+                            if (this._$syntax && value) {
+                                data = 'data:text/' + this._$syntax.val() + ';charset=utf-8,' + value;
+                            } else
+                                data = value;
                             break;
                         default:
                             data = value;

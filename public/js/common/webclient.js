@@ -121,7 +121,7 @@ class WebClient {
 
                 var filename;
                 if (disposition)
-                    filename = disposition.match(/filename="(.*?)"/)[1];
+                    filename = disposition.match(/filename="(.*?)"/)[1]; //regex
 
                 var file = new File([this.response], filename, { type: mime, lastModified: new Date().getTime() })
                 resolve(file);

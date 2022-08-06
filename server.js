@@ -6,7 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-const serverConfig = require('./config/server');
+const serverConfig = require('./config/server-config');
 const webclient = require('./src/common/webclient.js');
 
 const VcsEnum = Object.freeze({ GIT: 'git', SVN: 'svn' });
