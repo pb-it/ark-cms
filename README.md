@@ -67,12 +67,12 @@ docker run -p 4000:4000 -it <image name> /bin/bash
 
 ## Documentation
 
-Check our [wiki pages][wiki] for examples and a more in-depth documentation.
+Check our [wiki pages](https://github.com/pb-it/wing-cms/wiki) for examples and a more in-depth documentation.
 
 
 ## Changelog
 
-See [Changelog](./CHANGELOG.md)
+See [changelog](./CHANGELOG.md)
 
 
 ## Roadmap
@@ -86,21 +86,19 @@ See [Changelog](./CHANGELOG.md)
 
 ## Credits
 
-Most icons are from [Font Awesome](https://fontawesome.com), [CC BY 4.0 License](https://fontawesome.com/license/free)
 
-Loading icon is from [Ahm masum, CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0>, via Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Loading_icon.gif)
+### Images
 
-'image_missing.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/image-missing/92832)
-
-'video_file.png' is from [Icons8, Free for commercial use](https://icon-icons.com/icon/video-file/54125)
+ - Most icons are from [Font Awesome](https://fontawesome.com), [CC BY 4.0 License](https://fontawesome.com/license/free)
+ - Loading icon is from [Ahm masum, CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0>, via Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Loading_icon.gif)
+ - 'image_missing.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/image-missing/92832)
+ - 'video_file.png' is from [Icons8, Free for commercial use](https://icon-icons.com/icon/video-file/54125)
 
 ### Credits for Dependencies
 
-[jQuery](https://jquery.com/)
-
-[jQuery-Timepicker-Addon](https://github.com/trentrichardson/jQuery-Timepicker-Addon)
-
-[showdown](https://github.com/showdownjs/showdown)
+ - [jQuery](https://jquery.com/)
+ - [jQuery-Timepicker-Addon](https://github.com/trentrichardson/jQuery-Timepicker-Addon)
+ - [showdown](https://github.com/showdownjs/showdown)
 
 Check header of [index.html](./public/index.html) and [package.json](./package.json) for futher information
 
