@@ -21,7 +21,7 @@ class ModelStateController {
         var res;
         var tree = this.getStateTree();
         if (tree) {
-            res = Tree.flattenTree(tree);
+            res = Tree.getAllTreeNodes(tree).filter(function (x) { return (!x['type'] || x['type'] === 'node') });
             res.sort(function (a, b) {
                 if (a.name < b.name) { return -1; }
                 if (a.name > b.name) { return 1; }
@@ -31,13 +31,13 @@ class ModelStateController {
         return res;
     }
 
-    updateStates(states) {
+    async updateStates(states) {
         var data = this._model.getData();
         data[ModelStateController.STATE_IDENT] = states;
-        this._model.setData(data);
+        return this._model.setData(data);
     }
 
-    saveState(state, bUpdate) {
+    async saveState(state, bUpdate) {
         var data = this._model.getData();
         if (data[ModelStateController.STATE_IDENT] && data[ModelStateController.STATE_IDENT].length > 0) {
             var node = Tree.getNode(data[ModelStateController.STATE_IDENT], state.name);
@@ -57,13 +57,13 @@ class ModelStateController {
             }
         } else
             data[ModelStateController.STATE_IDENT] = [state];
-        this._model.setData(data);
+        return this._model.setData(data);
     }
 
-    /*deleteState(state) {
+    /*async deleteState(state) {
         var data = this._model.getData();
         var states = data[ModelStateController.STATE_IDENT].filter(function (x) { return x.name != state.name });
         data[ModelStateController.STATE_IDENT] = states;
-        this._model.setData(data);
+        return this._model.setData(data);
     }*/
 }

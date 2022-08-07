@@ -31,18 +31,20 @@ class SideNavigationBar {
         this._$sidePanel = this._sidePanel.renderSidePanel();
         this._$sideNav.append(this._$sidePanel);
 
-        window.addEventListener('click.sidenav', function (event) {
-            var node = $(event.target);
-            var bInside = node.is(this._$sideNav);
-            while (!bInside) {
-                node = $(node).parent();
-                if (node.length > 0)
-                    bInside = node.is(this._$sideNav);
-                else
-                    break;
-            }
-            if (!bInside) {
-                this.close();
+        window.addEventListener('click', function (event) {
+            if (!app.controller.getModalController().isModalOpen()) {
+                var node = $(event.target);
+                var bInside = node.is(this._$sideNav);
+                while (!bInside) {
+                    node = $(node).parent();
+                    if (node.length > 0)
+                        bInside = node.is(this._$sideNav);
+                    else
+                        break;
+                }
+                if (!bInside) {
+                    this.close();
+                }
             }
         }.bind(this));
     }

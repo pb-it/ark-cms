@@ -117,6 +117,7 @@ class ModalController {
                 .text("No")
                 .click(async function (event) {
                     event.preventDefault();
+                    event.stopPropagation();
                     modal.close();
                     resolve(false);
                 }.bind(this)));
@@ -128,6 +129,7 @@ class ModalController {
                 .css({ 'float': 'right' })
                 .click(async function (event) {
                     event.preventDefault();
+                    event.stopPropagation();
                     modal.close();
                     resolve(true);
                 }.bind(this)));
@@ -148,6 +150,7 @@ class ModalController {
                 .text("Send E-Mail")
                 .click(async function (event) {
                     event.preventDefault();
+                    event.stopPropagation();
 
                     var str = JSON.stringify(flatten(error), null, '\t'); //ReferenceError must be flattened to retrieve stack trace
                     window.location.href = 'mailto:support@pb-it.at?subject=' + encodeURIComponent(error.toString()) + '&body=' + encodeURIComponent(str);
@@ -160,6 +163,7 @@ class ModalController {
                 .css({ 'float': 'right' })
                 .click(async function (event) {
                     event.preventDefault();
+                    event.stopPropagation();
                     modal.close();
                     resolve();
                 }.bind(this)));
@@ -181,6 +185,7 @@ class ModalController {
                 .text("Abort")
                 .click(async function (event) {
                     event.preventDefault();
+                    event.stopPropagation();
                     modal.close();
                     resolve(false);
                 }.bind(this)));
@@ -190,8 +195,47 @@ class ModalController {
                 .css({ 'float': 'right' })
                 .click(async function (event) {
                     event.preventDefault();
+                    event.stopPropagation();
                     modal.close();
                     resolve(true);
+                }.bind(this)));
+
+            modal.open($div);
+            return Promise.resolve();
+        });
+    }
+
+    async openEditJsonModal(obj) {
+        return new Promise(async function (resolve, reject) {
+            var modal = app.controller.getModalController().addModal();
+
+            var $div = $('<div/>');
+
+            var $textarea = $('<textarea/>')
+                .attr('rows', 5)
+                .attr('cols', 80)
+                .val(JSON.stringify(obj, null, '\t'));
+            $div.append($textarea);
+
+            $div.append('<br/>');
+
+            $div.append($('<button/>')
+                .text("Abort")
+                .click(async function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    modal.close();
+                    reject();
+                }.bind(this)));
+
+            $div.append($('<button/>')
+                .text("Change")
+                .css({ 'float': 'right' })
+                .click(async function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    modal.close();
+                    resolve(JSON.parse($textarea.val()));
                 }.bind(this)));
 
             modal.open($div);

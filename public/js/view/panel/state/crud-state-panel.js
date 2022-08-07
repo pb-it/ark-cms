@@ -12,7 +12,7 @@ class CrudStatePanel extends Panel {
     async _renderContent() {
         var $div = $('<div/>');
 
-        var skeleton = [{ name: "name", dataType: "string", required: true },
+        var skeleton = [{ name: "name", dataType: "string", required: true, 'readonly': this._action == ActionEnum.update },
         { name: "typeString", dataType: "string", required: true },
         { name: "id", dataType: "integer" },
         { name: "where", dataType: "string" },
@@ -48,10 +48,9 @@ class CrudStatePanel extends Panel {
                         this._state = newState;
                         try {
                             app.controller.setLoadingState(true);
-                            if (this._action == ActionEnum.create)
-                                await app.controller.getBookmarkController().addBookmark(newState);
-                            else
-                                ;//TODO: await msc.saveState(this._state, true);
+                            var msc = app.controller.getModelController().getModel(this._state['typeString']).getModelStateController();
+                            await msc.saveState(this._state, this._action == ActionEnum.update);
+                            //TODO: await app.controller.getBookmarkController().addBookmark(newState);
                             app.controller.setLoadingState(false);
                         } catch (error) {
                             app.controller.setLoadingState(false);

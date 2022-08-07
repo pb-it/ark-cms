@@ -52,6 +52,8 @@ class Modal {
         this._$modalContent.append($content);
 
         this._$modal.click(async function (event) {
+            event.stopPropagation();
+
             try {
                 if (event.target == this._$modal[0])
                     await this.closeOnConfirm();
@@ -61,11 +63,13 @@ class Modal {
             return Promise.resolve();
         }.bind(this));
 
-        this._$close.on("click", async function () {
+        this._$close.on("click", async function (event) {
+            event.stopPropagation();
             return this.closeOnConfirm();
         }.bind(this));
 
-        $content.on("dispose", function () {
+        $content.on("dispose", function (event) {
+            event.stopPropagation();
             this.close();
         }.bind(this));
 

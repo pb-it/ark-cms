@@ -1,27 +1,29 @@
+div.tree {
+    display: inline-block;
+}
+
 div.treegroup {
-  display: none;
-  position: relative;
-  width: max-content;
-  z-index: 3;
+    display: none;
+    position: relative;
+    width: max-content;
+    z-index: 3;
 }
 
 div.treegroup.show {
-  display: block;
+    display: block;
 }
 
-div.treenode {
-  display: block;
-  position: relative;
+div.treenode:not(.dummyRoot) {
+    display: block;
+    position: relative;
 
-  background-color: #3498db;
-  color: white;
-  padding: 12px 16px;
-  margin: 1px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-}
+    padding: 10px;
+    margin: 1px;
+    border: solid white 1px;
 
-div.treenode.root {
-  display: inline-block;
+    background-color: var(--color-node-blue);
+    color: white;
+
+    font-size: 16px;
+    cursor: pointer;
 }

@@ -21,7 +21,7 @@ class ModelFilterController {
         var res;
         var tree = this.getFilterTree();
         if (tree) {
-            res = Tree.flattenTree(tree);
+            res = Tree.getAllTreeNodes(tree).filter(function (x) { return (!x['type'] || x['type'] === 'node') });
             res.sort(function (a, b) {
                 if (a.name < b.name) { return -1; }
                 if (a.name > b.name) { return 1; }

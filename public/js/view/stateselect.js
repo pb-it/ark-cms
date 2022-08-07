@@ -291,7 +291,9 @@ class StateSelect {
         var panel = new SelectStatePanel(this._model);
         var $d = await panel.render();
         $d.css({
-            'float': 'left'
+            'float': 'left',
+            'height': '100%',
+            'overflow-y': 'auto'
         });
         this._$storedSelect = $d;
         this._$stateSelect.append(this._$storedSelect);

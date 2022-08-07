@@ -39,7 +39,7 @@ class SelectFilterPanel extends Dialog {
         $button = $('<button/>')
             .text('Manage')
             .click(async function (event) {
-                return app.controller.getModalController().openPanelInModal(new ManageFilterPanel(app.controller.getStateController().getState()));
+                return app.controller.getModalController().openPanelInModal(new ManageFilterTreePanel(app.controller.getStateController().getState()));
             }.bind(this));
         $div.append($button);
 

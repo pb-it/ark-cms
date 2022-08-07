@@ -4,7 +4,7 @@ class ListVis {
     _name;
     _list;
 
-    _$div;
+    _$ul;
 
     _nodes;
 
@@ -13,7 +13,7 @@ class ListVis {
         this._name = name;
         this._list = list;
 
-        this._$div = $('<div/>').addClass('list');
+        this._$ul = $('<ul/>').addClass('list');
     }
 
     init() {
@@ -28,15 +28,18 @@ class ListVis {
     }
 
     renderList() {
-        this._$div.empty();
+        this._$ul.empty();
 
         if (this._config['alignment'] === 'vertical') {
+            var $item;
             for (var node of this._nodes) {
-                this._$div.append(node.renderNode());
+                $item = $('<li/>');
+                $item.append(node.renderNode());
+                this._$ul.append($item);
             }
         } else {
             alert("NotImplementedException");
         }
-        return this._$div;
+        return this._$ul;
     }
 }

@@ -24,6 +24,7 @@ class XModel {
         this._data = data;
         if (bUpload)
             await this.uploadData();
+        $(window).trigger('changed.model', this._data);
         return Promise.resolve();
     }
 

@@ -63,11 +63,25 @@ class Breadcrumb {
 
         var subMenuGroup = new SubMenuGroup('down', 'left');
 
+        var state = app.controller.getStateController().getState();
+        if (state['name']) {
+            conf = {
+                'icon': "edit",
+                'name': "Edit",
+                'click': async function (event) {
+                    return app.controller.getModalController().openPanelInModal(new CrudStatePanel(ActionEnum.update, state));
+                }
+            };
+            subMenuGroup.addMenuItem(new MenuItem(conf));
+        }
+
         conf = {
-            'icon': "edit",
-            'name': "Edit",
+            'icon': "save",
+            'name': "Save",
             'click': async function (event) {
-                return app.controller.getModalController().openPanelInModal(new CrudStatePanel(ActionEnum.update, app.controller.getStateController().getState()));
+                var copy = { ...state };
+                delete copy['name'];
+                return app.controller.getModalController().openPanelInModal(new CrudStatePanel(ActionEnum.create, copy));
             }
         };
         subMenuGroup.addMenuItem(new MenuItem(conf));

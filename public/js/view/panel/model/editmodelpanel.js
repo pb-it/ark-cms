@@ -70,18 +70,17 @@ class EditModelPanel extends TabPanel {
         panel._renderContent = async function () {
             var $div = $('<div/>');
 
-            var conf = [];
-            if (this._definition['attributes']) {
-                for (var a of this._definition['attributes']) {
-                    conf.push({
-                        'name': a['name'] + ": " + a['dataType'],
-                        'type': 'node'
-                    });
-                }
+            var list = new List();
+            for (var a of this._definition['attributes']) {
+                list.addEntry(new ListEntry(a['name'] + ": " + a['dataType'], a));
             }
 
-            var tree = new Tree(conf);
-            $div.append(tree.render());
+            var vListConfig = {
+                alignment: 'vertical'
+            }
+            this._listVis = new ListVis(vListConfig, 'attributes', list);
+            this._listVis.init();
+            $div.append(this._listVis.renderList());
 
             $div.append('<br/>');
 

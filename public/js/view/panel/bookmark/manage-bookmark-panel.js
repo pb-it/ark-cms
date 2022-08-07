@@ -34,19 +34,24 @@ class ManageBookmarkPanel extends TabPanel {
             if (!this._tree) {
                 var bookmarks = app.controller.getBookmarkController().getBookmarks();
                 if (bookmarks) {
-                    var flatten = Tree.flattenTree(bookmarks);
-                    for (let state of flatten) {
-                        state.click = function (event) {
-                            app.controller.loadState(new State(this), true);
-                        }.bind(state);
+                    var treeNodes = Tree.getAllTreeNodes(bookmarks);
+                    for (let node of treeNodes) {
+                        if (!node['type'] || node['type'] === 'node') {
+                            node.click = function (event) {
+                                app.controller.loadState(new State(this), true);
+                            }.bind(node);
+                        }
                     }
 
                 } else
                     bookmarks = [];
+
                 this._tree = new Tree(bookmarks);
             }
             if (this._tree) {
-                $div.append(this._tree.render());
+                var treeVisConf = { 'editable': false };
+                var treeVis = new TreeVis(treeVisConf, this._tree);
+                $div.append(treeVis.render());
                 $div.append("<br>");
             }
 
@@ -74,7 +79,7 @@ class ManageBookmarkPanel extends TabPanel {
                     var panel = new FormPanel(null, skeleton);
                     panel.setApplyAction(async function () {
                         var data = await panel.getForm().readForm();
-                        this.addFolder(data.name);
+                        this.addTreeNode(data.name);
                         panel.dispose();
                         return Promise.resolve();
                     }.bind(this._tree));
@@ -87,7 +92,7 @@ class ManageBookmarkPanel extends TabPanel {
                 .click(this._tree, async function (event) {
                     try {
                         if (event.data)
-                            ;//TODO: app.controller.getModelController().getModel(...).getModelStateController().updateStates(event.data.getConf());
+                            ;//TODO: app.controller.getModelController().getModel(...).getModelStateController().updateStates(event.data.getTreeConf().nodes);
                     } catch (error) {
                         app.controller.showError(error);
                     }
@@ -110,7 +115,7 @@ class ManageBookmarkPanel extends TabPanel {
             var skeleton = [
                 { name: "json", dataType: "json" }
             ];
-            var data = { "json": JSON.stringify(this._tree.getConf(), null, '\t') };
+            var data = { "json": JSON.stringify(this._tree.getTreeConf().nodes, null, '\t') };
 
             this._jsonForm = new Form(skeleton, data);
             var $form = await this._jsonForm.renderForm();
