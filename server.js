@@ -13,9 +13,9 @@ const VcsEnum = Object.freeze({ GIT: 'git', SVN: 'svn' });
 
 var appRoot = path.resolve(__dirname);
 var vcs;
-if (fs.existsSync(path.join(this._appRoot, '.git')))
+if (fs.existsSync(path.join(appRoot, '.git')))
     vcs = VcsEnum.GIT;
-else if (fs.existsSync(path.join(this._appRoot, '.svn')))
+else if (fs.existsSync(path.join(appRoot, '.svn')))
     vcs = VcsEnum.SVN;
 
 async function update() {

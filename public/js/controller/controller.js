@@ -5,6 +5,7 @@ class Controller {
 
     _logger;
 
+    _storageController;
     _configController;
     _apiController;
     _versionController;
@@ -51,6 +52,10 @@ class Controller {
 
     getView() {
         return this._view;
+    }
+
+    getStorageController() {
+        return this._storageController;
     }
 
     getConfigController() {
@@ -101,6 +106,8 @@ class Controller {
         var bInitDone = false;
         this._bConnection = false;
         this.setLoadingState(true);
+
+        this._storageController = new StorageController();
 
         this._configController = new ConfigController();
         await this._configController.initConfigController();

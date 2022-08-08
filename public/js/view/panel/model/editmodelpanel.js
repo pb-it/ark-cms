@@ -190,14 +190,11 @@ class EditModelPanel extends TabPanel {
             data = await this._readDefinition();
         }
 
-        var oldObj = this._originalModel.getData();
-        var newObj = await this._readDefinition();
-        var org = JSON.stringify(oldObj);
-        var current = JSON.stringify(newObj);
-        var bChanged = (org !== current);
-        if (bChanged) {
+        var org = this._originalModel.getData();
+        var current = await this._readDefinition();
+        if (!isEqualJson(org, current)) {
             if (app.controller.isInDebugMode()) {
-                var bConfirm = await app.controller.getModalController().openDiffJsonModal(oldObj, newObj);
+                var bConfirm = await app.controller.getModalController().openDiffJsonModal(org, current);
                 if (!bConfirm)
                     return Promise.resolve();
             }
@@ -270,10 +267,9 @@ class EditModelPanel extends TabPanel {
         return Promise.resolve();
     }
 
-    async _getChanges() {
-        var org = JSON.stringify(this._originalModel.getData());
-        var current = JSON.stringify(await this._readDefinition());
-        var bChanged = (org !== current);
-        return Promise.resolve(bChanged);
+    async _hasChanged() {
+        var org = this._originalModel.getData();
+        var current = await this._readDefinition();
+        return Promise.resolve(!isEqualJson(org, current));
     }
 }

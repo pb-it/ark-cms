@@ -108,7 +108,7 @@ class AddRelatedItemPanel extends Panel {
         return Promise.resolve($div);
     }
 
-    _getChanges() {
+    _hasChanged() {
         var add = this._addSelect.getSelectedIds();
         var remove;
         if (this._removeSelect)

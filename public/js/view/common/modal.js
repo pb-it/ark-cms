@@ -78,9 +78,9 @@ class Modal {
     }
 
     async closeOnConfirm() {
-        if (this._panel && typeof this._panel._getChanges === "function") {
-            var changes = await this._panel._getChanges(false);
-            if (changes) {
+        if (this._panel && typeof this._panel._hasChanged === "function") {
+            var bChanged = await this._panel._hasChanged(false);
+            if (bChanged) {
                 var bConfirmaltion = await app.controller.getModalController().openConfirmModal("Discard changes?");
                 if (bConfirmaltion)
                     this.close();

@@ -231,6 +231,10 @@ class CrudPanel extends CanvasPanel {
         return Promise.resolve(changed);
     }
 
+    async _hasChanged() {
+        return Object.keys(await this._getChanges()).length > 0;
+    }
+
     async _openEdit() {
         app.controller.setLoadingState(true);
         try {

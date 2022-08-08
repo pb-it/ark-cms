@@ -13,12 +13,10 @@ class ConfigController {
     }
 
     async initConfigController() {
-        if (window.localStorage) {
-            var debugConfig = window.localStorage.getItem(DEBUG_IDENT);
-            if (debugConfig)
-                this._debugConfig = JSON.parse(debugConfig);
-            this._api = window.localStorage.getItem(API_IDENT);
-        }
+        var debugConfig = app.controller.getStorageController().loadLocal(DEBUG_IDENT);
+        if (debugConfig)
+            this._debugConfig = JSON.parse(debugConfig);
+        this._api = app.controller.getStorageController().loadLocal(API_IDENT);
 
         if (!this._debugConfig)
             this.setDefaultDebugConfig();
@@ -112,12 +110,10 @@ class ConfigController {
 
     setDebugConfig(conf) {
         this._debugConfig = conf;
-        if (window.localStorage) {
-            if (conf)
-                window.localStorage.setItem(DEBUG_IDENT, JSON.stringify(conf));
-            else
-                window.localStorage.setItem(DEBUG_IDENT, '');
-        }
+        if (conf)
+            app.controller.getStorageController().storeLocal(DEBUG_IDENT, JSON.stringify(conf));
+        else
+            app.controller.getStorageController().storeLocal(DEBUG_IDENT, '');
     }
 
     getApiOrigin() {
@@ -139,11 +135,9 @@ class ConfigController {
 
     setApi(api) {
         this._api = api;
-        if (window.localStorage) {
-            if (api)
-                window.localStorage.setItem(API_IDENT, api);
-            else
-                window.localStorage.setItem(API_IDENT, '');
-        }
+        if (api)
+            app.controller.getStorageController().storeLocal(API_IDENT, api);
+        else
+            app.controller.getStorageController().storeLocal(API_IDENT, '');
     }
 }

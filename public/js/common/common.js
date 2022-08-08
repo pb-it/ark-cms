@@ -1,33 +1,62 @@
 const SPACE = "&nbsp;";
 
-function isEmpty(value) {
-    if (value === null || value === undefined)
-        return true;
-    else if (Array.isArray(value))
-        return value.every(isEmpty);
-    else if (typeof (value) === 'object')
-        return Object.values(value).every(isEmpty);
-    else
-        return false;
+function isEqualJson(obj1, obj2) {
+    var str1 = JSON.stringify(obj1);
+    var str2 = JSON.stringify(obj2);
+    return str1 === str2;
 }
 
-function shrink(obj) {
-    var newObj;
-    if (typeof (obj) === 'object') {
-        //Object.keys(obj).forEach(key => obj[key] === undefined && delete obj[key]);
+/**
+ * 
+ * @param {*} value 
+ * @returns 
+ */
+function isEmpty(value) {
+    var newValue = shrink(value);
+    if (newValue)
+        return Object.keys(newValue).length === 0;
+    else
+        return true;
+}
 
-        newObj = null;
-        Object.keys(obj).forEach((key) => {
-            var value = shrink(obj[key]);
-            if (value) {
-                if (!newObj)
-                    newObj = {};
-                newObj[key] = value;
-            }
-        });
-    } else
-        newObj = obj;
-    return newObj;
+/**
+ * removes empty properties - null / undefined / '' / []
+ * @param {*} value 
+ * @param {*} bRemoveZeroLength 
+ * @returns 
+ */
+function shrink(value, bRemoveZeroLength = true) {
+    var newValue;
+    if (value !== null && value !== undefined) {
+        if (Array.isArray(value)) {
+            value.forEach((key) => {
+                var val = shrink(value[key]);
+                if (val !== undefined) {
+                    if (!newValue)
+                        newValue = [];
+                    newValue.push(val);
+                }
+            });
+            if (!bRemoveZeroLength && !newValue)
+                newValue = [];
+        } else if (typeof (value) === 'object') {
+            //Object.keys(obj).forEach(key => obj[key] === undefined && delete obj[key]);
+
+            Object.keys(value).forEach((key) => {
+                var val = shrink(value[key]);
+                if (val !== undefined) {
+                    if (!newValue)
+                        newValue = {};
+                    newValue[key] = val;
+                }
+            });
+        } else if (typeof (value) === 'string' || (value) instanceof String) {
+            if (value.length > 0 || !bRemoveZeroLength)
+                newValue = value;
+        } else
+            newValue = value;
+    }
+    return newValue;
 }
 
 function getAllPropertyNames(obj) {
@@ -42,6 +71,7 @@ function getAllPropertyNames(obj) {
 };
 
 /**
+ * copies inherited poperties to new object prototype-free object
  * https://stackoverflow.com/questions/8779249/how-to-stringify-inherited-objects-to-json
  * @param {*} obj 
  * @returns 
