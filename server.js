@@ -11,10 +11,11 @@ const webclient = require('./src/common/webclient.js');
 
 const VcsEnum = Object.freeze({ GIT: 'git', SVN: 'svn' });
 
+var appRoot = path.resolve(__dirname);
 var vcs;
-if (fs.existsSync('.git'))
+if (fs.existsSync(path.join(this._appRoot, '.git')))
     vcs = VcsEnum.GIT;
-else if (fs.existsSync('.svn'))
+else if (fs.existsSync(path.join(this._appRoot, '.svn')))
     vcs = VcsEnum.SVN;
 
 async function update() {
@@ -26,7 +27,6 @@ async function update() {
         else if (vcs === VcsEnum.SVN)
             updateCmd = 'svn update';
 
-        var appRoot = path.resolve(__dirname);
         return new Promise((resolve, reject) => {
 
             require("child_process").exec('cd ' + appRoot + ' && ' + updateCmd + ' && npm install', function (err, stdout, stderr) {
