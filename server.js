@@ -23,10 +23,10 @@ async function update(version) {
     if (vcs) {
         var updateCmd;
         if (vcs === VcsEnum.GIT) {
-            if (version)
-                updateCmd = 'git switch --detach ' + version;
+            if (version === 'latest')
+                updateCmd = 'git pull origin main';
             else
-                updateCmd = 'git pull';
+                updateCmd = 'git switch --detach ' + version;
         } else if (vcs === VcsEnum.SVN)
             updateCmd = 'svn update';
 
@@ -79,34 +79,39 @@ systemRouter.get('/info', function (req, res) {
 });
 systemRouter.get('/update', async function (req, res) {
     var version = req.query['v'];
-    var msg;
-    var bUpdated = false;
-    try {
-        msg = await update(version);
-        console.log(msg);
-        var strUpToDate;
-        if (vcs === VcsEnum.GIT)
-            strUpToDate = 'Already up to date.';
-        else if (vcs === VcsEnum.SVN)
-            strUpToDate = 'Updating \'.\':' + os.EOL + 'At revision';
-        if (msg.startsWith(strUpToDate))
-            console.log("[App] Already up to date");
-        else {
-            console.log("[App] ✔ Updated");
-            bUpdated = true;
+    if (version) {
+        var msg;
+        var bUpdated = false;
+        try {
+            msg = await update(version);
+            console.log(msg);
+            var strUpToDate;
+            if (vcs === VcsEnum.GIT)
+                strUpToDate = 'Already up to date.';
+            else if (vcs === VcsEnum.SVN)
+                strUpToDate = 'Updating \'.\':' + os.EOL + 'At revision';
+            if (msg.startsWith(strUpToDate))
+                console.log("[App] Already up to date");
+            else {
+                console.log("[App] ✔ Updated");
+                bUpdated = true;
+            }
+        } catch (error) {
+            if (error['message'])
+                msg = error['message'];
+            else
+                msg = error;
+            console.error(msg);
+            console.log("[App] ✘ Update failed");
+        } finally {
+            res.send(msg.replace('\n', '<br/>'));
         }
-    } catch (error) {
-        if (error['message'])
-            msg = error['message'];
-        else
-            msg = error;
-        console.error(msg);
-        console.log("[App] ✘ Update failed");
-    } finally {
-        res.send(msg.replace('\n', '<br/>'));
+        if (bUpdated)
+            restart();
+    } else {
+        res.status(500);
+        res.send("Please specify application version");
     }
-    if (bUpdated)
-        restart();
     return Promise.resolve();
 });
 systemRouter.post('/curl', async (req, res, next) => {
