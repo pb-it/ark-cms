@@ -216,7 +216,7 @@ class CrudPanel extends CanvasPanel {
     }
 
     async _getChanges(bValidate, oldData) {
-        var changed;
+        var changes;
         if (this._config.action == ActionEnum.create || this._config.action == ActionEnum.update) {
             if (!oldData) {
                 var data = this._obj.getData();
@@ -226,13 +226,17 @@ class CrudPanel extends CanvasPanel {
                     oldData = {};
             }
             var newData = await this._readData(bValidate);
-            changed = CrudObject.getChanges(this._skeleton, oldData, newData);
+            changes = CrudObject.getChanges(this._skeleton, oldData, newData);
         }
-        return Promise.resolve(changed);
+        return Promise.resolve(changes);
     }
 
     async _hasChanged() {
-        return Object.keys(await this._getChanges()).length > 0;
+        var changes = await this._getChanges();
+        if (changes)
+            return Object.keys(changes).length > 0;
+        else
+            return false;
     }
 
     async _openEdit() {

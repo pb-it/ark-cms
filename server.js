@@ -18,13 +18,16 @@ if (fs.existsSync(path.join(appRoot, '.git')))
 else if (fs.existsSync(path.join(appRoot, '.svn')))
     vcs = VcsEnum.SVN;
 
-async function update() {
+async function update(version) {
     console.log("[App] Processing update request..");
     if (vcs) {
         var updateCmd;
-        if (vcs === VcsEnum.GIT)
-            updateCmd = 'git pull';
-        else if (vcs === VcsEnum.SVN)
+        if (vcs === VcsEnum.GIT) {
+            if (version)
+                updateCmd = 'git switch --detach ' + version;
+            else
+                updateCmd = 'git pull';
+        } else if (vcs === VcsEnum.SVN)
             updateCmd = 'svn update';
 
         return new Promise((resolve, reject) => {
@@ -75,10 +78,11 @@ systemRouter.get('/info', function (req, res) {
     res.json(info);
 });
 systemRouter.get('/update', async function (req, res) {
+    var version = req.query['v'];
     var msg;
     var bUpdated = false;
     try {
-        msg = await update();
+        msg = await update(version);
         console.log(msg);
         var strUpToDate;
         if (vcs === VcsEnum.GIT)
