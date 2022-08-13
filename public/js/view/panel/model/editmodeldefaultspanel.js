@@ -21,9 +21,13 @@ class EditModelDefaultsPanel extends Panel {
 
         var mdc = this._model.getModelDefaultsController();
         var mac = this._model.getModelAttributesController();
+        var stringAttrNames;
         var attributes = mac.getAttributes();
-        var stringAttr = attributes.filter(function (x) { return (x['dataType'] === 'string' || x['dataType'] === 'text' || x['dataType'] === 'enumeration') });
-        var stringAttrNames = stringAttr.map(function (x) { return { 'value': x['name'] } });
+        if (attributes) {
+            var stringAttr = attributes.filter(function (x) { return (x['dataType'] === 'string' || x['dataType'] === 'text' || x['dataType'] === 'enumeration') });
+            stringAttrNames = stringAttr.map(function (x) { return { 'value': x['name'] } });
+        } else
+            stringAttrNames = [];
 
         var skeleton = [
             {
@@ -67,7 +71,15 @@ class EditModelDefaultsPanel extends Panel {
         $div.append($form);
         $div.append('</br>');
 
-        var skeleton = [{ name: 'title', dataType: 'enumeration', options: stringAttrNames, view: 'select' }];
+        var skeleton = [
+            {
+                name: 'title',
+                tooltip: '**Fallback**: If left undefined the app will use properties with name \'title\' or \'name\' as default!',
+                dataType: 'enumeration',
+                options: stringAttrNames,
+                view: 'select'
+            }
+        ];
         var title = mdc.getDefaultTitleProperty(false);
         var data = { 'title': title };
         this._titleForm = new Form(skeleton, data);
@@ -111,13 +123,19 @@ class EditModelDefaultsPanel extends Panel {
         });
         var mName = this._model.getName();
         var mOptions = names.filter(function (x) { return x !== mName }).map(function (x) { return { 'value': x } });
-
+        var sOptions;
+        var aOptions;
         var attributes = mac.getAttributes();
-        var stringAttr = attributes.filter(function (x) { return x['dataType'] === 'string' });
-        var sOptions = stringAttr.map(function (x) { return { 'value': x['name'] } });
+        if (attributes) {
+            var stringAttr = attributes.filter(function (x) { return x['dataType'] === 'string' });
+            sOptions = stringAttr.map(function (x) { return { 'value': x['name'] } });
 
-        var stringOrEnumAttr = attributes.filter(function (x) { return (x['dataType'] === 'string' || x['dataType'] === 'enumeration') });
-        var aOptions = stringOrEnumAttr.map(function (x) { return { 'value': x['name'] } });
+            var stringOrEnumAttr = attributes.filter(function (x) { return (x['dataType'] === 'string' || x['dataType'] === 'enumeration') });
+            aOptions = stringOrEnumAttr.map(function (x) { return { 'value': x['name'] } });
+        } else {
+            sOptions = [];
+            aOptions = [];
+        }
 
         var collectionModel = mdc.getDefaultCollectionModel();
         if (collectionModel)

@@ -51,13 +51,15 @@ class ModelDefaultsController {
         if (!res && bFallback) {
             var name;
             var str;
-            var attribues = this._model.getModelAttributesController().getAttributes();
-            for (var attr of attribues) {
-                name = attr['name'];
-                str = name.toLowerCase();
-                if (str == 'name' || str == 'title') {
-                    res = name;
-                    break;
+            var attributes = this._model.getModelAttributesController().getAttributes();
+            if (attributes) {
+                for (var attr of attributes) {
+                    name = attr['name'];
+                    str = name.toLowerCase();
+                    if (str == 'name' || str == 'title') {
+                        res = name;
+                        break;
+                    }
                 }
             }
         }

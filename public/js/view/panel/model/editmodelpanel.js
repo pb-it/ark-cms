@@ -71,8 +71,10 @@ class EditModelPanel extends TabPanel {
             var $div = $('<div/>');
 
             var list = new List();
-            for (var a of this._definition['attributes']) {
-                list.addEntry(new ListEntry(a['name'] + ": " + a['dataType'], a));
+            if (this._definition['attributes']) {
+                for (var a of this._definition['attributes']) {
+                    list.addEntry(new ListEntry(a['name'] + ": " + a['dataType'], a));
+                }
             }
 
             var vListConfig = {
@@ -190,7 +192,9 @@ class EditModelPanel extends TabPanel {
             data = await this._readDefinition();
         }
 
-        var org = this._originalModel.getData();
+        var org;
+        if (this._originalModel.getId())
+            org = this._originalModel.getData();
         var current = await this._readDefinition();
         if (!isEqualJson(org, current)) {
             if (app.controller.isInDebugMode()) {
