@@ -182,6 +182,7 @@ class CrudObject {
     setData(data) {
         if (!data)
             data = {};
+
         var mdata = this._model.getData();
         if (mdata.actions && mdata.actions.prepare) {
             var prepare = new Function('data', mdata.actions.prepare);

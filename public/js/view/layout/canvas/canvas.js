@@ -41,8 +41,8 @@ class Canvas {
             .appendTo(this._$canvas);
         $('<button/>')
             .attr('id', "top")
-            .text('Top')
             .click(function () { $("body").scrollTop(0); })
+            .append(new Icon('chevron-up').renderIcon())
             .appendTo(this._$corner);
         this._$counter = $('<div/>', { id: 'counter' })
             .appendTo(this._$canvas);

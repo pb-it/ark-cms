@@ -195,9 +195,9 @@ class EditModelPanel extends TabPanel {
         var org;
         if (this._originalModel.getId())
             org = this._originalModel.getData();
-        var current = await this._readDefinition();
+        var current = data;
         if (!isEqualJson(org, current)) {
-            if (app.controller.isInDebugMode()) {
+            if (app.controller.getConfigController().confirmOnApply()) {
                 var bConfirm = await app.controller.getModalController().openDiffJsonModal(org, current);
                 if (!bConfirm)
                     return Promise.resolve();

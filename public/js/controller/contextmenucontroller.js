@@ -136,139 +136,141 @@ class ContextMenuController {
         var typeString = obj.getTypeString();
         var model = obj.getModel();
         var attributes = model.getModelAttributesController().getAttributes();
-        var sorted = [...attributes].sort((a, b) => a.name.localeCompare(b.name));
+        if (attributes) {
+            var sorted = [...attributes].sort((a, b) => a.name.localeCompare(b.name));
 
-        var objs;
-        var selected = app.controller.getSelectedObjects();
-        if (selected && selected.length > 0)
-            objs = selected;
-        else
-            objs = [panel.getObject()];
+            var objs;
+            var selected = app.controller.getSelectedObjects();
+            if (selected && selected.length > 0)
+                objs = selected;
+            else
+                objs = [panel.getObject()];
 
-        var entry;
-        var state;
+            var entry;
+            var state;
 
-        var backLink;
-        var data;
-        var relData
-        var params;
-        var bAddSetEntry;
-        for (let attr of sorted) {
-            bAddSetEntry = true;
-            switch (attr['dataType']) {
-                case "relation":
-                    if (attr['model']) {
-                        backLink = null;
+            var backLink;
+            var data;
+            var relData
+            var params;
+            var bAddSetEntry;
+            for (let attr of sorted) {
+                bAddSetEntry = true;
+                switch (attr['dataType']) {
+                    case "relation":
+                        if (attr['model']) {
+                            backLink = null;
 
-                        if (attr.multiple) {
-                            if (attr.via)
-                                backLink = attr.via;
-                        }
-
-                        if (!backLink) {
-                            var relModel = app.controller.getModelController().getModel(attr.model);
-                            var relAttributes = relModel.getModelAttributesController().getAttributes();
-                            if (relAttributes) {
-                                for (var relAttr of relAttributes) {
-                                    if (relAttr['dataType'] === "relation" && relAttr['model'] === typeString && relAttr['multiple'] && !relAttr['via']) {
-                                        backLink = relAttr.name;
-                                        break;
-                                    }
-                                }
+                            if (attr.multiple) {
+                                if (attr.via)
+                                    backLink = attr.via;
                             }
-                        }
 
-                        params = [];
-                        if (backLink) {
-                            for (var i = 0; i < objs.length; i++) {
-                                data = objs[i].getData();
-                                params.push(backLink + ".id=" + data['id']);
-                            }
-                        } else {
-                            for (var i = 0; i < objs.length; i++) {
-                                data = objs[i].getData();
-                                if (data) {
-                                    relData = data[attr.name];
-                                    if (relData) {
-                                        if (Array.isArray(relData)) {
-                                            for (var item of relData) {
-                                                if (item['id'])
-                                                    params.push("id=" + item['id']);
-                                            }
-                                        } else {
-                                            if (relData['id'])
-                                                params.push("id=" + relData['id']);
+                            if (!backLink) {
+                                var relModel = app.controller.getModelController().getModel(attr.model);
+                                var relAttributes = relModel.getModelAttributesController().getAttributes();
+                                if (relAttributes) {
+                                    for (var relAttr of relAttributes) {
+                                        if (relAttr['dataType'] === "relation" && relAttr['model'] === typeString && relAttr['multiple'] && !relAttr['via']) {
+                                            backLink = relAttr.name;
+                                            break;
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        if (params.length > 0) {
-                            state = new State();
-                            state.typeString = attr.model;
-                            state.where = params.join('&');
-
-                            entry = new ContextMenuEntry(attr['name'], async function () {
-                                await app.controller.loadState(this, true);
-                            }.bind(state));
-                            showGroup.push(entry);
-                        }
-
-                        if (attr['multiple'] && !attr['readonly']) {
-                            if (!attr['via'] || objs.length == 1) {
-                                if (attr['hidden'] && backLink) {
-                                    var data = {};
-                                    data[backLink] = [objs[0].getData()];
-                                    entry = new ContextMenuEntry(attr['name'], function () {
-                                        var panel = PanelController.createPanel(attr['model'], this, ActionEnum.create);
-                                        return app.controller.getModalController().openPanelInModal(panel);
-                                    }.bind(data));
-                                    addGroup.push(entry);
-                                } else {
-                                    var addPanel = new AddRelatedItemPanel(objs, attr, async function () {
-                                        await this.getObject().read();
-                                        await this.render();
-                                        return Promise.resolve(true);
-                                    }.bind(panel));
-
-                                    entry = new ContextMenuEntry(attr.name, async function () {
-                                        return app.controller.getModalController().openPanelInModal(this);
-                                    }.bind(addPanel));
-                                    addGroup.push(entry);
+                            params = [];
+                            if (backLink) {
+                                for (var i = 0; i < objs.length; i++) {
+                                    data = objs[i].getData();
+                                    params.push(backLink + ".id=" + data['id']);
+                                }
+                            } else {
+                                for (var i = 0; i < objs.length; i++) {
+                                    data = objs[i].getData();
+                                    if (data) {
+                                        relData = data[attr.name];
+                                        if (relData) {
+                                            if (Array.isArray(relData)) {
+                                                for (var item of relData) {
+                                                    if (item['id'])
+                                                        params.push("id=" + item['id']);
+                                                }
+                                            } else {
+                                                if (relData['id'])
+                                                    params.push("id=" + relData['id']);
+                                            }
+                                        }
+                                    }
                                 }
                             }
 
-                            bAddSetEntry = false;
+                            if (params.length > 0) {
+                                state = new State();
+                                state.typeString = attr.model;
+                                state.where = params.join('&');
+
+                                entry = new ContextMenuEntry(attr['name'], async function () {
+                                    await app.controller.loadState(this, true);
+                                }.bind(state));
+                                showGroup.push(entry);
+                            }
+
+                            if (attr['multiple'] && !attr['readonly']) {
+                                if (!attr['via'] || objs.length == 1) {
+                                    if (attr['hidden'] && backLink) {
+                                        var data = {};
+                                        data[backLink] = [objs[0].getData()];
+                                        entry = new ContextMenuEntry(attr['name'], function () {
+                                            var panel = PanelController.createPanel(attr['model'], this, ActionEnum.create);
+                                            return app.controller.getModalController().openPanelInModal(panel);
+                                        }.bind(data));
+                                        addGroup.push(entry);
+                                    } else {
+                                        var addPanel = new AddRelatedItemPanel(objs, attr, async function () {
+                                            await this.getObject().read();
+                                            await this.render();
+                                            return Promise.resolve(true);
+                                        }.bind(panel));
+
+                                        entry = new ContextMenuEntry(attr.name, async function () {
+                                            return app.controller.getModalController().openPanelInModal(this);
+                                        }.bind(addPanel));
+                                        addGroup.push(entry);
+                                    }
+                                }
+
+                                bAddSetEntry = false;
+                            }
                         }
-                    }
-                    break;
-                default:
-            }
-            if (bAddSetEntry && !attr['readonly']) {
-                entry = new ContextMenuEntry(attr['name'], function () {
-                    var skeleton = [attr];
-                    var panel = new FormPanel(null, skeleton);
-                    panel.setApplyAction(async function (p) {
-                        app.controller.setLoadingState(true);
+                        break;
+                    default:
+                }
+                if (bAddSetEntry && !attr['readonly']) {
+                    entry = new ContextMenuEntry(attr['name'], function () {
+                        var skeleton = [attr];
+                        var panel = new FormPanel(null, skeleton);
+                        panel.setApplyAction(async function (p) {
+                            app.controller.setLoadingState(true);
 
-                        try {
-                            var data = await p.getForm().readForm();
+                            try {
+                                var data = await p.getForm().readForm();
 
-                            for (var obj of objs)
-                                await obj.update(data);
+                                for (var obj of objs)
+                                    await obj.update(data);
 
-                            app.controller.setLoadingState(false);
-                        } catch (error) {
-                            app.controller.setLoadingState(false);
-                            app.controller.showError(error);
-                        }
+                                app.controller.setLoadingState(false);
+                            } catch (error) {
+                                app.controller.setLoadingState(false);
+                                app.controller.showError(error);
+                            }
 
-                        return Promise.resolve(true);
-                    });
-                    return app.controller.getModalController().openPanelInModal(panel);
-                }.bind(panel));
-                setGroup.push(entry);
+                            return Promise.resolve(true);
+                        });
+                        return app.controller.getModalController().openPanelInModal(panel);
+                    }.bind(panel));
+                    setGroup.push(entry);
+                }
             }
         }
     }

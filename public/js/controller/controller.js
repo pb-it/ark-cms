@@ -215,7 +215,8 @@ class Controller {
         } catch (error) {
             this.showError(error);
         } finally {
-            state.bIgnoreCache = false;
+            if (state)
+                state.bIgnoreCache = false;
             this.setLoadingState(false);
         }
     }

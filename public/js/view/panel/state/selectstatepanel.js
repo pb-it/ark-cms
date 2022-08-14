@@ -118,7 +118,7 @@ class SelectStatePanel extends Panel {
                         var states = event.data.getTreeConf(true).nodes;
 
                         var bSave = false;
-                        if (app.controller.isInDebugMode())
+                        if (app.controller.getConfigController().confirmOnApply())
                             bSave = await app.controller.getModalController().openDiffJsonModal(msc.getStateTree(), states);
                         else
                             bSave = true;

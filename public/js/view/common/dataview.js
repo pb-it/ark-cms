@@ -62,6 +62,15 @@ class DataView {
                             case "double":
                             case "string":
                             case "enumeration":
+                                if (data && data[name]) {
+                                    if (typeof data[name] === 'string' || data[name] instanceof String)
+                                        value = encodeText(data[name]);
+                                    else
+                                        value = data[name];
+                                } else
+                                    value = "";
+                                $value.html(value);
+                                break;
                             case "text":
                             case "json":
                                 if (data && data[name]) {
@@ -84,6 +93,7 @@ class DataView {
                                                     value = DataView._parseText(value);
                                                     break;
                                                 case 'markdown':
+                                                    $value.addClass('markdown');
                                                     const converter = new showdown.Converter();
                                                     value = converter.makeHtml(value);
                                                     break;
@@ -192,6 +202,15 @@ class DataView {
                                     $value.append($button);
                                 } else
                                     $value.html("");
+                                break;
+                            case "file":
+                                if (data && data[name]) {
+                                    if (attribute['cdn'])
+                                        value = CrudObject._buildUrl(attribute['cdn'], data[name]);
+                                    else
+                                        value = data[name];
+                                    $value.html("<a href='" + value + "' target='_blank'>" + data[name] + "</a><br>");
+                                }
                                 break;
                             default:
                                 $value.html("&lt;" + attribute['dataType'] + "&gt;");

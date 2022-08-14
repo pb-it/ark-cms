@@ -5,6 +5,8 @@ class FormEntry {
 
     _id;
 
+    _$div;
+
     constructor(form, attribute) {
         this._form = form;
         this._attribute = attribute;
@@ -14,6 +16,10 @@ class FormEntry {
             this._id = formName + "." + this._attribute.name;
         else
             this._id = this._attribute.name + Date.now();
+    }
+
+    getAttribute() {
+        return this._attribute;
     }
 
     getName() {

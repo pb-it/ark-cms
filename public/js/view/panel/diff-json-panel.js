@@ -13,20 +13,25 @@ class DiffJsonPanel extends Panel {
     async _renderContent() {
         var $div = $('<div/>');
 
+        $div.append('old:<br/>');
         $div.append($('<textarea/>')
             .attr('rows', 5)
             .attr('cols', 80)
+            //.prop("disabled", true)
+            .prop("readonly", true)
             .val(JSON.stringify(this._oldObj, null, '\t')));
-
         $div.append('<br/>');
 
+        $div.append('new:<br/>');
         $div.append($('<textarea/>')
             .attr('rows', 5)
             .attr('cols', 80)
+            //.prop("disabled", true)
+            .prop("readonly", true)
             .val(JSON.stringify(this._newObj, null, '\t')));
-
         $div.append('<br/>');
 
+        $div.append('diff:<br/>');
         var diff = JsDiff.diffJson(this._oldObj, this._newObj);
         var span;
         diff.forEach((part) => {

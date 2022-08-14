@@ -78,7 +78,7 @@ class State {
      */
     static getUrlFromState(state) {
         var url;
-        if (state.typeString) {
+        if (state && state.typeString) {
             url = "/" + state.typeString;
             if (state.action) {
                 switch (state.action) {

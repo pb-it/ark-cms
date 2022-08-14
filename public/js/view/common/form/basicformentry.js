@@ -13,7 +13,10 @@ class BasicFormEntry extends FormEntry {
 
     async renderValue(value) {
         var name = this._attribute.name;
-        var $div = $('<div/>').addClass('value');
+        if (this._$div)
+            this._$div.empty();
+        else
+            this._$div = $('<div/>').addClass('value');
         var size;
 
         if (this._attribute['dataType']) {
@@ -26,23 +29,26 @@ class BasicFormEntry extends FormEntry {
 
             switch (this._attribute['dataType']) {
                 case "boolean":
-                    if (this._attribute['required'] && (value === true || value === false)) {
-                        this._$input = $('<fieldset/>')
-                            .css({
-                                'border': 0,
-                                'padding': 0
-                            });
-                        this._$input.append($('<input/>')
-                            .attr('type', 'checkbox')
-                            .attr('name', name)
-                            .attr('id', this._id)
-                            .prop('checked', (value == true)));
-                        if (this._attribute['view'] === 'labelRight') {
-                            var $label = $('<label/>')
-                                .attr('for', this._id)
-                                .text(' ' + this.getLabel());
-                            this._$input.append($label);
-                        }
+                    if (this._attribute['required']) {
+                        if (value === true || value === false) {
+                            this._$input = $('<fieldset/>')
+                                .css({
+                                    'border': 0,
+                                    'padding': 0
+                                });
+                            this._$input.append($('<input/>')
+                                .attr('type', 'checkbox')
+                                .attr('name', name)
+                                .attr('id', this._id)
+                                .prop('checked', (value == true)));
+                            if (this._attribute['view'] === 'labelRight') {
+                                var $label = $('<label/>')
+                                    .attr('for', this._id)
+                                    .text(' ' + this.getLabel());
+                                this._$input.append($label);
+                            }
+                        } else
+                            throw new Error("Field '" + this._attribute['name'] + "' has no valid value");
                     } else {
                         this._$input = $('<select/>')
                             .attr('name', name)
@@ -70,7 +76,7 @@ class BasicFormEntry extends FormEntry {
                 case "decimal":
                 case "double":
                     if (this._attribute.size)
-                        size = this._attribute.size
+                        size = this._attribute.size;
                     else
                         size = "10";
 
@@ -83,7 +89,7 @@ class BasicFormEntry extends FormEntry {
                     break;
                 case "date":
                     if (this._attribute.size)
-                        size = this._attribute.size
+                        size = this._attribute.size;
                     else
                         size = "25";
 
@@ -106,7 +112,7 @@ class BasicFormEntry extends FormEntry {
                 case "datetime":
                 case "timestamp":
                     if (this._attribute.size)
-                        size = this._attribute.size
+                        size = this._attribute.size;
                     else
                         size = "25";
 
@@ -122,7 +128,7 @@ class BasicFormEntry extends FormEntry {
                     break;
                 case "time":
                     if (this._attribute.size)
-                        size = this._attribute.size
+                        size = this._attribute.size;
                     else
                         size = "25";
 
@@ -136,7 +142,7 @@ class BasicFormEntry extends FormEntry {
                 case "string":
                 case "url":
                     if (this._attribute.size)
-                        size = this._attribute.size
+                        size = this._attribute.size;
                     else
                         size = "100";
 
@@ -172,6 +178,8 @@ class BasicFormEntry extends FormEntry {
                             $label = $('<label/>')
                                 .attr('for', v)
                                 .text(v);
+                            if (o['tooltip'])
+                                $label.attr('title', o['tooltip']);
                             this._$input.append($label);
                         }
                     } else if (this._attribute['view'] === 'select') {
@@ -187,13 +195,17 @@ class BasicFormEntry extends FormEntry {
                         this._$input.append($option);
 
                         var v;
-                        for (var o of options) {
-                            v = o['value'];
-                            $option = $('<option/>', { value: v }).text(v);
-                            $option.prop('disabled', o['disabled'])
-                            if (value === v)
-                                $option.prop('selected', true);
-                            this._$input.append($option);
+                        if (options) {
+                            for (var o of options) {
+                                v = o['value'];
+                                $option = $('<option/>', { value: v }).text(v);
+                                $option.prop('disabled', o['disabled'])
+                                if (value === v)
+                                    $option.prop('selected', true);
+                                if (o['tooltip'])
+                                    $option.attr('title', o['tooltip']);
+                                this._$input.append($option);
+                            }
                         }
                     }
                     break;
@@ -217,8 +229,25 @@ class BasicFormEntry extends FormEntry {
                                     $option.prop('selected', true);
                                 this._$syntax.append($option);
                             };
-                            $div.append(this._$syntax);
-                            $div.append('<br/>');
+                            this._$div.append(this._$syntax);
+
+                            var $previewButton = $('<button>')
+                                .text('preview')
+                                .click(async function (event) {
+                                    event.stopPropagation();
+
+                                    var skeleton = [this._attribute];
+
+                                    var data = {};
+                                    data[name] = await this.readValue();
+
+                                    var panel = new Panel();
+                                    panel.setContent(await DataView.renderData(skeleton, data));
+                                    return app.controller.getModalController().openPanelInModal(panel);
+                                }.bind(this));
+                            this._$div.append($previewButton);
+
+                            this._$div.append('<br/>');
                         }
                     }
                     var rows;
@@ -268,11 +297,16 @@ class BasicFormEntry extends FormEntry {
                         .html("&lt;" + this._attribute['dataType'] + "&gt;");
             }
         }
-        if (this._attribute['readonly']) //editable
-            this._$input.attr('disabled', true);
+        if (this._$input) {
+            if (this._attribute['readonly']) //editable
+                this._$input.attr('disabled', true);
 
-        $div.append(this._$input);
-        return Promise.resolve($div);
+            if (this._attribute['changeAction'])
+                this._$input.change(this._attribute['changeAction']);
+
+            this._$div.append(this._$input);
+        }
+        return Promise.resolve(this._$div);
     }
 
     async readValue(bValidate = true) {

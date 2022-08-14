@@ -35,8 +35,9 @@ class AddAttributeController {
                     { 'value': 'timestamp' },
                     { 'value': 'enumeration' },
                     { 'value': 'relation' },
-                    { 'value': 'blob' },
-                    { 'value': 'base64' }
+                    { 'value': 'blob', 'tooltip': '**Experimental**: Only enabled in debug mode.', 'disabled': !app.controller.isInDebugMode() },
+                    { 'value': 'base64', 'tooltip': '**Experimental**: Only enabled in debug mode.', 'disabled': !app.controller.isInDebugMode() },
+                    { 'value': 'file', 'tooltip': '**Experimental**: Only enabled in debug mode.', 'disabled': !app.controller.isInDebugMode() }
                 ],
                 view: 'select',
                 required: true
@@ -94,7 +95,7 @@ class AddAttributeController {
                 case 'string':
                     skeleton = [
                         { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' },
-                        { 'name': 'unique', 'dataType': 'boolean' },
+                        { 'name': 'unique', 'tooltip': '**Info**: Unique attributes may be limited in length by your database system!', 'dataType': 'boolean' },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'string' }
                     ];
@@ -146,7 +147,7 @@ You will not see this information in forms, but it is stored with your actual st
                 case 'url':
                     skeleton = [
                         { 'name': 'length', 'dataType': 'string' },
-                        { 'name': 'cdn', 'dataType': 'string' },
+                        { 'name': 'cdn', 'label': 'CDN', 'tooltip': 'If all resources/entries share the same CDN you can define it here and omit it in the input field.', 'dataType': 'string' },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'string' }
                     ];
@@ -198,22 +199,21 @@ You will not see this information in forms, but it is stored with your actual st
                     break;
                 case 'relation':
                     var models = app.controller.getModelController().getModels();
-                    var names = models.map(function (model) {
+                    var allModelNames = models.map(function (model) {
                         return model.getData()['name'];
                     });
-                    var mName = this._model.getName();
+                    var thisModelName = this._model.getName();
                     var options = [];
                     var attributes = this._model.getModelAttributesController().getAttributes();
-                    var exist = [];
-                    if (attributes) {
-                        for (var attr of attributes) {
-                            if (attr['dataType'] === "relation" && attr['model'] && attr['multiple'])
-                                exist.push(attr['model']);
-                        }
-                    }
-                    attributes.filter(function (x) { return x['dataType'] === "relation" && x['dataType'] });
-                    for (var name of names) {
-                        if (name !== mName && exist.indexOf(name) == -1)
+                    var exist;
+                    if (attributes)
+                        exist = attributes.filter(function (x) { return x['dataType'] === "relation" && attr['model'] && attr['multiple'] });
+                    for (var name of allModelNames) {
+                        if (name === thisModelName)
+                            break;
+                        else if (exist && exist.indexOf(name) !== -1)
+                            break;
+                        else
                             options.push({ 'value': name });
                     }
                     options = options.sort((a, b) => a['value'].localeCompare(b['value']));
@@ -222,13 +222,6 @@ You will not see this information in forms, but it is stored with your actual st
                         { 'name': 'model', 'dataType': 'enumeration', 'options': options, 'view': 'select', 'required': true },
                         { 'name': 'multiple', 'dataType': 'boolean', 'required': true },
                         { 'name': 'via', 'dataType': 'string' }
-                    ];
-                    break;
-                case 'blob':
-                case 'base64':
-                    skeleton = [
-                        { 'name': 'length', 'dataType': 'string' },
-                        { 'name': 'required', 'dataType': 'boolean' }
                     ];
                     break;
                 case 'integer':
@@ -251,6 +244,22 @@ You will not see this information in forms, but it is stored with your actual st
                         { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'double' }
+                    ];
+                    break;
+                case 'blob':
+                case 'base64':
+                    skeleton = [
+                        { 'name': 'length', 'dataType': 'string' },
+                        { 'name': 'required', 'dataType': 'boolean' }
+                    ];
+                    break;
+                case 'file':
+                    skeleton = [
+                        { 'name': 'length', 'tooltip': '**Info**: max. length of filename', 'dataType': 'string', 'defaultValue': '250', 'readonly': false },
+                        { 'name': 'localPath', 'tooltip': '**Example**: \'../cdn\'', 'dataType': 'string', 'required': true },
+                        { 'name': 'cdn', 'label': 'CDN', 'tooltip': '**Example**: local CDN: \'./cdn\'', 'dataType': 'string', 'required': true },
+                        { 'name': 'required', 'dataType': 'boolean' },
+                        { 'name': 'unique', 'dataType': 'boolean', 'defaultValue': true, 'readonly': false }
                     ];
                     break;
                 default:
@@ -430,6 +439,16 @@ You will not see this information in forms, but it is stored with your actual st
                         } else
                             throw new Error("Invalid input in field 'length'");
                     }
+                    break;
+                case 'file':
+                    if (data.length)
+                        this._data.length = data.length;
+                    if (data.localPath)
+                        this._data.localPath = data.localPath;
+                    if (data.cdn)
+                        this._data.cdn = data.cdn;
+                    if (data.unique)
+                        this._data.unique = data.unique;
                     break;
                 default:
             }

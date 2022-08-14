@@ -6,6 +6,8 @@ class ConfigPanel extends TabPanel {
     _data;
     _form;
 
+    _bConfirmOnApply;
+
     constructor(config) {
         super(config);
     }
@@ -34,16 +36,49 @@ class ConfigPanel extends TabPanel {
 
             var cc = app.controller.getConfigController();
 
+            if (!this._data) {
+                var bDebug = cc.getDebugConfig()['bDebug'];
+                this._data = {
+                    'version': app.controller.getVersionController().getAppVersion(),
+                    'api': cc.getApiOrigin() + "/api",
+                    'bDebug': bDebug,
+                    'bConfirmOnApply': bDebug || (app.controller.getStorageController().loadLocal('bConfirmOnApply') === 'true')
+                };
+            }
             var skeleton = [
                 { name: 'version', dataType: 'string', readonly: true },
                 { name: 'api', label: 'API', dataType: 'string' },
-                { name: 'bDebug', label: 'Debug Mode', dataType: 'boolean', required: true, defaultValue: false }
+                {
+                    name: 'bDebug',
+                    label: 'Debug Mode',
+                    tooltip: '**Warning**: Will also enable experimental / unsafe features. Use with caution!',
+                    dataType: 'boolean',
+                    required: true,
+                    defaultValue: false,
+                    changeAction: async function () {
+                        var fData = await this._form.readForm();
+
+                        var entry = this._form.getEntry('bConfirmOnApply');
+                        var attribute = entry.getAttribute();
+                        attribute['readonly'] = fData['bDebug'];
+                        if (fData['bDebug']) {
+                            this._bConfirmOnApply = fData['bConfirmOnApply'];
+                            await entry.renderValue(true);
+                        } else
+                            await entry.renderValue(this._bConfirmOnApply);
+                        //await this._form.renderForm();
+                        return Promise.resolve();
+                    }.bind(this),
+                },
+                {
+                    name: 'bConfirmOnApply',
+                    label: 'Confirm on apply',
+                    dataType: 'boolean',
+                    required: true,
+                    defaultValue: false,
+                    readonly: this._data['bDebug']
+                }
             ];
-            this._data = {
-                'api': cc.getApiOrigin() + "/api",
-                'version': app.controller.getVersionController().getAppVersion(),
-                'bDebug': cc.getDebugConfig()['bDebug']
-            };
             this._form = new Form(skeleton, this._data);
             var $form = await this._form.renderForm();
             $div.append($form);
@@ -77,6 +112,12 @@ class ConfigPanel extends TabPanel {
 
                     var bReloadApp = false;
                     var fdata = await this._form.readForm();
+
+                    if (fdata['bConfirmOnApply']) {
+                        if (!await app.controller.getModalController().openDiffJsonModal(this._data, fdata))
+                            return Promise.reject();
+                    }
+
                     if (this._data['version'] !== fdata['version']) {
                         app.controller.getVersionController().setAppVersion(fdata['version']);
                         bReloadApp = true;
@@ -89,12 +130,16 @@ class ConfigPanel extends TabPanel {
                     conf['bDebug'] = fdata['bDebug']
                     cc.setDebugConfig(conf);
 
+                    app.controller.getStorageController().storeLocal('bConfirmOnApply', fdata['bConfirmOnApply']);
+
                     if (bReloadApp)
                         app.controller.reloadApplication();
                     else {
                         app.controller.reloadState();
                         this.dispose();
                     }
+
+                    return Promise.resolve();
                 }.bind(this));
             $div.append($apply);
             return Promise.resolve($div);
@@ -117,5 +162,11 @@ class ConfigPanel extends TabPanel {
         }.bind(this);
 
         return Promise.resolve(panel);
+    }
+
+    async _hasChanged() {
+        var org = this._data;
+        var current = await this._form.readForm();
+        return Promise.resolve(!isEqualJson(org, current));
     }
 }

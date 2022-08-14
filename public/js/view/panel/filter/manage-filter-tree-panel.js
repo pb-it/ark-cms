@@ -101,7 +101,7 @@ class ManageFilterTreePanel extends Panel {
                         var conf = event.data.getTreeConf(true).nodes;
 
                         var bSave = false;
-                        if (app.controller.isInDebugMode())
+                        if (app.controller.getConfigController().confirmOnApply())
                             bSave = await app.controller.getModalController().openDiffJsonModal(mfc.getFilterTree(), conf);
                         else
                             bSave = true;

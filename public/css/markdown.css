@@ -1,0 +1,33 @@
+.markdown> :first-child {
+    margin-top: 0 !important;
+}
+
+.markdown *:not(h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6) {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.markdown h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid grey;
+}
+
+.markdown code {
+    background-color: var(--color-code);
+}
+
+.markdown pre>code {
+    display: block;
+    width: fit-content;
+}

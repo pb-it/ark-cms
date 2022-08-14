@@ -96,15 +96,15 @@ class ConfigController {
 
     setDefaultDebugConfig() {
         var conf;
-        if (window.location.hostname === "localhost") {
+        /*if (window.location.hostname === "localhost") {
             conf = {
                 'bDebug': true,
                 'ajax': { 'skip': false, 'delay': 0 }
             };
-        } else
-            conf = {
-                'bDebug': false
-            };
+        } else*/
+        conf = {
+            'bDebug': false
+        };
         this.setDebugConfig(conf);
     }
 
@@ -139,5 +139,9 @@ class ConfigController {
             app.controller.getStorageController().storeLocal(API_IDENT, api);
         else
             app.controller.getStorageController().storeLocal(API_IDENT, '');
+    }
+
+    confirmOnApply() {
+        return app.controller.isInDebugMode() || (app.controller.getStorageController().loadLocal('bConfirmOnApply') === 'true');
     }
 }

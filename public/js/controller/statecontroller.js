@@ -19,7 +19,7 @@ class StateController {
         }
         if (push) {
             var s;
-            if (state['panelConfig']) {
+            if (state && state['panelConfig']) {
                 s = { ...state };
                 s['panelConfig'] = { ...state['panelConfig'] };
                 delete s['panelConfig']['_model'];
@@ -29,7 +29,7 @@ class StateController {
             window.history.pushState(s, null, url);
         } else if (replace) {
             var s;
-            if (state['panelConfig']) {
+            if (state && state['panelConfig']) {
                 s = { ...state };
                 s['panelConfig'] = { ...state['panelConfig'] };
                 delete s['panelConfig']['_model'];

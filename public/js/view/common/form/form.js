@@ -22,6 +22,14 @@ class Form {
         this._data = data;
     }
 
+    getSkeleton() {
+        return this._skeleton;
+    }
+
+    getEntry(name) {
+        return this._entries.filter(function (x) { return x.getName() === name })[0];
+    }
+
     getEntries() {
         return this._entries;
     }
@@ -74,6 +82,7 @@ class Form {
                             break;
                         case "base64":
                         case "blob":
+                        case "file":
                             entry = new FileFormEntry(this, attribute);
                             break;
                         default:

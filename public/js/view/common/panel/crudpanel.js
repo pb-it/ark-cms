@@ -81,9 +81,17 @@ class CrudPanel extends CanvasPanel {
         $div.append($('<button/>')
             .css({ 'float': 'right' })
             .html("Create")
-            .click(function (event) {
+            .click(async function (event) {
                 event.stopPropagation();
-                this._create();
+
+                try {
+                    await this._create();
+                } catch (error) {
+                    if (error)
+                        app.controller.showError(error);
+                }
+
+                return Promise.resolve();
             }.bind(this)));
         return Promise.resolve($div);
     }
@@ -101,16 +109,32 @@ class CrudPanel extends CanvasPanel {
 
                 $div.append($('<button/>')
                     .html("Delete")
-                    .click(function (event) {
+                    .click(async function (event) {
                         event.stopPropagation();
-                        this._openDelete();
+
+                        try {
+                            await this._openDelete();
+                        } catch (error) {
+                            if (error)
+                                app.controller.showError(error);
+                        }
+
+                        return Promise.resolve();
                     }.bind(this)));
                 $div.append($('<button/>')
                     .css({ 'float': 'right' })
                     .html("Edit")
-                    .click(function (event) {
+                    .click(async function (event) {
                         event.stopPropagation();
-                        this._openEdit();
+
+                        try {
+                            await this._openEdit();
+                        } catch (error) {
+                            if (error)
+                                app.controller.showError(error);
+                        }
+
+                        return Promise.resolve();
                     }.bind(this)));
                 break;
             case DetailsEnum.none:
@@ -136,14 +160,30 @@ class CrudPanel extends CanvasPanel {
             .html("Check")
             .click(async function (event) {
                 event.stopPropagation();
-                return this._checkData();
+
+                try {
+                    await this._checkData();
+                } catch (error) {
+                    if (error)
+                        app.controller.showError(error);
+                }
+
+                return Promise.resolve();
             }.bind(this)));
         $div.append($('<button/>')
             .css({ 'float': 'right' })
             .html("Commit")
-            .click(function (event) {
+            .click(async function (event) {
                 event.stopPropagation();
-                this._update();
+
+                try {
+                    await this._update();
+                } catch (error) {
+                    if (error)
+                        app.controller.showError(error);
+                }
+
+                return Promise.resolve();
             }.bind(this)));
         return Promise.resolve($div);
     }
@@ -152,7 +192,15 @@ class CrudPanel extends CanvasPanel {
         var $confirm = $('<input/>').attr({ type: 'submit', id: 'confirm', name: 'confirm', value: 'Confirm' })
             .click(async function (event) {
                 event.preventDefault();
-                await this._delete();
+
+                try {
+                    await this._delete();
+                } catch (error) {
+                    if (error)
+                        app.controller.showError(error);
+                }
+
+                return Promise.resolve();
             }.bind(this));
         return $confirm;
     }
@@ -212,7 +260,7 @@ class CrudPanel extends CanvasPanel {
         var data;
         if (this._form)
             data = await this._form.readForm(bValidate);
-        return data;
+        return Promise.resolve(data);
     }
 
     async _getChanges(bValidate, oldData) {
@@ -234,9 +282,9 @@ class CrudPanel extends CanvasPanel {
     async _hasChanged() {
         var changes = await this._getChanges();
         if (changes)
-            return Object.keys(changes).length > 0;
+            return Promise.resolve(Object.keys(changes).length > 0);
         else
-            return false;
+            return Promise.resolve(false);
     }
 
     async _openEdit() {
@@ -281,7 +329,17 @@ class CrudPanel extends CanvasPanel {
         if (this._form) {
             try {
                 app.controller.setLoadingState(true);
+
                 var changed = await this._getChanges(true, {}); // empty object as reference - because object creation may be done with predefined data
+
+                if (app.controller.getConfigController().confirmOnApply()) {
+                    app.controller.setLoadingState(false);
+                    var bConfirm = await app.controller.getModalController().openDiffJsonModal({}, changed);
+                    if (!bConfirm)
+                        return Promise.reject();
+                    app.controller.setLoadingState(true);
+                }
+
                 await this._obj.create(changed);
 
                 await sleep(500);
@@ -311,15 +369,30 @@ class CrudPanel extends CanvasPanel {
                 app.controller.showError(error);
             }
         }
+        return Promise.resolve();
     }
 
     async _update() {
         if (this._form) {
             try {
                 app.controller.setLoadingState(true);
+
                 var changed = await this._getChanges(true);
-                if (changed)
+
+                if (changed) {
+                    if (app.controller.getConfigController().confirmOnApply()) {
+                        var oldData = this.getObject().getData();
+                        var newData = await this._readData();
+                        app.controller.setLoadingState(false);
+                        var bConfirm = await app.controller.getModalController().openDiffJsonModal(oldData, newData);
+                        if (!bConfirm)
+                            return Promise.reject();
+                        app.controller.setLoadingState(true);
+                    }
+
                     await this._obj.update(changed);
+                } else
+                    alert('Nothing changed');
 
                 if (this._config.crudCallback) {
                     if (await this._config.crudCallback(this.getObject().getData()))
@@ -345,6 +418,7 @@ class CrudPanel extends CanvasPanel {
                 app.controller.showError(error);
             }
         }
+        return Promise.resolve();
     }
 
     async _delete() {
@@ -366,6 +440,7 @@ class CrudPanel extends CanvasPanel {
             app.controller.setLoadingState(false);
             app.controller.showError(error);
         }
+        return Promise.resolve();
     }
 
     _dblclick() {
@@ -387,6 +462,7 @@ class CrudPanel extends CanvasPanel {
                 ids = this._obj.getData().id;
             event.originalEvent.dataTransfer.setData("text/plain", typeString + ":" + ids);
         }
+        return Promise.resolve();
     }
 
     async _drop(event) {
@@ -443,12 +519,13 @@ class CrudPanel extends CanvasPanel {
                 }
             }
         }
-        Promise.resolve();
+        return Promise.resolve();
     }
 
     async openInNewTab(action) {
         var win = window.open(this._obj.getUrl(action), '_blank');
         win.focus();
+        return Promise.resolve();
     }
 
     async openInModal(action) {
