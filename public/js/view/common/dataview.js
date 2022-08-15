@@ -94,6 +94,10 @@ class DataView {
                                                     break;
                                                 case 'markdown':
                                                     $value.addClass('markdown');
+                                                    if (typeof showdown === 'undefined') {
+                                                        var buildUrl = "https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/";
+                                                        await loadScript(buildUrl + "showdown.min.js");
+                                                    }
                                                     const converter = new showdown.Converter();
                                                     value = converter.makeHtml(value);
                                                     break;
@@ -113,6 +117,16 @@ class DataView {
                                 } else
                                     value = "";
                                 $value.html(value);
+                                if (view && view === 'markdown') {
+                                    if (typeof hljs === 'undefined') {
+                                        var buildUrl = "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.6.0/build/";
+                                        await loadStyle(buildUrl + "styles/default.min.css");
+                                        await loadScript(buildUrl + "highlight.min.js");
+                                    }
+                                    $value[0].querySelectorAll('code').forEach(el => {
+                                        hljs.highlightElement(el);
+                                    });
+                                }
                                 break;
                             case "time":
                                 if (data && data[name]) {

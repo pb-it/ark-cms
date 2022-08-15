@@ -5,8 +5,17 @@
 
 
 ## Description
+
 Client-side rendered CMS application(JAM-stack) for usage with an API provided by a headless CMS backend
 
+
+# Current Status
+
+Current releases with major version 0.x.x are still a proof of concept of the system's architecture.
+
+Although it provides basic [CRUD][1] operations, it doesn't have any sort of security mechanism.
+
+See [Task List](#Task-List) or [Roadmap](#Roadmap) for futher progress.
 
 ## Usage / Getting Started
 
@@ -75,6 +84,12 @@ Check our [wiki pages](https://github.com/pb-it/wing-cms/wiki) for examples and 
 See [changelog](./CHANGELOG.md)
 
 
+## Task List
+
+- [ ] Add user management/authentication (ACLs, etc.)
+- [ ] History / Content versioning
+- [ ] Help system
+
 ## Roadmap
 
 
@@ -99,6 +114,7 @@ See [changelog](./CHANGELOG.md)
  - [jQuery](https://jquery.com/)
  - [jQuery-Timepicker-Addon](https://github.com/trentrichardson/jQuery-Timepicker-Addon)
  - [showdown](https://github.com/showdownjs/showdown)
+ - [highlight.js](https://github.com/highlightjs/highlight.js)
  - [jsdiff](https://github.com/kpdecker/jsdiff)
 
 Check header of [index.html](./public/index.html) and [package.json](./package.json) for futher information
@@ -127,3 +143,7 @@ See [MIT License](./LICENSE) for details.
 ## License
 
 [MIT License](./LICENSE)
+
+
+
+[1]: https://de.wikipedia.org/wiki/CRUD

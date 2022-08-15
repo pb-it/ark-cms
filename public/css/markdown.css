@@ -23,7 +23,7 @@ h6 {
     border-bottom: 1px solid grey;
 }
 
-.markdown code {
+.markdown code:not(.hljs) {
     background-color: var(--color-code);
 }
 

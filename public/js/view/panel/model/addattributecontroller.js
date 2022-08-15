@@ -257,7 +257,7 @@ You will not see this information in forms, but it is stored with your actual st
                     skeleton = [
                         { 'name': 'length', 'tooltip': '**Info**: max. length of filename', 'dataType': 'string', 'defaultValue': '250', 'readonly': false },
                         { 'name': 'localPath', 'tooltip': '**Example**: \'../cdn\'', 'dataType': 'string', 'required': true },
-                        { 'name': 'cdn', 'label': 'CDN', 'tooltip': '**Example**: local CDN: \'./cdn\'', 'dataType': 'string', 'required': true },
+                        { 'name': 'cdn', 'label': 'CDN', 'tooltip': '**Example**: local CDN: \'/cdn\'', 'dataType': 'string', 'required': true },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'unique', 'dataType': 'boolean', 'defaultValue': true, 'readonly': false }
                     ];

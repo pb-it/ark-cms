@@ -17,6 +17,10 @@ class CrudPanel extends CanvasPanel {
         return this._obj;
     }
 
+    getForm() {
+        return this._form;
+    }
+
     async _init() {
         var skeleton = this._obj.getSkeleton(true);
         if (this._config['detailsAttr']) {

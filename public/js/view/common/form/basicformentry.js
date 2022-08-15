@@ -1,5 +1,12 @@
 class BasicFormEntry extends FormEntry {
 
+    static async loadTimePicker() {
+        var buildUrl = "/public/ext/";
+        await loadStyle(buildUrl + "jquery-ui-timepicker-addon.css");
+        await loadScript(buildUrl + "jquery-ui-timepicker-addon.js");
+        return Promise.resolve();
+    }
+
     _$input;
     _$syntax;
 
@@ -121,6 +128,8 @@ class BasicFormEntry extends FormEntry {
                         .attr('name', name)
                         .attr('id', this._id)
                         .val(value);
+                    if (typeof $.timepicker === 'undefined')
+                        await BasicFormEntry.loadTimePicker();
                     this._$input.datetimepicker({
                         dateFormat: 'yy-mm-dd',
                         timeFormat: 'HH:mm:ss'
@@ -137,6 +146,8 @@ class BasicFormEntry extends FormEntry {
                         .attr('name', name)
                         .attr('id', this._id)
                         .val(value);
+                    if (typeof $.timepicker === 'undefined')
+                        await BasicFormEntry.loadTimePicker();
                     this._$input.timepicker();
                     break;
                 case "string":

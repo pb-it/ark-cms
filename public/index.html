@@ -10,7 +10,7 @@
         async function loadScript(url) {
             return new Promise(function (resolve, reject) {
                 var script = document.createElement('script');
-                script.type = "text/javascript";
+                script.type = 'text/javascript';
                 script.src = url;
                 script.async = false;
 
@@ -21,6 +21,23 @@
                 document.head.append(script);
             });
         }
+
+        async function loadStyle(url) {
+            return new Promise(function (resolve, reject) {
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.media = 'all';
+                link.href = url;
+
+                link.onload = () => resolve();
+                link.onerror = () => reject(new Error("Error while loading '" + url + "'"));
+                //script.onreadystatechange
+
+                document.head.append(link);
+            });
+        }
+
 
         function missingDependecy(dep) {
             alert("Error while loading '" + dep['src'] + "'");
@@ -50,19 +67,19 @@
     <script type="text/javascript"
         src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.6.1/dist/lazyload.min.js"></script>
 
-    <!--https://trentrichardson.com/examples/timepicker/-->
-    <script type="text/javascript" src="/public/ext/jquery-ui-timepicker-addon.js"
-        onerror="missingDependecy(this)"></script>
-
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"
-        onerror="missingDependecy(this)"></script>
-
     <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/pb-it/wing-cms-filter@0.1.2-alpha/dist/jpath.min.js"
         onerror="missingDependecy(this)"></script>
 
-    <script type="text/javascript" src="http://incaseofstairs.com/jsdiff/diff.js"
-        onerror="missingDependecy(this)"></script>
-
+    <!-- loaded dynamically: -->
+    <!--https://trentrichardson.com/examples/timepicker/-->
+    <!--<script type="text/javascript" src="/public/ext/jquery-ui-timepicker-addon.js"
+        onerror="missingDependecy(this)"></script>-->
+    <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"
+        onerror="missingDependecy(this)"></script>-->
+    <!--<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.6.0/build/highlight.min.js"
+    onerror="missingDependecy(this)"></script>-->
+    <!--<script type="text/javascript" src="http://incaseofstairs.com/jsdiff/diff.js"
+        onerror="missingDependecy(this)"></script>-->
 
 
     <script type="text/javascript" src="/public/js/common/logger/logger.js" onerror="missingDependecy(this)"></script>
@@ -291,14 +308,21 @@
 
     <script type="text/javascript" src="/public/js/view/view.js" onerror="missingDependecy(this)"></script>
 
-    <!--https://trentrichardson.com/examples/timepicker/-->
-    <link type="text/css" rel="stylesheet" href="/public/ext/jquery-ui-timepicker-addon.css"
-        onerror="missingDependecy(this)" />
+
+
     <link type="text/css" rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
         onerror="missingDependecy(this)" />
     <link type="text/css" rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css"
         onerror="missingDependecy(this)" />
+    <!-- loaded dynamically: -->
+    <!-- https://trentrichardson.com/examples/timepicker/-->
+    <!--<link type="text/css" rel="stylesheet" href="/public/ext/jquery-ui-timepicker-addon.css"
+        onerror="missingDependecy(this)" />
+    <link type="text/css" rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.6.0/build/styles/default.min.css"
+        onerror="missingDependecy(this)">-->
+
 
     <link type="text/css" rel="stylesheet" href="/public/css/common.css" onerror="missingDependecy(this)" />
     <link type="text/css" rel="stylesheet" href="/public/css/layout.css" onerror="missingDependecy(this)" />
