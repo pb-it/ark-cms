@@ -3,7 +3,7 @@
     width: 100%;
 }
 
-#canvas .clear {
+#canvas>.clear {
     margin-top: 70px;
 }
 

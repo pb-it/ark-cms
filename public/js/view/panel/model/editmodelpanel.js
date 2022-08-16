@@ -197,77 +197,77 @@ class EditModelPanel extends TabPanel {
             org = this._originalModel.getData();
         var current = data;
         if (!isEqualJson(org, current)) {
-            if (app.controller.getConfigController().confirmOnApply()) {
-                var bConfirm = await app.controller.getModalController().openDiffJsonModal(org, current);
-                if (!bConfirm)
-                    return Promise.resolve();
+            var bTitle = false;
+            var defaults = data['defaults'];
+            if (defaults && defaults['title'])
+                bTitle = true;
+
+            if (bTitle || this._originalModel.getId()) {
+                await this._checkConfirm(org, current);
+            } else {
+                var panel = new Panel();
+
+                var $div = $('<div/>')
+                    .css({ 'padding': '10' });
+
+                $div.append(`<b>Information:</b><br/>
+                You have not choosen an attibute which holds the title for your model.<br/>
+                As a result the title of your records will build up upon their ID,<br/>
+                which may not be very convenient to work with in search fields.<br/><br/>`);
+
+                var $change = $('<button/>')
+                    .text("Change") //Abort
+                    .click(async function (event) {
+                        event.preventDefault();
+
+                        await this.openTab(this._$defaultsPanel);
+                        var form = this._$defaultsPanel.getTitleForm();
+                        var entry = form.getEntries()[0];
+                        var $input = entry.getInput();
+                        var $option = $input.first();
+                        $option.focus(); //TODO: focus is not working!
+
+                        panel.dispose();
+
+                        return Promise.resolve();
+                    }.bind(this));
+                $div.append($change);
+
+                var $ignore = $('<button/>')
+                    .text("Ignore")
+                    .css({ 'float': 'right' })
+                    .click(async function (event) {
+                        event.preventDefault();
+
+                        panel.dispose();
+                        await this._checkConfirm(org, current);
+
+                        return Promise.resolve();
+                    }.bind(this));
+                $div.append($ignore);
+
+                $div.append("<br/>");
+
+                panel.setContent($div);
+                await app.controller.getModalController().openPanelInModal(panel);
             }
         } else {
             alert('Nothing changed');
             this.dispose();
-            return Promise.resolve();
+        }
+        return Promise.resolve();
+    }
+
+    async _checkConfirm(org, current) {
+        if (app.controller.getConfigController().confirmOnApply()) {
+            var bConfirm = await app.controller.getModalController().openDiffJsonModal(org, current);
+            if (!bConfirm)
+                return Promise.resolve();
         }
 
-
-        var bTitle = false;
-        var defaults = data['defaults'];
-        if (defaults && defaults['title'])
-            bTitle = true;
-
-        if (bTitle || data['id']) {
-            await this._model.setData(data);
-            app.controller.reloadApplication();
-            this.dispose();
-        } else {
-            var panel = new Panel();
-
-            var $div = $('<div/>')
-                .css({ 'padding': '10' });
-
-            $div.append(`<b>Information:</b><br/>
-            You have not choosen an attibute which holds the title for your model.<br/>
-            As a result the title of your records will build up upon their ID,<br/>
-            which may not be very convenient to work with in search fields.<br/><br/>`);
-
-            var $change = $('<button/>')
-                .text("Change") //Abort
-                .click(async function (event) {
-                    event.preventDefault();
-
-                    await this.openTab(this._$defaultsPanel);
-                    var form = this._$defaultsPanel.getTitleForm();
-                    var entry = form.getEntries()[0];
-                    var $input = entry.getInput();
-                    var $option = $input.first();
-                    $option.focus(); //TODO: focus is not working!
-
-                    panel.dispose();
-
-                    return Promise.resolve();
-                }.bind(this));
-            $div.append($change);
-
-            var $ignore = $('<button/>')
-                .text("Ignore")
-                .css({ 'float': 'right' })
-                .click(async function (event) {
-                    event.preventDefault();
-
-                    await this._model.setData(data);
-                    app.controller.reloadApplication();
-
-                    panel.dispose();
-                    this.dispose();
-
-                    return Promise.resolve();
-                }.bind(this));
-            $div.append($ignore);
-
-            $div.append("<br/>");
-
-            panel.setContent($div);
-            await app.controller.getModalController().openPanelInModal(panel);
-        }
+        await this._model.setData(current);
+        app.controller.reloadApplication();
+        this.dispose();
         return Promise.resolve();
     }
 

@@ -6,7 +6,12 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
-const serverConfig = require('./config/server-config');
+const serverConfigPath = path.join(__dirname, './config/server-config.js');
+const serverConfigtemplatePath = path.join(__dirname, './config/server-config-template.js');
+if (!fs.existsSync(serverConfigPath) && fs.existsSync(serverConfigtemplatePath))
+    fs.copyFileSync(serverConfigtemplatePath, serverConfigPath);
+const serverConfig = require(serverConfigPath);
+
 const webclient = require('./src/common/webclient.js');
 
 const VcsEnum = Object.freeze({ GIT: 'git', SVN: 'svn' });

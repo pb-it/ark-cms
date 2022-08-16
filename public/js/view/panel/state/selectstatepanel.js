@@ -21,9 +21,13 @@ class SelectStatePanel extends Panel {
 
         if (!this._tree) {
             var msc = app.controller.getModelController().getModel(this._modelName).getModelStateController();
+            var nodes;
+            var tree = msc.getStateTree();
+            if (tree)
+                nodes = JSON.parse(JSON.stringify(tree));
             var treeConf = {
                 'type': 'dummyRoot',
-                'nodes': JSON.parse(JSON.stringify(msc.getStateTree()))
+                'nodes': nodes
             };
             this._tree = new Tree(treeConf);
         }

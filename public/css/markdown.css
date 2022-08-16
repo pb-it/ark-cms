@@ -27,7 +27,9 @@ h6 {
     background-color: var(--color-code);
 }
 
-.markdown pre>code {
+.markdown pre>code:not(.hljs) {
     display: block;
-    width: fit-content;
+    /*width: fit-content;
+    max-width: 100%;*/
+    overflow-x: auto;
 }

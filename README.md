@@ -9,7 +9,7 @@
 Client-side rendered CMS application(JAM-stack) for usage with an API provided by a headless CMS backend
 
 
-# Current Status
+## Current State
 
 Current releases with major version 0.x.x are still a proof of concept of the system's architecture.
 

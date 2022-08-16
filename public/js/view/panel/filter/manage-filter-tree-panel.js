@@ -22,11 +22,14 @@ class ManageFilterTreePanel extends Panel {
 
         var model = app.controller.getModelController().getModel(this._state.typeString);
         var mfc = model.getModelFilterController();
-
+        var nodes;
+        var tree = mfc.getFilterTree();
+        if (tree)
+            nodes = JSON.parse(JSON.stringify(tree));
         if (!this._tree) {
             var treeConf = {
                 'type': 'dummyRoot',
-                'nodes': JSON.parse(JSON.stringify(mfc.getFilterTree()))
+                'nodes': nodes
             };
             this._tree = new Tree(treeConf);
         }
