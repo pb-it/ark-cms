@@ -273,12 +273,13 @@ class EditModelPanel extends TabPanel {
         var ac = app.controller.getApiController();
         var info = await ac.getInfo();
         var appVersion = app.controller.getVersionController().getAppVersion();
-        if (appVersion != info['version'])
+        if (appVersion != info['version']) {
             var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force update?");
-        if (bConfirmation)
-            bForce = true;
-        else
-            return Promise.resolve();
+            if (bConfirmation)
+                bForce = true;
+            else
+                return Promise.resolve();
+        }
 
         await this._model.setData(current, true, bForce);
         app.controller.reloadApplication();
