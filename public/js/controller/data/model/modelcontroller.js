@@ -12,19 +12,20 @@ class ModelController {
 
     async init() {
         this._models = [];
-        var url = app.controller.getConfigController().getApiOrigin();
-        var infoUrl = url + "/system/info";
-        var info = await WebClient.fetchJson(infoUrl);
+        var ac = app.controller.getApiController();
+        var info = await ac.getInfo();
         var appVersion = app.controller.getVersionController().getAppVersion();
         if (appVersion != info['version'])
             alert('API version does not match client version. Consider updating!')
-        var modelsUrl = url + "/models";
+        var modelsUrl = ac.getApiOrigin() + "/models";
         var apiModels = await WebClient.fetchJson(modelsUrl);
-        var model;
-        for (var data of apiModels) {
-            model = new XModel(data);
-            model.init();
-            this._models.push(model);
+        if (apiModels) {
+            var model;
+            for (var data of apiModels) {
+                model = new XModel(data);
+                model.init();
+                this._models.push(model);
+            }
         }
         return Promise.resolve();
     }

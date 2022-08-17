@@ -151,7 +151,7 @@ class DataService {
         }
 
         if (!res) {
-            res = await WebClient.fetchJson(app.controller.getConfigController().getApiOrigin() + "/api/" + typeUrl);
+            res = await WebClient.fetchJson(app.controller.getApiController().getApiOrigin() + "/api/" + typeUrl);
 
             var cache = this._cache.getModelCache(typeString);
             if (!id && !where && (!limit || limit == -1)) {
@@ -237,7 +237,7 @@ class DataService {
             typeUrl = typeString + "/" + id;
         else
             typeUrl = typeString;
-        var url = app.controller.getConfigController().getApiOrigin() + "/api/" + typeUrl;
+        var url = app.controller.getApiController().getApiOrigin() + "/api/" + typeUrl;
 
         if (method && url) {
             var resp = await WebClient.request(method, url, data);

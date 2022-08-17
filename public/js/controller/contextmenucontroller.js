@@ -328,8 +328,8 @@ class ContextMenuController {
             if (!selected || selected.length == 0 || (selected.length == 1 && selected[0] == this))
                 this.openInModal(ActionEnum.delete);
             else {
-                var bConfirmaltion = await app.controller.getModalController().openConfirmModal("Delete all selected items?");
-                if (bConfirmaltion) {
+                var bConfirmation = await app.controller.getModalController().openConfirmModal("Delete all selected items?");
+                if (bConfirmation) {
                     app.controller.setLoadingState(true);
 
                     try {

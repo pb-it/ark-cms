@@ -116,17 +116,8 @@ class ConfigController {
             app.controller.getStorageController().storeLocal(DEBUG_IDENT, '');
     }
 
-    getApiOrigin() {
-        var oUrl;
-        if (this._api) {
-            const url = new URL(this._api);
-            oUrl = url.origin;
-            /*if (this._api.endsWith('/'))
-                oUrl = this._api.substr(0, this._api.length - 5);
-            else
-                oUrl = this._api.substr(0, this._api.length - 4);*/
-        }
-        return oUrl;
+    getApi() {
+        return this._api;
     }
 
     setDefaultApi() {

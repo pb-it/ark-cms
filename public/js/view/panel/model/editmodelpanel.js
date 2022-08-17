@@ -35,11 +35,11 @@ class EditModelPanel extends TabPanel {
         this._panels.push(this._$defaultsPanel);
 
         if (app.controller.isInDebugMode()) {
-            this._$actionsPanel = await this._createActionsPanel();
-            this._panels.push(this._$actionsPanel);
-
             this._$extensionsPanel = await this._createExtensionsPanel();
             this._panels.push(this._$extensionsPanel);
+
+            this._$actionsPanel = await this._createActionsPanel();
+            this._panels.push(this._$actionsPanel);
 
             this._$rawPanel = await this._createRawPanel();
             this._panels.push(this._$rawPanel);
@@ -172,12 +172,16 @@ class EditModelPanel extends TabPanel {
             var fData = await this._actionForm.readForm();
             if (!isEmpty(fData))
                 definition['actions'] = fData;
+            else if (definition['actions'] || definition['actions'] === null)
+                delete definition['actions'];
         }
 
         if (this._extensionForm) {
             var fData = await this._extensionForm.readForm();
-            if (fData['extensions'])
+            if (!isEmpty(fData['extensions']))
                 definition['extensions'] = fData['extensions'];
+            else if (definition['extensions'] || definition['extensions'] === null)
+                delete definition['extensions'];
         }
 
         return Promise.resolve(definition);
@@ -265,7 +269,18 @@ class EditModelPanel extends TabPanel {
                 return Promise.resolve();
         }
 
-        await this._model.setData(current);
+        var bForce = false;
+        var ac = app.controller.getApiController();
+        var info = await ac.getInfo();
+        var appVersion = app.controller.getVersionController().getAppVersion();
+        if (appVersion != info['version'])
+            var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force update?");
+        if (bConfirmation)
+            bForce = true;
+        else
+            return Promise.resolve();
+
+        await this._model.setData(current, true, bForce);
         app.controller.reloadApplication();
         this.dispose();
         return Promise.resolve();

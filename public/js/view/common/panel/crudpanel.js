@@ -486,8 +486,8 @@ class CrudPanel extends CanvasPanel {
                 var prop = model.getModelDefaultsController().getDefaultThumbnailProperty();
                 if (prop) {
                     if (droptype === "contents") {
-                        var bConfirmaltion = await app.controller.getModalController().openConfirmModal("Change thumbnail?");
-                        if (bConfirmaltion) {
+                        var bConfirmation = await app.controller.getModalController().openConfirmModal("Change thumbnail?");
+                        if (bConfirmation) {
                             var obj = new Object();
                             obj[prop] = id;
                             await this._obj.update(obj);

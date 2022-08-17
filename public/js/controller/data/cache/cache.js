@@ -13,7 +13,10 @@ class Cache {
         else
             res = this._modelCacheArr;
         if (!res) {
-            res = new ModelCache(app.controller.getModelController().getModel(name));
+            var model = app.controller.getModelController().getModel(name);
+            if (!model)
+                throw new Error('Unknown model \'' + name + '\'');
+            res = new ModelCache(model);
             this._modelCacheArr[name] = res;
         }
         return res;

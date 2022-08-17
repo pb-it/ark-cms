@@ -40,7 +40,7 @@ class ConfigPanel extends TabPanel {
                 var bDebug = cc.getDebugConfig()['bDebug'];
                 this._data = {
                     'version': app.controller.getVersionController().getAppVersion(),
-                    'api': cc.getApiOrigin() + "/api",
+                    'api': app.controller.getApiController().getApiOrigin() + "/api",
                     'bDebug': bDebug,
                     'bConfirmOnApply': bDebug || (app.controller.getStorageController().loadLocal('bConfirmOnApply') === 'true')
                 };

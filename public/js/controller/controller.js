@@ -112,7 +112,7 @@ class Controller {
         this._configController = new ConfigController();
         await this._configController.initConfigController();
 
-        this._apiController = new ApiController(this._configController.getApiOrigin());
+        this._apiController = new ApiController(this._configController.getApi());
 
         this._modalController = new ModalController(); //VersionController may open a modal
 

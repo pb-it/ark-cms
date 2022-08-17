@@ -44,7 +44,7 @@ class DeleteModelPanel extends Panel {
                 event.preventDefault();
                 var id = this._model.getId();
                 if (id) {
-                    var url = app.controller.getConfigController().getApiOrigin() + "/models/" + id;
+                    var url = app.controller.getApiController().getApiOrigin() + "/models/" + id;
                     try {
                         await WebClient.request("DELETE", url);
                         this.dispose();

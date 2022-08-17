@@ -20,10 +20,10 @@ class XModel {
         return this._data;
     }
 
-    async setData(data, bUpload = true) {
+    async setData(data, bUpload = true, bForce) {
         this._data = data;
         if (bUpload)
-            await this.uploadData();
+            await this.uploadData(bForce);
         $(window).trigger('changed.model', this._data);
         return Promise.resolve();
     }
@@ -36,13 +36,15 @@ class XModel {
         return this._data['name'];
     }
 
-    async uploadData() {
+    async uploadData(bForce) {
         var version;
         if (this._version)
             version = this._version;
         else
             version = app.controller.getVersionController().getAppVersion();
-        var url = app.controller.getConfigController().getApiOrigin() + "/models?v=" + encodeURIComponent(version);
+        var url = app.controller.getApiController().getApiOrigin() + "/models?v=" + encodeURIComponent(version);
+        if (bForce)
+            url += "&force=true";
         return WebClient.request("PUT", url, this._data);
     }
 

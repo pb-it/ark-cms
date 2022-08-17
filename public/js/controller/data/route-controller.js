@@ -9,7 +9,7 @@ class RouteController {
     }
 
     async init() {
-        this._url = app.controller.getConfigController().getApiOrigin() + "/routes";
+        this._url = app.controller.getApiController().getApiOrigin() + "/routes";
         this._routes = await WebClient.fetchJson(this._url);
         return Promise.resolve();
     }

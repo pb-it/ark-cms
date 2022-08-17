@@ -1,6 +1,6 @@
 {
     "name": "wing-cms",
-    "version": "0.1.2-beta",
+    "version": "0.2.0-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
@@ -8,8 +8,12 @@
         "express",
         "javascript"
     ],
-    "author": "Patrick Bauer",
+    "author": "Patrick Bauer <patrick.bauer@pb-it.at>",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/pb-it/wing-cms"
+    },
     "engines": {
         "node": ">=12"
     },

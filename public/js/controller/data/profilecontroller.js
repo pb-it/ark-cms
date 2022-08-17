@@ -12,7 +12,7 @@ class ProfileController {
     }
 
     async init() {
-        this._url = app.controller.getConfigController().getApiOrigin() + "/profiles";
+        this._url = app.controller.getApiController().getApiOrigin() + "/profiles";
         this._config = await WebClient.fetchJson(this._url);
         if (this._config && this._config[ProfileController.CONFIG_PROFILE_AVAILABLE_IDENT])
             this._profiles = this._config[ProfileController.CONFIG_PROFILE_AVAILABLE_IDENT];
