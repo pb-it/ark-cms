@@ -6,16 +6,24 @@ class State {
         if (!url)
             url = window.location;
 
-        var path = url.pathname.substring(1); //starts with a slash
+        var path;
+        if (url.pathname.startsWith("/data/"))
+            path = url.pathname.substring(6);
+        else
+            path = url.pathname.substring(1); //starts with a slash
         if (path) {
             var parts = path.split('/');
             if (parts.length > 0) {
                 state.typeString = parts[0];
-                if (parts.length == 2) {
+                if (parts.length == 1) {
+                    state.action = null; //ActionEnum.read;
+                } else if (parts.length == 2) {
                     var part = parts[1];
                     if (isNaN(part)) {
                         if (part === "new")
                             state.action = ActionEnum.create;
+                        else
+                            throw new Error("invalid url");
                     } else {
                         state.id = parseInt(parts[1]);
                         state.action = ActionEnum.read;
@@ -26,12 +34,11 @@ class State {
                         state.id = parseInt(parts[1]);
                         if (parts[2] === "edit")
                             state.action = ActionEnum.update;
-                        else {
+                        else
                             throw new Error("invalid url");
-                        }
                     }
                 } else
-                    state.action = null; //ActionEnum.read;
+                    throw new Error("invalid url");
             }
 
             var index = url.href.indexOf("#");//window.location.serach starts with questionmark
@@ -79,7 +86,7 @@ class State {
     static getUrlFromState(state) {
         var url;
         if (state && state.typeString) {
-            url = "/" + state.typeString;
+            url = "/data/" + state.typeString;
             if (state.action) {
                 switch (state.action) {
                     case ActionEnum.create:
@@ -105,11 +112,11 @@ class State {
 
             var purl = "";
             if (state.where)
-                purl += "&" + encodeURIComponent(state.where);
+                purl += "&" + state.where;
             if (state.sort)
                 purl += "&_sort=" + encodeURIComponent(state.sort);
             if (state.limit)
-                purl += "&_limit=" + encodeURIComponent(state.limit);
+                purl += "&_limit=" + state.limit;
             if (state.filters && state.filters.length > 0) {
                 for (var filter of state.filters) {
                     if (typeof filter.query === 'string' || filter.query instanceof String)
@@ -171,7 +178,7 @@ class State {
 
         if (data.panelConfig) {
             this.panelConfig = new MediaPanelConfig();
-            this.panelConfig.init(app.controller.getModelController().getModel(this.typeString), this.action, data.panelConfig);
+            this.panelConfig.initPanelConfig(app.controller.getModelController().getModel(this.typeString), this.action, data.panelConfig);
         }
 
         this.bIgnoreCache = data.bIgnoreCache

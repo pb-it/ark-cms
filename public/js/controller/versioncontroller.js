@@ -31,6 +31,14 @@ class VersionController {
                 this.setAppVersion(this._appVersion);
                 this._bModal = true;
             }
+
+            var ac = app.controller.getApiController();
+            var info = await ac.fetchApiInfo();
+            var appVersion = app.controller.getVersionController().getAppVersion();
+            if (appVersion != info['version']) {
+                this.viewMissmatchInfo();
+                this._bModal = true;
+            }
         }
         return Promise.resolve();
     }
@@ -52,6 +60,31 @@ class VersionController {
                 window.open('https://github.com/pb-it/wing-cms/blob/main/CHANGELOG.md');
             }.bind(this));
         $d.append($skip);
+        var $ok = $('<button>')
+            .text('OK')
+            .css({ 'float': 'right' })
+            .click(async function (event) {
+                event.stopPropagation();
+
+                this.dispose();
+                return Promise.resolve();
+            }.bind(panel));
+        $d.append($ok);
+
+        panel.setContent($d);
+
+        app.controller.getModalController().openPanelInModal(panel);
+    }
+
+    viewMissmatchInfo() {
+        var panel = new Panel();
+
+        var $d = $('<div/>')
+            .css({ 'padding': '10' });
+
+        $d.append("<b>Info:</b><br/>");
+        $d.append("API and client version numbers missmatch! Consider updating the trailing application!<br/><br/>");
+
         var $ok = $('<button>')
             .text('OK')
             .css({ 'float': 'right' })

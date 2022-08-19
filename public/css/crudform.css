@@ -18,7 +18,7 @@ form.crudform>div.value,
 div.details>div.value {
     display: inline-block;
     vertical-align: top;
-    max-width: calc(100% - 210px);
+    /*max-width: calc(100% - 210px);*/
 }
 
 div.details>div.value.pre {

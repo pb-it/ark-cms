@@ -161,6 +161,9 @@ class ModalController {
             $d.append($('<button/>')
                 .text("OK")
                 .css({ 'float': 'right' })
+                .on('mousedown', function (event) {
+                    event.preventDefault(); // prevent focus change of underlying panel
+                })
                 .click(async function (event) {
                     event.preventDefault();
                     event.stopPropagation();

@@ -5,7 +5,7 @@ class MediaPanelConfig extends PanelConfig {
     _model;
     _panelClass;
 
-    paneltype;
+    panelType;
     action;
     details;
     detailsAttr;
@@ -22,16 +22,14 @@ class MediaPanelConfig extends PanelConfig {
         this.thumbnail = {};
     }
 
-    init(model, act, config) {
+    initPanelConfig(model, act, config) {
         this._model = model;
 
-        if (config && config['paneltype'])
-            this.paneltype = config['paneltype'];
-        else
-            this.paneltype = this._model.getModelDefaultsController().getDefaultPanelName();
+        if (config && config[ModelDefaultsController.PANEL_TYPE_IDENT])
+            this.panelType = config[ModelDefaultsController.PANEL_TYPE_IDENT];
 
-        if (this.paneltype) {
-            switch (this.paneltype) {
+        if (this.panelType) {
+            switch (this.panelType) {
                 case "NotePanel":
                     this._panelClass = NotePanel;
                     break;

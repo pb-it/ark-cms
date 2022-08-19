@@ -65,7 +65,7 @@ class ImportModelPanel extends Panel {
 
         var vListConfig = {
             alignment: 'vertical',
-            selectButtons: true,
+            selectButtons: true
         }
         this._listVis = new SelectableListVis(vListConfig, 'models', list);
         this._listVis.init();

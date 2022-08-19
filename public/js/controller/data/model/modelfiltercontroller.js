@@ -1,6 +1,6 @@
 class ModelFilterController {
 
-    static FILTER_IDENT = "filters";
+    static FILTERS_IDENT = "filters";
 
     _model;
 
@@ -14,7 +14,7 @@ class ModelFilterController {
     }
 
     getFilterTree() {
-        return this._model.getData()[ModelFilterController.FILTER_IDENT];
+        return this._model.getData()[ModelFilterController.FILTERS_IDENT];
     }
 
     getAllFiltersAlphabetical() {
@@ -38,26 +38,36 @@ class ModelFilterController {
 
     async updateFilters(filters) {
         var data = this._model.getData();
-        data[ModelFilterController.FILTER_IDENT] = filters;
-        return this._model.setData(data);
+        data[ModelFilterController.FILTERS_IDENT] = filters;
+        await this._model.setData(data, false);
+        var url = app.controller.getApiController().getApiOrigin() + "/models/" + this._model.getId() + "/" + ModelFilterController.FILTERS_IDENT;
+        return WebClient.request("PUT", url, filters);
     }
 
-    async saveFilter(filter) {
+    async saveFilter(filter, bUpdate) {
         var data = this._model.getData();
-        if (data[ModelFilterController.FILTER_IDENT] && data[ModelFilterController.FILTER_IDENT].length > 0) {
-            var filters = data[ModelFilterController.FILTER_IDENT].filter(function (x) { return x.name != filter.name });
-            filters.push(filter);
-            filters.sort((a, b) => a.name.localeCompare(b.name));
-            data[ModelFilterController.FILTER_IDENT] = filters;
+        var filters = data[ModelFilterController.FILTERS_IDENT];
+        if (filters && filters.length > 0) {
+            var node = Tree.getNode(filters, filters.name);
+            if (node) {
+                if (bUpdate) {
+                    node.typeString = filters.typeString; //TODO: like the name it should not have changed!
+                    node.query = filters.query;
+                    node.comment = filters.comment;
+                } else
+                    throw new Error("It already exists a filter with this name");
+            } else {
+                if (!bUpdate)
+                    filters.push(filter);
+            }
         } else
-            data[ModelFilterController.FILTER_IDENT] = [filter];
-        return this._model.setData(data);
+            filters = [filter];
+        return this.updateFilters(filters);
     }
 
     async deleteFilter(filter) {
         var data = this._model.getData();
-        var filters = data[ModelFilterController.FILTER_IDENT].filter(function (x) { return x.name != filter.name });
-        data[ModelFilterController.FILTER_IDENT] = filters;
-        return this._model.setData(data, false);
+        var filters = data[ModelFilterController.FILTERS_IDENT].filter(function (x) { return x.name != filter.name });
+        return this.updateFilters(filters);
     }
 }

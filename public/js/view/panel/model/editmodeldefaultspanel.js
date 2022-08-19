@@ -29,27 +29,8 @@ class EditModelDefaultsPanel extends Panel {
         } else
             stringAttrNames = [];
 
-        var skeleton = [
-            {
-                name: 'paneltype',
-                label: 'panelType',
-                dataType: 'enumeration',
-                options: [
-                    { 'value': 'CrudPanel' },
-                    { 'value': 'MediaPanel' },
-                    { 'value': 'CollectionPanel' },
-                    { 'value': 'NotePanel' },
-                    { 'value': 'WikiPanel' }
-                ],
-                view: 'select'
-            }
-        ];
-
         var mpcc = this._model.getModelPanelConfigController();
         var panelConfig = mpcc.getPanelConfig();
-
-        var type = mdc.getDefaultPanelName();
-        panelConfig['paneltype'] = type;
 
         if (panelConfig.details) {
             switch (panelConfig.details) {
@@ -66,7 +47,7 @@ class EditModelDefaultsPanel extends Panel {
             }
         }
 
-        this._panelViewForm = EditViewPanel.getPanelViewForm(panelConfig);
+        this._panelViewForm = EditViewPanel.getPanelViewForm(this._model, panelConfig);
         var $form = await this._panelViewForm.renderForm();
         $div.append($form);
         $div.append('</br>');
@@ -196,9 +177,6 @@ class EditModelDefaultsPanel extends Panel {
                     break;
                 default:
             }
-
-            defaults['paneltype'] = data['paneltype'];
-            delete data['paneltype'];
             defaults[ModelDefaultsController.VIEW_IDENT] = data;
         }
 

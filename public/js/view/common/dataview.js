@@ -62,6 +62,7 @@ class DataView {
                             case "double":
                             case "string":
                             case "enumeration":
+                            case "list":
                                 if (data && data[name]) {
                                     if (typeof data[name] === 'string' || data[name] instanceof String)
                                         value = encodeText(data[name]);

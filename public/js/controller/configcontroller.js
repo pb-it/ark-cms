@@ -31,8 +31,10 @@ class ConfigController {
         var bError = false;
         app.controller.setLoadingState(true);
         try {
+            var resp;
             for (var model of models) {
-                await model.uploadData();
+                resp = await model.uploadData();
+                //console.log(resp);
             }
 
             if (routes)

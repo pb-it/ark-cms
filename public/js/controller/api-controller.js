@@ -2,6 +2,7 @@ class ApiController {
 
     _api;
     _origin;
+    _info;
 
     constructor(api) {
         this._api = api;
@@ -19,8 +20,13 @@ class ApiController {
         return this._origin;
     }
 
-    async getInfo() {
-        return await WebClient.fetchJson(this._origin + "/system/info");
+    async fetchApiInfo() {
+        this._info = await WebClient.fetchJson(this._origin + "/system/info?t=" + (new Date()).getTime()); // breaking cache
+        return this._info;
+    }
+
+    getApiInfo() {
+        return this._info;
     }
 
     async reloadModels() {

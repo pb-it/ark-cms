@@ -56,12 +56,17 @@ class Select {
     }
 
     setSelected(id, bValue) {
-        for (var option in this._options) {
+        var bFound = false;
+        for (var option of this._options) {
             if (option.getID() == id) {
                 option.setSelected(bValue);
+                bFound = true;
                 break;
             }
         }
+        if (bFound)
+            this._updateDatalist();
+        return bFound;
     }
 
     async render() {
@@ -82,11 +87,42 @@ class Select {
                 size: 80
             }
         )
-            .on('input', function (e) {
+            .on('input', async function (e) {
                 e.preventDefault();
                 if (e.originalEvent.inputType === "insertReplacementText")
                     this._checkInput();
+                else if (e.originalEvent.inputType === "insertFromDrop") {
+                    var data = e.originalEvent.data;
+                    if (data && (data.startsWith('http://') || data.startsWith('https://'))) {
+                        var url = new URL(data);
+                        var state = State.getStateFromUrl(url);
+                        if (state && state['typeString'] && state['typeString'] === this._typeString) {
+                            if (state.id) {
+                                if (!this.setSelected(state.id, true))
+                                    alert('ID:' + state.id + ' not found!');
+                            } else {
+                                var urlParams = new URLSearchParams(url.search); //state.where
+
+                                var arr = urlParams.getAll('id');
+                                var id;
+                                for (var str of arr) {
+                                    id = parseInt(str);
+                                    if (isNaN(id)) {
+                                        alert("Invalid data!");
+                                        return Promise.reject();
+                                    } else {
+                                        if (!this.setSelected(id, true))
+                                            alert('ID:' + id + ' not found!');
+                                    }
+                                }
+                            }
+                            this._$input.val('');
+                            await this._rerenderSelected();
+                        }
+                    }
+                }
                 //"insertText","deleteContentBackward",...
+                return Promise.resolve();
             }.bind(this))
             .bind('keydown', function (e) { //keypress keydown keyup paste
                 if (e.keyCode == 13) {

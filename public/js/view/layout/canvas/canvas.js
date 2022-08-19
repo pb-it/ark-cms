@@ -185,14 +185,17 @@ class Canvas {
                 };
             }
 
-            if (panelConfig.details == DetailsEnum.all)
-                this._loadInterval = 10;
-            else if (Cp == MediaPanel)
-                this._loadInterval = 100;
-            else if (model.isCollection())
-                this._loadInterval = 10;
-            else
-                this._loadInterval = -1; // unlimited
+            if (!panelConfig['paging'] || panelConfig['paging'] === 'default') {
+                if (panelConfig.details == DetailsEnum.all)
+                    this._loadInterval = 10;
+                else if (Cp == MediaPanel)
+                    this._loadInterval = 100;
+                else if (model.isCollection())
+                    this._loadInterval = 10;
+                else
+                    this._loadInterval = -1;
+            } else
+                this._loadInterval = -1; // none/unlimited
 
             if (Cp == MediaPanel || Cp == CollectionPanel) {
                 var panel;

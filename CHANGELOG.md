@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+
+## [0.2.1-beta](https://github.com/pb-it/wing-cms/0.2.1-beta) (2022-08-17)
+
+* Refactoring
+
+
 ## [0.2.0-beta](https://github.com/pb-it/wing-cms/0.2.0-beta) (2022-08-17)
 
 
@@ -26,6 +32,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 
 ## [0.1.1-beta](https://github.com/pb-it/wing-cms/0.1.1-beta) (2022-08-13)
+
+&nbsp;
+&nbsp;
+&nbsp;
+&nbsp;
 
 
 ### BREAKING CHANGES

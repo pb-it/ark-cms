@@ -23,20 +23,23 @@ if (fs.existsSync(path.join(appRoot, '.git')))
 else if (fs.existsSync(path.join(appRoot, '.svn')))
     vcs = VcsEnum.SVN;
 
-async function update(version) {
+async function update(version, bForce) {
     console.log("[App] Processing update request..");
     if (vcs) {
-        var updateCmd;
+        var updateCmd = "";
         if (vcs === VcsEnum.GIT) {
             if (version) {
                 if (version === 'latest')
-                    updateCmd = 'git pull origin main';
+                    updateCmd += 'git pull origin main';
                 else
-                    updateCmd = 'git switch --detach ' + version;
-            } else
-                updateCmd = 'git pull';
+                    updateCmd += 'git switch --detach ' + version;
+            } else {
+                if (bForce)
+                    updateCmd += 'git reset --hard && '; //git clean -fxd
+                updateCmd += 'git pull';
+            }
         } else if (vcs === VcsEnum.SVN)
-            updateCmd = 'svn update';
+            updateCmd += 'svn update';
 
         return new Promise((resolve, reject) => {
             require("child_process").exec('cd ' + appRoot + ' && ' + updateCmd + ' && npm install', function (err, stdout, stderr) {
@@ -86,10 +89,11 @@ systemRouter.get('/info', function (req, res) {
 });
 systemRouter.get('/update', async function (req, res) {
     var version = req.query['v'];
+    var bForce = req.query['force'] && (req.query['force'] === 'true');
     var msg;
     var bUpdated = false;
     try {
-        msg = await update(version);
+        msg = await update(version, bForce);
         console.log(msg);
         var strUpToDate;
         if (vcs === VcsEnum.GIT)

@@ -72,7 +72,7 @@ class CreateFilterPanel extends Panel {
     }
 
     async _renderStringForm() {
-        var skeleton = [{ name: "name", dataType: "string" },
+        var skeleton = [{ name: "name", dataType: "string", required: true },
         { name: "typeString", label: "model", dataType: "string", readonly: true },
         { name: "query", dataType: "text", required: true },
         { name: "comment", dataType: "text" }];
@@ -117,13 +117,25 @@ class CreateFilterPanel extends Panel {
             .text("Save")
             .click(async function (event) {
                 event.preventDefault();
-                var newFilter = await this._form.readForm();
-                if (newFilter.name && newFilter.name != "") {
-                    await mfc.saveFilter(newFilter);
-                    this._filter = newFilter;
-                    this.render();
-                } else
-                    alert("you have to assign a name!");
+
+                app.controller.setLoadingState(true);
+                try {
+                    var newFilter = await this._form.readForm();
+                    if (newFilter.name && newFilter.name != "") {
+                        await mfc.saveFilter(newFilter);
+                        this._filter = newFilter;
+                        //this.render();
+                        alert('Saved successfully');
+                    } else {
+                        this._form.getFormEntry('name').getInput().focus();
+                        throw new Error("Field 'name' is required");
+                    }
+
+                    app.controller.setLoadingState(false);
+                } catch (error) {
+                    app.controller.setLoadingState(false);
+                    app.controller.showError(error);
+                }
             }.bind(this)));
 
         $form.append(SPACE);
@@ -132,15 +144,28 @@ class CreateFilterPanel extends Panel {
             .text("Update")
             .click(async function (event) {
                 event.preventDefault();
-                var newFilter = await this._form.readForm();
-                if (newFilter.name && newFilter.name != "") {
-                    if (this._filter.name)
-                        await mfc.deleteFilter(this._filter);
-                    await mfc.saveFilter(newFilter);
-                    this._filter = newFilter;
-                    this.render();
-                } else
-                    alert("you have to assign a name!");
+
+                app.controller.setLoadingState(true);
+                try {
+                    var newFilter = await this._form.readForm();
+                    if (newFilter.name && newFilter.name != "") {
+                        if (this._filter.name)
+                            await mfc.deleteFilter(this._filter);
+                        await mfc.saveFilter(newFilter, true);
+                        this._filter = newFilter;
+                        //this.render();
+                        alert('Updated successfully');
+                    } else {
+                        this._form.getFormEntry('name').getInput().focus();
+                        throw new Error("Field 'name' is required");
+                    }
+
+                    app.controller.setLoadingState(false);
+                } catch (error) {
+                    app.controller.setLoadingState(false);
+                    app.controller.showError(error);
+                }
+                return Promise.resolve();
             }.bind(this)));
 
         $form.append($('<button/>')

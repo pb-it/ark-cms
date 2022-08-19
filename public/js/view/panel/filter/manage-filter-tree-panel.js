@@ -8,8 +8,10 @@ class ManageFilterTreePanel extends Panel {
         this._state = state;
 
         $(window).on("changed.model", function (event, data) {
-            if (data && data['name'] === this._state.typeString)
+            if (data && data['name'] === this._state.typeString) {
+                this._tree = null;
                 this.render();
+            }
         }.bind(this));
     }
 
@@ -100,6 +102,9 @@ class ManageFilterTreePanel extends Panel {
             $div.append($('<button/>')
                 .text('save')
                 .click(this._tree, async function (event) {
+                    event.preventDefault();
+
+                    app.controller.setLoadingState(true);
                     try {
                         var conf = event.data.getTreeConf(true).nodes;
 
@@ -111,7 +116,10 @@ class ManageFilterTreePanel extends Panel {
 
                         if (bSave)
                             await app.controller.getModelController().getModel(this._state.typeString).getModelFilterController().updateFilters(conf);
+
+                        app.controller.setLoadingState(false);
                     } catch (error) {
+                        app.controller.setLoadingState(false);
                         app.controller.showError(error);
                     }
                     return Promise.resolve();

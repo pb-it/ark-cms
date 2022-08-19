@@ -13,10 +13,6 @@ class ModelController {
     async init() {
         this._models = [];
         var ac = app.controller.getApiController();
-        var info = await ac.getInfo();
-        var appVersion = app.controller.getVersionController().getAppVersion();
-        if (appVersion != info['version'])
-            alert('API version does not match client version. Consider updating!')
         var modelsUrl = ac.getApiOrigin() + "/models";
         var apiModels = await WebClient.fetchJson(modelsUrl);
         if (apiModels) {

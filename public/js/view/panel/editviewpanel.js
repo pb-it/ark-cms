@@ -1,9 +1,15 @@
 class EditViewPanel extends TabPanel {
 
-    static getPanelViewForm(data) {
+    static getPanelViewForm(model, data) {
+        var options;
+        var mac = model.getModelAttributesController();
+        var attributes = mac.getAttributes();
+        if (attributes)
+            options = attributes.map(function (x) { return { 'value': x['name'] } });
+
         var skeleton = [
             {
-                name: 'paneltype',
+                name: ModelDefaultsController.PANEL_TYPE_IDENT,
                 label: 'panelType',
                 dataType: 'enumeration',
                 options: [{ 'value': 'CrudPanel' }, { 'value': 'MediaPanel' }, { 'value': 'CollectionPanel' }, { 'value': 'NotePanel' }, { 'value': 'WikiPanel' }],
@@ -16,6 +22,11 @@ class EditViewPanel extends TabPanel {
                 view: 'select'
             },
             {
+                name: "detailsAttr",
+                dataType: "list",
+                options: options
+            },
+            {
                 name: "display",
                 dataType: "enumeration",
                 options: [{ 'value': 'block' }, { 'value': 'inline-block' }],
@@ -25,6 +36,12 @@ class EditViewPanel extends TabPanel {
                 name: "float",
                 dataType: "enumeration",
                 options: [{ 'value': 'none' }, { 'value': 'left' }],
+                view: 'select'
+            },
+            {
+                name: "paging",
+                dataType: "enumeration",
+                options: [{ 'value': 'default' }, { 'value': 'none' }],
                 view: 'select'
             }
         ];
@@ -118,12 +135,12 @@ class EditViewPanel extends TabPanel {
                 }
             }
 
-            this._panelViewForm = EditViewPanel.getPanelViewForm(panelConfig);
+            this._panelViewForm = EditViewPanel.getPanelViewForm(this._model, panelConfig);
             var $form = await this._panelViewForm.renderForm();
             $div.append($form);
             $div.append('<br/>');
 
-            if (true || Cp == MediaPanel) {
+            if (Cp == MediaPanel) {
                 this._thumbnailViewForm = EditViewPanel.getThumbnailViewForm(panelConfig);
                 $form = await this._thumbnailViewForm.renderForm();
                 $div.append($form);
@@ -135,11 +152,14 @@ class EditViewPanel extends TabPanel {
                 .click(async function (event) {
                     event.stopPropagation();
 
-                    var data = await this._read();
-
+                    app.controller.setLoadingState(true);
                     try {
+                        var data = await this._read();
                         await this._model.getModelDefaultsController().setDefaultPanelConfig(data);
+                        app.controller.setLoadingState(false);
+                        alert('Changed successfully');
                     } catch (error) {
+                        app.controller.setLoadingState(false);
                         app.controller.showError(error);
                     }
                     return Promise.resolve();
@@ -156,7 +176,7 @@ class EditViewPanel extends TabPanel {
                     var state = app.controller.getStateController().getState();
 
                     var panelConfig = new MediaPanelConfig();
-                    panelConfig.init(this._model, state.action, data);
+                    panelConfig.initPanelConfig(this._model, state.action, data);
 
                     state.panelConfig = panelConfig;
                     //app.controller.updateCanvas();
@@ -223,7 +243,7 @@ class EditViewPanel extends TabPanel {
             var state = app.controller.getStateController().getState();
 
             var panelConfig = new MediaPanelConfig();
-            panelConfig.init(this._model, null, pc);
+            panelConfig.initPanelConfig(this._model, null, pc);
 
             state.panelConfig = panelConfig;
             //app.controller.updateCanvas();

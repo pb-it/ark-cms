@@ -19,7 +19,7 @@ class Application {
                 var state;
                 try {
                     state = State.getStateFromUrl();
-                } catch (err) {
+                } catch (error) {
                     this.controller.showError(error, "404: Not Found");
                 }
 

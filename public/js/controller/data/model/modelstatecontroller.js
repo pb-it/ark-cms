@@ -34,13 +34,16 @@ class ModelStateController {
     async updateStates(states) {
         var data = this._model.getData();
         data[ModelStateController.STATE_IDENT] = states;
-        return this._model.setData(data);
+        await this._model.setData(data, false);
+        var url = app.controller.getApiController().getApiOrigin() + "/models/" + this._model.getId() + "/" + ModelStateController.STATE_IDENT;
+        return WebClient.request("PUT", url, states);
     }
 
     async saveState(state, bUpdate) {
         var data = this._model.getData();
-        if (data[ModelStateController.STATE_IDENT] && data[ModelStateController.STATE_IDENT].length > 0) {
-            var node = Tree.getNode(data[ModelStateController.STATE_IDENT], state.name);
+        var states = data[ModelStateController.STATE_IDENT];
+        if (states && states.length > 0) {
+            var node = Tree.getNode(states, state.name);
             if (node) {
                 if (bUpdate) {
                     node.typeString = state.typeString; //TODO: WTF?
@@ -50,20 +53,19 @@ class ModelStateController {
                     node.limit = state.limit;
                     node.filters = state.filters;
                 } else
-                    throw new Error("It already exists a filter with this name");
+                    throw new Error("It already exists a state with this name");
             } else {
                 if (!bUpdate)
-                    data[ModelStateController.STATE_IDENT].push(state);
+                    states.push(state);
             }
         } else
-            data[ModelStateController.STATE_IDENT] = [state];
-        return this._model.setData(data);
+            states = [state];
+        return this.updateStates(states);
     }
 
     /*async deleteState(state) {
         var data = this._model.getData();
         var states = data[ModelStateController.STATE_IDENT].filter(function (x) { return x.name != state.name });
-        data[ModelStateController.STATE_IDENT] = states;
-        return this._model.setData(data);
+        return this.updateStates(states);
     }*/
 }

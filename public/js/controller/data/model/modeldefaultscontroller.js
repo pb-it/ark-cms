@@ -7,7 +7,7 @@ class ModelDefaultsController {
     static COLLECTION_MODEL_IDENT = "collectionModel";
     static COLLECTION_MODEL_PROPERTY_IDENT = "collectionModelProperty";
     static COLLECTION_IDENT = "collection";
-    static PANEL_TYPE_IDENT = 'paneltype';
+    static PANEL_TYPE_IDENT = 'panelType';
     static VIEW_IDENT = 'view';
 
     _model;
@@ -39,8 +39,9 @@ class ModelDefaultsController {
             data[ModelDefaultsController.DEFAULTS_IDENT] = defaults;
         }
         defaults[ModelDefaultsController.SORT_IDENT] = sort;
-        await this._model.setData(data);
-        return Promise.resolve();
+        await this._model.setData(data, false);
+        var url = app.controller.getApiController().getApiOrigin() + "/models/" + this._model.getId() + "/defaults/sort";
+        return WebClient.request("PUT", url, sort);
     }
 
     getDefaultTitleProperty(bFallback = true) {
@@ -98,14 +99,6 @@ class ModelDefaultsController {
         return res;
     }
 
-    getDefaultPanelName() {
-        var res;
-        var defaults = this._model.getData()[ModelDefaultsController.DEFAULTS_IDENT];
-        if (defaults)
-            res = defaults[ModelDefaultsController.PANEL_TYPE_IDENT];
-        return res;
-    }
-
     getDefaultPanelConfig() {
         var config;
         var defaults = this._model.getData()[ModelDefaultsController.DEFAULTS_IDENT];
@@ -122,7 +115,8 @@ class ModelDefaultsController {
             data[ModelDefaultsController.DEFAULTS_IDENT] = defaults;
         }
         defaults[ModelDefaultsController.VIEW_IDENT] = config;
-        await this._model.setData(data);
-        return Promise.resolve();
+        await this._model.setData(data, false);
+        var url = app.controller.getApiController().getApiOrigin() + "/models/" + this._model.getId() + "/defaults/view";
+        return WebClient.request("PUT", url, config);
     }
 }

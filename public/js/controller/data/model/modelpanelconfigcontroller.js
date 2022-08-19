@@ -16,7 +16,7 @@ class ModelPanelConfigController {
         var conf = { ...this._model.getModelDefaultsController().getDefaultPanelConfig() };
         if (details)
             conf['details'] = details;
-        panelConfig.init(this._model, action, conf);
+        panelConfig.initPanelConfig(this._model, action, conf);
         return panelConfig;
     }
 }

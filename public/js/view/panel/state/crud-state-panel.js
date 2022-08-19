@@ -40,26 +40,27 @@ class CrudStatePanel extends Panel {
             .click(async function (event) {
                 event.stopPropagation();
 
+                app.controller.setLoadingState(true);
                 try {
                     var newState = await form.readForm();
                     if (newState.name && newState.name != "") {
                         if (newState.filters)
                             newState.filters = JSON.parse(newState.filters);
                         this._state = newState;
-                        try {
-                            app.controller.setLoadingState(true);
-                            var msc = app.controller.getModelController().getModel(this._state['typeString']).getModelStateController();
-                            await msc.saveState(this._state, this._action == ActionEnum.update);
-                            //TODO: await app.controller.getBookmarkController().addBookmark(newState);
-                            app.controller.setLoadingState(false);
-                        } catch (error) {
-                            app.controller.setLoadingState(false);
-                            app.controller.showError(error);
-                        }
-                        this.render();
-                    } else
-                        throw new Error("you have to assign a name!");
+
+                        var msc = app.controller.getModelController().getModel(this._state['typeString']).getModelStateController();
+                        await msc.saveState(this._state, this._action == ActionEnum.update);
+                        //TODO: await app.controller.getBookmarkController().addBookmark(newState);
+
+                        //this.render();
+                        app.controller.setLoadingState(false);
+                        alert(label + 'd successfully');
+                    } else {
+                        this._form.getFormEntry('name').getInput().focus();
+                        throw new Error("Field 'name' is required");
+                    }
                 } catch (error) {
+                    app.controller.setLoadingState(false);
                     app.controller.showError(error);
                 }
                 return Promise.resolve();

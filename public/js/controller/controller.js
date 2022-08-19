@@ -116,15 +116,15 @@ class Controller {
 
         this._modalController = new ModalController(); //VersionController may open a modal
 
-        this._versionController = new VersionController();
-        await this._versionController.initVersionController();
-
-        this._stateController = new StateController();
-        //this._view.init(); //TODO: untidy/unlovely that view depends on parsed state
-
-        this._panelController = new PanelController();
-
         try {
+            this._versionController = new VersionController();
+            await this._versionController.initVersionController();
+
+            this._stateController = new StateController();
+            //this._view.init(); //TODO: untidy/unlovely that view depends on parsed state
+
+            this._panelController = new PanelController();
+
             this._modelController = new ModelController(this._configController);
             await this._modelController.init();
 
@@ -169,7 +169,7 @@ class Controller {
             var bSpecial = false;
             if (state) {
                 typeString = state.typeString;
-                if (typeString) {
+                if (typeString !== null && typeString !== undefined) {
                     var mc = app.controller.getModelController();
                     if (mc.isModelDefined(typeString)) {
                         var action = state.action;
@@ -196,16 +196,16 @@ class Controller {
                 panel.setContent(`TODO:<br/>
                 Allow customizing 'Home' page with panels/shortcuts - see following panels for examles`);
                 homePanels.push(panel);
-
+    
                 panel = new Panel();
                 panel.setContent(`common tasks:<br/>
                 <a href="#" onclick=\"event.stopPropagation();ModelSelect.openCreateModelModal();return false;\">create model</a><br/>...`);
                 homePanels.push(panel);
-
+    
                 panel = new Panel();
                 panel.setContent(`recently created models/entries:</br>...`);
                 homePanels.push(panel);
-
+    
                 panel = new Panel();
                 panel.setContent(`recently / most used / favourite states:</br>...`);
                 homePanels.push(panel);*/

@@ -17,6 +17,7 @@ Although it provides basic [CRUD][1] operations, it doesn't have any sort of sec
 
 See [Task List](#Task-List) or [Roadmap](#Roadmap) for futher progress.
 
+
 ## Usage / Getting Started
 
 
@@ -61,6 +62,7 @@ Browse 'http://localhost:4000'
 docker build . -t <image name>
 ```
 
+
 #### Run
 ```bash
 docker run -p 4000:4000 -d <image name>
@@ -86,9 +88,12 @@ See [changelog](./CHANGELOG.md)
 
 ## Task List
 
-- [ ] Add user management/authentication (ACLs, etc.)
+- [ ] Add user management/authentication (Sessions, ACLs, etc.)
 - [ ] History / Content versioning
 - [ ] Help system
+- [ ] Configureable dashboard
+- [ ] Language localization (L10N)
+
 
 ## Roadmap
 
@@ -109,6 +114,7 @@ See [changelog](./CHANGELOG.md)
  - 'image_missing.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/image-missing/92832)
  - 'video_file.png' is from [Icons8, Free for commercial use](https://icon-icons.com/icon/video-file/54125)
 
+
 ### Credits for Dependencies
 
  - [jQuery](https://jquery.com/)
@@ -118,6 +124,7 @@ See [changelog](./CHANGELOG.md)
  - [jsdiff](https://github.com/kpdecker/jsdiff)
 
 Check header of [index.html](./public/index.html) and [package.json](./package.json) for futher information
+
 
 ## Caveats
 
@@ -132,6 +139,7 @@ See [MIT License](./LICENSE) for details.
 
 ---
 
+
 **REMINDER**
 
 * Use this software at your own risk
@@ -139,6 +147,7 @@ See [MIT License](./LICENSE) for details.
 * Verify and dry test your data before doing a production run
 
 ---
+
 
 ## License
 

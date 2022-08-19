@@ -61,7 +61,7 @@ class FormEntry {
         throw new Error("Abstract method!");
     }
 
-    async readValue(readValue) {
+    async readValue(bValidate) {
         throw new Error("Abstract method!");
     }
 }

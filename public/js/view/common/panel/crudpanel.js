@@ -263,7 +263,7 @@ class CrudPanel extends CanvasPanel {
     async _readData(bValidate) {
         var data;
         if (this._form)
-            data = await this._form.readForm(bValidate);
+            data = await this._form.readForm(true, bValidate);
         return Promise.resolve(data);
     }
 
@@ -301,7 +301,7 @@ class CrudPanel extends CanvasPanel {
             } else {
                 var model = this._obj.getModel();
                 var panelConfig = new MediaPanelConfig();
-                panelConfig.init(model, ActionEnum.update, this._config);
+                panelConfig.initPanelConfig(model, ActionEnum.update, this._config);
                 this._config = panelConfig;
 
                 await this.render();
@@ -361,7 +361,7 @@ class CrudPanel extends CanvasPanel {
                         /*var mpcc = model.getModelPanelConfigController();
                         this._config = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.all);*/
                         var config = new MediaPanelConfig();
-                        config.init(model, ActionEnum.read, this._config);
+                        config.initPanelConfig(model, ActionEnum.read, this._config);
                         this._config = config;
                     }
 
@@ -410,7 +410,7 @@ class CrudPanel extends CanvasPanel {
                         /*var mpcc = model.getModelPanelConfigController();
                         this._config = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.all);*/
                         var config = new MediaPanelConfig();
-                        config.init(model, ActionEnum.read, this._config);
+                        config.initPanelConfig(model, ActionEnum.read, this._config);
                         this._config = config;
                     }
 
@@ -454,17 +454,23 @@ class CrudPanel extends CanvasPanel {
     async _drag(event) {
         await super._drag(event);
         if (this._obj) {
-            var typeString = this._obj.getTypeString();
-            var ids;
+            var state = new State();
+            state.typeString = this._obj.getTypeString();
+
             var selected = app.controller.getSelectedObjects();
             if (selected) {
-                var arr = [];
-                for (var item of selected)
-                    arr.push(item.getData().id);
-                ids = arr.join(',');
+                if (selected.length == 1) {
+                    state.id = selected[0].getData().id;
+                } else {
+                    var params = [];
+                    for (var item of selected)
+                        params.push("id=" + item.getData().id);
+                    state.where = params.join('&');
+                }
             } else
-                ids = this._obj.getData().id;
-            event.originalEvent.dataTransfer.setData("text/plain", typeString + ":" + ids);
+                state.id = this._obj.getData().id;
+
+            event.originalEvent.dataTransfer.setData("text/plain", window.location.origin + State.getUrlFromState(state));
         }
         return Promise.resolve();
     }
@@ -473,12 +479,13 @@ class CrudPanel extends CanvasPanel {
         event.preventDefault();
         event.stopPropagation();
         var str = event.originalEvent.dataTransfer.getData("text/plain");
-        const parts = str.split(':');
-        if (parts.length == 2) {
-            var droptype = parts[0];
+        var url = new URL(str);
+        var state = State.getStateFromUrl(url);
+        if (state) {
+            var droptype = state.typeString;
             var model = this._obj.getModel();
             if (this._config.getPanelClass() == MediaPanel) {
-                var id = parseInt(parts[1]);
+                var id = state.id;
                 if (isNaN(id)) {
                     alert("invalid data!");
                     return Promise.reject();
@@ -499,11 +506,13 @@ class CrudPanel extends CanvasPanel {
                 if (droptype === "collections") {
                     alert("NotImplementedException");
                 } else if (droptype === this._obj.getCollectionType()) {
-                    var arr = parts[1].split(',');
-                    var id;
+                    var urlParams = new URLSearchParams(url.search);
+
+                    var arr = urlParams.getAll('id');
                     var ids = [];
+                    var id;
                     for (var str of arr) {
-                        var id = parseInt(str);
+                        id = parseInt(str);
                         if (isNaN(id)) {
                             alert("invalid data!");
                             return Promise.reject();

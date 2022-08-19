@@ -26,7 +26,7 @@ class Form {
         return this._skeleton;
     }
 
-    getEntry(name) {
+    getFormEntry(name) {
         return this._entries.filter(function (x) { return x.getName() === name })[0];
     }
 
@@ -77,6 +77,9 @@ class Form {
                         this._$form.append("<br>");
 
                     switch (attribute['dataType']) {
+                        case "list":
+                            entry = new ListFormEntry(this, attribute);
+                            break;
                         case "relation":
                             entry = new SelectFormEntry(this, attribute);
                             break;
@@ -106,23 +109,18 @@ class Form {
         return Promise.resolve(this._$form);
     }
 
-    async readForm(bValidate = true) {
+    async readForm(bSkipNullValues = true, bValidate = true) {
         var data;
         if (this._entries) {
             data = {};
 
-            /*var form = this._$form[0];
-            var input = form.querySelector("#id");
-            if (input) {
-                var value = input.value;
-                if (value)
-                    data.id = value;
-            }*/
-
             var name;
+            var val;
             for (var entry of this._entries) {
                 name = entry.getName();
-                data[name] = await entry.readValue(bValidate);
+                val = await entry.readValue(bValidate);
+                if (!(val === null || val === undefined || val === '') || !bSkipNullValues)
+                    data[name] = val;
             }
         }
         return Promise.resolve(data);

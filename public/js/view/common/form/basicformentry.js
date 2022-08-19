@@ -288,19 +288,46 @@ class BasicFormEntry extends FormEntry {
                         if (e.keyCode == 9) { // TAB
                             e.preventDefault();
                             //TODO: ident selection
-                            var input = this[0];
+                            var input = this._$input[0];
                             if (input.selectionStart != undefined && input.selectionStart >= '0') {
                                 var cursorPosition = input.selectionStart;
-                                var txt = this.val();
-                                this.val(txt.slice(0, cursorPosition) + '\t' + txt.slice(cursorPosition));
+                                var txt = this._$input.val();
+                                this._$input.val(txt.slice(0, cursorPosition) + '\t' + txt.slice(cursorPosition));
                                 cursorPosition++;
                                 input.selectionStart = cursorPosition;
                                 input.selectionEnd = cursorPosition;
                                 input.focus();
                             }
                             return false;
+                        } else if (e.keyCode == 13) { // ENTER
+                            if (this._$syntax.val() === 'markdown') {
+                                var input = this._$input[0];
+                                if (input.selectionStart != undefined && input.selectionStart >= '0') {
+                                    var cursorPosition = input.selectionStart;
+                                    var txt = this._$input.val();
+                                    var index = txt.lastIndexOf('\n', cursorPosition - 1);
+                                    var line = txt.substring(index + 1, cursorPosition);
+                                    console.log(line);
+                                    if (line.startsWith('```')) {
+                                        var arr = txt.split('\n');
+                                        var count = 0;
+                                        for (line of arr) {
+                                            if (line.startsWith('```'))
+                                                count++;
+                                        }
+                                        if (count % 2 == 1) {
+                                            e.preventDefault();
+                                            this._$input.val(txt.slice(0, cursorPosition) + '\n\n```' + txt.slice(cursorPosition));
+                                            cursorPosition++;
+                                            input.selectionStart = cursorPosition;
+                                            input.selectionEnd = cursorPosition;
+                                            input.focus();
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    }.bind(this._$input));
+                    }.bind(this));
                     break;
                 default:
                     this._$input = $('<div/>')

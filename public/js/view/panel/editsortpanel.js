@@ -53,15 +53,20 @@ class EditSortPanel extends Panel {
             .click(async function (event) {
                 event.stopPropagation();
 
+                app.controller.setLoadingState(true);
                 try {
                     var sort;
                     var data = await this._form.readForm();
                     if (data['sortCriteria'])
                         sort = data['sortCriteria'] + ":" + data['sort'];
                     await this._model.getModelDefaultsController().setDefaultSort(sort);
+                    app.controller.setLoadingState(false);
+                    alert('Changed successfully');
                 } catch (error) {
+                    app.controller.setLoadingState(false);
                     app.controller.showError(error);
                 }
+                return Promise.resolve();
             }.bind(this))
         );
         $div.append($('<button/>')

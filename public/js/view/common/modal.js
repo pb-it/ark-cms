@@ -51,17 +51,22 @@ class Modal {
     open($content) {
         this._$modalContent.append($content);
 
-        this._$modal.click(async function (event) {
-            event.stopPropagation();
+        this._$modal
+            .on('mousedown', function (event) {
+                if (this._$modal && event.target == this._$modal[0])
+                    event.preventDefault(); // prevent focus change of underlying panel
+            })
+            .click(async function (event) {
+                event.stopPropagation();
 
-            try {
-                if (event.target == this._$modal[0])
-                    await this.closeOnConfirm();
-            } catch (error) {
-                app.controller.showError(error);
-            }
-            return Promise.resolve();
-        }.bind(this));
+                try {
+                    if (event.target == this._$modal[0])
+                        await this.closeOnConfirm();
+                } catch (error) {
+                    app.controller.showError(error);
+                }
+                return Promise.resolve();
+            }.bind(this));
 
         this._$close.on("click", async function (event) {
             event.stopPropagation();

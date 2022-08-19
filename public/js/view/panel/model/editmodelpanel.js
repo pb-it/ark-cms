@@ -263,27 +263,36 @@ class EditModelPanel extends TabPanel {
     }
 
     async _checkConfirm(org, current) {
-        if (app.controller.getConfigController().confirmOnApply()) {
-            var bConfirm = await app.controller.getModalController().openDiffJsonModal(org, current);
-            if (!bConfirm)
-                return Promise.resolve();
-        }
+        try {
+            if (app.controller.getConfigController().confirmOnApply()) {
+                var bConfirm = await app.controller.getModalController().openDiffJsonModal(org, current);
+                if (!bConfirm)
+                    return Promise.resolve();
+            }
 
-        var bForce = false;
-        var ac = app.controller.getApiController();
-        var info = await ac.getInfo();
-        var appVersion = app.controller.getVersionController().getAppVersion();
-        if (appVersion != info['version']) {
-            var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force update?");
-            if (bConfirmation)
-                bForce = true;
-            else
-                return Promise.resolve();
-        }
+            app.controller.setLoadingState(true);
 
-        await this._model.setData(current, true, bForce);
-        app.controller.reloadApplication();
-        this.dispose();
+            var bForce = false;
+            var ac = app.controller.getApiController();
+            var info = ac.getApiInfo();
+            var appVersion = app.controller.getVersionController().getAppVersion();
+            if (appVersion != info['version']) {
+                app.controller.setLoadingState(false);
+                var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force update?");
+                if (bConfirmation)
+                    bForce = true;
+                else
+                    return Promise.resolve();
+            }
+
+            app.controller.setLoadingState(true);
+            await this._model.setData(current, true, bForce);
+            app.controller.reloadApplication();
+            this.dispose();
+        } catch (error) {
+            app.controller.setLoadingState(false);
+            this.controller.showError(error);
+        }
         return Promise.resolve();
     }
 
