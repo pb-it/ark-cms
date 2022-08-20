@@ -72,10 +72,11 @@ class CreateFilterPanel extends Panel {
     }
 
     async _renderStringForm() {
-        var skeleton = [{ name: "name", dataType: "string", required: true },
-        { name: "typeString", label: "model", dataType: "string", readonly: true },
-        { name: "query", dataType: "text", required: true },
-        { name: "comment", dataType: "text" }];
+        var skeleton = [
+            { name: "name", dataType: "string" }, //not required when not saving!
+            { name: "typeString", label: "model", dataType: "string", readonly: true },
+            { name: "query", dataType: "text", required: true },
+            { name: "comment", dataType: "text" }];
         this._form = new Form(skeleton, this._filter);
         var $form = await this._form.renderForm();
 
@@ -100,12 +101,21 @@ class CreateFilterPanel extends Panel {
                 }
                 var panel = new FormPanel(null, skeleton, this._obj.getData());
                 panel.setApplyAction(async function () {
-                    var data = await panel.getForm().readForm();
-                    this._obj.setData(data);
-                    this._filter = await this._form.readForm(false);
-                    this._filter.query = CreateFilterPanel.objectToQuery(this._obj);
-                    this.render();
-                    panel.dispose();
+                    event.preventDefault();
+
+                    app.controller.setLoadingState(true);
+                    try {
+                        var data = await panel.getForm().readForm();
+                        this._obj.setData(data);
+                        this._filter = await this._form.readForm(true, false);
+                        this._filter.query = CreateFilterPanel.objectToQuery(this._obj);
+                        this.render();
+                        panel.dispose();
+                        app.controller.setLoadingState(false);
+                    } catch (error) {
+                        app.controller.setLoadingState(false);
+                        app.controller.showError(error);
+                    }
                     return Promise.resolve();
                 }.bind(this));
                 return app.controller.getModalController().openPanelInModal(panel);
@@ -136,6 +146,7 @@ class CreateFilterPanel extends Panel {
                     app.controller.setLoadingState(false);
                     app.controller.showError(error);
                 }
+                return Promise.resolve();
             }.bind(this)));
 
         $form.append(SPACE);

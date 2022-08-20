@@ -26,18 +26,19 @@ else if (fs.existsSync(path.join(appRoot, '.svn')))
 async function update(version, bForce) {
     console.log("[App] Processing update request..");
     if (vcs) {
-        var updateCmd = "";
+        var updateCmd;
         if (vcs === VcsEnum.GIT) {
+            if (bForce)
+                updateCmd = 'git reset --hard && '; //git clean -fxd
+            else
+                updateCmd = "";
             if (version) {
                 if (version === 'latest')
                     updateCmd += 'git pull origin main';
                 else
                     updateCmd += 'git switch --detach ' + version;
-            } else {
-                if (bForce)
-                    updateCmd += 'git reset --hard && '; //git clean -fxd
+            } else
                 updateCmd += 'git pull';
-            }
         } else if (vcs === VcsEnum.SVN)
             updateCmd += 'svn update';
 
