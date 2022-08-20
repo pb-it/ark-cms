@@ -1,6 +1,5 @@
 class EditModelPanel extends TabPanel {
 
-    _originalModel;
     _model;
 
     _definition;
@@ -18,11 +17,8 @@ class EditModelPanel extends TabPanel {
     constructor(config, model) {
         super(config);
 
-        this._originalModel = model;
-
-        this._definition = JSON.parse(JSON.stringify(this._originalModel.getData()));
-
-        this._model = new XModel(this._definition);
+        this._model = model;
+        this._definition = JSON.parse(JSON.stringify(this._model.getData()));
     }
 
     async _init() {
@@ -52,7 +48,6 @@ class EditModelPanel extends TabPanel {
                 if (oldTab == this._$rawPanel) {
                     var fData = await this._rawForm.readForm();
                     this._definition = JSON.parse(fData.json);
-                    await this._model.setData(this._definition, false);
                 } else {
                     this._definition = await this._readDefinition();
                 }
@@ -197,8 +192,9 @@ class EditModelPanel extends TabPanel {
         }
 
         var org;
-        if (this._originalModel.getId())
-            org = this._originalModel.getData();
+        var id = this._model.getId();
+        if (id)
+            org = this._model.getData();
         var current = data;
         if (!isEqualJson(org, current)) {
             var bTitle = false;
@@ -206,7 +202,7 @@ class EditModelPanel extends TabPanel {
             if (defaults && defaults['title'])
                 bTitle = true;
 
-            if (bTitle || this._originalModel.getId()) {
+            if (bTitle || id) {
                 await this._checkConfirm(org, current);
             } else {
                 var panel = new Panel();
@@ -286,18 +282,25 @@ class EditModelPanel extends TabPanel {
             }
 
             app.controller.setLoadingState(true);
+            var id = this._model.getId();
             await this._model.setData(current, true, bForce);
-            app.controller.reloadApplication();
+
+            //app.controller.reloadApplication();
+            if (!id) {
+                await app.controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
+                app.controller.reloadState(); //redraw visualisation with new menus
+            }
             this.dispose();
+            app.controller.setLoadingState(false);
         } catch (error) {
             app.controller.setLoadingState(false);
-            this.controller.showError(error);
+            app.controller.showError(error);
         }
         return Promise.resolve();
     }
 
     async _hasChanged() {
-        var org = this._originalModel.getData();
+        var org = this._model.getData();
         var current = await this._readDefinition();
         return Promise.resolve(!isEqualJson(org, current));
     }

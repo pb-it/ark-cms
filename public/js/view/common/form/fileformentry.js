@@ -3,7 +3,6 @@ class FileFormEntry extends FormEntry {
     _$inputFilename;
     _$inputUrl;
     _$inputFile;
-    _value;
 
     constructor(form, attribute) {
         super(form, attribute);

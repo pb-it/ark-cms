@@ -2,7 +2,7 @@ form.crudform {
     margin-bottom: 0;
 }
 
-form.crudform>label,
+form.crudform>div.formentry>label,
 div.details>div.name {
     display: inline-block;
     text-align: right;
@@ -10,15 +10,33 @@ div.details>div.name {
     margin-right: 3;
 }
 
-form.crudform>fieldset,
-form.crudform>input,
-form.crudform>textarea,
-form.crudform>div.select,
-form.crudform>div.value,
+form.crudform>div.formentry>fieldset,
+form.crudform>div.formentry>input,
+form.crudform>div.formentry>textarea,
+form.crudform>div.formentry>div.select,
+form.crudform>div.formentry>div.value,
 div.details>div.value {
     display: inline-block;
     vertical-align: top;
-    /*max-width: calc(100% - 210px);*/
+}
+
+div.details>div.value.text {
+    background-color: white;
+    padding: 10px;
+    max-width: calc(100% - 170px);
+}
+
+div.details>div.value.text blockquote {
+    margin-left: 0px;
+    margin-right: 0Px;
+    border-left: 10px solid #ccc;
+    padding: 10px;
+}
+
+div.details>div.value.text blockquote::before {
+    /*content: '';
+    background-color: grey;
+    width: 5px;*/
 }
 
 div.details>div.value.pre {

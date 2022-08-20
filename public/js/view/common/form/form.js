@@ -10,6 +10,10 @@ class Form {
     _$form;
 
     constructor(skeleton, data) {
+        this.init(skeleton, data);
+    }
+
+    init(skeleton, data) {
         this._skeleton = skeleton;
         this._data = data;
     }
@@ -26,8 +30,21 @@ class Form {
         return this._skeleton;
     }
 
+    setSkeleton(skeleton) {
+        this._skeleton = skeleton;
+    }
+
     getFormEntry(name) {
-        return this._entries.filter(function (x) { return x.getName() === name })[0];
+        var entry;
+        if (this._entries) {
+            for (var e of this._entries) {
+                if (e.getName() === name) {
+                    entry = e;
+                    break;
+                }
+            }
+        }
+        return entry;
     }
 
     getEntries() {
@@ -59,53 +76,44 @@ class Form {
         /*if (this._data && this._data.id)
             this._$form.append("<input type='hidden' name='id' id='id' value='" + this._data.id + "' />");*/
 
-        this._entries = [];
-
-        var entry;
-
-        var value;
-
-        var $label;
-
-        if (this._skeleton) {
-            var bFirst = true;
-            for (var attribute of this._skeleton) {
-                if (!attribute.hidden && attribute['dataType']) {
-                    if (bFirst)
-                        bFirst = false;
-                    else
-                        this._$form.append("<br>");
-
-                    switch (attribute['dataType']) {
-                        case "list":
-                            entry = new ListFormEntry(this, attribute);
-                            break;
-                        case "relation":
-                            entry = new SelectFormEntry(this, attribute);
-                            break;
-                        case "base64":
-                        case "blob":
-                        case "file":
-                            entry = new FileFormEntry(this, attribute);
-                            break;
-                        default:
-                            entry = new BasicFormEntry(this, attribute);
+        if (!this._entries) {
+            this._entries = [];
+            var entry;
+            if (this._skeleton) {
+                for (var attribute of this._skeleton) {
+                    if (attribute['dataType']) {
+                        switch (attribute['dataType']) {
+                            case "list":
+                                entry = new ListFormEntry(this, attribute);
+                                break;
+                            case "relation":
+                                entry = new SelectFormEntry(this, attribute);
+                                break;
+                            case "base64":
+                            case "blob":
+                            case "file":
+                                entry = new FileFormEntry(this, attribute);
+                                break;
+                            default:
+                                entry = new BasicFormEntry(this, attribute);
+                        }
+                        this._entries.push(entry);
                     }
-                    this._entries.push(entry);
-
-                    $label = entry.renderLabel();
-                    if ($label)
-                        this._$form.append($label);
-
-                    if (this._data)
-                        value = this._data[attribute.name];
-                    else
-                        value = null;
-                    this._$form.append(await entry.renderValue(value));
                 }
             }
         }
-
+        if (this._entries) {
+            var value;
+            for (var entry of this._entries) {
+                if (entry.isVisible()) {
+                    if (this._data)
+                        value = this._data[entry.getName()];
+                    else
+                        value = null;
+                    this._$form.append(await entry.renderEntry(value));
+                }
+            }
+        }
         return Promise.resolve(this._$form);
     }
 
@@ -117,10 +125,12 @@ class Form {
             var name;
             var val;
             for (var entry of this._entries) {
-                name = entry.getName();
-                val = await entry.readValue(bValidate);
-                if (!(val === null || val === undefined || val === '') || !bSkipNullValues)
-                    data[name] = val;
+                if (entry.isVisible()) {
+                    name = entry.getName();
+                    val = await entry.readValue(bValidate);
+                    if (!(val === null || val === undefined || val === '') || !bSkipNullValues)
+                        data[name] = val;
+                }
             }
         }
         return Promise.resolve(data);

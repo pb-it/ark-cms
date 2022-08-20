@@ -4,7 +4,7 @@ class FormEntry {
     _attribute;
 
     _id;
-
+    _value;
     _$div;
 
     constructor(form, attribute) {
@@ -28,6 +28,24 @@ class FormEntry {
 
     getId() {
         return this._id;
+    }
+
+    setValue(value) {
+        this._value = value;
+    }
+
+    isVisible() {
+        return !this._attribute['hidden'];
+    }
+
+    async renderEntry(value) {
+        this._value = value;
+        var $div = $('<div/>').addClass('formentry');
+        var $label = this.renderLabel();
+        if ($label)
+            $div.append($label);
+        $div.append(await this.renderValue(this._value));
+        return Promise.resolve($div);
     }
 
     /**

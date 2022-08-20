@@ -1,7 +1,7 @@
 class ModelSelect {
 
     static async openCreateModelModal() {
-        var strRestrict = "only alphanumeric characters, underscore(except first position) and minus(dash/hyphen) are allowed"
+        var strRestrict = "only alphanumeric characters, underscore(except first position) and minus(dash/hyphen) are allowed";
 
         var skeleton = [
             { name: "name", dataType: "string", required: true, "tooltip": strRestrict },

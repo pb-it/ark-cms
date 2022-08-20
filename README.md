@@ -15,7 +15,7 @@ Current releases with major version 0.x.x are still a proof of concept of the sy
 
 Although it provides basic [CRUD][1] operations, it doesn't have any sort of security mechanism.
 
-See [Task List](#Task-List) or [Roadmap](#Roadmap) for futher progress.
+See [Task List](#Task-List) or [Roadmap / Milestones](#Roadmap--Milestones) for futher progress.
 
 
 ## Usage / Getting Started
@@ -95,7 +95,7 @@ See [changelog](./CHANGELOG.md)
 - [ ] Language localization (L10N)
 
 
-## Roadmap
+## Roadmap / Milestones
 
 
 ## Frequently Asked Questions

@@ -222,19 +222,20 @@ class Controller {
     }
 
     showError(error, msg) {
-        if (!msg) {
-            if (error.status && error.statusText) {
-                if (error.response)
-                    msg = error.status + ": " + error.response;
-                else
-                    msg = error.status + ": " + error.statusText;
-            } else if (error.message)
-                msg = error.message;
-            else
-                msg = "An error has occurred";
+        if (error) {
+            if (!msg) {
+                if (error.status && error.statusText) {
+                    if (error.response)
+                        msg = error.status + ": " + error.response;
+                    else
+                        msg = error.status + ": " + error.statusText;
+                } else if (error.message)
+                    msg = error.message;
+            }
+            console.log(error);
         }
-
-        console.log(error);
+        if (!msg)
+            msg = "An error has occurred";
         this._modalController.openErrorModal(error, msg);
     }
 

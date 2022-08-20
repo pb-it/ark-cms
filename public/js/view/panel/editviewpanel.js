@@ -1,5 +1,22 @@
 class EditViewPanel extends TabPanel {
 
+    static detailsEnumToString(details) {
+        var str;
+        switch (details) {
+            case DetailsEnum.none:
+                str = "none";
+                break;
+            case DetailsEnum.title:
+                str = "title";
+                break;
+            case DetailsEnum.all:
+                str = "all";
+                break;
+            default:
+        }
+        return str;
+    }
+
     static getPanelViewForm(model, data) {
         var options;
         var mac = model.getModelAttributesController();
@@ -7,6 +24,10 @@ class EditViewPanel extends TabPanel {
         if (attributes)
             options = attributes.map(function (x) { return { 'value': x['name'] } });
 
+        var form = new Form();
+        var bHidden = true;
+        if (data && data['details'] === EditViewPanel.detailsEnumToString(DetailsEnum.all))
+            bHidden = false;
         var skeleton = [
             {
                 name: ModelDefaultsController.PANEL_TYPE_IDENT,
@@ -19,12 +40,23 @@ class EditViewPanel extends TabPanel {
                 name: "details",
                 dataType: "enumeration",
                 options: [{ 'value': 'none' }, { 'value': 'title' }, { 'value': 'all' }],
-                view: 'select'
+                view: 'select',
+                changeAction: async function () {
+                    var fData = await this.readForm();
+                    var entry = this.getFormEntry("detailsAttr");
+                    var attribute = entry.getAttribute();
+                    attribute['hidden'] = (fData['details'] !== EditViewPanel.detailsEnumToString(DetailsEnum.all));
+                    //await entry.renderValue(???);
+                    this.setData(fData); //backup changes
+                    await this.renderForm();
+                    return Promise.resolve();
+                }.bind(form)
             },
             {
                 name: "detailsAttr",
                 dataType: "list",
-                options: options
+                options: options,
+                hidden: bHidden
             },
             {
                 name: "display",
@@ -39,13 +71,19 @@ class EditViewPanel extends TabPanel {
                 view: 'select'
             },
             {
+                name: "bContextMenu",
+                label: "ContextMenu",
+                dataType: "boolean"
+            },
+            {
                 name: "paging",
                 dataType: "enumeration",
                 options: [{ 'value': 'default' }, { 'value': 'none' }],
                 view: 'select'
             }
         ];
-        return new Form(skeleton, data);
+        form.init(skeleton, data);
+        return form;
     }
 
     static getThumbnailViewForm(data) {
@@ -120,20 +158,8 @@ class EditViewPanel extends TabPanel {
                 panelConfig = mpcc.getPanelConfig(state.action);
             var Cp = panelConfig.getPanelClass();
 
-            if (panelConfig.details) {
-                switch (panelConfig.details) {
-                    case DetailsEnum.none:
-                        panelConfig.details = "none";
-                        break;
-                    case DetailsEnum.title:
-                        panelConfig.details = "title";
-                        break;
-                    case DetailsEnum.all:
-                        panelConfig.details = "all";
-                        break;
-                    default:
-                }
-            }
+            if (panelConfig['details'])
+                panelConfig['details'] = EditViewPanel.detailsEnumToString(panelConfig['details']);
 
             this._panelViewForm = EditViewPanel.getPanelViewForm(this._model, panelConfig);
             var $form = await this._panelViewForm.renderForm();
@@ -213,8 +239,6 @@ class EditViewPanel extends TabPanel {
                 break;
             default:
         }
-        if (data.details == true)
-            data.details = DetailsEnum.all;
 
         return Promise.resolve(data);
     }

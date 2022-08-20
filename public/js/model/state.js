@@ -1,17 +1,16 @@
 class State {
 
     static getStateFromUrl(url) {
-        var state = new State();
+        var state;
 
         if (!url)
             url = window.location;
 
-        var path;
-        if (url.pathname.startsWith("/data/"))
-            path = url.pathname.substring(6);
-        else
-            path = url.pathname.substring(1); //starts with a slash
-        if (path) {
+        if (url.pathname === '/')
+            state = new State();
+        else if (url.pathname.startsWith("/data/")) {
+            state = new State();
+            var path = url.pathname.substring(6);
             var parts = path.split('/');
             if (parts.length > 0) {
                 state.typeString = parts[0];

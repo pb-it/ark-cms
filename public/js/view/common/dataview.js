@@ -73,6 +73,7 @@ class DataView {
                                 $value.html(value);
                                 break;
                             case "text":
+                                $value.addClass('text');
                             case "json":
                                 if (data && data[name]) {
                                     if (typeof data[name] === 'string' || data[name] instanceof String) {

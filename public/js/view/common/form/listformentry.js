@@ -40,12 +40,14 @@ class ListFormEntry extends FormEntry {
     }
 
     async readValue() {
-        this._list = this._listVis.getList();
-        var selectedEntries = this._list.getEntries().filter(function (x) { return x.isSelected() });
-        console.log(selectedEntries);
-        var value = selectedEntries.map(function (x) {
-            return x.getName();
-        }).join(';');
+        var value;
+        if (this._listVis) {
+            this._list = this._listVis.getList();
+            var selectedEntries = this._list.getEntries().filter(function (x) { return x.isSelected() });
+            value = selectedEntries.map(function (x) {
+                return x.getName();
+            }).join(';');
+        }
         return Promise.resolve(value);
     }
 }

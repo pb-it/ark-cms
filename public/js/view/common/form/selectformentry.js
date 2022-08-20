@@ -1,7 +1,6 @@
 class SelectFormEntry extends FormEntry {
 
     _select;
-    _value;
 
     constructor(form, attribute) {
         super(form, attribute);

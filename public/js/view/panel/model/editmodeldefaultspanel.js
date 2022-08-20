@@ -32,20 +32,8 @@ class EditModelDefaultsPanel extends Panel {
         var mpcc = this._model.getModelPanelConfigController();
         var panelConfig = mpcc.getPanelConfig();
 
-        if (panelConfig.details) {
-            switch (panelConfig.details) {
-                case DetailsEnum.none:
-                    panelConfig.details = "none";
-                    break;
-                case DetailsEnum.title:
-                    panelConfig.details = "title";
-                    break;
-                case DetailsEnum.all:
-                    panelConfig.details = "all";
-                    break;
-                default:
-            }
-        }
+        if (panelConfig['details'])
+            panelConfig['details'] = EditViewPanel.detailsEnumToString(panelConfig['details']);
 
         this._panelViewForm = EditViewPanel.getPanelViewForm(this._model, panelConfig);
         var $form = await this._panelViewForm.renderForm();

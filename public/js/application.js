@@ -16,16 +16,20 @@ class Application {
         var bLoaded = false;
         try {
             if (await this.controller.initController()) {
+                var bError = false;
                 var state;
                 try {
                     state = State.getStateFromUrl();
                 } catch (error) {
+                    bError = true;
                     this.controller.showError(error, "404: Not Found");
                 }
 
                 if (state) {
                     await this.controller.loadState(state);
                     bLoaded = true;
+                } else if (!bError) {
+                    this.controller.showError(null, "404: Not Found");
                 }
             }
         } catch (err) {

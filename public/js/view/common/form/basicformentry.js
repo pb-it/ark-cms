@@ -300,7 +300,7 @@ class BasicFormEntry extends FormEntry {
                             }
                             return false;
                         } else if (e.keyCode == 13) { // ENTER
-                            if (this._$syntax.val() === 'markdown') {
+                            if (this._$syntax && this._$syntax.val() === 'markdown') {
                                 var input = this._$input[0];
                                 if (input.selectionStart != undefined && input.selectionStart >= '0') {
                                     var cursorPosition = input.selectionStart;
