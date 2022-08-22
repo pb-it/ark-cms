@@ -42,17 +42,21 @@ class DeleteModelPanel extends Panel {
             .css({ 'float': 'right' })
             .click(async function (event) {
                 event.preventDefault();
-                var id = this._model.getId();
-                if (id) {
-                    var url = app.controller.getApiController().getApiOrigin() + "/models/" + id;
-                    try {
-                        await WebClient.request("DELETE", url);
-                        this.dispose();
 
-                        app.controller.reloadApplication();
-                    } catch (error) {
-                        app.controller.showError(error);
-                    }
+                app.controller.setLoadingState(true);
+                try {
+                    await this._model.deleteModel();
+
+                    await app.controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
+
+                    this.dispose();
+                    //app.controller.reloadState(); //redraw visualisation with new menus
+                    //app.controller.reloadApplication();
+
+                    app.controller.setLoadingState(false);
+                } catch (error) {
+                    app.controller.setLoadingState(false);
+                    app.controller.showError(error);
                 }
                 return Promise.resolve();
             }.bind(this));

@@ -35,7 +35,7 @@ class ModelStateController {
         var data = this._model.getData();
         data[ModelStateController.STATE_IDENT] = states;
         await this._model.setData(data, false);
-        var url = app.controller.getApiController().getApiOrigin() + "/models/" + this._model.getId() + "/" + ModelStateController.STATE_IDENT;
+        var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/" + ModelStateController.STATE_IDENT;
         return WebClient.request("PUT", url, states);
     }
 

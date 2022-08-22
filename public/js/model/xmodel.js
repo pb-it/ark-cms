@@ -6,8 +6,6 @@ class XModel {
 
     constructor(data, version) {
         this._data = data;
-        this._id = data['id'];
-        delete data['id'];
         this._version = version;
     }
 
@@ -24,12 +22,17 @@ class XModel {
         this._data = data;
         if (bUpload)
             await this.uploadData(bForce);
-        $(window).trigger('changed.model', this._data);
+        if (this._id)
+            $(window).trigger('changed.model', this._data);
         return Promise.resolve();
     }
 
     getId() {
         return this._id;
+    }
+
+    setId(id) {
+        this._id = id;
     }
 
     getName() {
@@ -42,10 +45,18 @@ class XModel {
             version = this._version;
         else
             version = app.controller.getVersionController().getAppVersion();
-        var url = app.controller.getApiController().getApiOrigin() + "/models?v=" + encodeURIComponent(version);
+        var url = app.controller.getApiController().getApiOrigin() + "/api/_model?v=" + encodeURIComponent(version);
         if (bForce)
             url += "&force=true";
         return WebClient.request("PUT", url, this._data);
+    }
+
+    async deleteModel() {
+        if (this._id) {
+            var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._id;
+            await WebClient.request("DELETE", url);
+        }
+        return Promise.resolve();
     }
 
     getModelAttributesController() {

@@ -40,7 +40,7 @@ async function update(version, bForce) {
             } else
                 updateCmd += 'git pull';
         } else if (vcs === VcsEnum.SVN)
-            updateCmd += 'svn update';
+            updateCmd = 'svn update';
 
         return new Promise((resolve, reject) => {
             require("child_process").exec('cd ' + appRoot + ' && ' + updateCmd + ' && npm install', function (err, stdout, stderr) {

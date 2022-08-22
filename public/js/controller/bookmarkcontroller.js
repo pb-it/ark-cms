@@ -59,9 +59,13 @@ class BookmarkController {
             }
         }*/
 
-        this._url = app.controller.getApiController().getApiOrigin() + "/bookmarks";
-        this._bookmarks = await WebClient.fetchJson(this._url);
-
+        this._url = app.controller.getApiController().getApiOrigin() + "/api/_registry";
+        var entry = await WebClient.fetchJson(this._url + '?key=bookmarks');
+        if (entry && entry.length == 1) {
+            var value = entry[0]['value'];
+            if (value)
+                this._bookmarks = JSON.parse(value);
+        }
         return Promise.resolve();
     }
 
@@ -71,7 +75,7 @@ class BookmarkController {
 
     async setBookmarks(bookmarks) {
         this._bookmarks = bookmarks;
-        return WebClient.request("PUT", this._url, this._bookmarks);
+        return WebClient.request("PUT", this._url, { 'key': 'bookmarks', 'value': JSON.stringify(this._bookmarks) });
     }
 
     async addBookmark(state) {

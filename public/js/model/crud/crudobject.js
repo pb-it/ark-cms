@@ -213,7 +213,7 @@ class CrudObject {
     }
 
     getUrl(action) {
-        var url = "/" + this.getTypeString();
+        var url = window.location.origin + "/data/" + this.getTypeString();
         switch (action) {
             case ActionEnum.create:
                 url = "/new"
@@ -264,8 +264,19 @@ class CrudObject {
 
     async request(action, data) {
         var id;
-        if (this._data && this._data.id)
-            id = this._data.id;
+        if (this._model.getData()['options']['increments']) {
+            if (this._data && this._data['id'])
+                id = this._data['id'];
+        } else {
+            var name;
+            for (var attr of this._model.getModelAttributesController().getAttributes()) {
+                if (attr['primary']) {
+                    name = attr['name'];
+                    if (this._data[name])
+                        data[name] = this._data[name];
+                }
+            }
+        }
         return await app.controller.getDataService().request(this.getTypeString(), action, id, data);
     }
 }

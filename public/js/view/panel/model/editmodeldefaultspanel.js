@@ -150,21 +150,9 @@ class EditModelDefaultsPanel extends Panel {
                 defaults['sort'] = sortData['sortCriteria'] + ":" + sortData['sort'];
 
             var data = { ...await this._panelViewForm.readForm(), ...await this._thumbnailViewForm.readForm() };
-            switch (data.format) {
-                case "16/9":
-                    if (data.height && !data.width)
-                        data.width = data.height / 9 * 16;
-                    else if (data.width)
-                        data.height = data.width / 16 * 9;
-                    break;
-                case "4/3":
-                    if (data.height && !data.width)
-                        data.width = data.height / 3 * 4;
-                    else if (data.width)
-                        data.height = data.width / 4 * 3;
-                    break;
-                default:
-            }
+
+            delete data['bContextMenu'];
+
             defaults[ModelDefaultsController.VIEW_IDENT] = data;
         }
 

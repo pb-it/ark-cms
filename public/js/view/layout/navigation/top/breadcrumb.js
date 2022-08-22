@@ -23,21 +23,11 @@ class Breadcrumb {
                 var mc = app.controller.getModelController();
                 if (mc.isModelDefined(typeString)) {
                     stateName = typeString;
-                    if (state['name'] || state['where']) {
-                        var str;
-                        if (state['name'])
-                            str = state['name'];
-                        else
-                            str = 'undefined';
-                        if (state['where'])
-                            str += ':' + state['where'];
-                        stateName += '(' + str + ')';
-                    }
+                    if (state['name'] && !state['where'])
+                        stateName += '(' + state['name'] + ')';
                 }
             }
         }
-
-        //TODO: show state.limit
 
         if (stateName) {
             this._renderModelMenu(stateName);
@@ -46,8 +36,15 @@ class Breadcrumb {
             if (state.id)
                 this._renderId(state.id);
 
+            if (state.where)
+                this._renderWhere(state);
+
+            if (state.limit)
+                this._renderLimit(state.limit);
+
             if (state.filters && state.filters.length > 0)
                 this._renderFilters(state.filters);
+
 
             this._renderFilterIconBar();
         }
@@ -205,6 +202,37 @@ class Breadcrumb {
                 event.stopPropagation();
                 var state = app.controller.getStateController().getState();
                 delete state.id;
+                app.controller.loadState(state, true);
+            });
+        this._$breadcrumb.append($button);
+    }
+
+    _renderWhere(state) {
+        var text;
+        if (state['name'])
+            text = state['name']
+        else
+            text = 'where:' + state['where'];
+        var $button = $('<button/>')
+            .text(text)
+            .css({ 'margin': '0 1 0 1' })
+            .click(function (event) {
+                event.stopPropagation();
+                var state = app.controller.getStateController().getState();
+                delete state.where;
+                app.controller.loadState(state, true);
+            });
+        this._$breadcrumb.append($button);
+    }
+
+    _renderLimit(limit) {
+        var $button = $('<button/>')
+            .text('limit:' + limit)
+            .css({ 'margin': '0 1 0 1' })
+            .click(function (event) {
+                event.stopPropagation();
+                var state = app.controller.getStateController().getState();
+                delete state.limit;
                 app.controller.loadState(state, true);
             });
         this._$breadcrumb.append($button);

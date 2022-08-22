@@ -17,6 +17,15 @@ class ModelSelect {
         panel.setApplyAction(async function () {
             var data = await panel.getForm().readForm();
             if (data.name) {
+                var lower = data.name.toLowerCase();
+                var names = app.controller.getModelController().getModels().map(function (model) {
+                    return model.getData().name;
+                });
+                for (var name of names) {
+                    if (name.toLowerCase() === lower)
+                        throw new Error("Model '" + name + "' is already defined");
+                }
+
                 if (!data.name.startsWith('_')) {
                     if (!/[^a-zA-Z0-9_-]/.test(data.name)) {
                         delete data.increments;
@@ -29,15 +38,6 @@ class ModelSelect {
                         throw new Error("For field 'name' " + strRestrict);
                 } else
                     throw new Error("Field 'name' must not start with an underscore");
-
-                var lower = data.name.toLowerCase();
-                var names = app.controller.getModelController().getModels().map(function (model) {
-                    return model.getData().name;
-                });
-                for (var name of names) {
-                    if (name.toLowerCase() === lower)
-                        throw new Error("Model '" + name + "' is already defined");
-                }
             }
             panel.dispose();
             return Promise.resolve();
@@ -53,7 +53,18 @@ class ModelSelect {
     _modelName;
     _action;
 
+    _names;
+
     constructor() {
+        $(window).on("changed.model", function (event, data) {
+            if (this._$modelSelect && this._names) {
+                if (!data || (data['name'] && !this._names.includes(data['name']))) {
+                    this._$modelSelect.empty();
+                    this._$mSelect = null;
+                    this._updateModelSelect();
+                }
+            }
+        }.bind(this));
     }
 
     renderModelSelect() {
@@ -168,12 +179,12 @@ class ModelSelect {
 
             var dummyGroup = new SubMenuGroup();
 
-            var models = app.controller.getModelController().getModels();
-            var names = models.map(function (model) {
+            var models = app.controller.getModelController().getModels(app.controller.isInDebugMode());
+            this._names = models.map(function (model) {
                 return model.getName();
             });
-            names.sort((a, b) => a.localeCompare(b));
-            for (let name of names) {
+            this._names.sort((a, b) => a.localeCompare(b));
+            for (let name of this._names) {
                 conf = {
                     'name': name,
                     'click': function (event, item) {

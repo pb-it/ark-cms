@@ -12,8 +12,13 @@ class ProfileController {
     }
 
     async init() {
-        this._url = app.controller.getApiController().getApiOrigin() + "/profiles";
-        this._config = await WebClient.fetchJson(this._url);
+        this._url = app.controller.getApiController().getApiOrigin() + "/api/_registry";
+        var entry = await WebClient.fetchJson(this._url + '?key=profiles');
+        if (entry && entry.length == 1) {
+            var value = entry[0]['value'];
+            if (value)
+                this._config = JSON.parse(value);
+        }
         if (this._config && this._config[ProfileController.CONFIG_PROFILE_AVAILABLE_IDENT])
             this._profiles = this._config[ProfileController.CONFIG_PROFILE_AVAILABLE_IDENT];
         return Promise.resolve();
@@ -21,7 +26,7 @@ class ProfileController {
 
     async setProfiles(profiles) {
         this._profiles = profiles;
-        return WebClient.request("PUT", this._url, this._profiles);
+        return WebClient.request("PUT", this._url, { 'key': 'profiles', 'value': JSON.stringify(this._profiles) });
     }
 
     getProfileConfig() {

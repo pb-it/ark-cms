@@ -18,7 +18,11 @@ class EditModelPanel extends TabPanel {
         super(config);
 
         this._model = model;
-        this._definition = JSON.parse(JSON.stringify(this._model.getData()));
+        var data = this._model.getData();
+        if (data)
+            this._definition = JSON.parse(JSON.stringify(data));
+        else
+            this._definition = {};
     }
 
     async _init() {
@@ -285,12 +289,14 @@ class EditModelPanel extends TabPanel {
             var id = this._model.getId();
             await this._model.setData(current, true, bForce);
 
-            //app.controller.reloadApplication();
-            if (!id) {
+            if (!id)
                 await app.controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
-                app.controller.reloadState(); //redraw visualisation with new menus
-            }
+
             this.dispose();
+
+            //app.controller.reloadState(); //redraw visualisation with new menus
+            //app.controller.reloadApplication();
+
             app.controller.setLoadingState(false);
         } catch (error) {
             app.controller.setLoadingState(false);

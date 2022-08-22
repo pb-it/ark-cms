@@ -14,6 +14,13 @@ class StateSelect {
     _show;
 
     constructor() {
+        $(window).on("changed.model", function (event, data) {
+            if (this._$stateSelect) {
+                this._$stateSelect.empty();
+                this._$modelSelect = null;
+                this._updateStateSelect();
+            }
+        }.bind(this));
     }
 
     async renderStateSelect() {
@@ -100,8 +107,6 @@ class StateSelect {
         return Promise.resolve(this._$stateSelect);
     }
 
-
-
     _renderProfileSelect(profile) {
         if (!this._$profileSelect) {
             var group = new SubMenuGroup();
@@ -149,10 +154,11 @@ class StateSelect {
         if (pc.getProfiles())
             modelNames = pc.getMenu(this._profile);
         else {
-            var models = app.controller.getModelController().getModels();
+            var models = app.controller.getModelController().getModels(app.controller.isInDebugMode());
             modelNames = models.map(function (model) {
                 return model.getData()['name'];
             });
+            modelNames.sort((a, b) => a.localeCompare(b));
         }
         if (modelNames) {
             var conf;

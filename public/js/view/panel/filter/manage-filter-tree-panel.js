@@ -8,7 +8,7 @@ class ManageFilterTreePanel extends Panel {
         this._state = state;
 
         $(window).on("changed.model", function (event, data) {
-            if (data && data['name'] === this._state.typeString) {
+            if (!data || (data['name'] === this._state.typeString)) {
                 this._tree = null;
                 this.render();
             }

@@ -285,6 +285,7 @@ class BasicFormEntry extends FormEntry {
                         .attr('cols', cols)
                         .val(value);
                     this._$input.keydown(function (e) {
+                        e.stopPropagation(); //https://www.rockyourcode.com/assertion-failed-input-argument-is-not-an-htmlinputelement/
                         if (e.keyCode == 9) { // TAB
                             e.preventDefault();
                             //TODO: ident selection

@@ -40,7 +40,7 @@ class ModelDefaultsController {
         }
         defaults[ModelDefaultsController.SORT_IDENT] = sort;
         await this._model.setData(data, false);
-        var url = app.controller.getApiController().getApiOrigin() + "/models/" + this._model.getId() + "/defaults/sort";
+        var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/defaults/sort";
         return WebClient.request("PUT", url, sort);
     }
 
@@ -116,7 +116,7 @@ class ModelDefaultsController {
         }
         defaults[ModelDefaultsController.VIEW_IDENT] = config;
         await this._model.setData(data, false);
-        var url = app.controller.getApiController().getApiOrigin() + "/models/" + this._model.getId() + "/defaults/view";
+        var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/defaults/view";
         return WebClient.request("PUT", url, config);
     }
 }

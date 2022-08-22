@@ -90,19 +90,38 @@ class MediaPanelConfig extends PanelConfig {
                 this.float = config.float;
             }
 
-            if (config['autoplay'])
-                this.autoplay = config['autoplay'];
+            if (config['paging'])
+                this.paging = config['paging'];
 
             if (config['bSelectable'])
                 this.bSelectable = config['bSelectable'];
 
             if (config['bContextMenu'])
                 this.bContextMenu = config['bContextMenu'];
+
+            switch (config.format) {
+                case "16/9":
+                    if (config.height && !config.width)
+                        config.width = config.height / 9 * 16;
+                    else if (config.width)
+                        config.height = config.width / 16 * 9;
+                    break;
+                case "4/3":
+                    if (config.height && !config.width)
+                        config.width = config.height / 3 * 4;
+                    else if (config.width)
+                        config.height = config.width / 4 * 3;
+                    break;
+                default:
+            }
+
+            if (config['autoplay'])
+                this.autoplay = config['autoplay'];
         } else {
+            this.details = DetailsEnum.title;
             this.format = "16/9";
             this.width = 320;
             this.height = 240;
-            this.details = DetailsEnum.title;
         }
 
         if ((this._panelClass == CrudPanel || this._panelClass == MediaPanel || this._panelClass == CollectionPanel) && this.action != ActionEnum.create && this.details != DetailsEnum.all) {

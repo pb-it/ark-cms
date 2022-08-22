@@ -31,6 +31,7 @@ class Dialog extends Panel {
                 .html("Apply")
                 .css({ 'float': 'right' })
                 .click(async function (event) {
+                    event.preventDefault();
                     event.stopPropagation();
 
                     try {

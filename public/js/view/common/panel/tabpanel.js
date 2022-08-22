@@ -21,6 +21,10 @@ class TabPanel extends Panel {
         this._panels.push(panel);
     }
 
+    /**
+     * called before the actual switch
+     * @param {*} cb 
+     */
     setTabSwitchCallback(cb) {
         this._tabSwitchCallback = cb;
     }

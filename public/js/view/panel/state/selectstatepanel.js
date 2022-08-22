@@ -9,7 +9,7 @@ class SelectStatePanel extends Panel {
         this._modelName = name;
 
         $(window).on("changed.model", function (event, data) {
-            if (data && data['name'] === this._modelName) {
+            if (!data || (data['name'] === this._modelName)) {
                 this._tree = null;
                 this.render();
             }

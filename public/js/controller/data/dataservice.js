@@ -59,6 +59,7 @@ class DataService {
 
     static _getUrl(typeString, id, where, sort, limit) {
         var url = typeString;
+        var query = "";
         var params;
         if (id) {
             if (Array.isArray(id)) {
@@ -66,13 +67,10 @@ class DataService {
                 for (var i = 0; i < id.length; i++) {
                     params.push(`id=${id[i]}`);
                 }
+                query += "&" + params.join('&');
             } else
                 url += "/" + id;
         }
-
-        var query = "";
-        if (params)
-            query += "&" + params.join('&');
         if (where)
             query += "&" + where;
         if (!id && !sort) {
@@ -91,6 +89,15 @@ class DataService {
         if (query.length > 0)
             url += "?" + query.substring(1);
         return url;
+    }
+
+    static getUrlForObjects(objs) {
+        var obj = objs[0];
+        var typeString = obj.getTypeString();
+        var ids = obj.map(function (x) {
+            return x.getData()['id'];
+        });
+        return window.location.origin + "/data/" + DataService._getUrl(typeString, ids);
     }
 
     _cache;

@@ -1,15 +1,5 @@
 class ContextMenuController {
 
-    static _getUrl(items) {
-        var item = items[0];
-        var typeString = item.getObject().getTypeString();
-        var ids = items.map(function (panel) {
-            return panel.getObject().getData()['id'];
-        });
-
-        return window.location.origin + "/" + DataService._getUrl(typeString, ids);
-    }
-
     static renderMenu(xPos, yPos, panel) {
         var contextMenu = new ContextMenu(ContextMenuController.getContextMenuEntries(panel));
         var entries = contextMenu.getEntries();
@@ -207,6 +197,7 @@ class ContextMenuController {
 
                             if (params.length > 0) {
                                 state = new State();
+                                state.name = objs.map(function (x) { return x.getTitle() }).join(' || ');
                                 state.typeString = attr.model;
                                 state.where = params.join('&');
 
@@ -282,7 +273,11 @@ class ContextMenuController {
             if (!items || (items.length == 1 && items[0] == this)) {
                 this.openInNewTab(ActionEnum.read);
             } else {
-                var win = window.open(ContextMenuController._getUrl(items), '_blank');
+                var objs = items.map(function (panel) {
+                    return panel.getObject();
+                });
+                var url = DataService.getUrlForObjects(objs);
+                var win = window.open(url, '_blank');
                 win.focus();
             }
         }.bind(panel));
@@ -304,7 +299,11 @@ class ContextMenuController {
 
                 app.controller.loadState(state, true);
             } else {
-                var state = State.getStateFromUrl(new URL(ContextMenuController._getUrl(items)));
+                var objs = items.map(function (panel) {
+                    return panel.getObject();
+                });
+                var url = DataService.getUrlForObjects(objs);
+                var state = State.getStateFromUrl(new URL(url));
                 app.controller.loadState(state, true);
             }
         }.bind(panel), openGroup));
@@ -312,12 +311,6 @@ class ContextMenuController {
         entries.push(new ContextMenuEntry("Details", function () {
             this.openInModal(ActionEnum.read);
         }.bind(panel)));
-
-        if (app.controller.isInDebugMode()) {
-            entries.push(new ContextMenuEntry("JSON", async function () {
-                return app.controller.getModalController().openPanelInModal(new JsonPanel(this.getObject().getData()));
-            }.bind(panel)));
-        }
 
         entries.push(new ContextMenuEntry("Edit", function () {
             this.openInModal(ActionEnum.update);
@@ -348,6 +341,20 @@ class ContextMenuController {
             }
             return Promise.resolve();
         }.bind(panel)));
+
+        if (app.controller.isInDebugMode()) {
+            entries.push(new ContextMenuEntry("JSON", async function () {
+                return app.controller.getModalController().openPanelInModal(new JsonPanel(this.getObject().getData()));
+            }.bind(panel)));
+
+            var debugGroup = [];
+            var jsonEntry = new ContextMenuEntry("JSON", function () {
+                return app.controller.getModalController().openPanelInModal(new JsonPanel(this.getObject().getData()));
+            }.bind(panel));
+            debugGroup.push(jsonEntry);
+
+            entries.push(new ContextMenuEntry("Debug >", null, debugGroup));
+        }
         return entries;
     }
 }

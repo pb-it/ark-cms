@@ -73,7 +73,9 @@ class EditViewPanel extends TabPanel {
             {
                 name: "bContextMenu",
                 label: "ContextMenu",
-                dataType: "boolean"
+                tooltip: "**INFO**: Calculated value",
+                dataType: "boolean",
+                readonly: "true"
             },
             {
                 name: "paging",
@@ -112,6 +114,9 @@ class EditViewPanel extends TabPanel {
 
     _model;
 
+    _data;
+    _panelConfig;
+
     _$viewPanel;
     _$jsonPanel;
 
@@ -139,6 +144,15 @@ class EditViewPanel extends TabPanel {
 
         await this.openTab(this._$viewPanel);
 
+        this.setTabSwitchCallback(async function (oldTab, newTab) {
+            try {
+                this._panelConfig = await this._readPanelConfig();
+            } catch (error) {
+                app.controller.showError(error);
+            }
+            return Promise.resolve();
+        }.bind(this));
+
         return Promise.resolve();
     }
 
@@ -152,10 +166,15 @@ class EditViewPanel extends TabPanel {
             var mpcc = this._model.getModelPanelConfigController();
 
             var panelConfig;
-            if (state.panelConfig)
-                panelConfig = state.panelConfig;
-            else
-                panelConfig = mpcc.getPanelConfig(state.action);
+            if (this._panelConfig)
+                panelConfig = this._panelConfig;
+            else {
+                if (state.panelConfig)
+                    panelConfig = state.panelConfig;
+                else
+                    panelConfig = mpcc.getPanelConfig(state.action);
+                this._panelConfig = panelConfig;
+            }
             var Cp = panelConfig.getPanelClass();
 
             if (panelConfig['details'])
@@ -196,51 +215,14 @@ class EditViewPanel extends TabPanel {
                 .text("Apply")
                 .click(async function (event) {
                     event.preventDefault();
+                    event.stopPropagation();
 
-                    var data = await this._read();
-
-                    var state = app.controller.getStateController().getState();
-
-                    var panelConfig = new MediaPanelConfig();
-                    panelConfig.initPanelConfig(this._model, state.action, data);
-
-                    state.panelConfig = panelConfig;
-                    //app.controller.updateCanvas();
-                    app.controller.loadState(state, true);
-
-                    this.dispose();
-                    return Promise.resolve();
+                    return this._applyPanelConfig();
                 }.bind(this)));
             return Promise.resolve($div);
         }.bind(this);
 
         return Promise.resolve(panel);
-    }
-
-    async _read() {
-        var data;
-        if (this._thumbnailViewForm)
-            data = { ...await this._panelViewForm.readForm(), ...await this._thumbnailViewForm.readForm() };
-        else
-            data = await this._panelViewForm.readForm();
-
-        switch (data.format) {
-            case "16/9":
-                if (data.height && !data.width)
-                    data.width = data.height / 9 * 16;
-                else if (data.width)
-                    data.height = data.width / 16 * 9;
-                break;
-            case "4/3":
-                if (data.height && !data.width)
-                    data.width = data.height / 3 * 4;
-                else if (data.width)
-                    data.height = data.width / 4 * 3;
-                break;
-            default:
-        }
-
-        return Promise.resolve(data);
     }
 
     async _createJsonPanel() {
@@ -252,7 +234,8 @@ class EditViewPanel extends TabPanel {
             var skeleton = [
                 { name: "json", dataType: "json" }
             ];
-            var data = { "json": JSON.stringify(await this._read(), null, '\t') };
+
+            var data = { "json": JSON.stringify(this._data, null, '\t') };
 
             this._jsonForm = new Form(skeleton, data);
             var $form = await this._jsonForm.renderForm();
@@ -260,23 +243,44 @@ class EditViewPanel extends TabPanel {
             $div.append($form);
             return Promise.resolve($div);
         }.bind(this);
-        panel.setApplyAction(async function () {
-            var fData = await this._jsonForm.readForm();
-            var pc = JSON.parse(fData['json']);
-
-            var state = app.controller.getStateController().getState();
-
-            var panelConfig = new MediaPanelConfig();
-            panelConfig.initPanelConfig(this._model, null, pc);
-
-            state.panelConfig = panelConfig;
-            //app.controller.updateCanvas();
-            app.controller.loadState(state, true);
-
-            this.dispose();
-            return Promise.resolve(true);
-        }.bind(this));
+        panel.setApplyAction(this._applyPanelConfig.bind(this));
 
         return Promise.resolve(panel);
+    }
+
+    async _readPanelConfig() {
+        this._data = await this._read();
+        var state = app.controller.getStateController().getState();
+        var panelConfig = new MediaPanelConfig();
+        panelConfig.initPanelConfig(this._model, state.action, this._data);
+        return Promise.resolve(panelConfig);
+    }
+
+    async _read() {
+        var data;
+
+        if (this.getOpenTab() == this._$jsonPanel) {
+            var fData = await this._jsonForm.readForm();
+            data = JSON.parse(fData['json']);
+        } else {
+            if (this._thumbnailViewForm)
+                data = { ...await this._panelViewForm.readForm(), ...await this._thumbnailViewForm.readForm() };
+            else
+                data = await this._panelViewForm.readForm();
+
+            delete data['bContextMenu'];
+        }
+
+        return Promise.resolve(data);
+    }
+
+    async _applyPanelConfig() {
+        var state = app.controller.getStateController().getState();
+        state.panelConfig = await this._readPanelConfig();
+        //app.controller.updateCanvas();
+        app.controller.loadState(state, true);
+
+        this.dispose();
+        return Promise.resolve(true);
     }
 }

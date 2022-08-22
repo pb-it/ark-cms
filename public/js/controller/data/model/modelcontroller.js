@@ -13,16 +13,18 @@ class ModelController {
     async init() {
         this._models = [];
         var ac = app.controller.getApiController();
-        var modelsUrl = ac.getApiOrigin() + "/models";
+        var modelsUrl = ac.getApiOrigin() + "/api/_model";
         var apiModels = await WebClient.fetchJson(modelsUrl);
         if (apiModels) {
             var model;
             for (var data of apiModels) {
-                model = new XModel(data);
+                model = new XModel(data['definition']);
+                model.setId(data['id']);
                 model.init();
                 this._models.push(model);
             }
         }
+        $(window).trigger('changed.model');
         return Promise.resolve();
     }
 
@@ -34,8 +36,11 @@ class ModelController {
         return false;
     }
 
-    getModels() {
-        return this._models.filter(function (x) { return x.getData()['name'].charAt(0) !== '_' });
+    getModels(bIncludeSystem) {
+        if (!bIncludeSystem)
+            return this._models.filter(function (x) { return x.getData()['name'].charAt(0) !== '_' });
+        else
+            return this._models;
     }
 
     getModel(name) {
