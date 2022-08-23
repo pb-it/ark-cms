@@ -121,6 +121,9 @@ systemRouter.get('/update', async function (req, res) {
         restart();
     return Promise.resolve();
 });
+systemRouter.post('/shutdown', async () => {
+    process.exit();
+});
 systemRouter.post('/curl', async (req, res, next) => {
     var url = req.body.url;
     try {
@@ -133,30 +136,26 @@ systemRouter.post('/curl', async (req, res, next) => {
 app.use('/system', systemRouter);
 
 app.get('*', function (req, res, next) {
-    /*switch (req.path) {
-    }*/
     res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
-app.use(function (err, req, res, next) {
+/*app.use(function (err, req, res, next) {
     var msg;
-    if (err.errno && err.errno == -4058) {
+    if (err.errno && err.errno == -4058) { // ENOENT: no such file or directory
         if (err.code && err.path)
             msg = err.code + ": " + err.path;
     } else if (err.statusCode && err.statusMessage)
         msg = err.statusCode + ": " + err.statusMessage;
 
-    if (msg)
+    res.status(500);
+    if (msg) {
         console.error(msg);
-    else
+        res.send(msg);
+    } else {
         console.error(err);
-
-    res.status(500); //res.sendStatus(404);
-    if (err) {
         res.send(err);
-    } else
-        res.send();
-});
+    }
+});*/
 
 app.listen(serverConfig.port, () => {
     console.log("[Express] ✔ Server listening on port %d in %s mode", serverConfig.port, app.get('env'));

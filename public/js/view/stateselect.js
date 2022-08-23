@@ -17,8 +17,23 @@ class StateSelect {
         $(window).on("changed.model", function (event, data) {
             if (this._$stateSelect) {
                 //this._$stateSelect.empty();
-                this._$modelSelect.remove();
-                this._$modelSelect = null;
+                if (this._$modelSelect) {
+                    this._$modelSelect.remove();
+                    this._$modelSelect = null;
+                }
+                if (this._$actionSelect) {
+                    this._$actionSelect.remove();
+                    this._$actionSelect = null;
+                }
+                if (this._$showSelect) {
+                    this._$showSelect.remove();
+                    this._$showSelect = null;
+                }
+                if (this._$storedSelect) {
+                    this._$storedSelect.remove();
+                    this._$storedSelect = null;
+                }
+
                 this._updateStateSelect(this._profile, this._model, this._action, this._show);
             }
         }.bind(this));
@@ -69,8 +84,9 @@ class StateSelect {
                 this._model = model;
                 if (this._$actionSelect)
                     this._$actionSelect.remove();
-                this._renderActionSelect(action);
             }
+            if (!this._$actionSelect)
+                this._renderActionSelect(action);
         }
 
         if (!action) {
@@ -83,10 +99,9 @@ class StateSelect {
                 this._action = action;
                 if (this._$showSelect)
                     this._$showSelect.remove();
-                if (this._action === 'show') {
-                    this._renderShowSelect(show);
-                }
             }
+            if (!this._$showSelect && this._action === 'show')
+                this._renderShowSelect(show);
         }
 
         if (!show) {
@@ -99,10 +114,9 @@ class StateSelect {
                 this._show = show;
                 if (this._$storedSelect)
                     this._$storedSelect.remove();
-                if (this._show === 'state') {
-                    await this._renderStoredSelect();
-                }
             }
+            if (!this._$storedSelect && this._show === 'state')
+                await this._renderStoredSelect();
         }
 
         return Promise.resolve(this._$stateSelect);
