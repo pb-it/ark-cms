@@ -14,7 +14,7 @@ class ModelStateController {
     }
 
     getStateTree() {
-        return this._model.getData()[ModelStateController.STATE_IDENT];
+        return this._model.getDefinition()[ModelStateController.STATE_IDENT];
     }
 
     getAllStatesAlphabetical() {
@@ -32,15 +32,15 @@ class ModelStateController {
     }
 
     async updateStates(states) {
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         data[ModelStateController.STATE_IDENT] = states;
-        await this._model.setData(data, false);
+        await this._model.setDefinition(data, false);
         var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/" + ModelStateController.STATE_IDENT;
         return WebClient.request("PUT", url, states);
     }
 
     async saveState(state, bUpdate) {
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         var states = data[ModelStateController.STATE_IDENT];
         if (states && states.length > 0) {
             var node = Tree.getNode(states, state.name);
@@ -64,7 +64,7 @@ class ModelStateController {
     }
 
     /*async deleteState(state) {
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         var states = data[ModelStateController.STATE_IDENT].filter(function (x) { return x.name != state.name });
         return this.updateStates(states);
     }*/

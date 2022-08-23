@@ -4,13 +4,11 @@ class EditModelPanel extends TabPanel {
 
     _definition;
 
-    _actionForm;
     _extensionForm;
     _rawForm;
 
     _$attributesPanel;
     _$defaultsPanel;
-    _$actionsPanel;
     _$extensionsPanel;
     _$rawPanel;
 
@@ -18,7 +16,7 @@ class EditModelPanel extends TabPanel {
         super(config);
 
         this._model = model;
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         if (data)
             this._definition = JSON.parse(JSON.stringify(data));
         else
@@ -37,9 +35,6 @@ class EditModelPanel extends TabPanel {
         if (app.controller.isInDebugMode()) {
             this._$extensionsPanel = await this._createExtensionsPanel();
             this._panels.push(this._$extensionsPanel);
-
-            this._$actionsPanel = await this._createActionsPanel();
-            this._panels.push(this._$actionsPanel);
 
             this._$rawPanel = await this._createRawPanel();
             this._panels.push(this._$rawPanel);
@@ -108,34 +103,16 @@ class EditModelPanel extends TabPanel {
         return Promise.resolve(panel);
     }
 
-    async _createActionsPanel() {
-        var panel = new Panel({ 'title': 'Actions' });
-        panel._renderContent = async function () {
-            var $d = $('<div/>');
-
-            var skeleton = [
-                { name: 'init', tooltip: 'Code is evaluated once during application load.', dataType: 'text' },
-                { name: 'prepare', dataType: 'text' },
-                { name: 'check', dataType: 'text' },
-                { name: 'contextMenuExtensions', label: 'contextMenuExt.', dataType: 'text' }
-            ];
-            this._actionForm = new Form(skeleton, this._definition['actions']);
-            var $form = await this._actionForm.renderForm();
-            $d.append($form);
-
-            return Promise.resolve($d);
-        }.bind(this);
-
-        return Promise.resolve(panel);
-    }
-
     async _createExtensionsPanel() {
         var panel = new Panel({ 'title': 'Extensions' });
         panel._renderContent = async function () {
             var $d = $('<div/>');
 
-            var skeleton = [{ name: 'extensions', dataType: 'text' }];
-            this._extensionForm = new Form(skeleton, { extensions: this._definition['extensions'] });
+            var skeleton = [
+                { name: 'server', dataType: 'text' },
+                { name: 'client', dataType: 'text' }
+            ];
+            this._extensionForm = new Form(skeleton, this._definition['extensions']);
             var $form = await this._extensionForm.renderForm();
             $d.append($form);
 
@@ -167,18 +144,10 @@ class EditModelPanel extends TabPanel {
         if (defaults)
             definition['defaults'] = defaults;
 
-        if (this._actionForm) {
-            var fData = await this._actionForm.readForm();
-            if (!isEmpty(fData))
-                definition['actions'] = fData;
-            else if (definition['actions'] || definition['actions'] === null)
-                delete definition['actions'];
-        }
-
         if (this._extensionForm) {
             var fData = await this._extensionForm.readForm();
-            if (!isEmpty(fData['extensions']))
-                definition['extensions'] = fData['extensions'];
+            if (!isEmpty(fData))
+                definition['extensions'] = fData;
             else if (definition['extensions'] || definition['extensions'] === null)
                 delete definition['extensions'];
         }
@@ -198,8 +167,9 @@ class EditModelPanel extends TabPanel {
         var org;
         var id = this._model.getId();
         if (id)
-            org = this._model.getData();
+            org = this._model.getDefinition();
         var current = data;
+
         if (!isEqualJson(org, current)) {
             var bTitle = false;
             var defaults = data['defaults'];
@@ -278,7 +248,7 @@ class EditModelPanel extends TabPanel {
             var appVersion = app.controller.getVersionController().getAppVersion();
             if (appVersion != info['version']) {
                 app.controller.setLoadingState(false);
-                var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force update?");
+                var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force upload?");
                 if (bConfirmation)
                     bForce = true;
                 else
@@ -287,10 +257,12 @@ class EditModelPanel extends TabPanel {
 
             app.controller.setLoadingState(true);
             var id = this._model.getId();
-            await this._model.setData(current, true, bForce);
+            await this._model.setDefinition(current, true, bForce);
 
             if (!id)
                 await app.controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
+            else
+                await this._model.initModel();
 
             this.dispose();
 
@@ -306,7 +278,7 @@ class EditModelPanel extends TabPanel {
     }
 
     async _hasChanged() {
-        var org = this._model.getData();
+        var org = this._model.getDefinition();
         var current = await this._readDefinition();
         return Promise.resolve(!isEqualJson(org, current));
     }

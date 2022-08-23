@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [0.3.0-beta](https://github.com/pb-it/wing-cms/0.3.0-beta) (2022-08-23)
+
+### BREAKING CHANGES
+
+* Removed 'actions' from model definition
+
+> **Explaination**:
+>
+> Actions can be set within the client extension which is migrated from the former known 'init'-action.
+
+
 ## [0.2.1-beta](https://github.com/pb-it/wing-cms/0.2.1-beta) (2022-08-17)
 
 * Refactoring

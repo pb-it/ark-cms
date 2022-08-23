@@ -21,7 +21,8 @@ class ContainerPanel extends CrudPanel {
                 break;
             case DetailsEnum.title:
                 $div = await super._renderContent();
-                $div.append(await this._renderList());
+                if (this._config.action == ActionEnum.read)
+                    $div.append(await this._renderList());
                 break;
             case DetailsEnum.none:
         }

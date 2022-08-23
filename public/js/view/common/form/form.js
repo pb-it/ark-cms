@@ -22,7 +22,7 @@ class Form {
         return this._name;
     }
 
-    setData(data) {
+    setFormData(data) {
         this._data = data;
     }
 

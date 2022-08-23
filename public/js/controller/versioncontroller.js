@@ -4,8 +4,6 @@ class VersionController {
 
     _appVersion;
 
-    _bModal = false;
-
     constructor() {
     }
 
@@ -27,18 +25,14 @@ class VersionController {
                 app.controller.getModalController().openPanelInModal(new TutorialPanel());
                 bSet = true;
             }
-            if (bSet) {
+            if (bSet)
                 this.setAppVersion(this._appVersion);
-                this._bModal = true;
-            }
 
             var ac = app.controller.getApiController();
             var info = await ac.fetchApiInfo();
             var appVersion = app.controller.getVersionController().getAppVersion();
-            if (appVersion != info['version']) {
+            if (appVersion != info['version'])
                 this.viewMissmatchInfo();
-                this._bModal = true;
-            }
         }
         return Promise.resolve();
     }
@@ -99,10 +93,6 @@ class VersionController {
         panel.setContent($d);
 
         app.controller.getModalController().openPanelInModal(panel);
-    }
-
-    hasOpenModal() {
-        return this._bModal;
     }
 
     async checkForUpdates() {

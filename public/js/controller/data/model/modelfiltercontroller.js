@@ -14,7 +14,7 @@ class ModelFilterController {
     }
 
     getFilterTree() {
-        return this._model.getData()[ModelFilterController.FILTERS_IDENT];
+        return this._model.getDefinition()[ModelFilterController.FILTERS_IDENT];
     }
 
     getAllFiltersAlphabetical() {
@@ -37,15 +37,15 @@ class ModelFilterController {
     }
 
     async updateFilters(filters) {
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         data[ModelFilterController.FILTERS_IDENT] = filters;
-        await this._model.setData(data, false);
+        await this._model.setDefinition(data, false);
         var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/" + ModelFilterController.FILTERS_IDENT;
         return WebClient.request("PUT", url, filters);
     }
 
     async saveFilter(filter, bUpdate) {
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         var filters = data[ModelFilterController.FILTERS_IDENT];
         if (filters && filters.length > 0) {
             var node = Tree.getNode(filters, filters.name);
@@ -66,7 +66,7 @@ class ModelFilterController {
     }
 
     async deleteFilter(filter) {
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         var filters = data[ModelFilterController.FILTERS_IDENT].filter(function (x) { return x.name != filter.name });
         return this.updateFilters(filters);
     }

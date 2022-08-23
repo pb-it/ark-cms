@@ -17,36 +17,36 @@ class ModelDefaultsController {
     }
 
     async setDefaults(defaults) {
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         data[ModelDefaultsController.DEFAULTS_IDENT] = defaults;
-        await this._model.setData(data);
+        await this._model.setDefinition(data);
         return Promise.resolve();
     }
 
     getDefaultSort() {
         var res;
-        var defaults = this._model.getData()[ModelDefaultsController.DEFAULTS_IDENT];
+        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
         if (defaults)
             res = defaults[ModelDefaultsController.SORT_IDENT];
         return res;
     }
 
     async setDefaultSort(sort) {
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         var defaults = data[ModelDefaultsController.DEFAULTS_IDENT];
         if (!defaults) {
             defaults = {};
             data[ModelDefaultsController.DEFAULTS_IDENT] = defaults;
         }
         defaults[ModelDefaultsController.SORT_IDENT] = sort;
-        await this._model.setData(data, false);
+        await this._model.setDefinition(data, false);
         var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/defaults/sort";
         return WebClient.request("PUT", url, sort);
     }
 
     getDefaultTitleProperty(bFallback = true) {
         var res;
-        var defaults = this._model.getData()[ModelDefaultsController.DEFAULTS_IDENT];
+        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
         if (defaults)
             res = defaults[ModelDefaultsController.TITLE_IDENT];
         if (!res && bFallback) {
@@ -69,7 +69,7 @@ class ModelDefaultsController {
 
     getDefaultThumbnailProperty() {
         var res;
-        var defaults = this._model.getData()[ModelDefaultsController.DEFAULTS_IDENT];
+        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
         if (defaults)
             res = defaults[ModelDefaultsController.THUMBNAIL_IDENT];
         return res;
@@ -77,7 +77,7 @@ class ModelDefaultsController {
 
     getDefaultCollectionModel() {
         var res;
-        var defaults = this._model.getData()[ModelDefaultsController.DEFAULTS_IDENT];
+        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
         if (defaults)
             res = defaults[ModelDefaultsController.COLLECTION_MODEL_IDENT];
         return res;
@@ -85,7 +85,7 @@ class ModelDefaultsController {
 
     getDefaultCollectionModelProperty() {
         var res;
-        var defaults = this._model.getData()[ModelDefaultsController.DEFAULTS_IDENT];
+        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
         if (defaults)
             res = defaults[ModelDefaultsController.COLLECTION_MODEL_PROPERTY_IDENT];
         return res;
@@ -93,7 +93,7 @@ class ModelDefaultsController {
 
     getDefaultCollectionProperty() {
         var res;
-        var defaults = this._model.getData()[ModelDefaultsController.DEFAULTS_IDENT];
+        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
         if (defaults)
             res = defaults[ModelDefaultsController.COLLECTION_IDENT];
         return res;
@@ -101,21 +101,21 @@ class ModelDefaultsController {
 
     getDefaultPanelConfig() {
         var config;
-        var defaults = this._model.getData()[ModelDefaultsController.DEFAULTS_IDENT];
+        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
         if (defaults)
             config = defaults[ModelDefaultsController.VIEW_IDENT];
         return config;
     }
 
     async setDefaultPanelConfig(config) {
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         var defaults = data[ModelDefaultsController.DEFAULTS_IDENT];
         if (!defaults) {
             defaults = {};
             data[ModelDefaultsController.DEFAULTS_IDENT] = defaults;
         }
         defaults[ModelDefaultsController.VIEW_IDENT] = config;
-        await this._model.setData(data, false);
+        await this._model.setDefinition(data, false);
         var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/defaults/view";
         return WebClient.request("PUT", url, config);
     }

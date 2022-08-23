@@ -19,7 +19,7 @@ class ModelSelect {
             if (data.name) {
                 var lower = data.name.toLowerCase();
                 var names = app.controller.getModelController().getModels().map(function (model) {
-                    return model.getData().name;
+                    return model.getDefinition()['name'];
                 });
                 for (var name of names) {
                     if (name.toLowerCase() === lower)
@@ -116,28 +116,28 @@ class ModelSelect {
                                     reader.onload = async function fileReadCompleted() {
                                         var version;
                                         var models = [];
-                                        var routes;
                                         var profiles;
                                         var bookmarks;
                                         if (reader.result) {
                                             try {
                                                 var conf = JSON.parse(reader.result);
                                                 version = conf[MODEL_VERSION_IDENT];
-                                                routes = conf[RouteController.CONFIG_ROUTES_IDENT];
-                                                profiles = conf[ProfileController.CONFIG_PROFILE_IDENT];
-                                                bookmarks = conf[BookmarkController.CONFIG_BOOKMARK_IDENT];
+
                                                 var mDataArr = conf[ModelController.MODELS_IDENT];
                                                 if (mDataArr) {
                                                     for (var mData of mDataArr) {
                                                         models.push(new XModel(mData, version));
                                                     }
                                                 }
+
+                                                profiles = conf[ProfileController.CONFIG_PROFILE_IDENT];
+                                                bookmarks = conf[BookmarkController.CONFIG_BOOKMARK_IDENT];
                                             } catch (error) {
                                                 app.controller.showError(error);
                                             }
                                         }
                                         if (models.length > 0 || profiles)
-                                            app.controller.getModalController().openPanelInModal(new ImportModelPanel(models, routes, profiles, bookmarks));
+                                            app.controller.getModalController().openPanelInModal(new ImportModelPanel(version, models, profiles, bookmarks));
                                         else
                                             alert("File does not contain any applicable data");
                                     };

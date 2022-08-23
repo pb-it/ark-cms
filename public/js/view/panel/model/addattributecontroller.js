@@ -200,7 +200,7 @@ You will not see this information in forms, but it is stored with your actual st
                 case 'relation':
                     var models = app.controller.getModelController().getModels();
                     var allModelNames = models.map(function (model) {
-                        return model.getData()['name'];
+                        return model.getDefinition()['name'];
                     });
                     var thisModelName = this._model.getName();
                     var options = [];

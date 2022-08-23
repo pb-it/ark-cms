@@ -1,9 +1,11 @@
 {
     "name": "wing-cms",
-    "version": "0.2.1-beta",
+    "version": "0.3.0-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
+        "headless",
+        "Jamstack",
         "nodejs",
         "express",
         "javascript"

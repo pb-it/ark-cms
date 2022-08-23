@@ -11,6 +11,7 @@ class Controller {
     _versionController;
     _stateController;
 
+    _bFirstLoadAfterInit = false;
     _bConnection = false;
 
     _bLoading = false;
@@ -120,6 +121,9 @@ class Controller {
             this._versionController = new VersionController();
             await this._versionController.initVersionController();
 
+            this._routeController = new RouteController();
+            await this._routeController.init();
+
             this._stateController = new StateController();
             //this._view.init(); //TODO: untidy/unlovely that view depends on parsed state
 
@@ -129,9 +133,6 @@ class Controller {
             await this._modelController.init();
 
             this._dataservice = new DataService();
-
-            this._routeController = new RouteController();
-            await this._routeController.init();
 
             this._profileController = new ProfileController();
             await this._profileController.init();
@@ -146,6 +147,8 @@ class Controller {
         } finally {
             this.setLoadingState(false);
         }
+
+        this._bFirstLoadAfterInit = true;
         return Promise.resolve(bInitDone);
     }
 
@@ -156,7 +159,7 @@ class Controller {
     async loadState(state, push, replace) {
         this._data = null;
         try {
-            if (!this._versionController.hasOpenModal())
+            if (!this._bFirstLoadAfterInit)
                 this._modalController.closeAll();
 
             this.setLoadingState(true);
@@ -178,11 +181,10 @@ class Controller {
                     } else {
                         bSpecial = true;
                         var rc = app.controller.getRouteController();
-                        var route = rc.getRoute(typeString);
-                        if (route) {
-                            const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-                            new AsyncFunction(route['code'])();
-                        } else
+                        var route = rc.getMatchingRoute(typeString);
+                        if (route && route['fn'])
+                            route['fn']();
+                        else
                             throw new Error("Unknown model '" + typeString + "'");
                     }
                 }

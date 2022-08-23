@@ -16,9 +16,10 @@ class StateSelect {
     constructor() {
         $(window).on("changed.model", function (event, data) {
             if (this._$stateSelect) {
-                this._$stateSelect.empty();
+                //this._$stateSelect.empty();
+                this._$modelSelect.remove();
                 this._$modelSelect = null;
-                this._updateStateSelect();
+                this._updateStateSelect(this._profile, this._model, this._action, this._show);
             }
         }.bind(this));
     }
@@ -156,7 +157,7 @@ class StateSelect {
         else {
             var models = app.controller.getModelController().getModels(app.controller.isInDebugMode());
             modelNames = models.map(function (model) {
-                return model.getData()['name'];
+                return model.getDefinition()['name'];
             });
             modelNames.sort((a, b) => a.localeCompare(b));
         }

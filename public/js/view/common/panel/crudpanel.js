@@ -63,6 +63,8 @@ class CrudPanel extends CanvasPanel {
         } else {
             $div = await this._renderRead();
         }
+        $div.append($('<div>')
+            .addClass('clear'));
         return Promise.resolve($div);
     }
 
@@ -75,17 +77,12 @@ class CrudPanel extends CanvasPanel {
 
         $div.append('<br/>');
 
-        $div.append($('<button/>')
-            .html("Check")
-            .click(async function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                return this._checkData();
-            }.bind(this)));
+        $div.append(this._renderActionButtons());
         $div.append($('<button/>')
             .css({ 'float': 'right' })
             .html("Create")
             .click(async function (event) {
+                event.preventDefault();
                 event.stopPropagation();
 
                 try {
@@ -114,6 +111,7 @@ class CrudPanel extends CanvasPanel {
                 $div.append($('<button/>')
                     .html("Delete")
                     .click(async function (event) {
+                        event.preventDefault();
                         event.stopPropagation();
 
                         try {
@@ -129,6 +127,7 @@ class CrudPanel extends CanvasPanel {
                     .css({ 'float': 'right' })
                     .html("Edit")
                     .click(async function (event) {
+                        event.preventDefault();
                         event.stopPropagation();
 
                         try {
@@ -160,24 +159,12 @@ class CrudPanel extends CanvasPanel {
 
         $div.append('<br/>');
 
-        $div.append($('<button/>')
-            .html("Check")
-            .click(async function (event) {
-                event.stopPropagation();
-
-                try {
-                    await this._checkData();
-                } catch (error) {
-                    if (error)
-                        app.controller.showError(error);
-                }
-
-                return Promise.resolve();
-            }.bind(this)));
+        $div.append(this._renderActionButtons());
         $div.append($('<button/>')
             .css({ 'float': 'right' })
             .html("Commit")
             .click(async function (event) {
+                event.preventDefault();
                 event.stopPropagation();
 
                 try {
@@ -192,10 +179,36 @@ class CrudPanel extends CanvasPanel {
         return Promise.resolve($div);
     }
 
+    _renderActionButtons() {
+        var $div = $('<div/>').css({ 'float': 'left' });
+        var actions = this._obj.getModel().getCrudDialogActions();
+        if (actions && actions.length > 0) {
+            for (var action of actions) {
+                $div.append($('<button/>')
+                    .html(action['name'])
+                    .click(async function (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        try {
+                            await this._applyAction(action['fn']);
+                        } catch (error) {
+                            if (error)
+                                app.controller.showError(error);
+                        }
+
+                        return Promise.resolve();
+                    }.bind(this)));
+            }
+        }
+        return $div;
+    }
+
     _renderDelete() {
         var $confirm = $('<input/>').attr({ type: 'submit', id: 'confirm', name: 'confirm', value: 'Confirm' })
             .click(async function (event) {
                 event.preventDefault();
+                event.stopPropagation();
 
                 try {
                     await this._delete();
@@ -213,38 +226,34 @@ class CrudPanel extends CanvasPanel {
      * object data is only overritten temporary for updating form
      * @returns
      */
-    async _checkData() {
+    async _applyAction(fn) {
         if (this._form) {
             try {
                 app.controller.setLoadingState(true);
 
                 var data = await this._readData(false);
-                var check = this._obj.getModel().getCheckAction();
-                if (check) {
-                    data = await check(data);
-                    if (data) {
-                        //hidden attributes which got changed must be made visible
-                        var copy = [];
-                        var replacement;
-                        for (var attribute of this._skeleton) {
-                            replacement = undefined;
-                            if (attribute['hidden']) {
-                                name = attribute['name'];
-                                if (data[name]) {
-                                    replacement = { ...attribute };
-                                    replacement['hidden'] = false;
-                                    replacement['readonly'] = true;
-                                }
+                data = await fn(data);
+                if (data) {
+                    //hidden attributes which got changed must be made visible
+                    var copy = [];
+                    var replacement;
+                    for (var attribute of this._skeleton) {
+                        replacement = undefined;
+                        if (attribute['hidden']) {
+                            name = attribute['name'];
+                            if (data[name]) {
+                                replacement = { ...attribute };
+                                replacement['hidden'] = false;
+                                replacement['readonly'] = true;
                             }
-                            if (replacement)
-                                copy.push(replacement);
-                            else
-                                copy.push(attribute);
                         }
-                        this._obj.setSkeleton(copy);
+                        if (replacement)
+                            copy.push(replacement);
+                        else
+                            copy.push(attribute);
                     }
-                } else
-                    app.controller.showErrorMessage("No check action defined");//nevertheless rerender for thumbnail
+                    this._obj.setSkeleton(copy);
+                }
 
                 var dataBackup = this._obj.getData();
                 this._obj.setData(data);

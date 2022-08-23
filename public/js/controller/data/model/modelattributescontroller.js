@@ -21,11 +21,11 @@ class ModelAttributesController {
                 { 'name': 'created_at', 'dataType': 'timestamp', 'readonly': true },
                 { 'name': 'updated_at', 'dataType': 'timestamp', 'readonly': true }
             ];
-            var other = this._model.getData()[ModelAttributesController.ATTRIBUTES_IDENT];
+            var other = this._model.getDefinition()[ModelAttributesController.ATTRIBUTES_IDENT];
             if (other)
                 attributes = attributes.concat(other);
         } else
-            attributes = this._model.getData()[ModelAttributesController.ATTRIBUTES_IDENT];
+            attributes = this._model.getDefinition()[ModelAttributesController.ATTRIBUTES_IDENT];
         return attributes;
     }
 
@@ -34,10 +34,10 @@ class ModelAttributesController {
     }
 
     async setAttributes(attributes) {
-        var data = this._model.getData();
+        var data = this._model.getDefinition();
         if (attributes)
             data[ModelAttributesController.ATTRIBUTES_IDENT] = attributes;
-        await this._model.setData(data);
+        await this._model.setDefinition(data);
         return Promise.resolve();
     }
 }

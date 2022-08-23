@@ -143,7 +143,7 @@ class ConfigPanel extends TabPanel {
                 .click(function (event) {
                     event.stopPropagation();
 
-                    this._form.setData({});
+                    this._form.setFormData({});
                     this._form.renderForm();
                 }.bind(this));
             $div.append($clear);

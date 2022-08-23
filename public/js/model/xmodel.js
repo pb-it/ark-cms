@@ -4,21 +4,31 @@ class XModel {
     _id;
     _version;
 
+    _prepareDataAction;
+    _crudDialogActions;
+    _contextMenuExtensionAction;
+
     constructor(data, version) {
         this._data = data;
         this._version = version;
+
+        this._crudDialogActions = [];
     }
 
-    init() {
-        if (this._data.actions && this._data.actions.init)
-            eval(this._data.actions.init);
+    async initModel() {
+        if (this._data['extensions']) {
+            var extension = this._data['extensions']['client'];
+            if (extension)
+                eval(extension);
+        }
+        return Promise.resolve();
     }
 
-    getData() {
+    getDefinition() {
         return this._data;
     }
 
-    async setData(data, bUpload = true, bForce) {
+    async setDefinition(data, bUpload = true, bForce) {
         this._data = data;
         if (bUpload)
             await this.uploadData(bForce);
@@ -47,7 +57,7 @@ class XModel {
             version = app.controller.getVersionController().getAppVersion();
         var url = app.controller.getApiController().getApiOrigin() + "/api/_model?v=" + encodeURIComponent(version);
         if (bForce)
-            url += "&force=true";
+            url += "&forceMigration=true";
         return WebClient.request("PUT", url, this._data);
     }
 
@@ -88,19 +98,15 @@ class XModel {
             return false;
     }
 
-    getCheckAction() {
-        var action;
-        if (this._data.actions && this._data.actions.check) {
-            const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-            action = new AsyncFunction('data', this._data.actions.check);
-        }
-        return action;
+    getPrepareDataAction() {
+        return this._prepareDataAction;
     }
 
-    getContextMenuExtensions() {
-        var action;
-        if (this._data.actions && this._data.actions.contextMenuExtensions)
-            action = new Function('panel', this._data.actions.contextMenuExtensions);
-        return action;
+    getCrudDialogActions() {
+        return this._crudDialogActions;
+    }
+
+    getContextMenuExtensionAction() {
+        return this._contextMenuExtensionAction;
     }
 }

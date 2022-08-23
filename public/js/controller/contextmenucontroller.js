@@ -105,7 +105,7 @@ class ContextMenuController {
             createGroup.push(createCsvEntry);
         }
 
-        var contextMenuExtensions = model.getContextMenuExtensions();
+        var contextMenuExtensions = model.getContextMenuExtensionAction();
         if (contextMenuExtensions)
             entries.push(...contextMenuExtensions(panel));
 

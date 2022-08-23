@@ -27,18 +27,15 @@ class ConfigController {
         return Promise.resolve();
     }
 
-    async import(models, routes, profiles, bookmarks) {
+    async import(models, profiles, bookmarks, bForce) {
         var bError = false;
         app.controller.setLoadingState(true);
         try {
             var resp;
             for (var model of models) {
-                resp = await model.uploadData();
+                resp = await model.uploadData(bForce);
                 //console.log(resp);
             }
-
-            if (routes)
-                await app.controller.getRouteController().setRoutes(routes);
 
             if (profiles)
                 await app.controller.getProfileController().setProfiles(profiles);
@@ -53,7 +50,7 @@ class ConfigController {
         if (!bError) {
             try {
                 await app.controller.getApiController().reloadModels();
-                app.controller.reloadApplication();
+                app.controller.reloadApplication(); //TODO: overact?
             } catch (error) {
                 app.controller.setLoadingState(false);
                 app.controller.showError(error, "Automatic reloading of models failed. Please restart your backend manually!");
@@ -71,13 +68,9 @@ class ConfigController {
         config[MODEL_VERSION_IDENT] = app.controller.getVersionController().getAppVersion();
 
         config[ModelController.MODELS_IDENT] = models.map(function (model) {
-            return model.getData();
+            return model.getDefinition();
         });
         config[ModelController.MODELS_IDENT].sort((a, b) => a.name.localeCompare(b.name));
-
-        var routes = app.controller.getRouteController().getRoutes();
-        if (routes)
-            config[RouteController.CONFIG_ROUTES_IDENT] = routes;
 
         var profiles = app.controller.getProfileController().getProfileConfig();
         if (profiles)

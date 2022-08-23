@@ -88,7 +88,7 @@ class EditModelDefaultsPanel extends Panel {
 
         var models = app.controller.getModelController().getModels();
         var names = models.map(function (model) {
-            return model.getData()['name'];
+            return model.getDefinition()['name'];
         });
         var mName = this._model.getName();
         var mOptions = names.filter(function (x) { return x !== mName }).map(function (x) { return { 'value': x } });

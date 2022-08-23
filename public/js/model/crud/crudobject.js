@@ -183,16 +183,12 @@ class CrudObject {
         if (!data)
             data = {};
 
-        var mdata = this._model.getData();
-        if (mdata.actions && mdata.actions.prepare) {
-            var prepare = new Function('data', mdata.actions.prepare);
-            var res = prepare(data);
-            if (res)
-                this._data = res;
-            else
-                this._data = data;
-        } else
+        var prepare = this._model.getPrepareDataAction();
+        if (prepare)
+            this._data = prepare(data);
+        else
             this._data = data;
+
         this._setTitle();
     }
 
@@ -264,7 +260,7 @@ class CrudObject {
 
     async request(action, data) {
         var id;
-        if (this._model.getData()['options']['increments']) {
+        if (this._model.getDefinition()['options']['increments']) {
             if (this._data && this._data['id'])
                 id = this._data['id'];
         } else {
@@ -272,8 +268,11 @@ class CrudObject {
             for (var attr of this._model.getModelAttributesController().getAttributes()) {
                 if (attr['primary']) {
                     name = attr['name'];
-                    if (this._data[name])
+                    if (this._data[name]) {
+                        if (!data)
+                            data = {};
                         data[name] = this._data[name];
+                    }
                 }
             }
         }

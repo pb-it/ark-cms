@@ -1,24 +1,25 @@
 class ImportModelPanel extends Panel {
 
+    _version;
     _models;
-    _routes;
     _profiles;
     _bookmarks;
 
     _form;
     _listVis;
 
-    constructor(models, routes, profiles, bookmarks) {
+    constructor(version, models, profiles, bookmarks) {
         super();
 
-        this._routes = routes;
-        this._profiles = profiles;
-        this._bookmarks = bookmarks;
+        this._version = version;
 
         if (models && models.length > 1)
             this._models = models.sort((a, b) => a.getName().localeCompare(b.getName()));
         else
             this._models = models;
+
+        this._profiles = profiles;
+        this._bookmarks = bookmarks;
     }
 
     async _renderContent() {
@@ -27,14 +28,6 @@ class ImportModelPanel extends Panel {
 
         if (this._profiles) {
             var skeleton = [
-                {
-                    name: "importRoutes",
-                    label: "Import Routes",
-                    dataType: "boolean",
-                    required: true,
-                    defaultValue: true,
-                    view: "labelRight"
-                },
                 {
                     name: "importProfiles",
                     label: "Import Profiles",
@@ -167,12 +160,18 @@ class ImportModelPanel extends Panel {
         try {
             app.controller.setLoadingState(true);
 
-            var routes;
-            if (this._routes && this._form) {
-                var fData = await this._form.readForm();
-                if (fData['importRoutes'])
-                    routes = this._routes;
+            var bForce = false;
+            var ac = app.controller.getApiController();
+            var info = ac.getApiInfo();
+            if (this._version != info['version']) {
+                app.controller.setLoadingState(false);
+                var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force upload?");
+                if (bConfirmation)
+                    bForce = true;
+                else
+                    return Promise.resolve();
             }
+
             var profiles;
             if (this._profiles && this._form) {
                 var fData = await this._form.readForm();
@@ -185,7 +184,7 @@ class ImportModelPanel extends Panel {
                 if (fData['importBookmarks'])
                     bookmarks = this._bookmarks;
             }
-            await app.controller.getConfigController().import(models, routes, profiles, bookmarks);
+            await app.controller.getConfigController().import(models, profiles, bookmarks, bForce);
 
             this.dispose();
         } catch (error) {

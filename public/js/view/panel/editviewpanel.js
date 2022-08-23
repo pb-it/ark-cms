@@ -47,7 +47,7 @@ class EditViewPanel extends TabPanel {
                     var attribute = entry.getAttribute();
                     attribute['hidden'] = (fData['details'] !== EditViewPanel.detailsEnumToString(DetailsEnum.all));
                     //await entry.renderValue(???);
-                    this.setData(fData); //backup changes
+                    this.setFormData(fData); //backup changes
                     await this.renderForm();
                     return Promise.resolve();
                 }.bind(form)
