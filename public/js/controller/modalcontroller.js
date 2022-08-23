@@ -177,6 +177,7 @@ class ModalController {
 
     async openDiffJsonModal(oldobj, newObj) {
         return new Promise(async function (resolve, reject) {
+            app.controller.setLoadingState(true);
             var modal = app.controller.getModalController().addModal();
 
             var $div = $('<div/>');
@@ -204,6 +205,7 @@ class ModalController {
                 }.bind(this)));
 
             modal.open($div);
+            app.controller.setLoadingState(false);
             return Promise.resolve();
         });
     }

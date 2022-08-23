@@ -60,15 +60,21 @@ class StateSelect {
             if (!profile) {
                 if (this._profile)
                     this._profile = null;
-                if (this._$modelSelect)
+                if (this._$modelSelect) {
                     this._$modelSelect.remove();
-            } else
+                    this._$modelSelect = null;
+                }
+            } else {
                 if (this._profile != profile) {
                     this._profile = profile;
-                    if (this._$modelSelect)
+                    if (this._$modelSelect) {
                         this._$modelSelect.remove();
-                    this._renderModelSelect(model);
+                        this._$modelSelect = null;
+                    }
                 }
+                if (!this._$modelSelect)
+                    this._renderModelSelect(model);
+            }
         } else {
             if (!this._$modelSelect)
                 this._renderModelSelect(model);
@@ -77,13 +83,17 @@ class StateSelect {
         if (!model) {
             if (this._model)
                 this._model = null;
-            if (this._$actionSelect)
+            if (this._$actionSelect) {
                 this._$actionSelect.remove();
+                this._$actionSelect = null;
+            }
         } else {
             if (this._model != model) {
                 this._model = model;
-                if (this._$actionSelect)
+                if (this._$actionSelect) {
                     this._$actionSelect.remove();
+                    this._$actionSelect = null;
+                }
             }
             if (!this._$actionSelect)
                 this._renderActionSelect(action);
@@ -92,13 +102,17 @@ class StateSelect {
         if (!action) {
             if (this._action)
                 this._action = null;
-            if (this._$showSelect)
+            if (this._$showSelect) {
                 this._$showSelect.remove();
+                this._$showSelect = null;
+            }
         } else {
             if (this._action != action) {
                 this._action = action;
-                if (this._$showSelect)
+                if (this._$showSelect) {
                     this._$showSelect.remove();
+                    this._$showSelect = null;
+                }
             }
             if (!this._$showSelect && this._action === 'show')
                 this._renderShowSelect(show);
@@ -107,13 +121,17 @@ class StateSelect {
         if (!show) {
             if (this._show)
                 this._show = null;
-            if (this._$storedSelect)
+            if (this._$storedSelect) {
                 this._$storedSelect.remove();
+                this._$storedSelect = null;
+            }
         } else {
             if (this._show != show) {
                 this._show = show;
-                if (this._$storedSelect)
+                if (this._$storedSelect) {
                     this._$storedSelect.remove();
+                    this._$storedSelect = null;
+                }
             }
             if (!this._$storedSelect && this._show === 'state')
                 await this._renderStoredSelect();

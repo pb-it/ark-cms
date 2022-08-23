@@ -42,6 +42,8 @@ class ConfigController {
 
             if (bookmarks)
                 await app.controller.getBookmarkController().setBookmarks(bookmarks);
+
+            app.controller.setLoadingState(false);
         } catch (error) {
             bError = true;
             app.controller.setLoadingState(false);
@@ -50,7 +52,23 @@ class ConfigController {
         if (!bError) {
             try {
                 await app.controller.getApiController().reloadModels();
-                app.controller.reloadApplication(); //TODO: overact?
+
+                app.controller.setLoadingState(true);
+                var info;
+                for (var i = 0; i < 3; i++) {
+                    await sleep(5000);
+                    try {
+                        info = await app.controller.getApiController().fetchApiInfo();
+                    } catch (error) {
+                        ;
+                    }
+                }
+                if (info)
+                    app.controller.reloadApplication(); //TODO: quickfix ? overact?
+                else {
+                    app.controller.setLoadingState(false);
+                    app.controller.showErrorMessage("Automatic reloading of models failed. Please restart your backend manually!");
+                }
             } catch (error) {
                 app.controller.setLoadingState(false);
                 app.controller.showError(error, "Automatic reloading of models failed. Please restart your backend manually!");

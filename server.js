@@ -121,7 +121,7 @@ systemRouter.get('/update', async function (req, res) {
         restart();
     return Promise.resolve();
 });
-systemRouter.post('/shutdown', async () => {
+systemRouter.get('/shutdown', async () => {
     process.exit();
 });
 systemRouter.post('/curl', async (req, res, next) => {
