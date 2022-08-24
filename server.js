@@ -42,6 +42,9 @@ async function update(version, bForce) {
         } else if (vcs === VcsEnum.SVN)
             updateCmd = 'svn update';
 
+        if (bForce)
+            updateCmd += " rm -r node_modules";
+
         return new Promise((resolve, reject) => {
             require("child_process").exec('cd ' + appRoot + ' && ' + updateCmd + ' && npm install', function (err, stdout, stderr) {
                 if (err)

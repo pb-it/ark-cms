@@ -11,11 +11,11 @@ class XModel {
     constructor(data, version) {
         this._data = data;
         this._version = version;
-
-        this._crudDialogActions = [];
     }
 
     async initModel() {
+        this._crudDialogActions = [];
+
         if (this._data['extensions']) {
             var extension = this._data['extensions']['client'];
             if (extension)

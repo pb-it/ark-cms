@@ -63,8 +63,9 @@ class CrudPanel extends CanvasPanel {
         } else {
             $div = await this._renderRead();
         }
-        $div.append($('<div>')
-            .addClass('clear'));
+        if ($div)
+            $div.append($('<div>')
+                .addClass('clear'));
         return Promise.resolve($div);
     }
 
@@ -183,7 +184,7 @@ class CrudPanel extends CanvasPanel {
         var $div = $('<div/>').css({ 'float': 'left' });
         var actions = this._obj.getModel().getCrudDialogActions();
         if (actions && actions.length > 0) {
-            for (var action of actions) {
+            for (let action of actions) {
                 $div.append($('<button/>')
                     .html(action['name'])
                     .click(async function (event) {
