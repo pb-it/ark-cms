@@ -125,7 +125,7 @@ class Controller {
             await this._routeController.init();
 
             this._stateController = new StateController();
-            //this._view.init(); //TODO: untidy/unlovely that view depends on parsed state
+            //this._view.initView(); //TODO: untidy/unlovely that view depends on parsed state
 
             this._panelController = new PanelController();
 
@@ -159,14 +159,18 @@ class Controller {
     async loadState(state, push, replace) {
         this._data = null;
         try {
-            if (!this._bFirstLoadAfterInit)
-                this._modalController.closeAll();
-
             this.setLoadingState(true);
+
+            if (this._bFirstLoadAfterInit)
+                this._bFirstLoadAfterInit = false;
+            else {
+                this._modalController.closeAll();
+                await this._apiController.fetchApiInfo(); // needed for notification in side bar
+            }
 
             this._stateController.setState(state, push, replace);
             this.clearSelected();
-            this._view.init();
+            this._view.initView();
 
             var typeString;
             var bSpecial = false;

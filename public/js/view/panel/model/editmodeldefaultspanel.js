@@ -152,6 +152,7 @@ class EditModelDefaultsPanel extends Panel {
             var data = { ...await this._panelViewForm.readForm(), ...await this._thumbnailViewForm.readForm() };
 
             delete data['bContextMenu'];
+            delete data['searchFields'];
 
             defaults[ModelDefaultsController.VIEW_IDENT] = data;
         }

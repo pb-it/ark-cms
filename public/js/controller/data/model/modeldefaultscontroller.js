@@ -41,7 +41,7 @@ class ModelDefaultsController {
         defaults[ModelDefaultsController.SORT_IDENT] = sort;
         await this._model.setDefinition(data, false);
         var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/defaults/sort";
-        return WebClient.request("PUT", url, sort);
+        return WebClient.request("PUT", url, { 'sort': sort });
     }
 
     getDefaultTitleProperty(bFallback = true) {

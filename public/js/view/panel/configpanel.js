@@ -95,8 +95,7 @@ class ConfigPanel extends TabPanel {
             var color;
             if (app.controller.hasConnection()) {
                 var info = app.controller.getApiController().getApiInfo();
-                var appVersion = app.controller.getVersionController().getAppVersion();
-                if (appVersion === info['version']) {
+                if (app.controller.getVersionController().isCompatible()) {
                     msg = info['state'];
                     if (info['state'] === 'running')
                         color = 'green';
@@ -171,7 +170,7 @@ class ConfigPanel extends TabPanel {
                             return Promise.reject();
                     }
 
-                    if (this._data['version'] !== fdata['version']) {
+                    if (!fdata['version']) {
                         app.controller.getVersionController().setAppVersion(fdata['version']);
                         bReloadApp = true;
                     }

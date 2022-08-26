@@ -65,4 +65,22 @@ class ProfileController {
             res = profile[ProfileController.CONFIG_PROFILE_MENU_IDENT];
         return res;
     }
+
+    getAllUsedModels() {
+        var arr = [];
+        if (this._profiles) {
+            var menu;
+            var name;
+            for (var profile of this._profiles) {
+                menu = profile[ProfileController.CONFIG_PROFILE_MENU_IDENT];
+                if (menu) {
+                    for (name of menu) {
+                        if (!arr.includes[name])
+                            arr.push(name);
+                    }
+                }
+            }
+        }
+        return arr;
+    }
 }

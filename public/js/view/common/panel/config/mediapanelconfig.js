@@ -99,6 +99,9 @@ class MediaPanelConfig extends PanelConfig {
             if (config['bContextMenu'])
                 this.bContextMenu = config['bContextMenu'];
 
+            if (config['searchFields'])
+                this.searchFields = config['searchFields'];
+
             switch (config.format) {
                 case "16/9":
                     if (config.height && !config.width)

@@ -23,18 +23,37 @@ class Filter {
             if (path) {
                 filtered_items = jPath(items, path);
             } else {
-                if (state.typeString) {
-                    var model = app.controller.getModelController().getModel(state.typeString);
-                    var prop = model.getModelDefaultsController().getDefaultTitleProperty();
-                    if (prop) {
-                        var obj = {};
-                        obj[prop] = str;
-                        filtered_items = Filter.filterString(items, obj, prop, FilterEnum.contains);
+                if (state['typeString']) {
+                    if (state['panelConfig'] && state['panelConfig']['searchFields']) {
+                        filtered_items = [];
+                        var obj;
+                        for (var prop of state['panelConfig']['searchFields'].map(function (x) { return x['value'] })) {
+                            obj = {};
+                            obj[prop] = str;
+                            if (filtered_items.length == 0)
+                                filtered_items = Filter.filterString(items, obj, prop, FilterEnum.contains);
+                            else {
+                                var add = Filter.filterString(items, obj, prop, FilterEnum.contains);
+                                //filtered_items = [...new Set(...filtered_items, ...add)];
+                                for (let i = 0; i < add.length; i++) {
+                                    if (filtered_items.indexOf(add[i]) == -1)
+                                        filtered_items.push(add[i])
+                                }
+                            }
+                        }
                     } else {
-                        var name = Filter.filterString(items, { name: str }, "name", FilterEnum.contains);
-                        var title = Filter.filterString(items, { title: str }, "title", FilterEnum.contains);
-                        var comment = Filter.filterString(items, { comment: str }, "comment", FilterEnum.contains);
-                        filtered_items = [...new Set([...name, ...title, ...comment])];
+                        var model = app.controller.getModelController().getModel(state.typeString);
+                        var prop = model.getModelDefaultsController().getDefaultTitleProperty();
+                        if (prop) {
+                            var obj = {};
+                            obj[prop] = str;
+                            filtered_items = Filter.filterString(items, obj, prop, FilterEnum.contains);
+                        } else {
+                            var name = Filter.filterString(items, { name: str }, "name", FilterEnum.contains);
+                            var title = Filter.filterString(items, { title: str }, "title", FilterEnum.contains);
+                            var comment = Filter.filterString(items, { comment: str }, "comment", FilterEnum.contains);
+                            filtered_items = [...new Set([...name, ...title, ...comment])];
+                        }
                     }
                 }
             }

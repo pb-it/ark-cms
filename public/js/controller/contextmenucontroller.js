@@ -197,7 +197,7 @@ class ContextMenuController {
 
                             if (params.length > 0) {
                                 state = new State();
-                                state.name = objs.map(function (x) { return x.getTitle() }).join(' || ');
+                                state.name = typeString + ":" + objs.map(function (x) { return x.getTitle() }).join(' || ');
                                 state.typeString = attr.model;
                                 state.where = params.join('&');
 

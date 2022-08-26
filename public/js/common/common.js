@@ -29,12 +29,12 @@ function shrink(value, bRemoveZeroLength = true) {
     var newValue;
     if (value !== null && value !== undefined) {
         if (Array.isArray(value)) {
-            value.forEach((key) => {
-                var val = shrink(value[key]);
+            value.forEach((x) => {
+                var val = shrink(x);
                 if (val !== undefined) {
                     if (!newValue)
                         newValue = [];
-                    newValue.push(val);
+                    newValue.push(x);
                 }
             });
             if (!bRemoveZeroLength && !newValue)

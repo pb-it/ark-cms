@@ -93,6 +93,8 @@ See [changelog](./CHANGELOG.md)
 - [ ] Help system
 - [ ] Configureable dashboard
 - [ ] Language localization (L10N)
+- [ ] Parse models from existing database
+- [ ] Table view
 
 
 ## Roadmap / Milestones

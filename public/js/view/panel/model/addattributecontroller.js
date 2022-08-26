@@ -254,10 +254,21 @@ You will not see this information in forms, but it is stored with your actual st
                     ];
                     break;
                 case 'file':
+                    var cdn;
+                    var info = app.controller.getApiController().getApiInfo();
+                    if (info['cdn'] && info['cdn'].length > 0)
+                        cdn = info['cdn'].map(function (x) { return { 'value': x['url'] }; });
                     skeleton = [
                         { 'name': 'length', 'tooltip': '**Info**: max. length of filename', 'dataType': 'string', 'defaultValue': '250', 'readonly': false },
-                        { 'name': 'localPath', 'tooltip': '**Example**: \'../cdn\'', 'dataType': 'string', 'required': true },
-                        { 'name': 'cdn', 'label': 'CDN', 'tooltip': '**Example**: local CDN: \'/cdn\'', 'dataType': 'string', 'required': true },
+                        {
+                            'name': 'cdn',
+                            'label': 'CDN',
+                            'tooltip': '**INFO**: Available CDNs have to be configured at your backend server(API).',
+                            'dataType': 'enumeration',
+                            'view': 'select',
+                            'options': cdn,
+                            'required': true
+                        },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'unique', 'dataType': 'boolean', 'defaultValue': true, 'readonly': false }
                     ];

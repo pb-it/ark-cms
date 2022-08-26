@@ -25,9 +25,14 @@ class EditViewPanel extends TabPanel {
             options = attributes.map(function (x) { return { 'value': x['name'] } });
 
         var form = new Form();
+
         var bHidden = true;
         if (data && data['details'] === EditViewPanel.detailsEnumToString(DetailsEnum.all))
             bHidden = false;
+
+        var prop = model.getModelDefaultsController().getDefaultTitleProperty();
+        if (prop)
+            data['searchFields'] = [{ 'value': prop }];
         var skeleton = [
             {
                 name: ModelDefaultsController.PANEL_TYPE_IDENT,
@@ -44,10 +49,18 @@ class EditViewPanel extends TabPanel {
                 changeAction: async function () {
                     var fData = await this.readForm();
                     var entry = this.getFormEntry("detailsAttr");
+
                     var attribute = entry.getAttribute();
-                    attribute['hidden'] = (fData['details'] !== EditViewPanel.detailsEnumToString(DetailsEnum.all));
+                    if (fData['details'] === EditViewPanel.detailsEnumToString(DetailsEnum.all)) {
+                        attribute['hidden'] = false;
+                        if (!fData['detailsAttr']) {
+                            fData['detailsAttr'] = attribute['options'];
+                        }
+                    } else
+                        attribute['hidden'] = true;
+
                     //await entry.renderValue(???);
-                    this.setFormData(fData); //backup changes
+                    this.setFormData(fData); //backup already made changes
                     await this.renderForm();
                     return Promise.resolve();
                 }.bind(form)
@@ -72,7 +85,7 @@ class EditViewPanel extends TabPanel {
             },
             {
                 name: "bContextMenu",
-                label: "ContextMenu",
+                label: "*ContextMenu",
                 tooltip: "**INFO**: Calculated value",
                 dataType: "boolean",
                 readonly: "true"
@@ -82,6 +95,12 @@ class EditViewPanel extends TabPanel {
                 dataType: "enumeration",
                 options: [{ 'value': 'default' }, { 'value': 'none' }],
                 view: 'select'
+            },
+            {
+                name: "searchFields",
+                label: "*SearchFields",
+                dataType: "list",
+                options: options
             }
         ];
         form.init(skeleton, data);
@@ -235,7 +254,7 @@ class EditViewPanel extends TabPanel {
                 { name: "json", dataType: "json" }
             ];
 
-            var data = { "json": JSON.stringify(this._data, null, '\t') };
+            var data = { "json": this._data };
 
             this._jsonForm = new Form(skeleton, data);
             var $form = await this._jsonForm.renderForm();
@@ -269,6 +288,7 @@ class EditViewPanel extends TabPanel {
                 data = await this._panelViewForm.readForm();
 
             delete data['bContextMenu'];
+            //delete data['searchFields'];
         }
 
         return Promise.resolve(data);

@@ -1,0 +1,1 @@
+See [WING-CMS-API#Data_Types](https://github.com/pb-it/wing-cms-api/blob/main/docs/data_types.md)

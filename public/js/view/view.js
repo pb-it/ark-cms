@@ -9,7 +9,7 @@ class View {
         this._topNavigationBar = new TopNavigationBar();
     }
 
-    init() {
+    initView() {
         $("body").scrollTop(0);
 
         this._sideNavigationBar.renderSideNavigationBar();

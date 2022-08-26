@@ -150,7 +150,8 @@ class StateSelect {
                 var conf;
                 var menuItem;
                 var dummyGroup = new SubMenuGroup();
-                for (var prof of avail) {
+                avail.push({ 'name': 'other' })
+                for (let prof of avail) {
                     conf = {
                         'name': prof.name,
                         'click': async function (event, item) {
@@ -160,7 +161,7 @@ class StateSelect {
                                 await this._updateStateSelect();
                             } else {
                                 group.activateItem(item);
-                                p = item.getName();
+                                p = prof.name;
                                 await this._updateStateSelect(p);
                             }
                             pc.setCurrentProfileName(p);
@@ -184,9 +185,17 @@ class StateSelect {
 
         var modelNames;
         var pc = app.controller.getProfileController();
-        if (pc.getProfiles())
-            modelNames = pc.getMenu(this._profile);
-        else {
+        if (pc.getProfiles()) {
+            if (this._profile === 'other') {
+                var used = pc.getAllUsedModels();
+                var models = app.controller.getModelController().getModels(app.controller.isInDebugMode());
+                modelNames = models.map(function (model) {
+                    return model.getDefinition()['name'];
+                }).filter(function (x) { return !used.includes(x) });
+                modelNames.sort((a, b) => a.localeCompare(b));
+            } else
+                modelNames = pc.getMenu(this._profile);
+        } else {
             var models = app.controller.getModelController().getModels(app.controller.isInDebugMode());
             modelNames = models.map(function (model) {
                 return model.getDefinition()['name'];

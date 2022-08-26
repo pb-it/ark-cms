@@ -2,49 +2,25 @@ const APP_VERSION_IDENT = "appVersion";
 
 class VersionController {
 
-    _appVersion;
-
-    constructor() {
+    static compatible(v1, v2) {
+        var bCompatible = false;
+        var arrV1 = v1.split('.');
+        var arrV2 = v2.split('.');
+        if (arrV1.length == 3 && arrV2.length == 3) {
+            bCompatible = ((arrV1[0] === arrV2[0]) && (arrV1[1] === arrV2[1]));
+        } else
+            throw new Error('Invalid version number detected');
+        return bCompatible;
     }
 
-    async initVersionController() {
-        var infoUrl = window.location.origin + "/system/info";
-        var info = await WebClient.fetchJson(infoUrl);
-        this._appVersion = info['version'];
-        if (this._appVersion) {
-            var bSet = false;
-            var last;
-            if (window.localStorage)
-                last = window.localStorage.getItem(APP_VERSION_IDENT);
-            if (last) {
-                if (last !== this._appVersion) {
-                    this.viewUpdateInfo();
-                    bSet = true;
-                }
-            } else {
-                app.controller.getModalController().openPanelInModal(new TutorialPanel());
-                bSet = true;
-            }
-            if (bSet)
-                this.setAppVersion(this._appVersion);
-
-            var ac = app.controller.getApiController();
-            var info = await ac.fetchApiInfo();
-            var appVersion = app.controller.getVersionController().getAppVersion();
-            if (appVersion != info['version'])
-                this.viewMissmatchInfo();
-        }
-        return Promise.resolve();
-    }
-
-    viewUpdateInfo() {
+    static viewNewVersionInfo(version) {
         var panel = new Panel();
 
         var $d = $('<div/>')
             .css({ 'padding': '10' });
 
         $d.append("<b>Info:</b><br/>");
-        $d.append("You are now using version '" + this._appVersion + "' of this application.<br/><br/>");
+        $d.append("You are now using version '" + version + "' of this application.<br/><br/>");
 
         var $skip = $('<button>')
             .text('View Changelog')
@@ -70,7 +46,7 @@ class VersionController {
         app.controller.getModalController().openPanelInModal(panel);
     }
 
-    viewMissmatchInfo() {
+    static viewMissmatchInfo() {
         var panel = new Panel();
 
         var $d = $('<div/>')
@@ -95,13 +71,13 @@ class VersionController {
         app.controller.getModalController().openPanelInModal(panel);
     }
 
-    async checkForUpdates() {
+    static async checkForUpdates(current) {
         try {
             app.controller.setLoadingState(true);
             var url = 'https://raw.githubusercontent.com/pb-it/wing-cms/main/package.json';
             var pkg = await WebClient.fetchJson(url);
             var version = pkg['version'];
-            if (version === this._appVersion)
+            if (version === current)
                 alert('You are up to date');
             else
                 alert("Version '" + version + "' available");
@@ -113,16 +89,65 @@ class VersionController {
         return Promise.resolve();
     }
 
+    _appVersion;
+
+    constructor() {
+    }
+
+    async initVersionController() {
+        var infoUrl = window.location.origin + "/system/info";
+        var info = await WebClient.fetchJson(infoUrl);
+        this._appVersion = info['version'];
+        if (this._appVersion) {
+            var bSet = false;
+            var last;
+            if (window.localStorage)
+                last = window.localStorage.getItem(APP_VERSION_IDENT);
+            if (last) {
+                if (last !== this._appVersion) {
+                    VersionController.viewNewVersionInfo(this._appVersion);
+                    bSet = true;
+                }
+            } else {
+                app.controller.getModalController().openPanelInModal(new TutorialPanel());
+                bSet = true;
+            }
+            if (bSet)
+                this._setAppVersion(this._appVersion);
+
+            var ac = app.controller.getApiController();
+            var info = await ac.fetchApiInfo();
+            var appVersion = app.controller.getVersionController().getAppVersion();
+            this._bCompatible = VersionController.compatible(appVersion, info['version']);
+            if (!this._bCompatible)
+                VersionController.viewMissmatchInfo(); //TODO: throw error / block access
+        }
+        return Promise.resolve();
+    }
+
+    isCompatible() {
+        return this._bCompatible;
+    }
+
+    async checkForUpdates() {
+        return VersionController.checkForUpdates(this._appVersion);
+    }
+
     getAppVersion() {
         return this._appVersion;
     }
 
-    setAppVersion(version) {
+    _setAppVersion(version) {
         if (window.localStorage) {
             if (version)
                 window.localStorage.setItem(APP_VERSION_IDENT, version);
             else
                 window.localStorage.setItem(APP_VERSION_IDENT, '');
         }
+    }
+
+    clearAppVersion() {
+        if (window.localStorage)
+            window.localStorage.removeItem(APP_VERSION_IDENT);
     }
 }

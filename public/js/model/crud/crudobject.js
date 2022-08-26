@@ -17,23 +17,20 @@ class CrudObject {
             for (var field of skeleton) {
                 if (!field['hidden'] || bIncludeHidden) {
                     property = field.name;
-                    if (field['dataType']) {
-                        switch (field['dataType']) {
-                            case "boolean":
-                                if (newdata[property] == null || newdata[property] == undefined) {
-                                    if (olddata[property] != null && olddata[property] != undefined)
-                                        relevant[property] = null;
-                                } else {
-                                    if (olddata[property] == null || olddata[property] == undefined) {
-                                        relevant[property] = newdata[property];
-                                    } else {
-                                        if (newdata[property] != olddata[property])
-                                            relevant[property] = newdata[property];
-                                    }
-                                }
-                                break;
-                            case "relation":
-                                if (newdata[property]) {
+                    if (newdata[property] === null || newdata[property] === undefined) {
+                        if (olddata && olddata[property] !== null && olddata[property] !== undefined)
+                            relevant[property] = null;
+                    } else {
+                        if (field['dataType']) {
+                            switch (field['dataType']) {
+                                case "json":
+                                    if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
+                                        if (!isEqualJson(olddata[property], newdata[property]))
+                                            relevant[property] = JSON.stringify(newdata[property]);
+                                    } else
+                                        relevant[property] = JSON.stringify(newdata[property]);
+                                    break;
+                                case "relation":
                                     if (field['multiple']) {
                                         if (Array.isArray(newdata[property])) {
                                             var newIds = [];
@@ -45,7 +42,7 @@ class CrudObject {
                                                     newIds.push(item);
                                             }
 
-                                            if (olddata[property] && olddata[property].length > 0) {
+                                            if (olddata && olddata[property] && olddata[property].length > 0) {
                                                 if (newIds.length == olddata[property].length) {
                                                     var oldIds = olddata[property].map(function (data) {
                                                         return data['id'];
@@ -71,23 +68,15 @@ class CrudObject {
                                             id = newdata[property];
                                         else if (newdata[property]['id'])
                                             id = newdata[property]['id'];
-                                        if (!olddata[property] || olddata[property]['id'] != id) {
+                                        if (!olddata || !olddata[property] || (olddata[property]['id'] != id)) {
                                             relevant[property] = id;
                                         }
                                     }
-                                } else {
-                                    if (olddata[property])
-                                        relevant[property] = null;
-                                }
-                                break;
-                            default:
-                                if (newdata[property]) {
-                                    if (!olddata[property] || newdata[property] != olddata[property])
+                                    break;
+                                default:
+                                    if (!olddata || (newdata[property] !== olddata[property]))
                                         relevant[property] = newdata[property];
-                                } else {
-                                    if (olddata[property])
-                                        relevant[property] = null;
-                                }
+                            }
                         }
                     }
                 }
@@ -134,9 +123,22 @@ class CrudObject {
                 title = data[property];
             else
                 title = "<undefined>";
-        } else
-            title = "<id:" + data['id'] + ">";
-
+        } else {
+            if (model.getDefinition()['options']['increments'])
+                title = "<id:" + data['id'] + ">";
+            else {
+                var attributes = model.getModelAttributesController().getAttributes();
+                var name;
+                var prime = [];
+                for (var attr of attributes) {
+                    if (attr['primary']) {
+                        name = attr['name'];
+                        prime.push(name + ": " + data[name]);
+                    }
+                }
+                title = '<' + prime.join('; ') + '>';
+            }
+        }
         return title;
     }
 

@@ -15,17 +15,20 @@ class ModelAttributesController {
 
     getAttributes(bAddOptions) {
         var attributes;
+        var definition = this._model.getDefinition();
         if (bAddOptions) {
-            attributes = [
-                { 'name': 'id', 'dataType': 'integer', 'readonly': true },
-                { 'name': 'created_at', 'dataType': 'timestamp', 'readonly': true },
-                { 'name': 'updated_at', 'dataType': 'timestamp', 'readonly': true }
-            ];
-            var other = this._model.getDefinition()[ModelAttributesController.ATTRIBUTES_IDENT];
+            attributes = [];
+            if (definition['options']['increments'])
+                attributes.push({ 'name': 'id', 'dataType': 'integer', 'readonly': true });
+            if (definition['options']['timestamps']) {
+                attributes.push({ 'name': 'created_at', 'dataType': 'timestamp', 'readonly': true });
+                attributes.push({ 'name': 'updated_at', 'dataType': 'timestamp', 'readonly': true });
+            }
+            var other = definition[ModelAttributesController.ATTRIBUTES_IDENT];
             if (other)
                 attributes = attributes.concat(other);
         } else
-            attributes = this._model.getDefinition()[ModelAttributesController.ATTRIBUTES_IDENT];
+            attributes = definition[ModelAttributesController.ATTRIBUTES_IDENT];
         return attributes;
     }
 

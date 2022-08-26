@@ -1,5 +1,14 @@
 class XModel {
 
+    static uploadData(data, version, bForce) {
+        if (!version)
+            version = app.controller.getVersionController().getAppVersion();
+        var url = app.controller.getApiController().getApiOrigin() + "/api/_model?v=" + encodeURIComponent(version);
+        if (bForce)
+            url += "&forceMigration=true";
+        return WebClient.request("PUT", url, data);
+    }
+
     _data;
     _id;
     _version;
@@ -29,9 +38,9 @@ class XModel {
     }
 
     async setDefinition(data, bUpload = true, bForce) {
-        this._data = data;
         if (bUpload)
-            await this.uploadData(bForce);
+            await XModel.uploadData(data, this._version, bForce);
+        this._data = data;
         if (this._id)
             $(window).trigger('changed.model', this._data);
         return Promise.resolve();
@@ -50,15 +59,7 @@ class XModel {
     }
 
     async uploadData(bForce) {
-        var version;
-        if (this._version)
-            version = this._version;
-        else
-            version = app.controller.getVersionController().getAppVersion();
-        var url = app.controller.getApiController().getApiOrigin() + "/api/_model?v=" + encodeURIComponent(version);
-        if (bForce)
-            url += "&forceMigration=true";
-        return WebClient.request("PUT", url, this._data);
+        return XModel.uploadData(this._data, this._version, bForce)
     }
 
     async deleteModel() {

@@ -36,7 +36,7 @@ class Application {
             console.log(err);
         }
         if (!bLoaded)
-            this.controller.getView().init();
+            this.controller.getView().initView();
         return Promise.resolve();
     }
 }

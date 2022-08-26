@@ -201,6 +201,7 @@ class Breadcrumb {
             .click(function (event) {
                 event.stopPropagation();
                 var state = app.controller.getStateController().getState();
+                delete state.name;
                 delete state.id;
                 app.controller.loadState(state, true);
             });
@@ -219,6 +220,7 @@ class Breadcrumb {
             .click(function (event) {
                 event.stopPropagation();
                 var state = app.controller.getStateController().getState();
+                delete state.name;
                 delete state.where;
                 app.controller.loadState(state, true);
             });
@@ -232,6 +234,7 @@ class Breadcrumb {
             .click(function (event) {
                 event.stopPropagation();
                 var state = app.controller.getStateController().getState();
+                delete state.name;
                 delete state.limit;
                 app.controller.loadState(state, true);
             });
@@ -271,6 +274,7 @@ class Breadcrumb {
                 'name': "Remove",
                 'click': function (event) {
                     var state = app.controller.getStateController().getState();
+                    delete state.name;
                     state.filters = state.filters.filter(function (x) { return x != filter; });
                     app.controller.loadState(state, true);
                 }

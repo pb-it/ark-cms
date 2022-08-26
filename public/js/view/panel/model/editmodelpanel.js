@@ -109,8 +109,8 @@ class EditModelPanel extends TabPanel {
             var $d = $('<div/>');
 
             var skeleton = [
-                { name: 'server', dataType: 'text' },
-                { name: 'client', dataType: 'text' }
+                { name: 'server', dataType: 'text', size: '20' },
+                { name: 'client', dataType: 'text', size: '20' }
             ];
             this._extensionForm = new Form(skeleton, this._definition['extensions']);
             var $form = await this._extensionForm.renderForm();
@@ -127,7 +127,7 @@ class EditModelPanel extends TabPanel {
         panel._renderContent = async function () {
             var $d = $('<div/>');
 
-            var skeleton = [{ name: 'json', dataType: 'text', size: '20' }];
+            var skeleton = [{ name: 'json', dataType: 'text', size: '40' }];
             this._rawForm = new Form(skeleton, { 'json': JSON.stringify(await this._readDefinition(), null, '\t') });
             var $form = await this._rawForm.renderForm();
             $d.append($form);
@@ -156,6 +156,7 @@ class EditModelPanel extends TabPanel {
     }
 
     async _apply() {
+        app.controller.setLoadingState(true);
         var data;
         if (this.getOpenTab() == this._$rawPanel) {
             var fData = await this._rawForm.readForm();
@@ -170,7 +171,13 @@ class EditModelPanel extends TabPanel {
             org = this._model.getDefinition();
         var current = data;
 
-        if (!isEqualJson(org, current)) {
+        if (typeof JsDiff === 'undefined') {
+            var buildUrl = "http://incaseofstairs.com/jsdiff/";
+            await loadScript(buildUrl + "diff.js");
+        }
+        var delta = JsDiff.diffJson(org, current);
+        var bChanged = !(delta.length === 1 && typeof delta[0].removed === 'undefined' && typeof delta[0].added === 'undefined');
+        if (bChanged) {
             var bTitle = false;
             var defaults = data['defaults'];
             if (defaults && defaults['title'])
@@ -224,10 +231,13 @@ class EditModelPanel extends TabPanel {
 
                 panel.setContent($div);
                 await app.controller.getModalController().openPanelInModal(panel);
+                app.controller.setLoadingState(false);
             }
         } else {
-            alert('Nothing changed');
-            this.dispose();
+            app.controller.setLoadingState(false);
+            var bClose = await app.controller.getModalController().openConfirmModal("No changes detected! Close window?");
+            if (bClose)
+                this.dispose();
         }
         return Promise.resolve();
     }
@@ -243,10 +253,7 @@ class EditModelPanel extends TabPanel {
             app.controller.setLoadingState(true);
 
             var bForce = false;
-            var ac = app.controller.getApiController();
-            var info = ac.getApiInfo();
-            var appVersion = app.controller.getVersionController().getAppVersion();
-            if (appVersion != info['version']) {
+            if (!app.controller.getVersionController().isCompatible()) {
                 app.controller.setLoadingState(false);
                 var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force upload?");
                 if (bConfirmation)
@@ -266,7 +273,9 @@ class EditModelPanel extends TabPanel {
 
             this.dispose();
 
-            //app.controller.reloadState(); //redraw visualisation with new menus
+            //await app.controller.getApiController().fetchApiInfo(); // needed for notification in side bar
+            //app.controller.getView().initView(); //redraw of visualisation with new menus is also done with event 'changed.model'
+            app.controller.reloadState();
             //app.controller.reloadApplication();
 
             app.controller.setLoadingState(false);
@@ -278,8 +287,16 @@ class EditModelPanel extends TabPanel {
     }
 
     async _hasChanged() {
+        app.controller.setLoadingState(true);
         var org = this._model.getDefinition();
         var current = await this._readDefinition();
-        return Promise.resolve(!isEqualJson(org, current));
+        if (typeof JsDiff === 'undefined') {
+            var buildUrl = "http://incaseofstairs.com/jsdiff/";
+            await loadScript(buildUrl + "diff.js");
+        }
+        var delta = JsDiff.diffJson(org, current);
+        var bChanged = !(delta.length === 1 && typeof delta[0].removed === 'undefined' && typeof delta[0].added === 'undefined');
+        app.controller.setLoadingState(false);
+        return Promise.resolve(bChanged);
     }
 }

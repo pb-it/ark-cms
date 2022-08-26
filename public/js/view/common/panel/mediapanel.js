@@ -32,11 +32,8 @@ class MediaPanel extends CrudPanel {
             if (this._config.action != ActionEnum.create && (!this._config['details'] || this._config['details'] === DetailsEnum.title))
                 $d.css({
                     "clear": "left",
-                    "width": this._config.width,
-                    "overflow": "hidden",
-                    "white-space": "nowrap",
-                    "text-align": "center",
-                    "text-overflow": "ellipsis"
+                    "max-width": this._config.width,
+                    "text-align": "center"
                 });
             else
                 $d.css({ 'display': 'inline-block' });

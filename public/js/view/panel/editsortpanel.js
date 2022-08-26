@@ -2,8 +2,15 @@ class EditSortPanel extends Panel {
 
     static getSortForm(model, sort) {
         var attributes = model.getModelAttributesController().getAttributes(true);
-        var sortAttr = attributes.filter(function (x) { return !(x['dataType'] === 'relation' || x['dataType'] === 'blob' || x['dataType'] === 'base64') });
-        var options = sortAttr.map(function (x) { return { 'value': x['name'] } });
+        var options = [];
+        for (var attribute of attributes) {
+            if (!(attribute['dataType'] === 'relation' || attribute['dataType'] === 'blob' || attribute['dataType'] === 'base64')) {
+                if (attribute['persistent'] === undefined || attribute['persistent'] === null || attribute['persistent'])
+                    options.push({ 'value': attribute['name'] });
+                else
+                    options.push({ 'value': attribute['name'], 'disabled': true, 'tooltip': '**INFO**: To sort according to an non-persistent field is currently not supported' });
+            }
+        }
         var skeleton = [
             {
                 name: 'sortCriteria',
@@ -25,6 +32,7 @@ class EditSortPanel extends Panel {
         return new Form(skeleton, data);
     }
 
+    _model;
     _form;
 
     constructor() {
@@ -36,12 +44,12 @@ class EditSortPanel extends Panel {
 
         var sort;
         var state = app.controller.getStateController().getState();
-        var model = state.getModel();
+        this._model = state.getModel();
         if (state['sort'])
             sort = state['sort'];
         else
-            sort = model.getModelDefaultsController().getDefaultSort();
-        this._form = EditSortPanel.getSortForm(model, sort);
+            sort = this._model.getModelDefaultsController().getDefaultSort();
+        this._form = EditSortPanel.getSortForm(this._model, sort);
         var $form = await this._form.renderForm();
 
         $div.append($form);

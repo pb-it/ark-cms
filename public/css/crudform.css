@@ -28,6 +28,9 @@ div.details>div.value {
 div.details>div.value.text {
     background-color: white;
     padding: 10px;
+}
+
+#canvas div.details>div.value.text {
     max-width: calc(100% - 170px);
 }
 

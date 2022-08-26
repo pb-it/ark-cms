@@ -260,7 +260,11 @@ class BasicFormEntry extends FormEntry {
 
                             this._$div.append('<br/>');
                         }
+                    } else {
+                        if (value)
+                            value = JSON.stringify(value, null, '\t');
                     }
+
                     var rows;
                     var cols;
                     if (this._attribute['size']) {
@@ -272,8 +276,13 @@ class BasicFormEntry extends FormEntry {
                             cols = parts[1];
                         }
                     }
-                    if (!rows)
-                        rows = 5;
+                    if (!rows) {
+                        var used = value.split('\n').length;
+                        if (used >= 5)
+                            rows = used;
+                        else
+                            rows = 5;
+                    }
                     if (!cols)
                         cols = 80;
 
@@ -393,6 +402,10 @@ class BasicFormEntry extends FormEntry {
                                 data = 'data:text/' + this._$syntax.val() + ';charset=utf-8,' + value;
                             } else
                                 data = value;
+                            break;
+                        case "json":
+                            if (value)
+                                data = JSON.parse(value);
                             break;
                         default:
                             data = value;

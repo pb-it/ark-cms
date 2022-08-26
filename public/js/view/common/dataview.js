@@ -73,8 +73,8 @@ class DataView {
                                 $value.html(value);
                                 break;
                             case "text":
-                                $value.addClass('text');
                             case "json":
+                                $value.addClass('text');
                                 if (data && data[name]) {
                                     if (typeof data[name] === 'string' || data[name] instanceof String) {
                                         value = data[name];
@@ -114,8 +114,10 @@ class DataView {
                                             $value.addClass('pre');
                                             value = DataView._parseText(value);
                                         }
-                                    } else
-                                        value = data[name];
+                                    } else {
+                                        $value.addClass('pre');
+                                        value = JSON.stringify(data[name], null, '\t');
+                                    }
                                 } else
                                     value = "";
                                 $value.html(value);
@@ -248,6 +250,8 @@ class DataView {
         var model = app.controller.getModelController().getModel(modelName);
         var mpcc = model.getModelPanelConfigController();
         var panelConfig = mpcc.getPanelConfig();
+        if (panelConfig['details'])
+            delete panelConfig['details'];
         var panel;
         if (attribute['multiple'] && Array.isArray(data)) {
             var ids = data.map(function (x) { return x['id'] });

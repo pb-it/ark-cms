@@ -9,9 +9,8 @@ class ListFormEntry extends FormEntry {
 
     async renderValue(value) {
         var selected;
-        if (value) {
-            selected = value.split(';');
-        }
+        if (value)
+            selected = value.map(function (x) { return x['value'] })
 
         var $div = $('<div/>').addClass('value');
 
@@ -45,8 +44,8 @@ class ListFormEntry extends FormEntry {
             this._list = this._listVis.getList();
             var selectedEntries = this._list.getEntries().filter(function (x) { return x.isSelected() });
             value = selectedEntries.map(function (x) {
-                return x.getName();
-            }).join(';');
+                return { 'value': x.getName() };
+            });
         }
         return Promise.resolve(value);
     }

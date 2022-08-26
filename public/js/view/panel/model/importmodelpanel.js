@@ -163,7 +163,7 @@ class ImportModelPanel extends Panel {
             var bForce = false;
             var ac = app.controller.getApiController();
             var info = ac.getApiInfo();
-            if (this._version != info['version']) {
+            if (!VersionController.compatible(this._version, info['version'])) {
                 app.controller.setLoadingState(false);
                 var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force upload?");
                 if (bConfirmation)

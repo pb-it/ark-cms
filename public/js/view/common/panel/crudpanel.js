@@ -24,7 +24,7 @@ class CrudPanel extends CanvasPanel {
     async _init() {
         var skeleton = this._obj.getSkeleton(true);
         if (this._config['detailsAttr']) {
-            var attr = this._config['detailsAttr'].split(';');
+            var attr = this._config['detailsAttr'].map(function (x) { return x['value'] });
             this._skeleton = skeleton.filter(function (x) {
                 return (attr.indexOf(x['name']) > -1);
             });
@@ -145,8 +145,15 @@ class CrudPanel extends CanvasPanel {
                 break;
             case DetailsEnum.title:
             default:
-                $div = $('<div/>')
-                    .html(encodeText(this._obj.getTitle()));
+                var $p = $('<p/>')
+                    .html(encodeText(this._obj.getTitle()))
+                    .css({
+                        "margin": "0px",
+                        "overflow": "hidden",
+                        "white-space": "nowrap",
+                        "text-overflow": "ellipsis"
+                    });
+                $div = $('<div/>').append($p);
         }
         return Promise.resolve($div);
     }
@@ -280,13 +287,6 @@ class CrudPanel extends CanvasPanel {
     async _getChanges(bValidate, oldData) {
         var changes;
         if (this._config.action == ActionEnum.create || this._config.action == ActionEnum.update) {
-            if (!oldData) {
-                var data = this._obj.getData();
-                if (data)
-                    oldData = data;
-                else
-                    oldData = {};
-            }
             var newData = await this._readData(bValidate);
             changes = CrudObject.getChanges(this._skeleton, oldData, newData);
         }
@@ -405,28 +405,33 @@ class CrudPanel extends CanvasPanel {
                     }
 
                     await this._obj.update(changed);
-                } else
-                    alert('Nothing changed');
 
-                if (this._config.crudCallback) {
-                    if (await this._config.crudCallback(this.getObject().getData()))
-                        this.dispose();
-                } else {
-                    var state = app.controller.getStateController().getState();
-                    if (this._obj.getTypeString() === state.typeString && state.panelConfig)
-                        this._config = state.panelConfig;
-                    else {
-                        var model = this._obj.getModel();
-                        /*var mpcc = model.getModelPanelConfigController();
-                        this._config = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.all);*/
-                        var config = new MediaPanelConfig();
-                        config.initPanelConfig(model, ActionEnum.read, this._config);
-                        this._config = config;
+                    if (this._config.crudCallback) {
+                        if (await this._config.crudCallback(this.getObject().getData()))
+                            this.dispose();
+                    } else {
+                        var state = app.controller.getStateController().getState();
+                        if (this._obj.getTypeString() === state.typeString && state.panelConfig)
+                            this._config = state.panelConfig;
+                        else {
+                            var model = this._obj.getModel();
+                            /*var mpcc = model.getModelPanelConfigController();
+                            this._config = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.all);*/
+                            var config = new MediaPanelConfig();
+                            config.initPanelConfig(model, ActionEnum.read, this._config);
+                            this._config = config;
+                        }
+
+                        await this.render();
                     }
 
-                    await this.render();
+                    app.controller.setLoadingState(false);
+                } else {
+                    app.controller.setLoadingState(false);
+                    var bClose = await app.controller.getModalController().openConfirmModal("No changes detected! Close window?");
+                    if (bClose)
+                        this.dispose();
                 }
-                app.controller.setLoadingState(false);
             } catch (error) {
                 app.controller.setLoadingState(false);
                 app.controller.showError(error);
