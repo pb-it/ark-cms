@@ -11,5 +11,5 @@ ul.list>li>div.node {
     display: inline-block;
 
     color: white;
-    background-color: var(--color-node-blue);
+    background-color: var(--bg-color-node-blue);
 }

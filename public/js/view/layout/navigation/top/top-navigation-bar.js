@@ -31,16 +31,18 @@ class TopNavigationBar {
     }
 
     renderTopNavigationBar() {
-        this._breadcrumb.renderBreadcrumb();
+        var sc = app.controller.getStateController();
+        if (sc) {
+            this._breadcrumb.renderBreadcrumb();
 
-
-        var state = app.controller.getStateController().getState();
-        if (state && state.getModel()) {
-            if (this._$searchContainer.children().length == 0)
-                this._$searchContainer.append(this._$searchForm);
-            this._searchForm.renderSearchForm();
-        } else
-            this._$searchContainer.empty();
+            var state = sc.getState();
+            if (state && state.getModel()) {
+                if (this._$searchContainer.children().length == 0)
+                    this._$searchContainer.append(this._$searchForm);
+                this._searchForm.renderSearchForm();
+            } else
+                this._$searchContainer.empty();
+        }
 
         this._renderMenu();
     }

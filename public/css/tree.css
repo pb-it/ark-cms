@@ -21,7 +21,7 @@ div.treenode:not(.dummyRoot) {
     margin: 1px;
     border: solid white 1px;
 
-    background-color: var(--color-node-blue);
+    background-color: var(--bg-color-node-blue);
     color: white;
 
     font-size: 16px;

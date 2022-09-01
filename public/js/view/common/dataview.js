@@ -100,7 +100,7 @@ class DataView {
                                                         var buildUrl = "https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/";
                                                         await loadScript(buildUrl + "showdown.min.js");
                                                     }
-                                                    const converter = new showdown.Converter();
+                                                    const converter = new showdown.Converter({ tables: true });
                                                     value = converter.makeHtml(value);
                                                     break;
                                                 case 'csv':

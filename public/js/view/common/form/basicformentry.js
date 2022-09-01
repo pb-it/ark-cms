@@ -258,6 +258,24 @@ class BasicFormEntry extends FormEntry {
                                 }.bind(this));
                             this._$div.append($previewButton);
 
+                            /*if (this._$syntax.val() === 'markdown') {
+                                var $exportButton = $('<button>')
+                                    .text('Export PDF')
+                                    .click(async function (event) {
+                                        event.stopPropagation();
+
+                                        if (typeof markdownpdf === 'undefined') {
+                                            var buildUrl = "https://cdn.jsdelivr.net/npm/markdown-pdf";
+                                            await loadScript(buildUrl);
+                                        }
+
+                                        markdownpdf().from.string(this.readValue()).to("document.pdf", function () {
+                                            console.log("Done");
+                                        });
+                                    }.bind(this));
+                                this._$div.append($exportButton);
+                            }*/
+
                             this._$div.append('<br/>');
                         }
                     } else {

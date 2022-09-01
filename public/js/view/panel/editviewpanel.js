@@ -20,7 +20,7 @@ class EditViewPanel extends TabPanel {
     static getPanelViewForm(model, data) {
         var options;
         var mac = model.getModelAttributesController();
-        var attributes = mac.getAttributes();
+        var attributes = mac.getAttributes(true);
         if (attributes)
             options = attributes.map(function (x) { return { 'value': x['name'] } });
 
@@ -29,6 +29,9 @@ class EditViewPanel extends TabPanel {
         var bHidden = true;
         if (data && data['details'] === EditViewPanel.detailsEnumToString(DetailsEnum.all))
             bHidden = false;
+
+        if (data && !data['detailsAttr'])
+            data['detailsAttr'] = options;
 
         var prop = model.getModelDefaultsController().getDefaultTitleProperty();
         if (prop)
@@ -86,9 +89,8 @@ class EditViewPanel extends TabPanel {
             {
                 name: "bContextMenu",
                 label: "*ContextMenu",
-                tooltip: "**INFO**: Calculated value",
-                dataType: "boolean",
-                readonly: "true"
+                tooltip: "**INFO**: Usually calculated value. Not stored!",
+                dataType: "boolean"
             },
             {
                 name: "paging",
@@ -219,6 +221,9 @@ class EditViewPanel extends TabPanel {
                     app.controller.setLoadingState(true);
                     try {
                         var data = await this._read();
+                        delete data['bContextMenu'];
+                        delete data['searchFields'];
+
                         await this._model.getModelDefaultsController().setDefaultPanelConfig(data);
                         app.controller.setLoadingState(false);
                         alert('Changed successfully');
@@ -280,15 +285,12 @@ class EditViewPanel extends TabPanel {
 
         if (this.getOpenTab() == this._$jsonPanel) {
             var fData = await this._jsonForm.readForm();
-            data = JSON.parse(fData['json']);
+            data = fData['json'];
         } else {
             if (this._thumbnailViewForm)
                 data = { ...await this._panelViewForm.readForm(), ...await this._thumbnailViewForm.readForm() };
             else
                 data = await this._panelViewForm.readForm();
-
-            delete data['bContextMenu'];
-            //delete data['searchFields'];
         }
 
         return Promise.resolve(data);

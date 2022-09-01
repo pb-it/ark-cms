@@ -6,17 +6,21 @@ class WebClient {
         logger.addLogEntry(new LogEntry(msg, SeverityEnum.INFO, 'WebClient'));
 
         return new Promise(function (resolve, reject) {
+            var xhr;
+
             function error() {
-                var err = {
-                    status: xhr.status,
-                    statusText: xhr.statusText
-                };
-                if (xhr.response)
-                    err.response = xhr.response;
+                var err;
+                if (xhr.status && xhr.statusText) {
+                    err = {
+                        status: xhr.status,
+                        statusText: xhr.statusText
+                    };
+                    if (xhr.response)
+                        err.response = xhr.response;
+                }
                 reject(err);
             }
 
-            var xhr;
             if (window.XMLHttpRequest) {
                 xhr = new XMLHttpRequest();
             }
@@ -26,17 +30,10 @@ class WebClient {
 
             xhr.onload = function () {
                 if (this.readyState == 4) {
-                    if (this.status >= 200 && this.status < 300) {
+                    if (this.status >= 200 && this.status < 300)
                         resolve(xhr.response);
-                    } else {
-                        var err = {
-                            status: xhr.status,
-                            statusText: xhr.statusText
-                        };
-                        if (xhr.response)
-                            err.response = xhr.response;
-                        reject(err);
-                    }
+                    else
+                        error();
                 }
             };
 

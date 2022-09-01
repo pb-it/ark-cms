@@ -37,7 +37,7 @@ div.menuitem.default-style.root:focus {
 div.menuitem.default-style.root,
 div.menuitem.default-style.active {
     color: white;
-    background-color: var(--color-node-blue);
+    background-color: var(--bg-color-node-blue);
 }
 
 div.menuitem:not(.root):not(.active):hover>div.submenugroup {

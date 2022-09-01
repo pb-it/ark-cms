@@ -55,8 +55,8 @@ class ConfigController {
 
                 app.controller.setLoadingState(true);
                 var info;
-                for (var i = 0; i < 3; i++) {
-                    await sleep(5000);
+                for (var i = 0; i < 10; i++) {
+                    await sleep(2000);
                     try {
                         info = await app.controller.getApiController().fetchApiInfo();
                     } catch (error) {

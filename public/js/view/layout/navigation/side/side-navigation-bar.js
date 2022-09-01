@@ -56,7 +56,25 @@ class SideNavigationBar {
         this._initBottomIconBar();
         this._bottomIconBar.renderMenu();
 
-        if (!app.controller.hasConnection() || !app.controller.getVersionController().isCompatible())
+        var bInfo = false;
+        if (!app.controller.hasConnection())
+            bInfo = true;
+        else {
+            var info = app.controller.getApiController().getApiInfo();
+            if (info) {
+                if (info['state'] !== 'running') // openReloadRequest, ...
+                    bInfo = true;
+            } else
+                bInfo = true;
+            var vc = app.controller.getVersionController();
+            if (vc) {
+                if (!vc.isCompatible())
+                    bInfo = true;
+            } else
+                bInfo = true;
+        }
+
+        if (bInfo)
             this._confMenuItem.addNotification('!');
 
         this.close();

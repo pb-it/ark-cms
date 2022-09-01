@@ -30,7 +30,8 @@ div.details>div.value.text {
     padding: 10px;
 }
 
-#canvas div.details>div.value.text {
+#canvas div.details>div.value.text,
+div.modal div.details>div.value.text {
     max-width: calc(100% - 170px);
 }
 
@@ -57,5 +58,6 @@ div.details>div.value.pre>div {
 
 div.details>div.value.pre code {
     display: block;
-    background-color: var(--color-code);
+    color: var(--color-code);
+    background-color: var(--bg-color-code);
 }

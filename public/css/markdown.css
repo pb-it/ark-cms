@@ -24,7 +24,8 @@ h6 {
 }
 
 .markdown code:not(.hljs) {
-    background-color: var(--color-code);
+    color: var(--color-code);
+    background-color: var(--bg-color-code);
 }
 
 .markdown pre>code:not(.hljs) {

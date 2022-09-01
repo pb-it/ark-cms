@@ -162,33 +162,37 @@ class ConfigPanel extends TabPanel {
                 .click(async function (event) {
                     event.stopPropagation();
 
-                    var bReloadApp = false;
-                    var fdata = await this._form.readForm();
+                    try {
+                        var bReloadApp = false;
+                        var fdata = await this._form.readForm();
 
-                    if (fdata['bConfirmOnApply']) {
-                        if (!await app.controller.getModalController().openDiffJsonModal(this._data, fdata))
-                            return Promise.reject();
-                    }
+                        if (fdata['bConfirmOnApply']) {
+                            if (!await app.controller.getModalController().openDiffJsonModal(this._data, fdata))
+                                return Promise.reject();
+                        }
 
-                    if (!fdata['version']) {
-                        app.controller.getVersionController().setAppVersion(fdata['version']);
-                        bReloadApp = true;
-                    }
-                    if (this._data['api'] !== fdata['api']) {
-                        cc.setApi(fdata['api']);
-                        bReloadApp = true;
-                    }
-                    var conf = cc.getDebugConfig();
-                    conf['bDebug'] = fdata['bDebug']
-                    cc.setDebugConfig(conf);
+                        if (!fdata['version']) {
+                            app.controller.getVersionController().clearAppVersion(fdata['version']);
+                            bReloadApp = true;
+                        }
+                        if (this._data['api'] !== fdata['api']) {
+                            cc.setApi(fdata['api']);
+                            bReloadApp = true;
+                        }
+                        var conf = cc.getDebugConfig();
+                        conf['bDebug'] = fdata['bDebug']
+                        cc.setDebugConfig(conf);
 
-                    app.controller.getStorageController().storeLocal('bConfirmOnApply', fdata['bConfirmOnApply']);
+                        app.controller.getStorageController().storeLocal('bConfirmOnApply', fdata['bConfirmOnApply']);
 
-                    if (bReloadApp)
-                        app.controller.reloadApplication();
-                    else {
-                        app.controller.reloadState();
-                        this.dispose();
+                        if (bReloadApp)
+                            app.controller.reloadApplication();
+                        else {
+                            app.controller.reloadState();
+                            this.dispose();
+                        }
+                    } catch (error) {
+                        app.controller.showError(error);
                     }
 
                     return Promise.resolve();

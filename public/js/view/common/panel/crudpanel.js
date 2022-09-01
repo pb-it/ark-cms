@@ -294,7 +294,7 @@ class CrudPanel extends CanvasPanel {
     }
 
     async _hasChanged() {
-        var changes = await this._getChanges();
+        var changes = await this._getChanges(false, this._obj.getData());
         if (changes)
             return Promise.resolve(Object.keys(changes).length > 0);
         else
@@ -391,7 +391,7 @@ class CrudPanel extends CanvasPanel {
             try {
                 app.controller.setLoadingState(true);
 
-                var changed = await this._getChanges(true);
+                var changed = await this._getChanges(true, this._obj.getData());
 
                 if (changed) {
                     if (app.controller.getConfigController().confirmOnApply()) {

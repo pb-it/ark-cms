@@ -15,16 +15,20 @@ class Breadcrumb {
     renderBreadcrumb() {
         this._$breadcrumb.empty();
 
+        var state;
         var stateName;
-        var state = app.controller.getStateController().getState();
-        if (state) {
-            var typeString = state['typeString'];
-            if (typeString) {
-                var mc = app.controller.getModelController();
-                if (mc.isModelDefined(typeString)) {
-                    stateName = typeString;
-                    if (state['name'] && !state['where'])
-                        stateName += '(' + state['name'] + ')';
+        var sc = app.controller.getStateController();
+        if (sc) {
+            state = sc.getState();
+            if (state) {
+                var typeString = state['typeString'];
+                if (typeString) {
+                    var mc = app.controller.getModelController();
+                    if (mc.isModelDefined(typeString)) {
+                        stateName = typeString;
+                        if (state['name'] && !state['where'])
+                            stateName += '(' + state['name'] + ')';
+                    }
                 }
             }
         }

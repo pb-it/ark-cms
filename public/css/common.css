@@ -1,6 +1,7 @@
 :root {
-    --color-code: #ffffff;
-    --color-node-blue: #3498db;
+    --color-code: #444;
+    --bg-color-code: #f3f3f3;
+    --bg-color-node-blue: #3498db;
 }
 
 div.pre {
