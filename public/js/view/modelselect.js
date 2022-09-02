@@ -9,6 +9,24 @@ class ModelSelect {
             { name: "increments", dataType: "boolean", required: true, readonly: true },
             { name: "timestamps", dataType: "boolean", required: true, readonly: true }
         ];
+        var info = app.controller.getApiController().getApiInfo();
+        if (info['db_client'] === 'mysql' || info['db_client'] === 'mysql2') {
+            skeleton.push(
+                {
+                    'name': 'charEncoding',
+                    'label': 'Encoding',
+                    'tooltip': `**Info**: The default character encoding for the table will be taken from your database client.`,
+                    'dataType': 'enumeration',
+                    'options': [
+                        { 'value': 'default' },
+                        { 'value': 'latin1' },
+                        { 'value': 'utf8' },
+                        { 'value': 'utf8mb4' }
+                    ],
+                    'view': 'select'
+                }
+            );
+        }
         var data = {
             increments: true,
             timestamps: true

@@ -93,48 +93,73 @@ class AddAttributeController {
                     ];
                     break;
                 case 'string':
-                    skeleton = [
-                        { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' },
-                        { 'name': 'unique', 'tooltip': '**Info**: Unique attributes may be limited in length by your database system!', 'dataType': 'boolean' },
-                        { 'name': 'required', 'dataType': 'boolean' },
-                        { 'name': 'defaultValue', 'dataType': 'string' }
-                    ];
-                    break;
                 case 'text':
                     skeleton = [
-                        { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' },
-                        {
-                            'name': 'view',
-                            'label': 'syntax',
-                            'dataType': 'enumeration',
-                            'options': [
-                                { 'value': '<auto>', 'disabled': true },
-                                { 'value': 'csv' },
-                                { 'value': 'xml' },
-                                { 'value': 'json', 'disabled': true },
-                                { 'value': 'plain' },
-                                { 'value': 'html' },
-                                { 'value': 'plain+html' },
-                                { 'value': 'markdown' }
-                            ],
-                            'tooltip': `Default behavior is as \'plain\' which may result in WYSIWYG.
+                        { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' }
+                    ];
+                    var info = app.controller.getApiController().getApiInfo();
+                    if (info['db_client'] === 'mysql' || info['db_client'] === 'mysql2') {
+                        skeleton.push(
+                            {
+                                'name': 'charEncoding',
+                                'label': 'Encoding',
+                                'tooltip': `**Info**: The default character encoding for the column will be taken from its table.`,
+                                'dataType': 'enumeration',
+                                'options': [
+                                    { 'value': 'default' },
+                                    { 'value': 'latin1' },
+                                    { 'value': 'utf8' },
+                                    { 'value': 'utf8mb4' }
+                                ],
+                                'view': 'select'
+                            }
+                        );
+                    }
+                    if (this._data['dataType'] === 'string') {
+                        skeleton.push(
+                            { 'name': 'unique', 'tooltip': '**Info**: Unique attributes may be limited in length by your database system!', 'dataType': 'boolean' }
+                        );
+                    } else {
+                        skeleton.push(
+                            [
+                                {
+                                    'name': 'view',
+                                    'label': 'syntax',
+                                    'dataType': 'enumeration',
+                                    'options': [
+                                        { 'value': '<auto>', 'disabled': true },
+                                        { 'value': 'csv' },
+                                        { 'value': 'xml' },
+                                        { 'value': 'json', 'disabled': true },
+                                        { 'value': 'plain' },
+                                        { 'value': 'html' },
+                                        { 'value': 'plain+html' },
+                                        { 'value': 'markdown' }
+                                    ],
+                                    'tooltip': `Default behavior is as \'plain\' which may result in WYSIWYG.
 \'plain+html\' enables you to mix preformatted plain text with interpret and rendered html-code between \<html\>/\</html\> tags.`,
-                            'view': 'select'
-                        },
-                        {
-                            'name': 'bSyntaxPrefix',
-                            'label': 'individual syntax',
-                            'tooltip': `Choose syntax individual for every entry.
+                                    'view': 'select'
+                                },
+                                {
+                                    'name': 'bSyntaxPrefix',
+                                    'label': 'individual syntax',
+                                    'tooltip': `Choose syntax individual for every entry.
 An media / MIME type string will be prepended to your data.
 You will not see this information in forms, but it is stored with your actual string in the database and consumes space.`,
-                            'dataType': 'boolean',
-                            'required': true,
-                            'defaultValue': false
-                        },
-                        { 'name': 'size', 'dataType': 'string' },
-                        { 'name': 'required', 'dataType': 'boolean' },
-                        { 'name': 'defaultValue', 'dataType': 'string' }
-                    ];
+                                    'dataType': 'boolean',
+                                    'required': true,
+                                    'defaultValue': false
+                                },
+                                { 'name': 'size', 'dataType': 'string' }
+                            ]
+                        );
+                    }
+                    skeleton.push(
+                        [
+                            { 'name': 'required', 'dataType': 'boolean' },
+                            { 'name': 'defaultValue', 'dataType': 'string' }
+                        ]
+                    );
                     break;
                 case 'json':
                     skeleton = [
@@ -367,6 +392,8 @@ You will not see this information in forms, but it is stored with your actual st
                         } else
                             throw new Error("Field 'length' is not a number");
                     }
+                    if (data.charEncoding)
+                        this._data.charEncoding = data.charEncoding;
                     if (data.unique)
                         this._data.unique = data.unique;
                     break;
@@ -393,6 +420,8 @@ You will not see this information in forms, but it is stored with your actual st
                 case 'json':
                     if (data.length) //TODO: MEDIUMTEXT / LONGTEXT
                         this._data.length = data.length;
+                    if (data.charEncoding)
+                        this._data.charEncoding = data.charEncoding;
                     if (data.view)
                         this._data.view = data.view;
                     if (data.bSyntaxPrefix)
