@@ -37,7 +37,7 @@ class BasicFormEntry extends FormEntry {
             switch (this._attribute['dataType']) {
                 case "boolean":
                     if (this._attribute['required']) {
-                        if (value === true || value === false) {
+                        if (value === true || value === 1 || value === false || value === 0) {
                             this._$input = $('<fieldset/>')
                                 .css({
                                     'border': 0,
@@ -47,7 +47,7 @@ class BasicFormEntry extends FormEntry {
                                 .attr('type', 'checkbox')
                                 .attr('name', name)
                                 .attr('id', this._id)
-                                .prop('checked', (value == true)));
+                                .prop('checked', (value == true || value == 1)));
                             if (this._attribute['view'] === 'labelRight') {
                                 var $label = $('<label/>')
                                     .attr('for', this._id)
@@ -69,12 +69,12 @@ class BasicFormEntry extends FormEntry {
                         this._$input.append($option);
 
                         $option = $('<option/>', { value: 'true' }).text('true');
-                        if (value === true)
+                        if (value === true || value === 1)
                             $option.prop('selected', true);
                         this._$input.append($option);
 
                         $option = $('<option/>', { value: 'false' }).text('false');
-                        if (value === false)
+                        if (value === false || value === 0) // ('' == 0) => true
                             $option.prop('selected', true);
                         this._$input.append($option);
                     }

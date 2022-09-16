@@ -240,7 +240,7 @@ class CrudPanel extends CanvasPanel {
                 app.controller.setLoadingState(true);
 
                 var data = await this._readData(false);
-                data = await fn(data);
+                data = await fn.call(this, data);
                 if (data) {
                     //hidden attributes which got changed must be made visible
                     var copy = [];

@@ -78,7 +78,7 @@ class ModalController {
         }
 
         app.controller.setLoadingState(false);
-        return Promise.resolve();
+        return Promise.resolve(modal);
     }
 
     async openCrudObjectInModal(action, obj) {

@@ -27,8 +27,15 @@ class XModel {
 
         if (this._data['extensions']) {
             var extension = this._data['extensions']['client'];
-            if (extension)
-                eval(extension);
+            if (extension) {
+                var bModule = false; //TODO: create concept/evaluate
+                if (bModule) {
+                    const objectURL = URL.createObjectURL(new Blob([extension], { type: 'text/javascript' }));
+                    const module = await import(objectURL);
+                    // this._crudDialogActions.push(module.checkAction);
+                } else
+                    eval(extension);
+            }
         }
         return Promise.resolve();
     }

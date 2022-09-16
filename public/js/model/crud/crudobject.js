@@ -23,6 +23,20 @@ class CrudObject {
                     } else {
                         if (field['dataType']) {
                             switch (field['dataType']) {
+                                case "boolean":
+                                    if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
+                                        if (olddata[property] !== newdata[property]) {
+                                            if (olddata[property] === true || olddata[property] === 1) {
+                                                if (newdata[property] !== true && newdata[property] !== 1)
+                                                    relevant[property] = newdata[property];
+                                            } else if (olddata[property] === false || olddata[property] === 0) {
+                                                if (newdata[property] !== false && newdata[property] !== 0)
+                                                    relevant[property] = newdata[property];
+                                            }
+                                        }
+                                    } else
+                                        relevant[property] = newdata[property];
+                                    break;
                                 case "json":
                                     if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
                                         if (!isEqualJson(olddata[property], newdata[property]))

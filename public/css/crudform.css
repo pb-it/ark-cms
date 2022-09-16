@@ -30,9 +30,12 @@ div.details>div.value.text {
     padding: 10px;
 }
 
-#canvas div.details>div.value.text,
-div.modal div.details>div.value.text {
+#canvas div.details>div.value.text {
     max-width: calc(100% - 170px);
+}
+
+div.modal div.details>div.value.text {
+    max-width: calc(100vw - 200px);
 }
 
 div.details>div.value.text blockquote {

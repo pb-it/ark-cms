@@ -343,10 +343,6 @@ class ContextMenuController {
         }.bind(panel)));
 
         if (app.controller.isInDebugMode()) {
-            entries.push(new ContextMenuEntry("JSON", async function () {
-                return app.controller.getModalController().openPanelInModal(new JsonPanel(this.getObject().getData()));
-            }.bind(panel)));
-
             var debugGroup = [];
             var jsonEntry = new ContextMenuEntry("JSON", function () {
                 return app.controller.getModalController().openPanelInModal(new JsonPanel(this.getObject().getData()));
