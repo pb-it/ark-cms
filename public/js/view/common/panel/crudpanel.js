@@ -493,57 +493,64 @@ class CrudPanel extends CanvasPanel {
     async _drop(event) {
         event.preventDefault();
         event.stopPropagation();
-        var str = event.originalEvent.dataTransfer.getData("text/plain");
-        var url = new URL(str);
-        var state = State.getStateFromUrl(url);
-        if (state) {
-            var droptype = state.typeString;
-            var model = this._obj.getModel();
-            if (this._config.getPanelClass() == MediaPanel) {
-                var id = state.id;
-                if (isNaN(id)) {
-                    alert("invalid data!");
-                    return Promise.reject();
-                }
-                var prop = model.getModelDefaultsController().getDefaultThumbnailProperty();
-                if (prop) {
-                    if (droptype === "contents") {
-                        var bConfirmation = await app.controller.getModalController().openConfirmModal("Change thumbnail?");
-                        if (bConfirmation) {
-                            var obj = new Object();
-                            obj[prop] = id;
-                            await this._obj.update(obj);
-                            this.render();
+        var dT = event.originalEvent.dataTransfer;
+        if (dT) {
+            var str = dT.getData("text/plain");
+            //console.log(str);
+            var url = new URL(str);
+            var state = State.getStateFromUrl(url);
+            if (state) {
+                var droptype = state.typeString;
+                var model = this._obj.getModel();
+                if (this._config.getPanelClass() == MediaPanel) {
+                    var id = state.id;
+                    if (isNaN(id)) {
+                        alert("invalid data!");
+                        return Promise.reject();
+                    }
+                    var prop = model.getModelDefaultsController().getDefaultThumbnailProperty();
+                    if (prop) {
+                        if (droptype === "contents") {
+                            var bConfirmation = await app.controller.getModalController().openConfirmModal("Change thumbnail?");
+                            if (bConfirmation) {
+                                var obj = new Object();
+                                obj[prop] = id;
+                                await this._obj.update(obj);
+                                this.render();
+                            }
                         }
                     }
-                }
-            } else if (model.isCollection()) {
-                if (droptype === "collections") {
-                    alert("NotImplementedException");
-                } else if (droptype === this._obj.getCollectionType()) {
-                    var urlParams = new URLSearchParams(url.search);
-
-                    var arr = urlParams.getAll('id');
-                    var ids = [];
-                    var id;
-                    for (var str of arr) {
-                        id = parseInt(str);
-                        if (isNaN(id)) {
+                } else if (model.isCollection()) {
+                    if (droptype === "collections") {
+                        alert("NotImplementedException");
+                    } else if (droptype === this._obj.getCollectionType()) {
+                        var ids = [];
+                        if (state['id']) {
+                            ids.push(state['id']);
+                        } else if (url['search']) {
+                            var urlParams = new URLSearchParams(url['search']);
+                            var arr = urlParams.getAll('id');
+                            var id;
+                            for (var str of arr) {
+                                id = parseInt(str);
+                                if (isNaN(id)) {
+                                    alert("invalid data!");
+                                    return Promise.reject();
+                                } else
+                                    ids.push(id);
+                            }
+                        } else
                             alert("invalid data!");
-                            return Promise.reject();
-                        } else {
-                            ids.push(id);
-                        }
-                    }
 
-                    try {
-                        var items = await app.controller.getDataService().fetchObjectById(droptype, ids);
-                        this.addItems(items);
-                    } catch (err) {
-                        alert("failed!");
+                        try {
+                            var items = await app.controller.getDataService().fetchObjectById(droptype, ids);
+                            this.addItems(items);
+                        } catch (err) {
+                            alert("failed!");
+                        }
+                    } else {
+                        alert("type not supported by the collection");
                     }
-                } else {
-                    alert("type not supported by the collection");
                 }
             }
         }

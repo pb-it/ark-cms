@@ -18,10 +18,10 @@ const VcsEnum = Object.freeze({ GIT: 'git', SVN: 'svn' });
 
 var appRoot = path.resolve(__dirname);
 var vcs;
-if (fs.existsSync(path.join(appRoot, '.git')))
-    vcs = VcsEnum.GIT;
-else if (fs.existsSync(path.join(appRoot, '.svn')))
+if (fs.existsSync(path.join(appRoot, '.svn')))
     vcs = VcsEnum.SVN;
+else if (fs.existsSync(path.join(appRoot, '.git')))
+    vcs = VcsEnum.GIT;
 
 async function update(version, bForce) {
     console.log("[App] Processing update request..");
