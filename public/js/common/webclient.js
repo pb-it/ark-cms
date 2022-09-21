@@ -1,5 +1,14 @@
 class WebClient {
 
+    static async checkImageExists(imageSrc) {
+        return new Promise(async (resolve, reject) => {
+            var img = new Image();
+            img.onload = () => { resolve(true); };
+            img.onerror = () => { reject(); };
+            img.src = imageSrc;
+        });
+    }
+
     static request(method, url, data) {
         var logger = app.controller.getLogger();
         var msg = method + " " + url;

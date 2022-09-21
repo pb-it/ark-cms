@@ -4,10 +4,28 @@ class VersionController {
 
     static compatible(v1, v2) {
         var bCompatible = false;
-        var arrV1 = v1.split('.');
-        var arrV2 = v2.split('.');
+        var arrV1;
+        var arrV2;
+        var index = v1.indexOf('-');
+        if (index != -1)
+            arrV1 = v1.substring(0, index).split('.');
+        else
+            arrV1 = v1.split('.');
+        index = v2.indexOf('-');
+        if (index != -1)
+            arrV2 = v2.substring(0, index).split('.');
+        else
+            arrV2 = v2.split('.');
         if (arrV1.length == 3 && arrV2.length == 3) {
-            bCompatible = ((arrV1[0] === arrV2[0]) && (arrV1[1] === arrV2[1]));
+            try {
+                var i1 = parseInt(arrV1[0], 10);
+                var i2 = parseInt(arrV2[0], 10);
+                bCompatible = ((parseInt(arrV1[0], 10) == parseInt(arrV2[0], 10)) &&
+                    (parseInt(arrV1[1], 10) == parseInt(arrV2[1], 10)) &&
+                    (parseInt(arrV1[2], 10) <= parseInt(arrV2[2], 10)));
+            } catch (error) {
+                throw new Error('Invalid version number detected');
+            }
         } else
             throw new Error('Invalid version number detected');
         return bCompatible;
@@ -118,7 +136,7 @@ class VersionController {
             var ac = app.controller.getApiController();
             var info = await ac.fetchApiInfo();
             var appVersion = app.controller.getVersionController().getAppVersion();
-            this._bCompatible = VersionController.compatible(appVersion, info['version']);
+            this._bCompatible = VersionController.compatible(info['version'], appVersion);
             if (!this._bCompatible)
                 VersionController.viewMissmatchInfo(); //TODO: throw error / block access
         }

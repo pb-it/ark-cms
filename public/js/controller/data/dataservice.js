@@ -94,7 +94,7 @@ class DataService {
     static getUrlForObjects(objs) {
         var obj = objs[0];
         var typeString = obj.getTypeString();
-        var ids = obj.map(function (x) {
+        var ids = objs.map(function (x) {
             return x.getData()['id'];
         });
         return window.location.origin + "/data/" + DataService._getUrl(typeString, ids);

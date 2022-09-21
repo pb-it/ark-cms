@@ -52,8 +52,10 @@ class ModalController {
 
     addModal() {
         var modal = new Modal();
-        modal.setCloseCallback(function (data) {
-            this._stack.pop();
+        var $modal = modal.getModalDomElement();
+        $modal.on("remove.stack", function () {
+            this._stack.pop(); //TODO: case where not the topmost removed?
+            return true;
         }.bind(this));
         this._stack.push(modal);
         return modal;
@@ -89,15 +91,20 @@ class ModalController {
 
             var panel = PanelController.createPanelForObject(obj, panelConfig);
 
+            var res;
             panelConfig.crudCallback = async function (data) {
-                panel.dispose(); //modal.close();
-                resolve(data);
+                res = data;
+                panel.dispose();
             };
 
             var modal = app.controller.getModalController().addModal();
-            /*modal.setCloseCallback(function () {
-                resolve();
-            });*/
+            var $modal = modal.getModalDomElement();
+            $modal.on("remove", function () {
+                if (res)
+                    resolve(res);
+                else
+                    reject();
+            });
             await modal.openPanel(panel);
             return Promise.resolve();
         });

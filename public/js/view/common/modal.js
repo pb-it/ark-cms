@@ -6,15 +6,12 @@ class Modal {
     _$close;
     _$modalContent;
 
-    _bIsOpen;
-    _closeCallback;
-
     constructor() {
-        this._$modal = $(document.createElement('div'))
+        this._$modal = $('<div/>')
             .addClass('modal')
             .appendTo(document.body);
 
-        this._$modalContent = $(document.createElement('div'))
+        this._$modalContent = $('<div/>')
             .addClass('modal-content');
 
         this._$close = $("<span/>")
@@ -22,20 +19,14 @@ class Modal {
             .html("&times;");
 
         this._$modalContent.append(this._$close);
-        this._$modalContent.append($('<div>')
+        this._$modalContent.append($('<div/>')
             .addClass('clear'));
 
         this._$modal.append(this._$modalContent);
-
-        this._bIsOpen = false;
     }
 
-    setCloseCallback(cb) {
-        this._closeCallback = cb;
-    }
-
-    isOpen() {
-        return this._bIsOpen;
+    getModalDomElement() { // getComponent
+        return this._$modal;
     }
 
     async openPanel(panel) {
@@ -61,7 +52,7 @@ class Modal {
 
                 try {
                     if (event.target == this._$modal[0])
-                        await this.closeOnConfirm();
+                        await this._closeOnConfirm();
                 } catch (error) {
                     app.controller.showError(error);
                 }
@@ -70,7 +61,7 @@ class Modal {
 
         this._$close.on("click", async function (event) {
             event.stopPropagation();
-            return this.closeOnConfirm();
+            return this._closeOnConfirm();
         }.bind(this));
 
         $content.on("dispose", function (event) {
@@ -79,10 +70,9 @@ class Modal {
         }.bind(this));
 
         this._$modal.show();
-        this._bIsOpen = true;
     }
 
-    async closeOnConfirm() {
+    async _closeOnConfirm() {
         if (this._panel && typeof this._panel._hasChanged === "function") {
             var bChanged = await this._panel._hasChanged(false);
             if (bChanged) {
@@ -98,8 +88,5 @@ class Modal {
 
     close() {
         this._$modal.remove();
-        if (this._closeCallback)
-            this._closeCallback();
-        this._bIsOpen = false;
     }
 }

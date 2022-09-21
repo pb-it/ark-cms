@@ -56,7 +56,7 @@ class ConfigController {
                 app.controller.setLoadingState(true);
                 var info;
                 for (var i = 0; i < 10; i++) {
-                    await sleep(2000);
+                    await sleep(3000);
                     try {
                         info = await app.controller.getApiController().fetchApiInfo();
                     } catch (error) {
@@ -83,7 +83,9 @@ class ConfigController {
             models = app.controller.getModelController().getModels();
 
         var config = {};
-        config[MODEL_VERSION_IDENT] = app.controller.getVersionController().getAppVersion();
+        var ac = app.controller.getApiController();
+        var info = ac.getApiInfo();
+        config[MODEL_VERSION_IDENT] = info['version'];
 
         config[ModelController.MODELS_IDENT] = models.map(function (model) {
             return model.getDefinition();

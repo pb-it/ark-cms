@@ -1,8 +1,11 @@
 class XModel {
 
     static uploadData(data, version, bForce) {
-        if (!version)
-            version = app.controller.getVersionController().getAppVersion();
+        if (!version) {
+            var ac = app.controller.getApiController();
+            var info = ac.getApiInfo();
+            version = info['version'];
+        }
         var url = app.controller.getApiController().getApiOrigin() + "/api/_model?v=" + encodeURIComponent(version);
         if (bForce)
             url += "&forceMigration=true";

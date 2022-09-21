@@ -35,7 +35,7 @@ div.details>div.value.text {
 }
 
 div.modal div.details>div.value.text {
-    max-width: calc(100vw - 200px);
+    max-width: calc(100vw - 370px);
 }
 
 div.details>div.value.text blockquote {

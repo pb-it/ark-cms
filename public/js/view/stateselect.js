@@ -147,6 +147,7 @@ class StateSelect {
             var pc = app.controller.getProfileController();
             var avail = pc.getProfiles();
             if (avail) {
+                avail = [...avail];
                 var conf;
                 var menuItem;
                 var dummyGroup = new SubMenuGroup();

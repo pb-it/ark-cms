@@ -165,7 +165,7 @@ class ImportModelPanel extends Panel {
             var info = ac.getApiInfo();
             if (!VersionController.compatible(this._version, info['version'])) {
                 app.controller.setLoadingState(false);
-                var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force upload?");
+                var bConfirmation = await app.controller.getModalController().openConfirmModal("Version of imported models may not be compatible with backend application version! Still force upload?");
                 if (bConfirmation)
                     bForce = true;
                 else

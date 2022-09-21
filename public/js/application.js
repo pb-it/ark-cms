@@ -12,6 +12,10 @@ class Application {
         return this._name;
     }
 
+    getController() {
+        return this.controller();
+    }
+
     async run() {
         var bLoaded = false;
         try {
