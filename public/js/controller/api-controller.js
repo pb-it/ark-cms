@@ -30,20 +30,27 @@ class ApiController {
     }
 
     async reloadModels() {
-        app.controller.setLoadingState(true);
         var url = this._origin + "/system/reload";
         await WebClient.request("GET", url);
-        app.controller.setLoadingState(false);
         return Promise.resolve();
     }
 
     async restartApi() {
-        app.controller.setLoadingState(true);
         var url = this._origin + "/system/restart";
         await WebClient.request("GET", url);
-        //TODO: sleep?
-        app.controller.setLoadingState(false);
         return Promise.resolve();
     }
 
+    async waitApiReady() {
+        var info;
+        for (var i = 0; i < 10; i++) {
+            await sleep(3000);
+            try {
+                info = await app.controller.getApiController().fetchApiInfo();
+            } catch (error) {
+                ;
+            }
+        }
+        return Promise.resolve(info);
+    }
 }

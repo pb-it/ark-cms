@@ -51,23 +51,33 @@ class ConfigController {
         }
         if (!bError) {
             try {
-                await app.controller.getApiController().reloadModels();
-
                 app.controller.setLoadingState(true);
-                var info;
-                for (var i = 0; i < 10; i++) {
-                    await sleep(3000);
-                    try {
-                        info = await app.controller.getApiController().fetchApiInfo();
-                    } catch (error) {
-                        ;
+                var ac = app.controller.getApiController();
+                var info = await ac.fetchApiInfo();
+                if (info) {
+                    var bRestart = false;
+                    if (info['state'] === 'openRestartRequest') {
+                        app.controller.setLoadingState(false);
+                        bRestart = await app.controller.getModalController().openConfirmModal("Some changes need a restart to take effect. Do you want to restart the backend now?");
+                        app.controller.setLoadingState(true);
                     }
-                }
-                if (info)
-                    app.controller.reloadApplication(); //TODO: quickfix ? overact?
-                else {
+                    if (bRestart)
+                        await ac.restartApi();
+                    else
+                        await ac.reloadModels();
+                    info = await ac.waitApiReady();
+                    if (info)
+                        app.controller.reloadApplication(); //TODO: quickfix ? overact?
+                    else {
+                        app.controller.setLoadingState(false);
+                        if (bRestart)
+                            app.controller.showErrorMessage("Backend not reachable after restart. Please inspect your backend manually!");
+                        else
+                            app.controller.showErrorMessage("Automatic reloading of models failed. Please restart your backend manually!");
+                    }
+                } else {
                     app.controller.setLoadingState(false);
-                    app.controller.showErrorMessage("Automatic reloading of models failed. Please restart your backend manually!");
+                    app.controller.showError(error, "Automatic reloading of models failed. Please restart your backend manually!");
                 }
             } catch (error) {
                 app.controller.setLoadingState(false);
