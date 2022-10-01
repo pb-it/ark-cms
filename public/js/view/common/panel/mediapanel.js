@@ -92,9 +92,10 @@ class MediaPanel extends CrudPanel {
                             }
                         }
                     }
+                    if (!prop)
+                        bConvert = true;
                 }
-                if (file.startsWith("data:") || (bUrl && !prop)) {
-                    bConvert = true;
+                if (file.startsWith("data:") || bConvert) {
                     if (p.indexOf(';') == -1) {
                         var attr = mac.getAttribute(p);
                         if (attr && attr['dataType'] === "base64")
@@ -115,11 +116,14 @@ class MediaPanel extends CrudPanel {
                 }
             }
             if (prop) {
-                if (bConvert) {
-                    var blob = await WebClient.fetchBlob(file);
-                    data[prop] = await Base64.encodeObject(blob);
+                if (bUrl) {
+                    if (bConvert) {
+                        var blob = await WebClient.fetchBlob(file);
+                        data[prop] = { 'base64': await Base64.encodeObject(blob) };
+                    } else
+                        data[prop] = file;
                 } else
-                    data[prop] = file;
+                    data[prop] = { 'base64': file };
             } else
                 throw new Error("no matching thumbnail attribute defined");
         }
