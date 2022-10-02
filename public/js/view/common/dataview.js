@@ -30,6 +30,7 @@ class DataView {
         if (skeleton) {
             var attribute;
             var name;
+            var label;
             var view;
             var value;
 
@@ -41,8 +42,11 @@ class DataView {
                 attribute = skeleton[i];
                 if (!attribute['hidden'] || attribute['hidden'] == false) {
                     name = attribute['name'];
+                    label = this._attribute['label'];
+                    if (!label)
+                        label = name;
 
-                    $name = $('<div/>').addClass('name').html(name + ":");
+                    $name = $('<div/>').addClass('name').html(label + ":");
                     $value = $('<div/>').addClass('value');
 
                     if (attribute['dataType']) {

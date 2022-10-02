@@ -41,8 +41,10 @@ class NotePanel extends CrudPanel {
     }
 
     _edit(edit) {
-        var note = this._obj.getData().note;
+        var note = this._obj.getData()['note'];
         if (edit) {
+            if (note === undefined || note === null)
+                note = '';
             this._$note.addClass("cellEditing");
             //this.$note.html("<p name='note' contenteditable>" + encodeText(originalContent) + "</p>");
             this._$note.html("<textarea name='note'>" + note + "</textarea>"); //cols='40' rows='5'
@@ -67,8 +69,17 @@ class NotePanel extends CrudPanel {
 
         var newContent = this._$note.children().first().val();
         try {
-            await this._obj.update({ 'note': newContent });
-            this._edit(false);
+            if (this._obj.getId()) {
+                await this._obj.update({ 'note': newContent });
+                this._edit(false);
+            } else {
+                await this._obj.create({ 'note': newContent });
+
+                var state = new State();
+                state['typeString'] = this._obj.getTypeString();
+                state['id'] = this._obj.getId();
+                app.controller.loadState(state, true);
+            }
         } catch (e) {
             console.log(e);
         } finally {

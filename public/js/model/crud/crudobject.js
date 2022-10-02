@@ -213,6 +213,13 @@ class CrudObject {
         return CrudObject._getValue(attr, this._data);
     }
 
+    getId() {
+        var id;
+        if (this._data)
+            id = this._data['id'];
+        return id;
+    }
+
     getTitle() {
         return this._title;
     }
