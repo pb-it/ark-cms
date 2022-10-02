@@ -42,7 +42,7 @@ class DataView {
                 attribute = skeleton[i];
                 if (!attribute['hidden'] || attribute['hidden'] == false) {
                     name = attribute['name'];
-                    label = this._attribute['label'];
+                    label = attribute['label'];
                     if (!label)
                         label = name;
 

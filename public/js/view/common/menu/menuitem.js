@@ -64,7 +64,8 @@ class MenuItem {
                         this._subMenuGroup.hideSubMenuGroup();
                     }
                 }.bind(this));
-            }
+            } else
+                $div.addClass('unknown');
         }
 
         if (this._subMenuGroup) {

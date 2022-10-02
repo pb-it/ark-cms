@@ -233,13 +233,17 @@ class StateSelect {
                         menuItem.setActive();
                 } else {
                     conf = {
-                        'name': modelName,
-                        'click': function (event, item) {
+                        'name': modelName
+                    };
+                    var rc = app.controller.getRouteController();
+                    var route = rc.getMatchingRoute(modelName);
+                    if (route && route['fn']) {
+                        conf['click'] = function (event, item) {
                             var state = new State();
                             state.typeString = modelName;
                             app.controller.loadState(state, true);
-                        }.bind(this)
-                    };
+                        }.bind(this);
+                    }
                     menuItem = new MenuItem(conf);
                     if (model && model === modelName)
                         menuItem.setActive();

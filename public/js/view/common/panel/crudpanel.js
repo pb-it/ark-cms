@@ -31,7 +31,7 @@ class CrudPanel extends CanvasPanel {
         } else
             this._skeleton = skeleton;
 
-        if (this._config.details == DetailsEnum.none)
+        if (this._config.details == DetailsEnum.none || this._config.details == DetailsEnum.title)
             this._title = this._obj.getTitle();
 
         await super._init();
@@ -145,8 +145,9 @@ class CrudPanel extends CanvasPanel {
                 break;
             case DetailsEnum.title:
             default:
+                var title = this._obj.getTitle();
                 var $p = $('<p/>')
-                    .html(encodeText(this._obj.getTitle()))
+                    .html(encodeText(title))
                     .css({
                         "margin": "0px",
                         "overflow": "hidden",
