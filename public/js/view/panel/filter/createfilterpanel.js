@@ -11,7 +11,7 @@ class CreateFilterPanel extends Panel {
         for (var property in data) {
             str = "";
             value = data[property];
-            if (value) {
+            if (value != null && value != undefined) {
                 field = skeleton.find(x => x.name === property);
                 if (field) {
                     if (field['dataType'] === "relation") {
@@ -30,7 +30,12 @@ class CreateFilterPanel extends Panel {
                             str = "@." + property + ".id==" + value;
                         }
                     } else {
-                        if (typeof value === 'number' || typeof value === 'string' || value instanceof String) {
+                        if (typeof value === 'boolean') {
+                            if (value)
+                                str = "@." + property;
+                            else
+                                str = "!@." + property;
+                        } else if (typeof value === 'number' || typeof value === 'string' || value instanceof String) {
                             str = "@." + property + "==\"" + value + "\"";
                         } else
                             console.log(typeof value);
@@ -94,6 +99,8 @@ class CreateFilterPanel extends Panel {
                 var skeleton = this._obj.getSkeleton(true);
                 skeleton = [...skeleton];
                 for (var attr of skeleton) {
+                    if (attr['defaultValue'])
+                        delete attr['defaultValue'];
                     if (attr['readonly'])
                         delete attr['readonly'];
                     if (attr['required'])

@@ -105,15 +105,15 @@ class MediaPanelConfig extends PanelConfig {
             switch (config.format) {
                 case "16/9":
                     if (config.height && !config.width)
-                        config.width = config.height / 9 * 16;
+                        this.width = config.height / 9 * 16;
                     else if (config.width)
-                        config.height = config.width / 16 * 9;
+                        this.height = config.width / 16 * 9;
                     break;
                 case "4/3":
                     if (config.height && !config.width)
-                        config.width = config.height / 3 * 4;
+                        this.width = config.height / 3 * 4;
                     else if (config.width)
-                        config.height = config.width / 4 * 3;
+                        this.height = config.width / 4 * 3;
                     break;
                 default:
             }

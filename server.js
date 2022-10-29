@@ -136,6 +136,16 @@ systemRouter.post('/curl', async (req, res, next) => {
         next(err);
     }
 });
+systemRouter.post('/get', async (req, res, next) => {
+    var url = req.body.url;
+    try {
+        var response = await webclient.get(url);
+        //console.log(response);
+        res.json(response.request._redirectable._redirectCount);
+    } catch (err) {
+        next(err);
+    }
+});
 app.use('/system', systemRouter);
 
 app.get('*', function (req, res, next) {

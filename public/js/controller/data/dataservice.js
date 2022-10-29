@@ -92,11 +92,17 @@ class DataService {
     }
 
     static getUrlForObjects(objs) {
-        var obj = objs[0];
-        var typeString = obj.getTypeString();
-        var ids = objs.map(function (x) {
-            return x.getData()['id'];
-        });
+        if (Array.isArray(objs)) {
+            if (objs.length > 0) {
+                var obj = objs[0];
+                var typeString = obj.getTypeString();
+                var ids = objs.map(function (x) {
+                    return x.getData()['id'];
+                });
+            } else
+                throw new Error("Invalid data: Empty array");
+        } else
+            throw new Error("Invalid data: No array");
         return window.location.origin + "/data/" + DataService._getUrl(typeString, ids);
     }
 

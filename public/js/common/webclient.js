@@ -86,6 +86,10 @@ class WebClient {
         return WebClient.request("POST", "/system/curl", { "url": url });
     }
 
+    static async get(url) {
+        return WebClient.request("POST", "/system/get", { "url": url });
+    }
+
     /**
      * fetch simple JSON
      * @param {*} url 

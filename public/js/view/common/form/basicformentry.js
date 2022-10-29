@@ -27,7 +27,7 @@ class BasicFormEntry extends FormEntry {
         var size;
 
         if (this._attribute['dataType']) {
-            if (!value) {
+            if (value == null || value == undefined) {
                 if (this._attribute.hasOwnProperty('defaultValue'))
                     value = this._attribute['defaultValue'];
                 else
@@ -36,8 +36,8 @@ class BasicFormEntry extends FormEntry {
 
             switch (this._attribute['dataType']) {
                 case "boolean":
-                    if (this._attribute['required']) {
-                        if (value === true || value === 1 || value === false || value === 0) {
+                    if (this._attribute['required'] && value !== '') {
+                        if (value == true || value == 1 || value == false || value == 0) {
                             this._$input = $('<fieldset/>')
                                 .css({
                                     'border': 0,

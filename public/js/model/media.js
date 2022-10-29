@@ -88,6 +88,19 @@ class Media {
                     this._mediaType = data[Media.MEDIA_TYPE_PROPERTY];
                     this._prop = name;
                     this._value = data[name];
+                } else if (attr['dataType'] === "file") {
+                    if (typeof data[name] === 'string' || data[name] instanceof String) {
+                        if (attr.cdn)
+                            this._thumbnailUrl = CrudObject._buildUrl(attr.cdn, data[name]);
+                        else
+                            this._thumbnailUrl = data[name];
+                    } else if (data[name]['base64'])
+                        this._thumbnailUrl = data[name]['base64'];
+                    else if (data[name]['url'])
+                        this._thumbnailUrl = data[name]['url'];
+                    this._mediaType = data[Media.MEDIA_TYPE_PROPERTY];
+                    this._prop = name;
+                    this._value = data[name];
                 } else if (attr['dataType'] === "base64") {
                     this._thumbnailUrl = data[name];
                     this._mediaType = data[Media.MEDIA_TYPE_PROPERTY];

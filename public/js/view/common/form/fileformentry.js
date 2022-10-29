@@ -19,16 +19,25 @@ class FileFormEntry extends FormEntry {
             size = "100";
 
         if (value) {
-            if (value.length > size)
-                $div.append(value.substr(0, size) + "...<br/>");
-            else
-                $div.append(value + "<br/>");
+            var str;
+            if (typeof value === 'string' || value instanceof String)
+                str = value;
+            else if (value['base64'])
+                str = value['base64'];
+            if (str) {
+                if (str.length > size)
+                    $div.append(str.substr(0, size) + "...<br/>");
+                else
+                    $div.append(str + "<br/>");
+            }
         }
 
         $div.append('filename: ');
         this._$inputFilename = $('<input/>')
             .attr('type', 'text')
             .attr('size', size);
+        if (value && value['filename'])
+            this._$inputFilename.val(value['filename']);
         $div.append(this._$inputFilename);
         $div.append("<br/>");
 
@@ -42,6 +51,8 @@ class FileFormEntry extends FormEntry {
                 if (index !== -1)
                     this._$inputFilename.val(pathname.substring(index + 1));
             }.bind(this));
+        if (value && value['url'])
+            this._$inputUrl.val(value['url']);
         $div.append(this._$inputUrl);
         $div.append("<br/>");
 
