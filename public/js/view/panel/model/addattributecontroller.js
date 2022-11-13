@@ -200,6 +200,15 @@ You will not see this information in forms, but it is stored with your actual st
                     break;
                 case 'time':
                     skeleton = [
+                        {
+                            'name': 'timeZone',
+                            'dataType': 'enumeration',
+                            'options': [
+                                { 'value': '<auto>', 'disabled': true },
+                                { 'value': 'UTC' }
+                            ],
+                            'view': 'select'
+                        },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'time' }
                     ];
@@ -212,12 +221,30 @@ You will not see this information in forms, but it is stored with your actual st
                     break;
                 case 'datetime':
                     skeleton = [
+                        {
+                            'name': 'timeZone',
+                            'dataType': 'enumeration',
+                            'options': [
+                                { 'value': '<auto>', 'disabled': true },
+                                { 'value': 'UTC' }
+                            ],
+                            'view': 'select'
+                        },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'datetime' }
                     ];
                     break;
                 case 'timestamp':
                     skeleton = [
+                        {
+                            'name': 'timeZone',
+                            'dataType': 'enumeration',
+                            'options': [
+                                { 'value': '<auto>', 'disabled': true },
+                                { 'value': 'UTC' }
+                            ],
+                            'view': 'select'
+                        },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'timestamp' }
                     ];
@@ -433,6 +460,8 @@ You will not see this information in forms, but it is stored with your actual st
                 case 'date':
                 case 'datetime':
                 case 'timestamp':
+                    if (data['timeZone'])
+                        this._data['timeZone'] = data['timeZone'];
                     break;
                 case 'relation':
                     this._data.model = data.model;

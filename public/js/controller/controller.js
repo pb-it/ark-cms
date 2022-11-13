@@ -103,6 +103,10 @@ class Controller {
         return this._modalController;
     }
 
+    getLocale() {
+        return "de-DE";
+    }
+
     async initController() {
         var bInitDone = false;
         this._bConnection = false;
@@ -165,11 +169,20 @@ class Controller {
                 this._bFirstLoadAfterInit = false;
             else {
                 this._modalController.closeAll();
-                await this._apiController.fetchApiInfo(); // needed for notification in side bar
+                try {
+                    await this._apiController.fetchApiInfo(); // needed for notification in side bar
+                    if (!this._bConnection)
+                        this._bConnection = true;
+                } catch (error) {
+                    if (this._bConnection) {
+                        this._bConnection = false;
+                        this.showError(error, "Connection to API interruppted");
+                    }
+                }
             }
 
             this._stateController.setState(state, push, replace);
-            this.clearSelected();
+            await this.clearSelected();
             this._view.initView();
 
             var typeString;

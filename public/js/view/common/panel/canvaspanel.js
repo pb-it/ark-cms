@@ -56,10 +56,11 @@ class CanvasPanel extends Panel {
      * therefore event gets overwitten in container
      */
     _initClickEvents() {
-        this._$panel.on("click.panel", function (event) {
-            //event.stopPropagation();
+        this._$panel.on("click.panel", async function (event) {
+            event.preventDefault();
+            event.stopPropagation();
             //if (event.originalEvent.originalTarget == this._$panel[0]) {
-            app.controller.select(event.ctrlKey, event.shiftKey, this);
+            await app.controller.select(event.ctrlKey, event.shiftKey, this);
             this._clicks++;
             if (this._clicks == 1) {
                 this._timer = setTimeout(function () {
@@ -70,6 +71,7 @@ class CanvasPanel extends Panel {
                 this._dblclick();
                 this._clicks = 0;
             }
+            return Promise.resolve();
         }.bind(this));
 
         this._$panel.on("dblclick.panel", function (event) {

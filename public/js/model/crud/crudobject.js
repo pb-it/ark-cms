@@ -105,7 +105,7 @@ class CrudObject {
         var val;
         var tmp = data[attr['name']];
         if (tmp) {
-            if (attr['dataType'] === "url") {
+            if (attr['dataType'] === "url" || attr['dataType'] === "file") {
                 if (attr['cdn'])
                     val = CrudObject._buildUrl(attr['cdn'], tmp);
                 else
@@ -195,11 +195,13 @@ class CrudObject {
         return this._data;
     }
 
-    setData(data) {
+    setData(data, bPrepare = true) {
         if (!data)
             data = {};
 
-        var prepare = this._model.getPrepareDataAction();
+        var prepare;
+        if (bPrepare)
+            prepare = this._model.getPrepareDataAction();
         if (prepare)
             this._data = prepare(data);
         else

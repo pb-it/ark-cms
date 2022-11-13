@@ -54,10 +54,10 @@ class ContainerPanel extends CrudPanel {
      * therefore event gets overwitten
      */
     _initClickEvents() {
-        this._$panel.on("click.panel", function (event) {
-            if (event.originalEvent.originalTarget == this._$panel[0]) {
-                app.controller.clearSelected();
-            }
+        this._$panel.on("click.panel", async function (event) {
+            if (event.originalEvent.originalTarget == this._$panel[0])
+                await app.controller.clearSelected();
+            return Promise.resolve();
         }.bind(this));
     }
 

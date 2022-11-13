@@ -113,7 +113,7 @@ class CreateFilterPanel extends Panel {
                     app.controller.setLoadingState(true);
                     try {
                         var data = await panel.getForm().readForm();
-                        this._obj.setData(data);
+                        this._obj.setData(data, false);
                         this._filter = await this._form.readForm(true, false);
                         this._filter.query = CreateFilterPanel.objectToQuery(this._obj);
                         this.render();

@@ -5,6 +5,7 @@ const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const Flatted = require('flatted');
 
 const serverConfigPath = path.join(__dirname, './config/server-config.js');
 const serverConfigtemplatePath = path.join(__dirname, './config/server-config-template.js');
@@ -59,6 +60,7 @@ async function update(version, bForce) {
 }
 
 function restart() {
+    console.log("[App] Restarting..");
     if (!serverConfig['processManager']) {
         process.on("exit", function () {
             require("child_process").spawn(process.argv.shift(), process.argv, {
@@ -127,21 +129,25 @@ systemRouter.get('/update', async function (req, res) {
 systemRouter.get('/shutdown', async () => {
     process.exit();
 });
+systemRouter.get('/restart', async () => {
+    restart();
+});
 systemRouter.post('/curl', async (req, res, next) => {
     var url = req.body.url;
     try {
-        var body = await webclient.curl(url);
-        res.end(body);
+        var response = await webclient.get(url);
+        res.setHeader('Content-Type', 'application/json');
+        res.end(Flatted.stringify(response));
     } catch (err) {
         next(err);
     }
 });
-systemRouter.post('/get', async (req, res, next) => {
-    var url = req.body.url;
+systemRouter.get('/curl', async (req, res, next) => {
+    var url = req.query['url'];
     try {
         var response = await webclient.get(url);
-        //console.log(response);
-        res.json(response.request._redirectable._redirectCount);
+        res.setHeader('Content-Type', 'application/json');
+        res.end(Flatted.stringify(response));
     } catch (err) {
         next(err);
     }

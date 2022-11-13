@@ -37,7 +37,7 @@ class RouteController {
     deleteRoute(route) {
         if (route['regex']) {
             this._routes = this._routes.filter(function (x) {
-                x['regex'] !== route['regex'];
+                return x['regex'] !== route['regex'];
             });
         }
     }

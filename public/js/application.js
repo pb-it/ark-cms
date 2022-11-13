@@ -13,7 +13,7 @@ class Application {
     }
 
     getController() {
-        return this.controller();
+        return this.controller;
     }
 
     async run() {
@@ -54,18 +54,20 @@ window.onpopstate = function (e) {
     app.controller.loadState(state);
 };
 
-$(document).keydown(function (e) {
+$(document).keydown(async function (e) {
     if (e.keyCode == 65 && e.ctrlKey) {
         if (document.activeElement == document.body) {
             e.preventDefault();
-            app.controller.selectAll();
-        }
+            await app.controller.selectAll();
+        }  
     }
+    return Promise.resolve();
 });
 
-$(document).bind("click", function (e) {
+$(document).bind("click", async function (e) {
     if (e.target == document.body) {
         e.preventDefault();
-        app.controller.clearSelected();
+        await app.controller.clearSelected();
     }
+    return Promise.resolve();
 }.bind(this));

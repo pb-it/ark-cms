@@ -146,17 +146,11 @@ class DataView {
                             case "date":
                                 if (data && data[name]) {
                                     let date = new Date(data[name]);
-                                    /*var dd = date.getDate();
-                                    var mm = date.getMonth() + 1;
-                                    var yyyy = date.getFullYear();
-                                    if (dd < 10) {
-                                        dd = '0' + dd;
-                                    }
-                                    if (mm < 10) {
-                                        mm = '0' + mm;
-                                    }
-                                    value = dd + '.' + mm + '.' + yyyy;*/
-                                    value = date.toLocaleDateString("de-DE");
+
+                                    if (attribute['timeZone'])
+                                        value = date.toLocaleString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
+                                    else
+                                        value = date.toLocaleString(app.getController().getLocale());
                                 } else
                                     value = "";
                                 $value.html(value);
@@ -166,11 +160,10 @@ class DataView {
                                 if (data && data[name]) {
                                     let date = new Date(data[name]);
 
-                                    //value = date.toDateString();
-                                    value = date.toLocaleString("de-DE");
-                                    //value = date.toLocaleDateString("de-DE");
-                                    //value = date.toUTCString(),
-                                    //value = date.toISOString()
+                                    if (attribute['timeZone'])
+                                        value = date.toLocaleString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
+                                    else
+                                        value = date.toLocaleString(app.getController().getLocale());
                                 } else
                                     value = "";
                                 $value.html(value);

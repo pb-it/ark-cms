@@ -82,12 +82,17 @@ class WebClient {
         return urlEncodedDataPairs.join('&').replace(/%20/g, '+');
     }*/
 
-    static async curl(url) {
-        return WebClient.request("POST", "/system/curl", { "url": url });
-    }
-
-    static async get(url) {
-        return WebClient.request("POST", "/system/get", { "url": url });
+    static async curl(url, bVerbose) {
+        var data;
+        var response = await WebClient.request('POST', '/system/curl', { 'url': url });
+        if (typeof Flatted === 'undefined')
+            await loadScript("https://unpkg.com/flatted@3.2.7/min.js");
+        var obj = Flatted.parse(response);
+        if (bVerbose)
+            data = obj;
+        else
+            data = obj['data'];
+        return data;
     }
 
     /**
