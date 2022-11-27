@@ -170,12 +170,13 @@ class ContextMenuController {
                             }
 
                             params = [];
-                            if (backLink) {
+                            if (false && backLink) { //TODO: disabled while API does not support necessary filter
                                 for (var i = 0; i < objs.length; i++) {
                                     data = objs[i].getData();
                                     params.push(backLink + ".id=" + data['id']);
                                 }
                             } else {
+                                var map = new Map();
                                 for (var i = 0; i < objs.length; i++) {
                                     data = objs[i].getData();
                                     if (data) {
@@ -183,21 +184,35 @@ class ContextMenuController {
                                         if (relData) {
                                             if (Array.isArray(relData)) {
                                                 for (var item of relData) {
-                                                    if (item['id'])
-                                                        params.push("id=" + item['id']);
+                                                    if (item['id']) {
+                                                        if (!map.has(item['id']))
+                                                            map.set(item['id'], item);
+                                                    }
                                                 }
                                             } else {
-                                                if (relData['id'])
-                                                    params.push("id=" + relData['id']);
+                                                if (relData['id']) {
+                                                    if (!map.has(relData['id']))
+                                                        map.set(relData['id'], relData);
+                                                }
                                             }
                                         }
+                                    }
+                                }
+                                var ids = Array.from(map.keys());
+                                if (ids.length > 0) {
+                                    for (var id of ids) {
+                                        params.push("id=" + id);
                                     }
                                 }
                             }
 
                             if (params.length > 0) {
                                 state = new State();
-                                state.name = typeString + ":" + objs.map(function (x) { return x.getTitle() }).join(' || ');
+                                var str = typeString + ":" + objs.map(function (x) { return x.getTitle() }).join(' || ');
+                                if (str.length < 70)
+                                    state.name = str;
+                                else
+                                    state.name = str.substring(0, 70) + '...';
                                 state.typeString = attr.model;
                                 state.where = params.join('&');
 

@@ -156,88 +156,93 @@ class EditModelPanel extends TabPanel {
     }
 
     async _apply() {
-        app.controller.setLoadingState(true);
-        var data;
-        if (this.getOpenTab() == this._$rawPanel) {
-            var fData = await this._rawForm.readForm();
-            data = JSON.parse(fData.json);
-        } else {
-            data = await this._readDefinition();
-        }
-
-        var org;
-        var id = this._model.getId();
-        if (id)
-            org = this._model.getDefinition();
-        var current = data;
-
-        if (typeof JsDiff === 'undefined') {
-            var buildUrl = "http://incaseofstairs.com/jsdiff/";
-            await loadScript(buildUrl + "diff.js");
-        }
-        var delta = JsDiff.diffJson(org, current);
-        var bChanged = !(delta.length === 1 && typeof delta[0].removed === 'undefined' && typeof delta[0].added === 'undefined');
-        if (bChanged) {
-            var bTitle = false;
-            var defaults = data['defaults'];
-            if (defaults && defaults['title'])
-                bTitle = true;
-
-            if (bTitle || id) {
-                await this._checkConfirm(org, current);
+        try {
+            app.controller.setLoadingState(true);
+            var data;
+            if (this.getOpenTab() == this._$rawPanel) {
+                var fData = await this._rawForm.readForm();
+                data = JSON.parse(fData.json);
             } else {
-                var panel = new Panel();
+                data = await this._readDefinition();
+            }
 
-                var $div = $('<div/>')
-                    .css({ 'padding': '10' });
+            var org;
+            var id = this._model.getId();
+            if (id)
+                org = this._model.getDefinition();
+            var current = data;
 
-                $div.append(`<b>Information:</b><br/>
+            if (typeof JsDiff === 'undefined') {
+                var buildUrl = "http://incaseofstairs.com/jsdiff/";
+                await loadScript(buildUrl + "diff.js");
+            }
+            var delta = JsDiff.diffJson(org, current);
+            var bChanged = !(delta.length === 1 && typeof delta[0].removed === 'undefined' && typeof delta[0].added === 'undefined');
+            if (bChanged) {
+                var bTitle = false;
+                var defaults = data['defaults'];
+                if (defaults && defaults['title'])
+                    bTitle = true;
+
+                if (bTitle || id) {
+                    await this._checkConfirm(org, current);
+                } else {
+                    var panel = new Panel();
+
+                    var $div = $('<div/>')
+                        .css({ 'padding': '10' });
+
+                    $div.append(`<b>Information:</b><br/>
                 You have not choosen an attibute which holds the title for your model.<br/>
                 As a result the title of your records will build up upon their ID,<br/>
                 which may not be very convenient to work with in search fields.<br/><br/>`);
 
-                var $change = $('<button/>')
-                    .text("Change") //Abort
-                    .click(async function (event) {
-                        event.preventDefault();
+                    var $change = $('<button/>')
+                        .text("Change") //Abort
+                        .click(async function (event) {
+                            event.preventDefault();
 
-                        await this.openTab(this._$defaultsPanel);
-                        var form = this._$defaultsPanel.getTitleForm();
-                        var entry = form.getEntries()[0];
-                        var $input = entry.getInput();
-                        var $option = $input.first();
-                        $option.focus(); //TODO: focus is not working!
+                            await this.openTab(this._$defaultsPanel);
+                            var form = this._$defaultsPanel.getTitleForm();
+                            var entry = form.getEntries()[0];
+                            var $input = entry.getInput();
+                            var $option = $input.first();
+                            $option.focus(); //TODO: focus is not working!
 
-                        panel.dispose();
+                            panel.dispose();
 
-                        return Promise.resolve();
-                    }.bind(this));
-                $div.append($change);
+                            return Promise.resolve();
+                        }.bind(this));
+                    $div.append($change);
 
-                var $ignore = $('<button/>')
-                    .text("Ignore")
-                    .css({ 'float': 'right' })
-                    .click(async function (event) {
-                        event.preventDefault();
+                    var $ignore = $('<button/>')
+                        .text("Ignore")
+                        .css({ 'float': 'right' })
+                        .click(async function (event) {
+                            event.preventDefault();
 
-                        panel.dispose();
-                        await this._checkConfirm(org, current);
+                            panel.dispose();
+                            await this._checkConfirm(org, current);
 
-                        return Promise.resolve();
-                    }.bind(this));
-                $div.append($ignore);
+                            return Promise.resolve();
+                        }.bind(this));
+                    $div.append($ignore);
 
-                $div.append("<br/>");
+                    $div.append("<br/>");
 
-                panel.setContent($div);
-                await app.controller.getModalController().openPanelInModal(panel);
+                    panel.setContent($div);
+                    await app.controller.getModalController().openPanelInModal(panel);
+                }
+            } else {
                 app.controller.setLoadingState(false);
+                var bClose = await app.controller.getModalController().openConfirmModal("No changes detected! Close window?");
+                if (bClose)
+                    this.dispose();
             }
-        } else {
             app.controller.setLoadingState(false);
-            var bClose = await app.controller.getModalController().openConfirmModal("No changes detected! Close window?");
-            if (bClose)
-                this.dispose();
+        } catch (error) {
+            app.controller.setLoadingState(false);
+            app.controller.showError(error);
         }
         return Promise.resolve();
     }

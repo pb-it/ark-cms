@@ -59,7 +59,7 @@ class CanvasPanel extends Panel {
         this._$panel.on("click.panel", async function (event) {
             event.preventDefault();
             event.stopPropagation();
-            //if (event.originalEvent.originalTarget == this._$panel[0]) {
+            //if (event.target == this._$panel[0]) {
             await app.controller.select(event.ctrlKey, event.shiftKey, this);
             this._clicks++;
             if (this._clicks == 1) {

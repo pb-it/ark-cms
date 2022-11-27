@@ -19,13 +19,13 @@ class FileSelect {
             })
             .css({
                 "text-align": "center"
-            })
-            .bind('DOMNodeInserted', function (event) {
-                if (event.originalEvent && event.originalEvent.target) {
-                    //var target = $(event.originalEvent.target);
-                    //now you can check what has been moved
-                }
             });
+        /*.bind('DOMNodeInserted', function (event) {
+            if (event.originalEvent && event.originalEvent.target) {
+                //var target = $(event.originalEvent.target);
+                //now you can check what has been moved
+            }
+        });*/
         this._$div.append(this._$box);
 
         var $rf = $('<input/>').attr({ type: 'hidden', id: 'realfile', name: 'realfile', value: '' });

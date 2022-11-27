@@ -130,6 +130,10 @@ class Thumbnail {
                         if (isImage(this._file))
                             $thumbnail = Thumbnail.renderThumbnailImage(this._file, this._config, this._bLazy);
                         break;
+                    case 'file':
+                        if (this._file.endsWith('.pdf'))
+                            $thumbnail = Thumbnail.renderThumbnailImage(window.location.origin + "/public/images/application_pdf.png", this._config, this._bLazy);
+                        break;
                     default:
                         //TODO: improve visualization of rendering errors
                         console.log("Unknown media type '" + mediaType + "'");

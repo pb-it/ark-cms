@@ -64,7 +64,7 @@ class TreeNodeVis {
             $divTreeNode.append($divTreeGroup);
 
             $divTreeNode.on("click.treenode", function (event) {
-                if (event.originalEvent.originalTarget == this._$divTreeNode[0]) {
+                if (event.target == this._$divTreeNode[0]) {
                     event.stopPropagation();
                     $divTreeGroup[0].classList.toggle('show');
                 }

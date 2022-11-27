@@ -115,6 +115,7 @@ See [changelog](./CHANGELOG.md)
  - Loading icon is from [Ahm masum, CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0>, via Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Loading_icon.gif)
  - 'image_missing.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/image-missing/92832)
  - 'video_file.png' is from [Icons8, Free for commercial use](https://icon-icons.com/icon/video-file/54125)
+ - 'application_pdf.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/application-pdf/92726)
 
 
 ### Credits for Dependencies
