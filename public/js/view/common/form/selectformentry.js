@@ -15,7 +15,7 @@ class SelectFormEntry extends FormEntry {
             var $list = await DataView.renderRelation(this._attribute, value);
             $div.append($list);
         } else {
-            this._select = new Select(this._id, this._attribute['model'], this._form.getCallback());
+            this._select = new Select(this._id, this._attribute['model'], this._attribute['multiple'] ? -1 : 1, this._form.getCallback());
 
             if (value) {
                 if (!this._attribute['multiple'])

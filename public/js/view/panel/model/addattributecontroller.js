@@ -95,7 +95,7 @@ class AddAttributeController {
                 case 'string':
                 case 'text':
                     skeleton = [
-                        { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' }
+                        { 'name': 'length', 'dataType': 'string', 'tooltip': '**Info**: Constraints depend on database and character encoding. Default is 255 for \'string\' and 65,535 for \'text\'' }
                     ];
                     var info = app.controller.getApiController().getApiInfo();
                     if (info['db_client'] === 'mysql' || info['db_client'] === 'mysql2') {

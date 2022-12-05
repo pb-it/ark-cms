@@ -36,7 +36,7 @@ class AddRelatedItemPanel extends Panel {
 
         $div.append("Add the following '" + this._modelName + "' to '" + this._attrName + "':<br/><br/>");
 
-        this._addSelect = new Select(this._attrName, this._modelName);
+        this._addSelect = new Select(this._attrName, this._modelName, -1);
         if (this._data)
             this._addSelect.setCreateData(this._data);
         await this._addSelect.initSelect();
@@ -47,7 +47,7 @@ class AddRelatedItemPanel extends Panel {
         if (!this._data) {
             $div.append("Remove the following '" + this._modelName + "' from '" + this._attrName + "':<br/><br/>");
 
-            this._removeSelect = new Select(this._attrName, this._modelName);
+            this._removeSelect = new Select(this._attrName, this._modelName, -1);
             await this._removeSelect.initSelect();
             $div.append(await this._removeSelect.render());
 

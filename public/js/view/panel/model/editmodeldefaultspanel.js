@@ -24,7 +24,7 @@ class EditModelDefaultsPanel extends Panel {
         var stringAttrNames;
         var attributes = mac.getAttributes();
         if (attributes) {
-            var stringAttr = attributes.filter(function (x) { return (x['dataType'] === 'string' || x['dataType'] === 'text' || x['dataType'] === 'enumeration') });
+            var stringAttr = attributes.filter(function (x) { return (x['dataType'] === 'string' || x['dataType'] === 'text' || x['dataType'] === 'enumeration' || x['dataType'] === 'url') });
             stringAttrNames = stringAttr.map(function (x) { return { 'value': x['name'] } });
         } else
             stringAttrNames = [];

@@ -152,7 +152,7 @@ function getFileExtensionFromUrl(url) {
 function isImage(url) {
     var ext = getFileExtensionFromUrl(url).toLowerCase();
     return (ext === "png" || ext === "jpg" || ext === "jpeg" ||
-        ext === "tiff" || ext === "tif" ||
+        ext === "tiff" || ext === "tif" || ext === "ico" ||
         ext === "gif" || ext === "webp" || ext === "svg" || ext === "avif");
 }
 

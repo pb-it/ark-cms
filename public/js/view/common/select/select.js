@@ -4,6 +4,7 @@ class Select {
     _id;
 
     _typeString;
+    _iUpperBound;
     _createData;
 
     _cb;
@@ -11,16 +12,17 @@ class Select {
     _options;
 
     _$div;
-    _$select;
     _$input;
     _$datalist;
+    _$createButton;
     _$list;
 
-    constructor(name, typeString, cb) {
+    constructor(name, typeString, iUpperBound = -1, cb) {
         this._name = name;
         this._id = name.toLowerCase() + Date.now() + Math.floor(Math.random() * 100);
 
         this._typeString = typeString;
+        this._iUpperBound = iUpperBound;
 
         this._cb = cb;
     }
@@ -77,6 +79,9 @@ class Select {
     async _rerender() {
         this._$div.empty();
 
+        var selected = this.getSelectedOptions();
+        var bDisable = this._iUpperBound > 0 && selected.length >= this._iUpperBound;
+
         this._$datalist = $('<datalist/>').attr({ id: this._id });
         this._updateDatalist();
 
@@ -87,6 +92,7 @@ class Select {
                 size: 80
             }
         )
+            .prop("disabled", bDisable)
             .on('input', async function (e) {
                 e.preventDefault();
                 if (e.originalEvent.inputType === "insertReplacementText")
@@ -117,7 +123,7 @@ class Select {
                                 }
                             }
                             this._$input.val('');
-                            await this._rerenderSelected();
+                            await this._update();
                         }
                     }
                 }
@@ -141,26 +147,39 @@ class Select {
 
         this._$div.append("&nbsp;");
 
-        var $button = $("<button/>")
+        this._$createButton = $("<button/>")
             .text("create")
+            .prop("disabled", bDisable)
             .click(function (event) {
                 event.preventDefault();
                 event.stopPropagation();
                 var panel = PanelController.createPanel(this._typeString, this._createData, ActionEnum.create);
                 panel._config.crudCallback = async function (data) {
                     this._options.push(new Option(CrudObject.getTitle(this._typeString, data), data, true));
-                    await this._rerenderSelected();
+                    await this._update();
                     return Promise.resolve(true);
                 }.bind(this);
                 return app.controller.getModalController().openPanelInModal(panel);
             }.bind(this));
-        this._$div.append($button);
+        this._$div.append(this._$createButton);
 
         this._$list = $('<ul/>');
         this._$div.append(this._$list);
 
         await this._rerenderSelected();
         return Promise.resolve(this._$div);
+    }
+
+    async _update() {
+        var selected = this.getSelectedOptions();
+        var bDisable = this._iUpperBound > 0 && selected.length >= this._iUpperBound;
+
+        this._$input.prop("disabled", bDisable);
+        this._$createButton.prop("disabled", bDisable);
+
+        this._updateDatalist();
+        await this._rerenderSelected();
+        return Promise.resolve();
     }
 
     _updateDatalist() {
@@ -186,11 +205,10 @@ class Select {
         }
         if (match) {
             match.setSelected(true);
-            this._updateDatalist();
+            await this._update();
             this._$input.val('');
             this._$input.blur(); //removes focus - closes datalist dropdown
             this._$input.focus();
-            await this._rerenderSelected();
         }
         return Promise.resolve();
     }
@@ -219,15 +237,15 @@ class Select {
         $li.append($("<button/>")
             .text("Remove")
             .css({ 'display': 'block' })
-            .click(function () {
+            .click(async function () {
                 for (var option of this._options) {
                     if (option.getID() === id) {
                         option.setSelected(false);
                         break;
                     }
                 };
-                this._updateDatalist();
-                this._rerenderSelected();
+                await this._update();
+                return Promise.resolve();
             }.bind(this)));
         return Promise.resolve($li);
     }
