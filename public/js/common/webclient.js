@@ -9,7 +9,7 @@ class WebClient {
         });
     }
 
-    static request(method, url, data) {
+    static async request(method, url, data) {
         var logger = app.controller.getLogger();
         var msg = method + " " + url;
         logger.addLogEntry(new LogEntry(msg, SeverityEnum.INFO, 'WebClient'));
@@ -17,15 +17,15 @@ class WebClient {
         return new Promise(function (resolve, reject) {
             var xhr;
 
-            function error() {
+            function error(event) { // or use xhr direct instead of event
                 var err;
-                if (xhr.status && xhr.statusText) {
+                if (event.status && event.statusText) {
                     err = {
-                        status: xhr.status,
-                        statusText: xhr.statusText
+                        status: event.status,
+                        statusText: event.statusText
                     };
-                    if (xhr.response)
-                        err.response = xhr.response;
+                    if (event.response)
+                        err.response = event.response;
                 }
                 reject(err);
             }
@@ -42,7 +42,7 @@ class WebClient {
                     if (this.status >= 200 && this.status < 300)
                         resolve(xhr.response);
                     else
-                        error();
+                        error(this);
                 }
             };
 
@@ -50,7 +50,7 @@ class WebClient {
 
             xhr.ontimeout = function () {
                 alert("time out");
-                error();
+                error(this);
             }
 
             xhr.open(method, url); //3rd parameter 'false' would make the request synchronous
@@ -58,29 +58,30 @@ class WebClient {
             //xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
             //xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
 
+            xhr.withCredentials = true;
+
             var params;
             if (data) {
-                //xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                //params = urlEncode(data);
-
-                xhr.setRequestHeader("Content-type", "application/json");
-                if (typeof data === 'object')
+                if (typeof data === 'object') {
+                    xhr.setRequestHeader("Content-type", "application/json");
                     params = JSON.stringify(data, function (k, v) { return v === undefined ? null : v; });
-                else
-                    params = data;
+                } else {
+                    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    params = data; //urlEncode(data);
+                }
             }
             xhr.send(params);
         });
     }
 
-    /*static urlEncode(data) {
+    static urlEncode(data) {
         var urlEncodedDataPairs = [];
         for (name in data) {
             urlEncodedDataPairs.push(encodeURIComponent(name) + '=' + encodeURIComponent(data[name]));
         }
-    
+
         return urlEncodedDataPairs.join('&').replace(/%20/g, '+');
-    }*/
+    }
 
     static async curl(url, bVerbose) {
         var data;

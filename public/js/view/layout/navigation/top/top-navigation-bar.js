@@ -58,7 +58,11 @@ class TopNavigationBar {
 
         conf = {
             'icon': "user",
-            'name': "User"
+            'name': "User",
+            'click': async function (event, item) {
+                event.stopPropagation();
+                return app.getController().getAuthController().logout();
+            }.bind(this)
         };
         subMenuGroup.addMenuItem(new MenuItem(conf));
 

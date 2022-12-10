@@ -21,8 +21,9 @@ class ApiController {
     }
 
     async fetchApiInfo() {
+        this._info = null;
         this._info = await WebClient.fetchJson(this._origin + "/system/info?t=" + (new Date()).getTime()); // breaking cache
-        return this._info;
+        return Promise.resolve(this._info);
     }
 
     getApiInfo() {
@@ -42,15 +43,20 @@ class ApiController {
     }
 
     async waitApiReady() {
-        var info;
-        for (var i = 0; i < 10; i++) {
-            await sleep(3000);
+        var bReady = false;
+        var i = 1;
+        while (!bReady && i <= 10) {
+            if (i > 1)
+                await sleep(3000);
             try {
-                info = await app.controller.getApiController().fetchApiInfo();
+                await app.controller.getApiController().fetchApiInfo();
+                bReady = true;
             } catch (error) {
-                ;
+                if (error && (error.status == 401 || error.status == 403))
+                    bReady = true;
             }
+            i++;
         }
-        return Promise.resolve(info);
+        return Promise.resolve(bReady);
     }
 }

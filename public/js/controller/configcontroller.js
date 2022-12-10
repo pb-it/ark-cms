@@ -65,8 +65,8 @@ class ConfigController {
                         await ac.restartApi();
                     else
                         await ac.reloadModels();
-                    info = await ac.waitApiReady();
-                    if (info)
+                    var bReady = await ac.waitApiReady();
+                    if (bReady)
                         app.controller.reloadApplication(); //TODO: quickfix ? overact?
                     else {
                         app.controller.setLoadingState(false);

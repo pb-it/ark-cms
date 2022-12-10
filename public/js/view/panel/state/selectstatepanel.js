@@ -27,11 +27,7 @@ class SelectStatePanel extends Panel {
             var tree = msc.getStateTree();
             if (tree)
                 nodes = JSON.parse(JSON.stringify(tree));
-            var treeConf = {
-                'type': 'dummyRoot',
-                'nodes': nodes
-            };
-            this._tree = new Tree(treeConf);
+            this._tree = new Tree(nodes);
         }
         if (this._tree) {
             var treeConf = this._tree.getTreeConf();
@@ -101,15 +97,15 @@ class SelectStatePanel extends Panel {
                     .text('edit json')
                     .click(async function (event) {
                         event.stopPropagation();
-                        var bChanged = false;
+                        var changed;
                         try {
-                            this._tree.setTreeConf(await app.controller.getModalController().openEditJsonModal(this._tree.getTreeConf().nodes));
-                            bChanged = true;
+                            changed = await app.controller.getModalController().openEditJsonModal(this._tree.getTreeConf().nodes);
+                            this._tree.setTreeConf(changed);
                         } catch (error) {
                             if (error)
                                 app.controller.showError(error);
                         }
-                        if (bChanged)
+                        if (changed)
                             this.render();
                         return Promise.resolve();
                     }.bind(this))

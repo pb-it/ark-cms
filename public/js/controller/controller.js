@@ -8,6 +8,7 @@ class Controller {
     _storageController;
     _configController;
     _apiController;
+    _authController;
     _versionController;
     _stateController;
 
@@ -67,6 +68,10 @@ class Controller {
         return this._apiController;
     }
 
+    getAuthController() {
+        return this._authController;
+    }
+
     getVersionController() {
         return this._versionController;
     }
@@ -122,6 +127,8 @@ class Controller {
         this._modalController = new ModalController(); //VersionController may open a modal
 
         try {
+            this._authController = new AuthController();
+
             this._versionController = new VersionController();
             await this._versionController.initVersionController();
 
@@ -147,7 +154,10 @@ class Controller {
             this._bConnection = true;
             bInitDone = true;
         } catch (error) {
-            this.showError(error, "Connection to API failed");
+            if (error && error.status == 401)
+                await this._authController.showLoginDialog();
+            else
+                this.showError(error, "Connection to API failed");
         } finally {
             this.setLoadingState(false);
         }
@@ -240,21 +250,25 @@ class Controller {
         }
     }
 
-    showError(error, msg) {
+    showError(error, message) {
+        var msg;
         if (error) {
-            if (!msg) {
-                if (error.status && error.statusText) {
-                    if (error.response)
-                        msg = error.status + ": " + error.response;
-                    else
-                        msg = error.status + ": " + error.statusText;
-                } else if (error.message)
-                    msg = error.message;
-            }
+            if (error.status && error.statusText) {
+                if (error.response)
+                    msg = error.status + ": " + error.response;
+                else
+                    msg = error.status + ": " + error.statusText;
+            } else if (error.message)
+                msg = error.message;
+
             console.log(error);
         }
-        if (!msg)
-            msg = "An error has occurred";
+        if (!msg) {
+            if (message)
+                msg = message;
+            else
+                msg = "An error has occurred";
+        }
         this._modalController.openErrorModal(error, msg);
     }
 

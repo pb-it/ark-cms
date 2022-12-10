@@ -37,6 +37,19 @@ class CrudObject {
                                     } else
                                         relevant[property] = newdata[property];
                                     break;
+                                case "date":
+                                    if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
+                                        if (newdata[property].indexOf('T') >= 0) {
+                                            if (olddata[property] !== newdata[property])
+                                                relevant[property] = newdata[property];
+                                        } else {
+                                            var index = olddata[property].indexOf('T');
+                                            if (olddata[property].substring(0, index) !== newdata[property])
+                                                relevant[property] = newdata[property];
+                                        }
+                                    } else
+                                        relevant[property] = newdata[property];
+                                    break;
                                 case "json":
                                     if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
                                         if (!isEqualJson(olddata[property], newdata[property]))

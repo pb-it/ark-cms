@@ -113,8 +113,7 @@ class VersionController {
     }
 
     async initVersionController() {
-        var infoUrl = window.location.origin + "/system/info";
-        var info = await WebClient.fetchJson(infoUrl);
+        var info = await app.controller.getApiController().fetchApiInfo();
         this._appVersion = info['version'];
         if (this._appVersion) {
             var bSet = false;

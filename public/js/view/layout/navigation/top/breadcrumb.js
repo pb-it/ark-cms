@@ -216,8 +216,12 @@ class Breadcrumb {
         var text;
         if (state['name'])
             text = state['name']
-        else
-            text = 'where:' + state['where'];
+        else {
+            if (state['where'].length < 70)
+                text = 'where:' + state['where'];
+            else
+                text = 'where:' + state['where'].substring(0, 70) + '...';
+        }
         var $button = $('<button/>')
             .text(text)
             .css({ 'margin': '0 1 0 1' })

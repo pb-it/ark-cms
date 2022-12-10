@@ -56,7 +56,13 @@ class Tree {
     }
 
     setTreeConf(conf) {
-        this._conf = conf;
+        if (Array.isArray(conf)) {
+            this._conf = {
+                'type': 'dummyRoot',
+                'nodes': conf
+            };
+        } else
+            this._conf = conf;
     }
 
     getRootTreeNode() {

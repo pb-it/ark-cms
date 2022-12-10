@@ -28,13 +28,8 @@ class ManageFilterTreePanel extends Panel {
         var tree = mfc.getFilterTree();
         if (tree)
             nodes = JSON.parse(JSON.stringify(tree));
-        if (!this._tree) {
-            var treeConf = {
-                'type': 'dummyRoot',
-                'nodes': nodes
-            };
-            this._tree = new Tree(treeConf);
-        }
+        if (!this._tree)
+            this._tree = new Tree(nodes);
         if (this._tree) {
             var treeConf = this._tree.getTreeConf();
 
@@ -51,7 +46,6 @@ class ManageFilterTreePanel extends Panel {
                 }
             }
 
-            this._tree = new Tree(treeConf);
             var treeVisConf = { 'editable': true };
             var treeVis = new TreeVis(treeVisConf, this._tree);
             var $tree = treeVis.render();
@@ -84,15 +78,15 @@ class ManageFilterTreePanel extends Panel {
                     .text('edit json')
                     .click(async function (event) {
                         event.stopPropagation();
-                        var bChanged = false;
+                        var changed;
                         try {
-                            this._tree.setTreeConf(await app.controller.getModalController().openEditJsonModal(this._tree.getTreeConf()));
-                            bChanged = true;
+                            changed = await app.controller.getModalController().openEditJsonModal(this._tree.getTreeConf());
+                            this._tree.setTreeConf(changed);
                         } catch (error) {
                             if (error)
                                 app.controller.showError(error);
                         }
-                        if (bChanged)
+                        if (changed)
                             this.render();
                         return Promise.resolve();
                     }.bind(this))

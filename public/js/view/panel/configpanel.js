@@ -93,8 +93,8 @@ class ConfigPanel extends TabPanel {
             $div.append('State of API:<br/>');
             var msg;
             var color;
-            if (app.controller.hasConnection()) {
-                var info = app.controller.getApiController().getApiInfo();
+            var info = app.controller.getApiController().getApiInfo();
+            if (info) { // app.controller.hasConnection()
                 if (app.controller.getVersionController().isCompatible()) {
                     msg = info['state'];
                     if (info['state'] === 'running')
