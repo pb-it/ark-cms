@@ -27,6 +27,30 @@ class ContextMenuController {
                 }
             }
         }
+
+        var obj = panel.getObject();
+        var model = obj.getModel();
+        var thumbnailProperty = model.getModelDefaultsController().getDefaultThumbnailProperty();
+        if (thumbnailProperty) {
+            var thumbGroup = [];
+            if (thumbnailProperty.indexOf(';') == -1) {
+                var attribute = model.getModelAttributesController().getAttribute(thumbnailProperty);
+                if (obj.getData()[attribute['name']]) {
+                    thumbGroup.push(new ContextMenuEntry("Remove", async function () {
+                        if (confirm("Remove thumbnail?")) {
+                            var data = {};
+                            data[attribute['name']] = null;
+                            var obj = this.getObject();
+                            await obj.update(data);
+                            this.render();
+                        }
+                        return Promise.resolve();
+                    }.bind(panel)));
+                }
+            }
+            entries.push(new ContextMenuEntry("Thumbnail >", null, thumbGroup));
+        }
+
         contextMenu.setEntries(ContextMenuController.appendCrudContextMenuEntries(panel, entries));
         contextMenu.renderMenu(xPos, yPos);
     }
@@ -34,7 +58,6 @@ class ContextMenuController {
     static getContextMenuEntries(panel) {
         var entries = [];
         var obj = panel.getObject();
-        var typeString = obj.getTypeString();
         var model = obj.getModel();
 
         var createGroup = [];

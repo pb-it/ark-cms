@@ -10,6 +10,8 @@ class Select {
     _cb;
 
     _options;
+    _selectedValues;
+    _bInitDone;
 
     _$div;
     _$input;
@@ -31,14 +33,18 @@ class Select {
         this._createData = createData;
     }
 
-    async initSelect(optData, selected) {
+    setSelectedValues(values) {
+        this._selectedValues = values;
+    }
+
+    async initSelect(optData) {
         this._options = [];
         if (!optData)
             optData = await app.controller.getDataService().fetchData(this._typeString);
 
-        if (selected && selected.length > 0) {
+        if (this._selectedValues && this._selectedValues.length > 0) {
             var ids = [];
-            for (var item of selected) {
+            for (var item of this._selectedValues) {
                 if (isNaN(item)) {
                     if (item['id'])
                         ids.push(item['id']);
@@ -55,6 +61,8 @@ class Select {
             for (var data of optData)
                 this._options.push(new Option(CrudObject.getTitle(this._typeString, data), data));
         }
+        this._bInitDone = true;
+        return Promise.resolve();
     }
 
     setSelected(id, bValue) {
@@ -93,6 +101,20 @@ class Select {
             }
         )
             .prop("disabled", bDisable)
+            .on('mousedown', async function (e) {
+                if (!this._bInitDone) {
+                    try {
+                        app.getController().setLoadingState(true);
+                        await this.initSelect();
+                        await this._rerender();
+                        this._$input.focus(); // TODO: open datalist dropdown
+                        app.getController().setLoadingState(false);
+                    } catch (error) {
+                        app.getController().setLoadingState(false);
+                    }
+                }
+                return Promise.resolve();
+            }.bind(this))
             .on('input', async function (e) {
                 e.preventDefault();
                 if (e.originalEvent.inputType === "insertReplacementText")
@@ -215,9 +237,11 @@ class Select {
 
     async _rerenderSelected() {
         this._$list.empty();
-        var selected = this._options.filter(function (x) { return x.isSelected() });
-        for (var sel of selected)
-            this._$list.append(await this._renderSelectedOption(sel));
+        if (this._options) {
+            var selected = this._options.filter(function (x) { return x.isSelected() });
+            for (var sel of selected)
+                this._$list.append(await this._renderSelectedOption(sel));
+        }
 
         if (this._cb) this._cb();
         return Promise.resolve();
@@ -251,7 +275,10 @@ class Select {
     }
 
     getSelectedOptions() {
-        return this._options.filter(function (x) { return x.isSelected() });
+        var selectedOptions;
+        if (this._options)
+            selectedOptions = this._options.filter(function (x) { return x.isSelected() });
+        return selectedOptions;
     }
 
     getSelectedIds() {

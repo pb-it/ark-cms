@@ -23,7 +23,9 @@ class SelectFormEntry extends FormEntry {
             } else
                 value = [];
 
-            await this._select.initSelect(null, value);
+            this._select.setSelectedValues(value);
+            await this._select.initSelect(); // TODO: Add option for lazy init
+
             $div.append(await this._select.render());
         }
 

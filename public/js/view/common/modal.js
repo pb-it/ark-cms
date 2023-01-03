@@ -89,4 +89,13 @@ class Modal {
     close() {
         this._$modal.remove();
     }
+
+    async waitClosed() {
+        return new Promise(async (resolve) => {
+            this._$modal.on("remove", function () {
+                console.log('modal closed');
+                resolve();
+            });
+        });
+    }
 }

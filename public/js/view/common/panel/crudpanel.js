@@ -242,32 +242,7 @@ class CrudPanel extends CanvasPanel {
 
                 var data = await this._readData(false);
                 data = await fn.call(this, data);
-                if (data) {
-                    //hidden attributes which got changed must be made visible
-                    var copy = [];
-                    var replacement;
-                    for (var attribute of this._skeleton) {
-                        replacement = undefined;
-                        if (attribute['hidden']) {
-                            name = attribute['name'];
-                            if (data[name]) {
-                                replacement = { ...attribute };
-                                replacement['hidden'] = false;
-                                replacement['readonly'] = true;
-                            }
-                        }
-                        if (replacement)
-                            copy.push(replacement);
-                        else
-                            copy.push(attribute);
-                    }
-                    this._obj.setSkeleton(copy);
-                }
-
-                var dataBackup = this._obj.getData();
-                this._obj.setData(data);
-                await this.render();
-                this._obj.setData(dataBackup);
+                await this.setData(data);
             } catch (error) {
                 app.controller.showError(error)
             }
@@ -275,6 +250,36 @@ class CrudPanel extends CanvasPanel {
                 app.controller.setLoadingState(false);
             }
         }
+        return Promise.resolve();
+    }
+
+    async setData(data) {
+        if (data) {
+            //hidden attributes which got changed must be made visible
+            var copy = [];
+            var replacement;
+            for (var attribute of this._skeleton) {
+                replacement = undefined;
+                if (attribute['hidden']) {
+                    name = attribute['name'];
+                    if (data[name]) {
+                        replacement = { ...attribute };
+                        replacement['hidden'] = false;
+                        replacement['readonly'] = true;
+                    }
+                }
+                if (replacement)
+                    copy.push(replacement);
+                else
+                    copy.push(attribute);
+            }
+            this._obj.setSkeleton(copy);
+        }
+
+        var dataBackup = this._obj.getData();
+        this._obj.setData(data);
+        await this.render();
+        this._obj.setData(dataBackup);
         return Promise.resolve();
     }
 
