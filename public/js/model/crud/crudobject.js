@@ -133,7 +133,7 @@ class CrudObject {
         if (cdn.startsWith('/')) {
             var api = app.controller.getApiController().getApiOrigin();
             var url = new URL(api);
-            cdn = url.protocol + "//" + url.hostname + cdn;
+            cdn = "http://" + url.hostname + cdn;
         }
         if (!cdn.endsWith('/'))
             cdn += "/";
