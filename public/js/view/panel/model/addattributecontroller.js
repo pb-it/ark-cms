@@ -262,9 +262,9 @@ You will not see this information in forms, but it is stored with your actual st
                         exist = attributes.filter(function (x) { return x['dataType'] === "relation" && attr['model'] && attr['multiple'] });
                     for (var name of allModelNames) {
                         if (name === thisModelName)
-                            break;
+                            continue;
                         else if (exist && exist.indexOf(name) !== -1)
-                            break;
+                            continue;
                         else
                             options.push({ 'value': name });
                     }
@@ -346,11 +346,11 @@ You will not see this information in forms, but it is stored with your actual st
                 $d.append("<b>Info:</b><br/>");
                 if (!this._data['length']) {
                     $d.append(`By most databases 'unique' property on string fields is only supported up to a certain length.<br/>
-                    The precise limit may also depend on the concrete database engine and your chooesen character encoding.<br/>
+                    The precise limit may also depend on the concrete database engine and your chosen character encoding.<br/>
                     e.g. MySQL MyISAM Storage Engine limits to 1000 bytes.<br/>
                     With utf8mb4 Character Set the maximum length would be 250.<br/>
                     Leaving the length field unfilled would lead to the default setting of 255 characters and the database will<br/>
-                    refuse to create the relvant column.<br/><br/>`);
+                    refuse to create the relevant column.<br/><br/>`);
                 }
                 if (this._data['required']) {
                     $d.append(`Combining the flag 'unique' with 'required'(not null) will work only if there are no existing records
