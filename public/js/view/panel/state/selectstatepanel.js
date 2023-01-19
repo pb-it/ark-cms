@@ -31,30 +31,30 @@ class SelectStatePanel extends Panel {
         }
         if (this._tree) {
             var treeConf = this._tree.getTreeConf();
+            if (treeConf) {
+                var treeNodes = Tree.getAllTreeNodes(treeConf);
+                for (let node of treeNodes) {
+                    if (!node['type'] || node['type'] === 'node') {
+                        node['actions'] = {};
 
-            var treeNodes = Tree.getAllTreeNodes(treeConf);
-            for (let node of treeNodes) {
-                if (!node['type'] || node['type'] === 'node') {
-                    node['actions'] = {};
+                        node['actions']['clickAction'] = function (event) {
+                            app.controller.loadState(new State(this), true);
+                        }.bind(node);
 
-                    node['actions']['clickAction'] = function (event) {
-                        app.controller.loadState(new State(this), true);
-                    }.bind(node);
-
-                    node['actions']['editAction'] = async function (state) {
-                        var panel = new CrudStatePanel(ActionEnum.update, state);
-                        app.controller.getModalController().openPanelInModal(panel);
-                        return Promise.resolve(node);
-                    }.bind(node);
+                        node['actions']['editAction'] = async function (state) {
+                            var panel = new CrudStatePanel(ActionEnum.update, state);
+                            app.controller.getModalController().openPanelInModal(panel);
+                            return Promise.resolve(node);
+                        }.bind(node);
+                    }
                 }
+
+                var treeVisConf = { 'editable': true };
+                var treeVis = new TreeVis(treeVisConf, this._tree);
+                var $tree = treeVis.render();
+                $div.append($tree);
+                $div.append("<br>");
             }
-
-            var treeVisConf = { 'editable': true };
-            var treeVis = new TreeVis(treeVisConf, this._tree);
-            var $tree = treeVis.render();
-            $div.append($tree);
-
-            $div.append("<br>");
 
             $div.append($('<button/>')
                 .text('new')
@@ -99,7 +99,11 @@ class SelectStatePanel extends Panel {
                         event.stopPropagation();
                         var changed;
                         try {
-                            changed = await app.controller.getModalController().openEditJsonModal(this._tree.getTreeConf().nodes);
+                            var nodes;
+                            var conf = this._tree.getTreeConf();
+                            if (conf)
+                                nodes = conf.nodes;
+                            changed = await app.controller.getModalController().openEditJsonModal(nodes);
                             this._tree.setTreeConf(changed);
                         } catch (error) {
                             if (error)
@@ -117,16 +121,20 @@ class SelectStatePanel extends Panel {
                 .click(this._tree, async function (event) {
                     try {
                         var msc = app.controller.getModelController().getModel(this._modelName).getModelStateController();
-                        var states = event.data.getTreeConf(true).nodes;
+                        var states;
+                        var conf = event.data.getTreeConf(true);
+                        if (conf) {
+                            states = conf.nodes;
 
-                        var bSave = false;
-                        if (app.controller.getConfigController().confirmOnApply())
-                            bSave = await app.controller.getModalController().openDiffJsonModal(msc.getStateTree(), states);
-                        else
-                            bSave = true;
+                            var bSave = false;
+                            if (app.controller.getConfigController().confirmOnApply())
+                                bSave = await app.controller.getModalController().openDiffJsonModal(msc.getStateTree(), states);
+                            else
+                                bSave = true;
 
-                        if (bSave)
-                            await msc.updateStates(states);
+                            if (bSave)
+                                await msc.updateStates(states);
+                        }
                     } catch (error) {
                         if (error)
                             app.controller.showError(error);
