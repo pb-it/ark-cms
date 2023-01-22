@@ -1,8 +1,7 @@
 class EditModelPanel extends TabPanel {
 
     _model;
-
-    _definition;
+    _tmpModel;
 
     _extensionForm;
     _rawForm;
@@ -17,19 +16,17 @@ class EditModelPanel extends TabPanel {
 
         this._model = model;
         var data = this._model.getDefinition();
-        if (data)
-            this._definition = JSON.parse(JSON.stringify(data));
-        else
-            this._definition = {};
+        var copy = JSON.parse(JSON.stringify(data));
+        this._tmpModel = new XModel(copy);
     }
 
     async _init() {
         await super._init();
 
-        this._$attributesPanel = await this._createAttributesPanel();
+        this._$attributesPanel = new EditAttributesPanel(this._tmpModel);
         this._panels.push(this._$attributesPanel);
 
-        this._$defaultsPanel = new EditModelDefaultsPanel(this._model);
+        this._$defaultsPanel = new EditModelDefaultsPanel(this._tmpModel);
         this._panels.push(this._$defaultsPanel);
 
         if (app.controller.isInDebugMode()) {
@@ -44,12 +41,7 @@ class EditModelPanel extends TabPanel {
 
         this.setTabSwitchCallback(async function (oldTab, newTab) {
             try {
-                if (oldTab == this._$rawPanel) {
-                    var fData = await this._rawForm.readForm();
-                    this._definition = JSON.parse(fData.json);
-                } else {
-                    this._definition = await this._readDefinition();
-                }
+                this._tmpModel.setDefinition(await this._readDefinition(oldTab), false);
             } catch (error) {
                 app.controller.showError(error);
             }
@@ -57,50 +49,6 @@ class EditModelPanel extends TabPanel {
         }.bind(this));
 
         return Promise.resolve();
-    }
-
-    async _createAttributesPanel() {
-        var panel = new Panel({ 'title': 'Attributes' });
-        panel._renderContent = async function () {
-            var $div = $('<div/>');
-
-            var list = new List();
-            if (this._definition['attributes']) {
-                for (var a of this._definition['attributes']) {
-                    list.addEntry(new ListEntry(a['name'] + ": " + a['dataType'], a));
-                }
-            }
-
-            var vListConfig = {
-                alignment: 'vertical'
-            }
-            this._listVis = new ListVis(vListConfig, 'attributes', list);
-            this._listVis.init();
-            $div.append(this._listVis.renderList());
-
-            $div.append('<br/>');
-
-            var $button = $('<button>')
-                .text('Add Attribute')
-                .click(async function (event) {
-                    event.stopPropagation();
-
-                    var aac = new AddAttributeController(this._model, async function (data) {
-                        if (this._definition['attributes'])
-                            this._definition['attributes'].push(data);
-                        else
-                            this._definition['attributes'] = [data];
-
-                        return this._$attributesPanel.render();
-                    }.bind(this));
-                    return aac.renderForm1();
-                }.bind(this));
-            $div.append($button);
-
-            return Promise.resolve($div);
-        }.bind(this);
-
-        return Promise.resolve(panel);
     }
 
     async _createExtensionsPanel() {
@@ -112,7 +60,7 @@ class EditModelPanel extends TabPanel {
                 { name: 'server', dataType: 'text', size: '20' },
                 { name: 'client', dataType: 'text', size: '20' }
             ];
-            this._extensionForm = new Form(skeleton, this._definition['extensions']);
+            this._extensionForm = new Form(skeleton, this._tmpModel.getDefinition()['extensions']);
             var $form = await this._extensionForm.renderForm();
             $d.append($form);
 
@@ -128,7 +76,8 @@ class EditModelPanel extends TabPanel {
             var $d = $('<div/>');
 
             var skeleton = [{ name: 'json', dataType: 'text', size: '40' }];
-            this._rawForm = new Form(skeleton, { 'json': JSON.stringify(await this._readDefinition(), null, '\t') });
+            var definition = this._tmpModel.getDefinition();
+            this._rawForm = new Form(skeleton, { 'json': JSON.stringify(definition, null, '\t') });
             var $form = await this._rawForm.renderForm();
             $d.append($form);
 
@@ -138,8 +87,26 @@ class EditModelPanel extends TabPanel {
         return Promise.resolve(panel);
     }
 
-    async _readDefinition() {
-        var definition = this._definition;
+    async _readDefinition(tab) {
+        var definition;
+        if (tab == this._$rawPanel)
+            definition = await this._readRawPanel();
+        else
+            definition = await this._readAllPanels();
+        return Promise.resolve(definition);
+    }
+
+    async _readRawPanel() {
+        var fData = await this._rawForm.readForm();
+        var definition = JSON.parse(fData.json);
+        return Promise.resolve(definition);
+    }
+
+    async _readAllPanels() {
+        var definition = this._tmpModel.getDefinition();
+
+        definition['attributes'] = this._$attributesPanel.getAttributes();
+
         var defaults = shrink(await this._$defaultsPanel.getData());
         if (defaults)
             definition['defaults'] = defaults;
@@ -151,20 +118,13 @@ class EditModelPanel extends TabPanel {
             else if (definition['extensions'] || definition['extensions'] === null)
                 delete definition['extensions'];
         }
-
         return Promise.resolve(definition);
     }
 
     async _apply() {
         try {
             app.controller.setLoadingState(true);
-            var data;
-            if (this.getOpenTab() == this._$rawPanel) {
-                var fData = await this._rawForm.readForm();
-                data = JSON.parse(fData.json);
-            } else {
-                data = await this._readDefinition();
-            }
+            var data = await this._readDefinition(this.getOpenTab());
 
             var org;
             var id = this._model.getId();
@@ -294,7 +254,7 @@ class EditModelPanel extends TabPanel {
     async _hasChanged() {
         app.controller.setLoadingState(true);
         var org = this._model.getDefinition();
-        var current = await this._readDefinition();
+        var current = await this._readDefinition(this.getOpenTab());
         if (typeof JsDiff === 'undefined') {
             var buildUrl = "http://incaseofstairs.com/jsdiff/";
             await loadScript(buildUrl + "diff.js");

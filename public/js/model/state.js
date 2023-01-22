@@ -140,6 +140,7 @@ class State {
     typeString;
     action;
     id;
+    data;
 
     where;
     sort;
@@ -165,6 +166,7 @@ class State {
         this.typeString = data.typeString;
         this.action = data.action;
         this.id = data.id;
+        this.data = data.data;
 
         this.where = data.where;
         this.sort = data.sort;

@@ -12,6 +12,10 @@ class List {
         this._entries.push(entry);
     }
 
+    removeEntry(entry) {
+        this._entries = this._entries.filter(function (x) { return x != entry });
+    }
+
     getEntries() {
         return this._entries;
     }

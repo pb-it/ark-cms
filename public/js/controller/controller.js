@@ -175,6 +175,21 @@ class Controller {
         try {
             this.setLoadingState(true);
 
+            var oldState = this._stateController.getState();
+            if (oldState && oldState['action'] && oldState['action'] == ActionEnum.create) {
+                var panels = this._view.getCanvas().getPanels();
+                if (panels && panels.length == 1) {
+                    var form = panels[0].getForm();
+                    if (form)
+                        oldState['data'] = await form.readForm();
+                }
+                /*var modals = this.getModalController().getModals();
+                if (modals && modals.length > 0) {
+                    ...
+                }*/
+                this._stateController.setState(oldState, false, true);
+            }
+
             if (this._bFirstLoadAfterInit)
                 this._bFirstLoadAfterInit = false;
             else {
@@ -203,7 +218,9 @@ class Controller {
                     var mc = app.controller.getModelController();
                     if (mc.isModelDefined(typeString)) {
                         var action = state.action;
-                        if (!action || action != ActionEnum.create)
+                        if (action && action == ActionEnum.create)
+                            this._data = state['data'];
+                        else
                             this._data = await this._dataservice.fetchDataByState(state);
                     } else {
                         bSpecial = true;

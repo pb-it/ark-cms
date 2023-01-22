@@ -2,8 +2,8 @@ class SelectableNode extends UniversalNode {
 
     _$checkbox;
 
-    constructor(config, id, name, data) {
-        super(config, id, name, data);
+    constructor(config, id, parent, name, data) {
+        super(config, id, parent, name, data);
 
         this._$checkbox = $('<input />', { type: 'checkbox', id: this._id, value: this._name });
     }

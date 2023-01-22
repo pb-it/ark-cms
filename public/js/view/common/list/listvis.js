@@ -18,13 +18,27 @@ class ListVis {
 
     init() {
         this._nodes = [];
+        var node;
         for (var entry of this._list.getEntries()) {
-            this._nodes.push(new UniversalNode({}, null, entry.getName(), entry));
+            node = new UniversalNode({}, null, this, entry.getName(), entry);
+            if (this._config['editable'])
+                node.setEditable(true);
+            this._nodes.push(node);
         }
     }
 
     getList() {
         return this._list;
+    }
+
+    isEditable() {
+        return this._config['editable'];
+    }
+
+    removeNode(node) {
+        this._nodes = this._nodes.filter(function (x) { return x != node });
+        this._list.removeEntry(node.getData());
+        this.renderList();
     }
 
     renderList() {

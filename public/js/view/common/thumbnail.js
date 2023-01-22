@@ -139,14 +139,19 @@ class Thumbnail {
                         console.log("Unknown media type '" + mediaType + "'");
                 }
             } else {
-                if (this._file.startsWith("http")) {
-                    if (isImage(this._file))
-                        $thumbnail = Thumbnail.renderThumbnailImage(this._file, this._config, this._bLazy);
+                var file;
+                if (typeof this._file == 'string')
+                    file = this._file;
+                else if (this._file['base64'])
+                    file = this._file['base64'];
+                if (file.startsWith("http")) {
+                    if (isImage(file))
+                        $thumbnail = Thumbnail.renderThumbnailImage(file, this._config, this._bLazy);
                     else
                         alert("Select media type");
-                } else if (this._file.startsWith("data")) {
-                    if (this._file.startsWith("data:image/"))
-                        $thumbnail = Thumbnail.renderThumbnailImage(this._file, this._config, this._bLazy);
+                } else if (file.startsWith("data")) {
+                    if (file.startsWith("data:image/"))
+                        $thumbnail = Thumbnail.renderThumbnailImage(file, this._config, this._bLazy);
                     else
                         alert("Select media type");
                 }

@@ -8,7 +8,7 @@ class SelectableListVis extends ListVis {
         this._nodes = [];
         var node;
         for (var entry of this._list.getEntries()) {
-            node = new SelectableNode({}, null, entry.getName(), entry);
+            node = new SelectableNode({}, null, this, entry.getName(), entry);
             node.setSelected(entry.isSelected());
             this._nodes.push(node);
         }
