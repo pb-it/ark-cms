@@ -181,7 +181,7 @@ class Controller {
                 if (panels && panels.length == 1) {
                     var form = panels[0].getForm();
                     if (form)
-                        oldState['data'] = await form.readForm();
+                        oldState['data'] = await form.readForm(true, false);
                 }
                 /*var modals = this.getModalController().getModals();
                 if (modals && modals.length > 0) {
