@@ -227,6 +227,24 @@ class ModalController {
                 .attr('rows', 5)
                 .attr('cols', 80)
                 .val(JSON.stringify(obj, null, '\t'));
+            $textarea.keydown(function (e) {
+                e.stopPropagation(); //https://www.rockyourcode.com/assertion-failed-input-argument-is-not-an-htmlinputelement/
+                if (e.keyCode == 9) { // TAB
+                    e.preventDefault();
+                    //TODO: ident selection
+                    var input = this[0];
+                    if (input.selectionStart != undefined && input.selectionStart >= '0') {
+                        var cursorPosition = input.selectionStart;
+                        var txt = this.val();
+                        this.val(txt.slice(0, cursorPosition) + '\t' + txt.slice(cursorPosition));
+                        cursorPosition++;
+                        input.selectionStart = cursorPosition;
+                        input.selectionEnd = cursorPosition;
+                        input.focus();
+                    }
+                    return false;
+                }
+            }.bind($textarea));
             $div.append($textarea);
 
             $div.append('<br/>');
@@ -248,6 +266,28 @@ class ModalController {
                     event.stopPropagation();
                     modal.close();
                     resolve(JSON.parse($textarea.val()));
+                }.bind(this)));
+
+            $div.append($('<button/>')
+                .text("Format")
+                .css({ 'float': 'right' })
+                .click(async function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    $textarea.val(JSON.stringify(JSON.parse($textarea.val()), null, '\t'));
+                    /*if (typeof prettier === 'undefined') {
+                        var buildUrl = "https://unpkg.com/prettier@2.7.1/";
+                        var p1 = loadScript(buildUrl + "standalone.js");
+                        //var p2 = loadScript(buildUrl + "parser-html.js");
+                        var p2 = loadScript(buildUrl + "parser-babel.js");
+                        await Promise.all([p1, p2]);
+                    }
+                    data['snippet'] = prettier.format(data['snippet'], {
+                        parser: 'json', // parser: 'babel'
+                        plugins: prettierPlugins,
+                        tabWidth: 3
+                    });*/
                 }.bind(this)));
 
             modal.open($div);

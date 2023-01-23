@@ -35,7 +35,7 @@ class ContextMenuController {
             var thumbGroup = [];
             if (thumbnailProperty.indexOf(';') == -1) {
                 var attribute = model.getModelAttributesController().getAttribute(thumbnailProperty);
-                if (obj.getData()[attribute['name']]) {
+                if (attribute && obj.getData()[attribute['name']]) {
                     thumbGroup.push(new ContextMenuEntry("Remove", async function () {
                         if (confirm("Remove thumbnail?")) {
                             var data = {};
