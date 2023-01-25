@@ -295,7 +295,9 @@ class BasicFormEntry extends FormEntry {
                         }
                     }
                     if (!rows) {
-                        var used = value.split('\n').length;
+                        var used;
+                        if (value)
+                            used = value.split('\n').length;
                         if (used >= 5)
                             rows = used;
                         else

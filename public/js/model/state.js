@@ -54,7 +54,7 @@ class State {
                         if (part.startsWith("_sort="))
                             state.sort = decodeURIComponent(part.substring("_sort=".length));
                         else if (part.startsWith("_limit="))
-                            state.limit = decodeURIComponent(part.substring("_limit=".length));
+                            state.limit = parseInt(decodeURIComponent(part.substring("_limit=".length)), 10);
                         else if (part.startsWith("_filter=")) {
                             var filter = { "query": decodeURIComponent(part.substring("_filter=".length)) };
                             if (state.filters && state.filters.length > 0)
@@ -170,7 +170,10 @@ class State {
 
         this.where = data.where;
         this.sort = data.sort;
-        this.limit = data.limit;
+        if (data.limit && typeof data.limit == 'string')
+            this.limit = parseInt(data.limit, 10);
+        else
+            this.limit = data.limit;
 
         this.filters = data.filters;
         this.search = data.search;

@@ -159,7 +159,7 @@ class DataService {
             if (bSort)
                 res = DataService.sortData(model, sort, res);
 
-            if (res && limit && res.length > limit)
+            if (res && limit && limit != -1 && res.length > limit)
                 res = res.slice(0, limit);
         }
 
