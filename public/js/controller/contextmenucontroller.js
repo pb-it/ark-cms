@@ -193,7 +193,7 @@ class ContextMenuController {
                             }
 
                             params = [];
-                            if (false && backLink) { //TODO: disabled while API does not support necessary filter
+                            if (backLink) {
                                 for (var i = 0; i < objs.length; i++) {
                                     data = objs[i].getData();
                                     params.push(backLink + ".id=" + data['id']);
