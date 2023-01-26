@@ -32,11 +32,7 @@ class DiffJsonPanel extends Panel {
         $div.append('<br/>');
 
         $div.append('diff:<br/>');
-        if (typeof JsDiff === 'undefined') {
-            var buildUrl = "http://incaseofstairs.com/jsdiff/";
-            await loadScript(buildUrl + "diff.js");
-        }
-        var diff = JsDiff.diffJson(this._oldObj, this._newObj);
+        var diff = await diffJson(this._oldObj, this._newObj);
         var span;
         diff.forEach((part) => {
             const color = part.added ? 'green' :

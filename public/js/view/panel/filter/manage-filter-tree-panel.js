@@ -54,6 +54,34 @@ class ManageFilterTreePanel extends Panel {
             }
 
             $div.append($('<button/>')
+                .text('new')
+                .prop("disabled", true) //TODO:
+                .click(async function (event) {
+                    event.stopPropagation();
+
+                    try {
+                        var bChanged;
+                        var nodes;
+                        var conf = this._tree.getTreeConf();
+                        if (conf)
+                            nodes = conf.nodes;
+                        //TODO: check if changed
+
+                        if (!bChanged) {
+                            await app.controller.getModalController().openPanelInModal(new CreateFilterPanel(app.controller.getStateController().getState().getModel()));
+                            //this._tree.setTreeConf(...);
+                            this.render();
+                        }
+                    } catch (error) {
+                        if (error)
+                            app.controller.showError(error);
+                    }
+
+                    return Promise.resolve();
+                }.bind(this))
+            );
+
+            $div.append($('<button/>')
                 .text('add folder')
                 .click(async function (event) {
                     event.stopPropagation();
@@ -105,19 +133,25 @@ class ManageFilterTreePanel extends Panel {
 
                     app.controller.setLoadingState(true);
                     try {
-                        var filters;
-                        var conf = event.data.getTreeConf(true).nodes;
+                        var mfc = app.controller.getModelController().getModel(this._state.typeString).getModelFilterController();
+                        var conf = event.data.getTreeConf(true);
                         if (conf) {
-                            filters = conf.nodes;
+                            var newFilters = conf.nodes;
+                            var oldFilters = mfc.getFilterTree();
+                            var bChanged = !isEqualJson(oldFilters, newFilters);
+                            if (bChanged) {
+                                var bSave = false;
+                                if (app.controller.getConfigController().confirmOnApply())
+                                    bSave = await app.controller.getModalController().openDiffJsonModal(oldFilters, newFilters);
+                                else
+                                    bSave = true;
 
-                            var bSave = false;
-                            if (app.controller.getConfigController().confirmOnApply())
-                                bSave = await app.controller.getModalController().openDiffJsonModal(mfc.getFilterTree(), filters);
-                            else
-                                bSave = true;
-
-                            if (bSave)
-                                await app.controller.getModelController().getModel(this._state.typeString).getModelFilterController().updateFilters(filters);
+                                if (bSave) {
+                                    await mfc.updateFilters(newFilters);
+                                    alert('Saved successfully');
+                                }
+                            } else
+                                alert('Nothing changed');
 
                             app.controller.setLoadingState(false);
                         }

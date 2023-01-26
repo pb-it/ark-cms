@@ -132,11 +132,7 @@ class EditModelPanel extends TabPanel {
                 org = this._model.getDefinition();
             var current = data;
 
-            if (typeof JsDiff === 'undefined') {
-                var buildUrl = "http://incaseofstairs.com/jsdiff/";
-                await loadScript(buildUrl + "diff.js");
-            }
-            var delta = JsDiff.diffJson(org, current);
+            var delta = await diffJson(org, current);
             var bChanged = !(delta.length === 1 && typeof delta[0].removed === 'undefined' && typeof delta[0].added === 'undefined');
             if (bChanged) {
                 var bTitle = false;
@@ -255,11 +251,7 @@ class EditModelPanel extends TabPanel {
         app.controller.setLoadingState(true);
         var org = this._model.getDefinition();
         var current = await this._readDefinition(this.getOpenTab());
-        if (typeof JsDiff === 'undefined') {
-            var buildUrl = "http://incaseofstairs.com/jsdiff/";
-            await loadScript(buildUrl + "diff.js");
-        }
-        var delta = JsDiff.diffJson(org, current);
+        var delta = await diffJson(org, current);
         var bChanged = !(delta.length === 1 && typeof delta[0].removed === 'undefined' && typeof delta[0].added === 'undefined');
         app.controller.setLoadingState(false);
         return Promise.resolve(bChanged);

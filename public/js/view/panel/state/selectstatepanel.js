@@ -121,19 +121,24 @@ class SelectStatePanel extends Panel {
                 .click(this._tree, async function (event) {
                     try {
                         var msc = app.controller.getModelController().getModel(this._modelName).getModelStateController();
-                        var states;
                         var conf = event.data.getTreeConf(true);
                         if (conf) {
-                            states = conf.nodes;
+                            var newStates = conf.nodes;
+                            var oldStates = msc.getStateTree();
+                            var bChanged = !isEqualJson(oldStates, newStates);
+                            if (bChanged) {
+                                var bSave = false;
+                                if (app.controller.getConfigController().confirmOnApply())
+                                    bSave = await app.controller.getModalController().openDiffJsonModal(oldStates, newStates);
+                                else
+                                    bSave = true;
 
-                            var bSave = false;
-                            if (app.controller.getConfigController().confirmOnApply())
-                                bSave = await app.controller.getModalController().openDiffJsonModal(msc.getStateTree(), states);
-                            else
-                                bSave = true;
-
-                            if (bSave)
-                                await msc.updateStates(states);
+                                if (bSave) {
+                                    await msc.updateStates(newStates);
+                                    alert('Saved successfully');
+                                }
+                            } else
+                                alert('Nothing changed');
                         }
                     } catch (error) {
                         if (error)

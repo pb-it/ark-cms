@@ -67,17 +67,19 @@ class CrudStatePanel extends Panel {
             }.bind(this))
         );
 
-        $form.append($('<button/>')
-            .html("Load")
-            .css({ 'float': 'right' })
-            .click(async function (event) {
-                event.stopPropagation();
-                var state = await form.readForm();
-                if (state.filters)
-                    state.filters = JSON.parse(state.filters);
-                this._load(new State(state));
-            }.bind(this))
-        );
+        if (this._action == ActionEnum.update) {
+            $form.append($('<button/>')
+                .html("Load")
+                .css({ 'float': 'right' })
+                .click(async function (event) {
+                    event.stopPropagation();
+                    var state = await form.readForm();
+                    if (state.filters)
+                        state.filters = JSON.parse(state.filters);
+                    this._load(new State(state));
+                }.bind(this))
+            );
+        }
 
         $div.append($form);
 

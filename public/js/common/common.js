@@ -6,6 +6,14 @@ function isEqualJson(obj1, obj2) {
     return str1 === str2;
 }
 
+async function diffJson(obj1, obj2) {
+    if (typeof JsDiff === 'undefined') {
+        var buildUrl = "http://incaseofstairs.com/jsdiff/";
+        await loadScript(buildUrl + "diff.js");
+    }
+    return Promise.resolve(JsDiff.diffJson(obj1, obj2));
+}
+
 /**
  * 
  * @param {*} value 
