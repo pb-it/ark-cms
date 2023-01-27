@@ -146,7 +146,7 @@ class ConfigController {
     }
 
     setDefaultApi() {
-        this.setApi("https://" + window.location.hostname + ":3002/api");
+        this.setApi(ApiController.getDefaultApiOrigin());
     }
 
     setApi(api) {

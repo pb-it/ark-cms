@@ -126,11 +126,13 @@ systemRouter.get('/update', async function (req, res) {
         restart();
     return Promise.resolve();
 });
-systemRouter.get('/shutdown', async () => {
-    process.exit();
-});
 systemRouter.get('/restart', async () => {
+    res.send("Restarting..");
     restart();
+});
+systemRouter.get('/shutdown', async () => {
+    res.send("Shutdown initiated");
+    process.exit();
 });
 systemRouter.post('/curl', async (req, res, next) => {
     var url = req.body.url;

@@ -45,7 +45,7 @@ class ConfigPanel extends TabPanel {
                     bDebug = false;
                 this._data = {
                     'version': app.controller.getVersionController().getAppVersion(),
-                    'api': app.controller.getApiController().getApiOrigin() + "/api",
+                    'api': app.controller.getApiController().getApiOrigin(),
                     'bDebug': bDebug,
                     'bConfirmOnApply': bDebug || (app.controller.getStorageController().loadLocal('bConfirmOnApply') === 'true')
                 };
