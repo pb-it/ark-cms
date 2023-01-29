@@ -1,7 +1,7 @@
 class ApiController {
 
     static getDefaultApiOrigin() {
-        return "https://" + window.location.hostname + ":3002";
+        return "https://" + window.location.hostname;
     }
 
     _api;
