@@ -113,7 +113,8 @@ class VersionController {
     }
 
     async initVersionController() {
-        var info = await app.controller.getApiController().fetchApiInfo();
+        var infoUrl = window.location.origin + "/cms/info";
+        var info = await WebClient.fetchJson(infoUrl);
         this._appVersion = info['version'];
         if (this._appVersion) {
             var bSet = false;
@@ -134,8 +135,7 @@ class VersionController {
 
             var ac = app.controller.getApiController();
             var info = await ac.fetchApiInfo();
-            var appVersion = app.controller.getVersionController().getAppVersion();
-            this._bCompatible = VersionController.compatible(info['version'], appVersion);
+            this._bCompatible = VersionController.compatible(info['version'], this._appVersion);
             if (!this._bCompatible)
                 VersionController.viewMissmatchInfo(); //TODO: throw error / block access
         }

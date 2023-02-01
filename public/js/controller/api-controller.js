@@ -17,7 +17,7 @@ class ApiController {
 
     async fetchApiInfo() {
         this._info = null;
-        this._info = await WebClient.fetchJson(this._api + "/system/info?t=" + (new Date()).getTime()); // breaking cache
+        this._info = await WebClient.fetchJson(this._api + "/sys/info?t=" + (new Date()).getTime()); // breaking cache
         return Promise.resolve(this._info);
     }
 
@@ -26,13 +26,13 @@ class ApiController {
     }
 
     async reloadModels() {
-        var url = this._api + "/system/reload";
+        var url = this._api + "/sys/reload";
         await WebClient.request("GET", url);
         return Promise.resolve();
     }
 
     async restartApi() {
-        var url = this._api + "/system/restart";
+        var url = this._api + "/sys/restart";
         await WebClient.request("GET", url);
         return Promise.resolve();
     }

@@ -43,7 +43,7 @@ class AuthController {
 
                 var data = { 'user': $username.val(), 'pass': $password.val() };
                 try {
-                    await WebClient.request('POST', app.getController().getApiController().getApiOrigin() + "/login", WebClient.urlEncode(data));
+                    await WebClient.request('POST', app.getController().getApiController().getApiOrigin() + "/sys/auth/login", WebClient.urlEncode(data));
                     panel.dispose();
                     app.getController().reloadApplication();
                 } catch (error) {
@@ -63,7 +63,7 @@ class AuthController {
     async logout() {
         var controller = app.getController();
         try {
-            await WebClient.request('GET', controller.getApiController().getApiOrigin() + "/logout");
+            await WebClient.request('GET', controller.getApiController().getApiOrigin() + "/sys/auth/logout");
             controller.reloadApplication();
         } catch (error) {
             controller.showError(error, "Logout failed");

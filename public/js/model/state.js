@@ -6,11 +6,12 @@ class State {
         if (!url)
             url = window.location;
 
-        if (url.pathname === '/')
+        var path = url.pathname;
+        if (path === '/')
             state = new State();
-        else if (url.pathname.startsWith("/data/")) {
+        else if (path.startsWith("/data/")) {
             state = new State();
-            var path = url.pathname.substring(6);
+            path = path.substring(6);
             var parts = path.split('/');
             if (parts.length > 0) {
                 state.typeString = parts[0];

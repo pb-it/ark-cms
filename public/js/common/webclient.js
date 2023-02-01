@@ -85,7 +85,7 @@ class WebClient {
 
     static async curl(url, bVerbose) {
         var data;
-        var response = await WebClient.request('POST', '/system/curl', { 'url': url });
+        var response = await WebClient.request('POST', '/cms/curl', { 'url': url });
         if (typeof Flatted === 'undefined')
             await loadScript("https://unpkg.com/flatted@3.2.7/min.js");
         var obj = Flatted.parse(response);

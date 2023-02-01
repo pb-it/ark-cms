@@ -154,7 +154,7 @@ systemRouter.get('/curl', async (req, res, next) => {
         next(err);
     }
 });
-app.use('/system', systemRouter);
+app.use('/cms', systemRouter);
 
 app.get('*', function (req, res, next) {
     res.sendFile(path.join(__dirname, 'public/index.html'));
