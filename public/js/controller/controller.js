@@ -401,11 +401,10 @@ class Controller {
     }
 
     reloadState() {
-        var state = this.getStateController().getState();
-        /*var ds = app.controller.getDataService();
-        var cache = ds.getCache();
-        cache.updateCachedTypeMaps(null, state.typeString);*/
-        this.loadState(state);
+        if (this._stateController) {
+            var state = this.getStateController().getState();
+            this.loadState(state);
+        }
     }
 
     isInDebugMode() {

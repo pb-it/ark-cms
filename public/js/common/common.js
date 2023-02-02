@@ -7,10 +7,8 @@ function isEqualJson(obj1, obj2) {
 }
 
 async function diffJson(obj1, obj2) {
-    if (typeof JsDiff === 'undefined') {
-        var buildUrl = "http://incaseofstairs.com/jsdiff/";
-        await loadScript(buildUrl + "diff.js");
-    }
+    if (typeof JsDiff === 'undefined')
+        await loadScript("https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js");
     return Promise.resolve(JsDiff.diffJson(obj1, obj2));
 }
 

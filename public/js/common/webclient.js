@@ -18,15 +18,13 @@ class WebClient {
             var xhr;
 
             function error(event) { // or use xhr direct instead of event
-                var err;
-                if (event.status && event.statusText) {
-                    err = {
-                        status: event.status,
-                        statusText: event.statusText
-                    };
-                    if (event.response)
-                        err.response = event.response;
-                }
+                var err = {};
+                if (event.status)
+                    err['status'] = event.status;
+                if (event.statusText)
+                    err['statusText'] = event.statusText;
+                if (event.response)
+                    err['response'] = event.response;
                 reject(err);
             }
 
