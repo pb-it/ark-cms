@@ -7,9 +7,14 @@ function isEqualJson(obj1, obj2) {
 }
 
 async function diffJson(obj1, obj2) {
-    if (typeof JsDiff === 'undefined')
+    var res;
+    if (typeof Diff === 'undefined')
         await loadScript("https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js");
-    return Promise.resolve(JsDiff.diffJson(obj1, obj2));
+    if (obj1)
+        res = Diff.diffJson(obj1, obj2);
+    else
+        res = Diff.diffJson(null, obj2);
+    return Promise.resolve(res);
 }
 
 /**
