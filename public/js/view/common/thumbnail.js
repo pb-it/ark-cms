@@ -142,18 +142,16 @@ class Thumbnail {
                 var file;
                 if (typeof this._file == 'string')
                     file = this._file;
+                else if (this._file['url'])
+                    file = this._file['url'];
                 else if (this._file['base64'])
                     file = this._file['base64'];
                 if (file.startsWith("http")) {
                     if (isImage(file))
                         $thumbnail = Thumbnail.renderThumbnailImage(file, this._config, this._bLazy);
-                    else
-                        alert("Select media type");
                 } else if (file.startsWith("data")) {
                     if (file.startsWith("data:image/"))
                         $thumbnail = Thumbnail.renderThumbnailImage(file, this._config, this._bLazy);
-                    else
-                        alert("Select media type");
                 }
             }
         }
