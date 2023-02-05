@@ -7,6 +7,7 @@ class BasicFormEntry extends FormEntry {
         return Promise.resolve();
     }
 
+    _$value;
     _$input;
     _$syntax;
 
@@ -20,10 +21,10 @@ class BasicFormEntry extends FormEntry {
 
     async renderValue(value) {
         var name = this._attribute.name;
-        if (this._$div)
-            this._$div.empty();
+        if (this._$value)
+            this._$value.empty();
         else
-            this._$div = $('<div/>').addClass('value');
+            this._$value = $('<div/>').addClass('value');
         var size;
 
         if (this._attribute['dataType']) {
@@ -240,7 +241,7 @@ class BasicFormEntry extends FormEntry {
                                     $option.prop('selected', true);
                                 this._$syntax.append($option);
                             };
-                            this._$div.append(this._$syntax);
+                            this._$value.append(this._$syntax);
 
                             var $previewButton = $('<button>')
                                 .text('preview')
@@ -256,7 +257,7 @@ class BasicFormEntry extends FormEntry {
                                     panel.setContent(await DataView.renderData(skeleton, data));
                                     return app.controller.getModalController().openPanelInModal(panel);
                                 }.bind(this));
-                            this._$div.append($previewButton);
+                            this._$value.append($previewButton);
 
                             /*if (this._$syntax.val() === 'markdown') {
                                 var $exportButton = $('<button>')
@@ -273,10 +274,10 @@ class BasicFormEntry extends FormEntry {
                                             console.log("Done");
                                         });
                                     }.bind(this));
-                                this._$div.append($exportButton);
+                                this._$value.append($exportButton);
                             }*/
 
-                            this._$div.append('<br/>');
+                            this._$value.append('<br/>');
                         }
                     } else {
                         if (value)
@@ -372,9 +373,9 @@ class BasicFormEntry extends FormEntry {
             if (this._attribute['changeAction'])
                 this._$input.change(this._attribute['changeAction']);
 
-            this._$div.append(this._$input);
+            this._$value.append(this._$input);
         }
-        return Promise.resolve(this._$div);
+        return Promise.resolve(this._$value);
     }
 
     async readValue(bValidate = true) {

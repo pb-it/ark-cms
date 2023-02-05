@@ -5,6 +5,7 @@ class FormEntry {
 
     _id;
     _value;
+
     _$div;
 
     constructor(form, attribute) {
@@ -38,14 +39,31 @@ class FormEntry {
         return !this._attribute['hidden'];
     }
 
+    hide() {
+        this._attribute['hidden'] = true;
+        if (this._$div)
+            this._$div.empty();
+    }
+
+    async show() {
+        this._attribute['hidden'] = false;
+        return this.renderEntry(this._value);
+    }
+
     async renderEntry(value) {
         this._value = value;
-        var $div = $('<div/>').addClass('formentry');
-        var $label = this.renderLabel();
-        if ($label)
-            $div.append($label);
-        $div.append(await this.renderValue(this._value));
-        return Promise.resolve($div);
+
+        if (!this._$div)
+            this._$div = $('<div/>').addClass('formentry');
+        if (this._attribute['hidden'])
+            this._$div.empty();
+        else {
+            var $label = this.renderLabel();
+            if ($label)
+                this._$div.append($label);
+            this._$div.append(await this.renderValue(this._value));
+        }
+        return Promise.resolve(this._$div);
     }
 
     /**

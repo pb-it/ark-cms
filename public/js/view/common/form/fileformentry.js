@@ -1,6 +1,6 @@
 class FileFormEntry extends FormEntry {
 
-    _$div;
+    _$value;
 
     _$inputFilename;
     _$inputUrl;
@@ -12,10 +12,10 @@ class FileFormEntry extends FormEntry {
 
     async renderValue(value) {
         this._value = value;
-        if (!this._$div)
-            this._$div = $('<div/>').addClass('value');
+        if (!this._$value)
+            this._$value = $('<div/>').addClass('value');
         else
-            this._$div.empty();
+            this._$value.empty();
 
         var size;
         if (this._attribute.size)
@@ -31,22 +31,24 @@ class FileFormEntry extends FormEntry {
                 str = value['base64'];
             if (str) {
                 if (str.length > size)
-                    this._$div.append(str.substr(0, size) + "...<br/>");
+                    this._$value.append(str.substr(0, size) + "...<br/>");
                 else
-                    this._$div.append(str + "<br/>");
+                    this._$value.append(str + "<br/>");
             }
         }
 
-        this._$div.append('filename: ');
-        this._$inputFilename = $('<input/>')
-            .attr('type', 'text')
-            .attr('size', size);
-        if (value && value['filename'])
-            this._$inputFilename.val(value['filename']);
-        this._$div.append(this._$inputFilename);
-        this._$div.append("<br/>");
+        if (this._attribute['storage'] == 'filesystem' || this._attribute['filename_prop']) {
+            this._$value.append('filename: ');
+            this._$inputFilename = $('<input/>')
+                .attr('type', 'text')
+                .attr('size', size);
+            if (value && value['filename'])
+                this._$inputFilename.val(value['filename']);
+            this._$value.append(this._$inputFilename);
+            this._$value.append("<br/>");
+        }
 
-        this._$div.append('URL: ');
+        this._$value.append('URL: ');
         this._$inputUrl = $('<input/>')
             .attr('type', 'text')
             .attr('size', size)
@@ -58,8 +60,8 @@ class FileFormEntry extends FormEntry {
             }.bind(this));
         if (value && value['url'])
             this._$inputUrl.val(value['url']);
-        this._$div.append(this._$inputUrl);
-        this._$div.append("<br/>");
+        this._$value.append(this._$inputUrl);
+        this._$value.append("<br/>");
 
         this._$inputFile = $('<input/>').attr({ 'type': 'file', 'id': this._id, 'name': this._attribute.name, 'value': '', 'multiple': false })
             .on('change', function () {
@@ -70,10 +72,10 @@ class FileFormEntry extends FormEntry {
                 if (file)
                     this._$inputFilename.val(file.name);
             }.bind(this));
-        this._$div.append(this._$inputFile);
+        this._$value.append(this._$inputFile);
 
         if (this._value) {
-            this._$div.append("<br/>");
+            this._$value.append("<br/>");
 
             var $clear = $('<button>')
                 .text('Clear')
@@ -84,10 +86,10 @@ class FileFormEntry extends FormEntry {
 
                     return Promise.resolve();
                 }.bind(this));
-            this._$div.append($clear);
+            this._$value.append($clear);
         }
 
-        return Promise.resolve(this._$div);
+        return Promise.resolve(this._$value);
     }
 
     async readValue() {

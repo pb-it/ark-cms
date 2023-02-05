@@ -89,8 +89,6 @@ class Form {
                             case "relation":
                                 entry = new SelectFormEntry(this, attribute);
                                 break;
-                            case "base64":
-                            case "blob":
                             case "file":
                                 entry = new FileFormEntry(this, attribute);
                                 break;
@@ -105,13 +103,11 @@ class Form {
         if (this._entries) {
             var value;
             for (var entry of this._entries) {
-                if (entry.isVisible()) {
-                    if (this._data)
-                        value = this._data[entry.getName()];
-                    else
-                        value = null;
-                    this._$form.append(await entry.renderEntry(value));
-                }
+                if (this._data)
+                    value = this._data[entry.getName()];
+                else
+                    value = null;
+                this._$form.append(await entry.renderEntry(value));
             }
         }
         return Promise.resolve(this._$form);

@@ -183,49 +183,55 @@ class DataView {
                                     $value.append($list);
                                 }
                                 break;
-                            case "blob":
-                                if (data && data[name]) {
-                                    var $button = $("<button/>")
-                                        .text("download")
-                                        .click(function (event) {
-                                            event.stopPropagation();
-                                            const a = document.createElement('a');
-                                            //const file = new Blob(data[name].data, { type: "text/plain" });
-                                            const file = new Blob(data[name].data, { type: data[name].type });
-                                            //const file = new File(data[name], 'hello_world.txt', { type: 'text/plain' });
-                                            a.href = URL.createObjectURL(file);
-                                            a.download = 'hello_world.txt';
-                                            a.click();
-                                            URL.revokeObjectURL(a.href);
-                                        });
-                                    $value.append($button);
-                                } else
-                                    $value.html("");
-                                break;
-                            case "base64":
-                                if (data && data[name]) {
-                                    var $button = $("<button/>")
-                                        .text("download")
-                                        .click(function (event) {
-                                            event.stopPropagation();
-                                            const a = document.createElement('a');
-                                            a.href = data[name];
-                                            a.download = 'hello_world.png';
-                                            a.click();
-                                            URL.revokeObjectURL(a.href);
-                                        });
-                                    $value.append($button);
-                                } else
-                                    $value.html("");
-                                break;
                             case "file":
                                 if (data && data[name]) {
-                                    if (attribute['cdn'])
-                                        value = CrudObject._buildUrl(attribute['cdn'], data[name]);
-                                    else
-                                        value = data[name];
-                                    $value.html("<a href='" + value + "' target='_blank'>" + data[name] + "</a><br>");
-                                }
+                                    if (attribute['storage'] == 'filesystem') {
+                                        if (attribute['cdn'])
+                                            value = CrudObject._buildUrl(attribute['cdn'], data[name]);
+                                        else
+                                            value = data[name];
+                                        $value.html("<a href='" + value + "' target='_blank'>" + data[name] + "</a><br>");
+                                    } else if (attribute['storage'] == 'base64') {
+                                        var filename;
+                                        if (attribute['filename_prop'] && data[attribute['filename_prop']])
+                                            filename = data[attribute['filename_prop']];
+                                        else
+                                            filename = 'undefined';
+                                        var $button = $("<button/>")
+                                            .text("download")
+                                            .click(function (event) {
+                                                event.stopPropagation();
+                                                const a = document.createElement('a');
+                                                a.href = data[name];
+                                                a.download = filename;
+                                                a.click();
+                                                URL.revokeObjectURL(a.href);
+                                            });
+                                        $value.append($button);
+                                    } else if (attribute['storage'] == 'blob') {
+                                        var filename;
+                                        if (attribute['filename_prop'] && data[attribute['filename_prop']])
+                                            filename = data[attribute['filename_prop']];
+                                        else
+                                            filename = 'undefined';
+                                        var $button = $("<button/>")
+                                            .text("download")
+                                            .click(function (event) {
+                                                event.stopPropagation();
+                                                const a = document.createElement('a');
+                                                //const file = new Blob(data[name].data, { type: "text/plain" });
+                                                const file = new Blob(data[name].data, { type: data[name].type });
+                                                //const file = new File(data[name], 'hello_world.txt', { type: 'text/plain' });
+                                                a.href = URL.createObjectURL(file);
+                                                a.download = filename;
+                                                a.click();
+                                                URL.revokeObjectURL(a.href);
+                                            });
+                                        $value.append($button);
+                                    } else
+                                        $value.html("");
+                                } else
+                                    $value.html("");
                                 break;
                             default:
                                 $value.html("&lt;" + attribute['dataType'] + "&gt;");

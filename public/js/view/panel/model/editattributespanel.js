@@ -6,6 +6,7 @@ class EditAttributesPanel extends Panel {
     _list;
     _listVis;
 
+    _form;
     _data;
 
     constructor(model) {
@@ -87,8 +88,6 @@ class EditAttributesPanel extends Panel {
                     { 'value': 'timestamp' },
                     { 'value': 'enumeration' },
                     { 'value': 'relation' },
-                    { 'value': 'blob', 'tooltip': '**Experimental**: Only enabled in debug mode.', 'disabled': !app.controller.isInDebugMode() },
-                    { 'value': 'base64', 'tooltip': '**Experimental**: Only enabled in debug mode.', 'disabled': !app.controller.isInDebugMode() },
                     { 'value': 'file', 'tooltip': '**Experimental**: Only enabled in debug mode.', 'disabled': !app.controller.isInDebugMode() }
                 ],
                 view: 'select',
@@ -350,20 +349,45 @@ You will not see this information in forms, but it is stored with your actual st
                         { 'name': 'defaultValue', 'dataType': 'double' }
                     ];
                     break;
-                case 'blob':
-                case 'base64':
-                    skeleton = [
-                        { 'name': 'length', 'dataType': 'string' },
-                        { 'name': 'required', 'dataType': 'boolean' }
-                    ];
-                    break;
                 case 'file':
+                    var options = [];
+                    var attributes = this._model.getModelAttributesController().getAttributes();
+                    var strAttr;
+                    if (attributes)
+                        strAttr = attributes.filter(function (x) { return x['dataType'] === "string" });
+                    options = strAttr.map(function (x) {
+                        return { 'value': x['name'] };
+                    });
+                    options = options.sort((a, b) => a['value'].localeCompare(b['value']));
                     var cdn;
                     var info = app.controller.getApiController().getApiInfo();
                     if (info['cdn'] && info['cdn'].length > 0)
                         cdn = info['cdn'].map(function (x) { return { 'value': x['url'] }; });
                     skeleton = [
-                        { 'name': 'length', 'tooltip': '**Info**: max. length of filename', 'dataType': 'string', 'defaultValue': '250', 'readonly': false },
+                        {
+                            'name': 'storage',
+                            'dataType': 'enumeration',
+                            'options': [
+                                { 'value': 'filesystem' },
+                                { 'value': 'database(base64)' },
+                                { 'value': 'database(blob)', 'disabled': true }
+                            ],
+                            'view': 'select',
+                            'required': true,
+                            changeAction: async function () {
+                                var fData = await this._form.readForm(false, false);
+                                var cdn = this._form.getFormEntry('cdn');
+                                var fn = this._form.getFormEntry('filename_prop');
+                                if (fData['storage'] == 'filesystem') {
+                                    await cdn.show();
+                                    fn.hide();
+                                } else {
+                                    cdn.hide();
+                                    await fn.show();
+                                }
+                                return Promise.resolve();
+                            }.bind(this),
+                        },
                         {
                             'name': 'cdn',
                             'label': 'CDN',
@@ -371,10 +395,28 @@ You will not see this information in forms, but it is stored with your actual st
                             'dataType': 'enumeration',
                             'view': 'select',
                             'options': cdn,
-                            'required': true
+                            'required': true,
+                            'hidden': true
+                        },
+                        //{ 'name': 'length', 'tooltip': '**Info**: max. length of filename', 'dataType': 'string', 'defaultValue': '250', 'readonly': false },
+                        {
+                            'name': 'filename_prop',
+                            'label': 'Filename attribute',
+                            'tooltip': '**Info**: Attribute for storing the filename.',
+                            'dataType': 'enumeration',
+                            'options': options,
+                            'view': 'select'
+                        },
+                        {
+                            'name': 'url_prop',
+                            'label': 'URL attribute',
+                            'tooltip': '**Info**: Attribute for storing the URL information given for downloading the file.',
+                            'dataType': 'enumeration',
+                            'options': options,
+                            'view': 'select'
                         },
                         { 'name': 'required', 'dataType': 'boolean' },
-                        { 'name': 'unique', 'dataType': 'boolean', 'defaultValue': true, 'readonly': false }
+                        //{ 'name': 'unique', 'dataType': 'boolean', 'defaultValue': true, 'readonly': false }
                     ];
                     break;
                 default:
@@ -442,7 +484,9 @@ You will not see this information in forms, but it is stored with your actual st
             }
             return Promise.resolve();
         }.bind(this));
-        return app.controller.getModalController().openPanelInModal(attrPanel);
+        await app.controller.getModalController().openPanelInModal(attrPanel);
+        this._form = attrPanel.getForm();
+        return Promise.resolve();
     }
 
     async _addAttribute(panel) {
@@ -520,11 +564,6 @@ You will not see this information in forms, but it is stored with your actual st
                     if (data.via)
                         this._data.via = data.via;
                     break;
-                case 'blob':
-                case 'base64':
-                    if (data.length) //MEDIUMTEXT / LONGTEXT
-                        this._data.length = data.length;
-                    break;
                 case 'integer':
                     if (data.length) {
                         if (!isNaN(data.length)) {
@@ -560,14 +599,24 @@ You will not see this information in forms, but it is stored with your actual st
                     }
                     break;
                 case 'file':
-                    if (data.length)
-                        this._data.length = data.length;
-                    if (data.localPath)
-                        this._data.localPath = data.localPath;
-                    if (data.cdn)
-                        this._data.cdn = data.cdn;
-                    if (data.unique)
-                        this._data.unique = data.unique;
+                    if (data['storage']) {
+                        if (data['storage'] == 'database(base64)')
+                            this._data['storage'] = 'base64';
+                        else if (data['storage'] == 'database(blob)')
+                            this._data['storage'] = 'blob';
+                        else
+                            this._data['storage'] = data['storage'];
+                    }
+                    if (data['length']) //MEDIUMTEXT / LONGTEXT
+                        this._data['length'] = data['length'];
+                    if (data['cdn'])
+                        this._data['cdn'] = data['cdn'];
+                    if (data['filename_prop'])
+                        this._data['filename_prop'] = data['filename_prop'];
+                    if (data['url_prop'])
+                        this._data['url_prop'] = data['url_prop'];
+                    if (data['unique'])
+                        this._data['unique'] = data['unique'];
                     break;
                 default:
             }

@@ -4,7 +4,7 @@ class EditSortPanel extends Panel {
         var attributes = model.getModelAttributesController().getAttributes(true);
         var options = [];
         for (var attribute of attributes) {
-            if (!(attribute['dataType'] === 'relation' || attribute['dataType'] === 'blob' || attribute['dataType'] === 'base64')) {
+            if (!(attribute['dataType'] === 'relation' || attribute['dataType'] === 'file' && (attribute['storage'] === 'blob' || attribute['storage'] === 'base64'))) {
                 if (attribute['persistent'] === undefined || attribute['persistent'] === null || attribute['persistent'])
                     options.push({ 'value': attribute['name'] });
                 else

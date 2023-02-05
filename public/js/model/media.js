@@ -101,11 +101,6 @@ class Media {
                     this._mediaType = data[Media.MEDIA_TYPE_PROPERTY];
                     this._prop = name;
                     this._value = data[name];
-                } else if (attr['dataType'] === "base64") {
-                    this._thumbnailUrl = data[name];
-                    this._mediaType = data[Media.MEDIA_TYPE_PROPERTY];
-                    this._prop = name;
-                    this._value = data[name];
                 }
             }
         }

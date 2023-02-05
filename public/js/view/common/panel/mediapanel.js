@@ -98,7 +98,7 @@ class MediaPanel extends CrudPanel {
                 if (file.startsWith("data:") || bConvert) {
                     if (p.indexOf(';') == -1) {
                         var attr = mac.getAttribute(p);
-                        if (attr && attr['dataType'] === "base64")
+                        if (attr && attr['dataType'] === "file")
                             prop = p;
                     } else {
                         var attr;
@@ -107,7 +107,7 @@ class MediaPanel extends CrudPanel {
                         for (var i = parts.length - 1; i >= 0; i--) {
                             name = parts[i];
                             attr = mac.getAttribute(name);
-                            if (attr && attr['dataType'] === "base64") {
+                            if (attr && attr['dataType'] === "file") {
                                 prop = name;
                                 break;
                             }
