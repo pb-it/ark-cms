@@ -48,10 +48,17 @@ class FileFormEntry extends FormEntry {
             .attr('type', 'text')
             .attr('size', size)
             .on('input', function () {
-                var pathname = new URL(this._$inputUrl.val()).pathname;
-                var index = pathname.lastIndexOf('/');
-                if (index !== -1)
-                    this._$inputFilename.val(pathname.substring(index + 1));
+                var val = this._$inputUrl.val();
+                if (val.startsWith('http')) {
+                    try {
+                        var pathname = new URL(val).pathname;
+                        var index = pathname.lastIndexOf('/');
+                        if (index !== -1)
+                            this._$inputFilename.val(pathname.substring(index + 1));
+                    } catch (error) {
+                        ;
+                    }
+                }
             }.bind(this));
         if (value && value['url'])
             this._$inputUrl.val(value['url']);
@@ -96,7 +103,7 @@ class FileFormEntry extends FormEntry {
         if (this._$inputUrl)
             data['url'] = this._$inputUrl.val();
 
-        if (this._$inputFile && this._$inputFile[0] && this._$inputFile[0].files && this._$inputFile[0].length > 0) {
+        if (this._$inputFile && this._$inputFile[0] && this._$inputFile[0].files && this._$inputFile[0].files.length > 0) {
             var file = this._$inputFile[0].files[0];
             if (this._attribute['storage'] === "blob") {
                 data['blob'] = [new Uint8Array(await file.arrayBuffer())];
