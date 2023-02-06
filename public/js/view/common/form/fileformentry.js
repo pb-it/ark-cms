@@ -69,11 +69,11 @@ class FileFormEntry extends FormEntry {
             }.bind(this));
         this._$value.append(this._$inputFile);
 
-        if (this._value) {
+        if (value['base64'] || (this._$inputFile && this._$inputFile[0] && this._$inputFile[0].files && this._$inputFile[0].length > 0)) {
             this._$value.append("<br/>");
 
-            var $clear = $('<button>')
-                .text('Clear')
+            var $remove = $('<button>')
+                .text('Remove')
                 .click(async function (event) {
                     event.stopPropagation();
 
@@ -81,7 +81,7 @@ class FileFormEntry extends FormEntry {
 
                     return Promise.resolve();
                 }.bind(this));
-            this._$value.append($clear);
+            this._$value.append($remove);
         }
 
         return Promise.resolve(this._$value);

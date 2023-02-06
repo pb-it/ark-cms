@@ -107,10 +107,25 @@ class Form {
                     if (entry instanceof FileFormEntry) { // entry.getAttribute()['dataType'] == 'file'
                         value = {};
                         var attr = entry.getAttribute();
-                        if (attr['storage'] == 'filesystem')
-                            value['filename'] = this._data[entry.getName()];
-                        else if (attr['filename_prop'])
-                            value['filename'] = this._data[attr['filename_prop']];
+                        if (attr['storage'] == 'filesystem') {
+                            var data = this._data[entry.getName()];
+                            if (data) {
+                                if (typeof (data) === 'string' || (data) instanceof String)
+                                    value['filename'] = data;
+                                else
+                                    value['filename'] = data['filename'];
+                            }
+                        } else {
+                            if (attr['filename_prop'])
+                                value['filename'] = this._data[attr['filename_prop']];
+                            var data = this._data[entry.getName()];
+                            if (attr['storage'] == 'base64') {
+                                if (typeof (data) === 'string' || (data) instanceof String)
+                                    value['base64'] = data;
+                                else
+                                    value['base64'] = data['base64'];
+                            }
+                        }
                         if (attr['url_prop'])
                             value['url'] = this._data[attr['url_prop']];
                     } else
