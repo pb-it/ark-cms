@@ -89,34 +89,26 @@ class EditModelPanel extends TabPanel {
 
     async _readDefinition(tab) {
         var definition;
-        if (tab == this._$rawPanel)
-            definition = await this._readRawPanel();
-        else
-            definition = await this._readAllPanels();
-        return Promise.resolve(definition);
-    }
-
-    async _readRawPanel() {
-        var fData = await this._rawForm.readForm();
-        var definition = JSON.parse(fData.json);
-        return Promise.resolve(definition);
-    }
-
-    async _readAllPanels() {
-        var definition = this._tmpModel.getDefinition();
-
-        definition['attributes'] = this._$attributesPanel.getAttributes();
-
-        var defaults = shrink(await this._$defaultsPanel.getData());
-        if (defaults)
-            definition['defaults'] = defaults;
-
-        if (this._extensionForm) {
-            var fData = await this._extensionForm.readForm();
-            if (!isEmpty(fData))
-                definition['extensions'] = fData;
-            else if (definition['extensions'] || definition['extensions'] === null)
-                delete definition['extensions'];
+        if (tab == this._$rawPanel) {
+            var fData = await this._rawForm.readForm();
+            definition = JSON.parse(fData.json);
+        } else {
+            definition = this._tmpModel.getDefinition();
+            if (tab == this._$attributesPanel)
+                definition['attributes'] = this._$attributesPanel.getAttributes();
+            else if (tab == this._$defaultsPanel) {
+                var defaults = shrink(await this._$defaultsPanel.getData());
+                if (defaults)
+                    definition['defaults'] = defaults;
+            } else if (tab == this._$extensionsPanel) {
+                if (this._extensionForm) {
+                    var fData = await this._extensionForm.readForm();
+                    if (!isEmpty(fData))
+                        definition['extensions'] = fData;
+                    else if (definition['extensions'] || definition['extensions'] === null)
+                        delete definition['extensions'];
+                }
+            }
         }
         return Promise.resolve(definition);
     }

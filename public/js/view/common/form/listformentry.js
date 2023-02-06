@@ -8,11 +8,14 @@ class ListFormEntry extends FormEntry {
     }
 
     async renderValue(value) {
+        if (this._$value)
+            this._$value.empty();
+        else
+            this._$value = $('<div/>').addClass('value');
+
         var selected;
         if (value)
             selected = value.map(function (x) { return x['value'] })
-
-        var $div = $('<div/>').addClass('value');
 
         this._list = new List();
         if (this._attribute['options']) {
@@ -33,9 +36,9 @@ class ListFormEntry extends FormEntry {
         }
         this._listVis = new SelectableListVis(vListConfig, 'attributes', this._list);
         this._listVis.init();
-        $div.append(this._listVis.renderList());
+        this._$value.append(this._listVis.renderList());
 
-        return Promise.resolve($div);
+        return Promise.resolve(this._$value);
     }
 
     async readValue() {

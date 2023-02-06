@@ -7,7 +7,6 @@ class BasicFormEntry extends FormEntry {
         return Promise.resolve();
     }
 
-    _$value;
     _$input;
     _$syntax;
 
@@ -20,11 +19,12 @@ class BasicFormEntry extends FormEntry {
     }
 
     async renderValue(value) {
-        var name = this._attribute.name;
         if (this._$value)
             this._$value.empty();
         else
             this._$value = $('<div/>').addClass('value');
+
+        var name = this._attribute.name;
         var size;
 
         if (this._attribute['dataType']) {

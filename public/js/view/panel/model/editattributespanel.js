@@ -310,7 +310,7 @@ You will not see this information in forms, but it is stored with your actual st
                     var attributes = this._model.getModelAttributesController().getAttributes();
                     var exist;
                     if (attributes)
-                        exist = attributes.filter(function (x) { return x['dataType'] === "relation" && attr['model'] && attr['multiple'] });
+                        exist = attributes.filter(function (x) { return x['dataType'] === "relation" && x['model'] && x['multiple'] });
                     for (var name of allModelNames) {
                         if (name === thisModelName)
                             continue;

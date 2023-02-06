@@ -7,6 +7,8 @@ class FormEntry {
     _value;
 
     _$div;
+    //_$label;
+    _$value;
 
     constructor(form, attribute) {
         this._form = form;
@@ -53,8 +55,11 @@ class FormEntry {
     async renderEntry(value) {
         this._value = value;
 
-        if (!this._$div)
+        if (this._$div)
+            this._$div.empty();
+        else
             this._$div = $('<div/>').addClass('formentry');
+
         if (this._attribute['hidden'])
             this._$div.empty();
         else {

@@ -1,7 +1,5 @@
 class FileFormEntry extends FormEntry {
 
-    _$value;
-
     _$inputFilename;
     _$inputUrl;
     _$inputFile;
@@ -12,10 +10,11 @@ class FileFormEntry extends FormEntry {
 
     async renderValue(value) {
         this._value = value;
-        if (!this._$value)
-            this._$value = $('<div/>').addClass('value');
-        else
+
+        if (this._$value)
             this._$value.empty();
+        else
+            this._$value = $('<div/>').addClass('value');
 
         var size;
         if (this._attribute.size)
@@ -24,11 +23,7 @@ class FileFormEntry extends FormEntry {
             size = "100";
 
         if (value) {
-            var str;
-            if (typeof value === 'string' || value instanceof String)
-                str = value;
-            else if (value['base64'])
-                str = value['base64'];
+            var str = value['base64'];
             if (str) {
                 if (str.length > size)
                     this._$value.append(str.substr(0, size) + "...<br/>");
@@ -93,44 +88,24 @@ class FileFormEntry extends FormEntry {
     }
 
     async readValue() {
-        var data;
-
-        var filename;
-        var url;
-        var file;
+        var data = {};
 
         if (this._$inputFilename)
-            filename = this._$inputFilename.val();
+            data['filename'] = this._$inputFilename.val();
 
         if (this._$inputUrl)
-            url = this._$inputUrl.val();
-        if (!url && this._$inputFile) {
-            var input = this._$inputFile[0];
-            if (input.files && input.files.length > 0)
-                file = input.files[0];
-        }
+            data['url'] = this._$inputUrl.val();
 
-        if (url) {
-            data = {};
-            if (filename)
-                data['filename'] = filename;
-            data['url'] = url;
-        } else if (file) {
-            /*if (!filename)
-                filename = file.name;*/
-
-            data = {};
-            if (filename)
-                data['filename'] = filename;
-            if (this._attribute['dataType'] === "blob") {
+        if (this._$inputFile && this._$inputFile[0] && this._$inputFile[0].files && this._$inputFile[0].length > 0) {
+            var file = this._$inputFile[0].files[0];
+            if (this._attribute['storage'] === "blob") {
                 data['blob'] = [new Uint8Array(await file.arrayBuffer())];
                 //const fileToBlob = async (file) => new Blob([new Uint8Array(await file.arrayBuffer())], { type: file.type });
                 //data[name] = await fileToBlob(value);
-            } else if (this._attribute['dataType'] === "base64" || this._attribute['dataType'] === "file") {
+            } else if (this._attribute['storage'] === "base64" || this._attribute['storage'] === "filesystem") {
                 data['base64'] = await Base64.encodeObject(file);
             }
-        } else
-            data = this._value;
+        }
         return Promise.resolve(data);
     }
 }

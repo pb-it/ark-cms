@@ -103,9 +103,19 @@ class Form {
         if (this._entries) {
             var value;
             for (var entry of this._entries) {
-                if (this._data)
-                    value = this._data[entry.getName()];
-                else
+                if (this._data) {
+                    if (entry instanceof FileFormEntry) { // entry.getAttribute()['dataType'] == 'file'
+                        value = {};
+                        var attr = entry.getAttribute();
+                        if (attr['storage'] == 'filesystem')
+                            value['filename'] = this._data[entry.getName()];
+                        else if (attr['filename_prop'])
+                            value['filename'] = this._data[attr['filename_prop']];
+                        if (attr['url_prop'])
+                            value['url'] = this._data[attr['url_prop']];
+                    } else
+                        value = this._data[entry.getName()];
+                } else
                     value = null;
                 this._$form.append(await entry.renderEntry(value));
             }

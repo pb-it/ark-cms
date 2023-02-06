@@ -100,6 +100,11 @@ class CrudObject {
                                         }
                                     }
                                     break;
+                                case 'file':
+                                    var newValue = newdata[property];
+                                    if (newValue['base64'] || newValue['url'] || (!newValue['filename'] && olddata && olddata[property]))
+                                        relevant[property] = newValue;
+                                    break;
                                 default:
                                     if (!olddata || (newdata[property] !== olddata[property]))
                                         relevant[property] = newdata[property];
