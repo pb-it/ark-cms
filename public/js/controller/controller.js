@@ -170,6 +170,11 @@ class Controller {
         return this._bConnection;
     }
 
+    async navigate(path) {
+        var state = State.getStateFromPath(path);
+        return this.loadState(state, true);
+    }
+
     async loadState(state, push, replace) {
         this._data = null;
         try {

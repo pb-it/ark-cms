@@ -7,8 +7,8 @@ class NavigationPanel extends Panel {
     async _renderContent() {
         var $div = $('<div/>');
 
-        var skeleton = [{ name: 'url', dataType: 'string' }];
-        var data = { 'url': window.location.href };
+        var skeleton = [{ name: 'path', dataType: 'string' }];
+        var data = { 'path': window.location.pathname + window.location.search + window.location.hash };
         var form = new Form(skeleton, data);
         var $form = await form.renderForm();
         $div.append($form);
@@ -24,9 +24,8 @@ class NavigationPanel extends Panel {
                 this.dispose();
 
                 var fdata = await form.readForm();
-                var url = new URL(fdata.url);
-                var state = State.getStateFromUrl(url);
-                app.controller.loadState(state, true);
+
+                return app.getController().navigate(fdata['path']);
             }.bind(this));
         $div.append($apply);
         return Promise.resolve($div);

@@ -1,17 +1,35 @@
 class State {
 
     static getStateFromUrl(url) {
-        var state;
-
         if (!url)
             url = window.location;
+        return State.getStateFromPath(url.pathname, url.search, url.hash); //url.href
+    }
 
-        var path = url.pathname;
+    static getStateFromPath(path, search, fragment) {
+        var state;
         if (path === '/')
             state = new State();
         else if (path.startsWith("/data/")) {
-            state = new State();
             path = path.substring(6);
+            state = new State();
+
+            var index = path.indexOf("#");
+            if (index >= 0) {
+                fragment = path.substring(index + 1);
+                path = path.substring(0, index);
+            }
+            if (fragment) {
+                if (fragment.startsWith('#'))
+                    fragment = fragment.substring(1);
+                state.anchor = fragment;
+            }
+            index = path.indexOf("?");
+            if (index >= 0) {
+                search = path.substring(index + 1);
+                path = path.substring(0, index);
+            }
+
             var parts = path.split('/');
             if (parts.length > 0) {
                 state.typeString = parts[0];
@@ -41,16 +59,16 @@ class State {
                     throw new Error("invalid url");
             }
 
-            var index = url.href.indexOf("#");//window.location.serach starts with questionmark
+            var index = path.indexOf("#");
             if (index >= 0) {
-                path = url.href.substring(0, index);
-                state.anchor = url.href.substring(index + 1);
-            } else
-                path = url.href;
+                path = path.substring(0, index);
+                state.anchor = path.substring(index + 1);
+            }
 
-            index = path.indexOf("?");
-            if (index >= 0) {
-                path.substring(index + 1).split("&").forEach(function (part) {
+            if (search) {
+                if (search.startsWith('?'))
+                    search = search.substring(1);
+                search.split("&").forEach(function (part) {
                     if (part.startsWith("_")) {
                         if (part.startsWith("_sort="))
                             state.sort = decodeURIComponent(part.substring("_sort=".length));
