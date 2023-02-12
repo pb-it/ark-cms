@@ -383,6 +383,10 @@ class Controller {
         return items;
     }
 
+    getLoadingState() {
+        return this._bLoading;
+    }
+
     setLoadingState(b) {
         var changed = false;
         if (this._bLoading != b) {
