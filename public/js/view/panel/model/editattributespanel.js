@@ -172,44 +172,40 @@ class EditAttributesPanel extends Panel {
                         );
                     } else {
                         skeleton.push(
-                            [
-                                {
-                                    'name': 'view',
-                                    'label': 'syntax',
-                                    'dataType': 'enumeration',
-                                    'options': [
-                                        { 'value': '<auto>', 'disabled': true },
-                                        { 'value': 'csv' },
-                                        { 'value': 'xml' },
-                                        { 'value': 'json', 'disabled': true },
-                                        { 'value': 'plain' },
-                                        { 'value': 'html' },
-                                        { 'value': 'plain+html' },
-                                        { 'value': 'markdown' }
-                                    ],
-                                    'tooltip': `Default behavior is as \'plain\' which may result in WYSIWYG.
+                            {
+                                'name': 'view',
+                                'label': 'syntax',
+                                'dataType': 'enumeration',
+                                'options': [
+                                    { 'value': '<auto>', 'disabled': true },
+                                    { 'value': 'csv' },
+                                    { 'value': 'xml' },
+                                    { 'value': 'json', 'disabled': true },
+                                    { 'value': 'plain' },
+                                    { 'value': 'html' },
+                                    { 'value': 'plain+html' },
+                                    { 'value': 'markdown' }
+                                ],
+                                'tooltip': `Default behavior is as \'plain\' which may result in WYSIWYG.
 \'plain+html\' enables you to mix preformatted plain text with interpret and rendered html-code between \<html\>/\</html\> tags.`,
-                                    'view': 'select'
-                                },
-                                {
-                                    'name': 'bSyntaxPrefix',
-                                    'label': 'individual syntax',
-                                    'tooltip': `Choose syntax individual for every entry.
+                                'view': 'select'
+                            },
+                            {
+                                'name': 'bSyntaxPrefix',
+                                'label': 'individual syntax',
+                                'tooltip': `Choose syntax individual for every entry.
 An media / MIME type string will be prepended to your data.
 You will not see this information in forms, but it is stored with your actual string in the database and consumes space.`,
-                                    'dataType': 'boolean',
-                                    'required': true,
-                                    'defaultValue': false
-                                },
-                                { 'name': 'size', 'dataType': 'string' }
-                            ]
+                                'dataType': 'boolean',
+                                'required': true,
+                                'defaultValue': false
+                            },
+                            { 'name': 'size', 'dataType': 'string' }
                         );
                     }
                     skeleton.push(
-                        [
-                            { 'name': 'required', 'dataType': 'boolean' },
-                            { 'name': 'defaultValue', 'dataType': 'string' }
-                        ]
+                        { 'name': 'required', 'dataType': 'boolean' },
+                        { 'name': 'defaultValue', 'dataType': 'string' }
                     );
                     break;
                 case 'json':
