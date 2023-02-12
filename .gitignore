@@ -1,5 +1,5 @@
-.svn
-.vscode
+.*
+_*
 node_modules
 package-lock.json
 

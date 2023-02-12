@@ -104,22 +104,40 @@ class CrudObject {
                                     var newValue = newdata[property];
                                     if (olddata && olddata[property]) {
                                         var oldValue = olddata[property];
-                                        if (typeof oldValue === 'string' || oldValue instanceof String) {
-                                            if (newValue['filename'] != oldValue) {
-                                                relevant[property] = newValue;
-                                                continue;
+                                        if (field['storage'] == 'filesystem') {
+                                            if (typeof oldValue === 'string' || oldValue instanceof String) {
+                                                if (newValue['filename'] != oldValue) {
+                                                    relevant[property] = newValue;
+                                                    continue;
+                                                }
+
+                                                if (newValue['base64']) {
+                                                    relevant[property] = newValue;
+                                                    continue;
+                                                }
+                                            } else {
+                                                if (newValue['filename'] != oldValue['filename']) {
+                                                    relevant[property] = newValue;
+                                                    continue;
+                                                }
                                             }
-                                        } else {
-                                            if (newValue['filename'] != oldValue['filename']) {
-                                                relevant[property] = newValue;
-                                                continue;
+                                        } else if (field['storage'] == 'base64') {
+                                            if (typeof oldValue === 'string' || oldValue instanceof String) {
+                                                if (newValue['base64'] != oldValue) {
+                                                    relevant[property] = newValue;
+                                                    continue;
+                                                }
+                                            } else {
+                                                if (newValue['base64'] != oldValue['base64']) {
+                                                    relevant[property] = newValue;
+                                                    continue;
+                                                }
                                             }
                                         }
-                                        if (newValue['base64']) {
+                                        if (newValue['url'] && (!field['url_prop'] || olddata[field['url_prop']] != newValue['url'])) {
                                             relevant[property] = newValue;
                                             continue;
                                         }
-                                        //TODO: check url?
                                     } else {
                                         if (newValue['filename'] || newValue['url'] || newValue['base64'])
                                             relevant[property] = newValue;

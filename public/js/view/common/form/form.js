@@ -105,29 +105,26 @@ class Form {
             for (var entry of this._entries) {
                 if (this._data) {
                     if (entry instanceof FileFormEntry) { // entry.getAttribute()['dataType'] == 'file'
-                        value = {};
-                        var attr = entry.getAttribute();
-                        if (attr['storage'] == 'filesystem') {
-                            var data = this._data[entry.getName()];
-                            if (data) {
-                                if (typeof (data) === 'string' || (data) instanceof String)
+                        var data = this._data[entry.getName()];
+                        if (data) {
+                            if (typeof (data) === 'string' || (data) instanceof String) {
+                                var attr = entry.getAttribute();
+                                value = {};
+                                if (attr['storage'] == 'filesystem')
                                     value['filename'] = data;
-                                else
-                                    value['filename'] = data['filename'];
-                            }
-                        } else {
-                            if (attr['filename_prop'])
-                                value['filename'] = this._data[attr['filename_prop']];
-                            var data = this._data[entry.getName()];
-                            if (attr['storage'] == 'base64') {
-                                if (typeof (data) === 'string' || (data) instanceof String)
-                                    value['base64'] = data;
-                                else
-                                    value['base64'] = data['base64'];
-                            }
-                        }
-                        if (attr['url_prop'])
-                            value['url'] = this._data[attr['url_prop']];
+                                else {
+                                    if (attr['storage'] == 'base64')
+                                        value['base64'] = data;
+
+                                    if (attr['filename_prop'])
+                                        value['filename'] = this._data[attr['filename_prop']];
+                                }
+                                if (attr['url_prop'])
+                                    value['url'] = this._data[attr['url_prop']];
+                            } else
+                                value = this._data[entry.getName()];
+                        } else
+                            value = {};
                     } else
                         value = this._data[entry.getName()];
                 } else

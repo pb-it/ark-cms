@@ -103,15 +103,21 @@ class FileFormEntry extends FormEntry {
         if (this._$inputUrl)
             data['url'] = this._$inputUrl.val();
 
-        if (this._$inputFile && this._$inputFile[0] && this._$inputFile[0].files && this._$inputFile[0].files.length > 0) {
-            var file = this._$inputFile[0].files[0];
-            if (this._attribute['storage'] === "blob") {
+        var file;
+        if (this._$inputFile && this._$inputFile[0] && this._$inputFile[0].files && this._$inputFile[0].files.length > 0)
+            file = this._$inputFile[0].files[0];
+
+        if (this._attribute['storage'] === "blob") {
+            if (file) {
                 data['blob'] = [new Uint8Array(await file.arrayBuffer())];
                 //const fileToBlob = async (file) => new Blob([new Uint8Array(await file.arrayBuffer())], { type: file.type });
                 //data[name] = await fileToBlob(value);
-            } else if (this._attribute['storage'] === "base64" || this._attribute['storage'] === "filesystem") {
-                data['base64'] = await Base64.encodeObject(file);
             }
+        } else if (this._attribute['storage'] === "base64" || this._attribute['storage'] === "filesystem") {
+            if (file)
+                data['base64'] = await Base64.encodeObject(file);
+            else if (this._value['base64'])
+                data['base64'] = this._value['base64']
         }
         return Promise.resolve(data);
     }

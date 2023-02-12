@@ -119,11 +119,11 @@ class DataView {
                                             }
                                         } else {
                                             $value.addClass('pre');
-                                            value = DataView._parseText(value);
+                                            value = encodeText(value);
                                         }
                                     } else {
                                         $value.addClass('pre');
-                                        value = JSON.stringify(data[name], null, '\t');
+                                        value = encodeText(JSON.stringify(data[name], null, '\t'));
                                     }
                                 } else
                                     value = "";

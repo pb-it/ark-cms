@@ -105,7 +105,7 @@ class EditAttributesPanel extends Panel {
                     throw new Error("Field 'name' must not start with an underscore");
 
                 var lower = data.name.toLowerCase();
-                var attribues = this._model.getModelAttributesController().getAttributes();
+                var attribues = this.getAttributes();
                 if (attribues) {
                     var names = attribues.map(function (x) {
                         return x.name;
@@ -307,7 +307,7 @@ You will not see this information in forms, but it is stored with your actual st
                     });
                     var thisModelName = this._model.getName();
                     var options = [];
-                    var attributes = this._model.getModelAttributesController().getAttributes();
+                    var attributes = this.getAttributes();
                     var exist;
                     if (attributes)
                         exist = attributes.filter(function (x) { return x['dataType'] === "relation" && x['model'] && x['multiple'] });
@@ -351,14 +351,17 @@ You will not see this information in forms, but it is stored with your actual st
                     break;
                 case 'file':
                     var options = [];
-                    var attributes = this._model.getModelAttributesController().getAttributes();
+                    var attributes = this.getAttributes();
                     var strAttr;
-                    if (attributes)
+                    if (attributes) {
                         strAttr = attributes.filter(function (x) { return x['dataType'] === "string" });
-                    options = strAttr.map(function (x) {
-                        return { 'value': x['name'] };
-                    });
-                    options = options.sort((a, b) => a['value'].localeCompare(b['value']));
+                        if (strAttr) {
+                            options = strAttr.map(function (x) {
+                                return { 'value': x['name'] };
+                            });
+                            options = options.sort((a, b) => a['value'].localeCompare(b['value']));
+                        }
+                    }
                     var cdn;
                     var info = app.controller.getApiController().getApiInfo();
                     if (info['cdn'] && info['cdn'].length > 0)
