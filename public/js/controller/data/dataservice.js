@@ -117,7 +117,12 @@ class DataService {
     }
 
     async fetchDataByState(state) {
-        return await this.fetchData(state.typeString, state.id, state.where, state.sort, state.limit, state.filters, state.search, state.bIgnoreCache);
+        var res;
+        if (state['customRoute'])
+            res = await this.fetchPath(state['customRoute']);
+        else
+            res = await this.fetchData(state.typeString, state.id, state.where, state.sort, state.limit, state.filters, state.search, state.bIgnoreCache);
+        return Promise.resolve(res);
     }
 
     async fetchData(typeString, id, where, sort, limit, filters, search, bIgnoreCache) {
@@ -164,7 +169,7 @@ class DataService {
         }
 
         if (!res) {
-            res = await WebClient.fetchJson(app.controller.getApiController().getApiOrigin() + "/api/" + typeUrl);
+            res = await this.fetchPath(typeUrl);
 
             var cache = this._cache.getModelCache(typeString);
             if (!id && !where && (!limit || limit == -1)) {
@@ -199,6 +204,10 @@ class DataService {
             res = Filter.filterStr(res, search);
 
         return Promise.resolve(res);
+    }
+
+    async fetchPath(path) {
+        return WebClient.fetchJson(app.controller.getApiController().getApiOrigin() + "/api/" + path);
     }
 
     async fetchObjectById(typeString, id) {

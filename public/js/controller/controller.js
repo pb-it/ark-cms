@@ -171,8 +171,13 @@ class Controller {
     }
 
     async navigate(path) {
-        var state = State.getStateFromPath(path);
-        return this.loadState(state, true);
+        try {
+            var state = State.getStateFromPath(path);
+            await this.loadState(state, true);
+        } catch (error) {
+            this.showError(error);
+        }
+        return Promise.resolve();
     }
 
     async loadState(state, push, replace) {

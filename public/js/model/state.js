@@ -41,7 +41,7 @@ class State {
                         if (part === "new")
                             state.action = ActionEnum.create;
                         else
-                            throw new Error("invalid url");
+                            state.customRoute = path;
                     } else {
                         state.id = parseInt(parts[1]);
                         state.action = ActionEnum.read;
@@ -53,8 +53,9 @@ class State {
                         if (parts[2] === "edit")
                             state.action = ActionEnum.update;
                         else
-                            throw new Error("invalid url");
-                    }
+                            state.customRoute = path;
+                    } else
+                        throw new Error("invalid url");
                 } else
                     throw new Error("invalid url");
             }
@@ -66,8 +67,12 @@ class State {
             }
 
             if (search) {
-                if (search.startsWith('?'))
+                if (search.startsWith("?"))
                     search = search.substring(1);
+
+                if (state.customRoute)
+                    state.customRoute += "?" + search;
+
                 search.split("&").forEach(function (part) {
                     if (part.startsWith("_")) {
                         if (part.startsWith("_sort="))
@@ -103,51 +108,56 @@ class State {
      */
     static getUrlFromState(state) {
         var url;
-        if (state && state.typeString) {
-            url = "/data/" + state.typeString;
-            if (state.action) {
-                switch (state.action) {
-                    case ActionEnum.create:
-                        url += "/new";
-                        break;
-                    case ActionEnum.read:
-                        if (state.id)
-                            url += "/" + state.id
-                        break;
-                    case ActionEnum.update:
-                        if (state.id)
-                            url += "/" + state.id + "/edit";
-                        break;
-                    case ActionEnum.delete:
-                        //TODO:
-                        break;
-                    default:
+        if (state) {
+            if (state['customRoute'])
+                url = "/data/" + state['customRoute'];
+            else if (state.typeString) {
+                url = "/data/" + state.typeString;
+                if (state.action) {
+                    switch (state.action) {
+                        case ActionEnum.create:
+                            url += "/new";
+                            break;
+                        case ActionEnum.read:
+                            if (state.id)
+                                url += "/" + state.id
+                            break;
+                        case ActionEnum.update:
+                            if (state.id)
+                                url += "/" + state.id + "/edit";
+                            break;
+                        case ActionEnum.delete:
+                            //TODO:
+                            break;
+                        default:
+                    }
+                } else {
+                    if (state.id)
+                        url += "/" + state.id
                 }
-            } else {
-                if (state.id)
-                    url += "/" + state.id
-            }
 
-            var purl = "";
-            if (state.where)
-                purl += "&" + state.where;
-            if (state.sort)
-                purl += "&_sort=" + encodeURIComponent(state.sort);
-            if (state.limit)
-                purl += "&_limit=" + state.limit;
-            if (state.filters && state.filters.length > 0) {
-                for (var filter of state.filters) {
-                    if (typeof filter.query === 'string' || filter.query instanceof String)
-                        purl += "&_filter=" + encodeURIComponent(filter.query);
-                    else
-                        purl += "&_filter=[Object]"; //JSON.stringify(state.filter)
+                var purl = "";
+                if (state.where)
+                    purl += "&" + state.where;
+                if (state.sort)
+                    purl += "&_sort=" + encodeURIComponent(state.sort);
+                if (state.limit)
+                    purl += "&_limit=" + state.limit;
+                if (state.filters && state.filters.length > 0) {
+                    for (var filter of state.filters) {
+                        if (typeof filter.query === 'string' || filter.query instanceof String)
+                            purl += "&_filter=" + encodeURIComponent(filter.query);
+                        else
+                            purl += "&_filter=[Object]"; //JSON.stringify(state.filter)
+                    }
                 }
-            }
 
-            if (state.search)
-                purl += "&_search=" + encodeURIComponent(state.search);
-            if (purl.length > 0)
-                url = `${url}?${purl.substring(1)}`;
+                if (state.search)
+                    purl += "&_search=" + encodeURIComponent(state.search);
+                if (purl.length > 0)
+                    url = `${url}?${purl.substring(1)}`;
+            } else
+                url = "/";
         } else
             url = "/";
         return url;
@@ -155,7 +165,8 @@ class State {
 
     name;
 
-    path;
+    customRoute;
+
     typeString;
     action;
     id;
@@ -181,6 +192,8 @@ class State {
 
     parseFromData(data) {
         this.name = data.name;
+
+        this.customRoute = data.customRoute;
 
         this.typeString = data.typeString;
         this.action = data.action;
