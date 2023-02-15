@@ -105,26 +105,22 @@ class Form {
             for (var entry of this._entries) {
                 if (this._data) {
                     if (entry instanceof FileFormEntry) { // entry.getAttribute()['dataType'] == 'file'
+                        var attr = entry.getAttribute();
                         var data = this._data[entry.getName()];
-                        if (data) {
-                            if (typeof (data) === 'string' || (data) instanceof String) {
-                                var attr = entry.getAttribute();
-                                value = {};
+                        if (!data || typeof (data) === 'string' || (data) instanceof String) {
+                            value = {};
+                            if (data) {
                                 if (attr['storage'] == 'filesystem')
                                     value['filename'] = data;
-                                else {
-                                    if (attr['storage'] == 'base64')
-                                        value['base64'] = data;
-
-                                    if (attr['filename_prop'])
-                                        value['filename'] = this._data[attr['filename_prop']];
-                                }
-                                if (attr['url_prop'])
-                                    value['url'] = this._data[attr['url_prop']];
-                            } else
-                                value = this._data[entry.getName()];
+                                else if (attr['storage'] == 'base64')
+                                    value['base64'] = data;
+                            }
+                            if (attr['filename_prop'])
+                                value['filename'] = this._data[attr['filename_prop']];
+                            if (attr['url_prop'])
+                                value['url'] = this._data[attr['url_prop']];
                         } else
-                            value = {};
+                            value = data;
                     } else
                         value = this._data[entry.getName()];
                 } else
