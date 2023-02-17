@@ -107,7 +107,7 @@ class ContextMenuController {
                     delete data['created_at'];
                     delete data['updated_at'];
                     for (var attr of skeleton) {
-                        if (attr['hidden'] || attr['readonly'])
+                        if (attr['hidden'] || attr['readonly'] || attr['unique'])
                             delete data[attr['name']];
                     }
 

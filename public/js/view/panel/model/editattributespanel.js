@@ -88,7 +88,7 @@ class EditAttributesPanel extends Panel {
                     { 'value': 'timestamp' },
                     { 'value': 'enumeration' },
                     { 'value': 'relation' },
-                    { 'value': 'file', 'tooltip': '**Experimental**: Only enabled in debug mode.', 'disabled': !app.controller.isInDebugMode() }
+                    { 'value': 'file' }
                 ],
                 view: 'select',
                 required: true

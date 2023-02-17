@@ -45,13 +45,23 @@ class Application {
     }
 }
 
-window.onpopstate = function (e) {
-    var state;
-    if (e.state)
-        state = new State(e.state);
-    else
-        state = State.getStateFromUrl();
-    app.controller.loadState(state);
+window.onpopstate = async function (e) {
+    var bError = false;
+    if (!app.controller.hasConnection()) {
+        if (!await app.controller.initController())
+            bError = true;
+    }
+
+    if (bError) {
+        app.controller.getView().initView();
+    } else {
+        var state;
+        if (e.state)
+            state = new State(e.state);
+        else
+            state = State.getStateFromUrl();
+        app.controller.loadState(state);
+    }
 };
 
 $(document).keydown(async function (e) {
@@ -59,7 +69,7 @@ $(document).keydown(async function (e) {
         if (document.activeElement == document.body) {
             e.preventDefault();
             await app.controller.selectAll();
-        }  
+        }
     }
     return Promise.resolve();
 });
