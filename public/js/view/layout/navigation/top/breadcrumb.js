@@ -205,12 +205,14 @@ class Breadcrumb {
                 text = 'id:' + id.slice(0, 9).join(',') + ',...';
             else
                 text = 'id:' + id.concat(',');
-        } else {
+        } else if (isNaN(id)) {
             if (id.length < 70)
                 text = 'id:' + id;
             else
                 text = 'id:' + id.substring(0, 70) + '...';
-        }
+        } else
+            text = 'id:' + id;
+
         var $button = $('<button/>')
             .text(text)
             .css({ 'margin': '0 1 0 1' })

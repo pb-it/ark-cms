@@ -160,12 +160,6 @@ class DataService {
                         bSort = true;
                 }
             }
-
-            if (bSort)
-                res = DataService.sortData(model, sort, res);
-
-            if (res && limit && limit != -1 && res.length > limit)
-                res = res.slice(0, limit);
         }
 
         if (!res) {
@@ -181,27 +175,31 @@ class DataService {
             }
         }
 
-        if (filters && filters.length > 0) {
-            for (var filter of filters) {
-                if (typeof filter.query === 'string' || filter.query instanceof String) {
-                    if (filter.query === '[Object]')
-                        alert("cannot restore [Object] filter");
-                    else if (filter.query.startsWith('{')) {
-                        Filter.filterObj(res, new CrudObject(typeString, JSON.parse(filter.query)));
-                    } else
-                        res = Filter.filterStr(res, filter.query);
-                } else {
-                    res = Filter.filterObj(res, new CrudObject(typeString, filter.query));
+        if (res) {
+            if (filters && filters.length > 0) {
+                for (var filter of filters) {
+                    if (typeof filter.query === 'string' || filter.query instanceof String) {
+                        if (filter.query === '[Object]')
+                            alert("cannot restore [Object] filter");
+                        else if (filter.query.startsWith('{')) {
+                            Filter.filterObj(res, new CrudObject(typeString, JSON.parse(filter.query)));
+                        } else
+                            res = Filter.filterStr(res, filter.query);
+                    } else {
+                        res = Filter.filterObj(res, new CrudObject(typeString, filter.query));
+                    }
                 }
             }
 
-            //TODO: fix sort which may have been destroyed by jpath filters with 'or' concatenation
-            if (sort)
-                res = DataService.sortData(model, sort, res);
-        }
+            if (search)
+                res = Filter.filterStr(res, search);
 
-        if (search)
-            res = Filter.filterStr(res, search);
+            if (bSort)
+                res = DataService.sortData(model, sort, res);
+
+            if (limit && limit != -1 && res.length > limit)
+                res = res.slice(0, limit);
+        }
 
         return Promise.resolve(res);
     }
