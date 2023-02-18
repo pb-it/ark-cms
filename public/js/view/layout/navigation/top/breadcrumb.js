@@ -199,8 +199,20 @@ class Breadcrumb {
     }
 
     _renderId(id) {
+        var text;
+        if (Array.isArray(id)) {
+            if (id.length > 10)
+                text = 'id:' + id.slice(0, 9).join(',') + ',...';
+            else
+                text = 'id:' + id.concat(',');
+        } else {
+            if (id.length < 70)
+                text = 'id:' + id;
+            else
+                text = 'id:' + id.substring(0, 70) + '...';
+        }
         var $button = $('<button/>')
-            .text('id:' + id)
+            .text(text)
             .css({ 'margin': '0 1 0 1' })
             .click(function (event) {
                 event.stopPropagation();

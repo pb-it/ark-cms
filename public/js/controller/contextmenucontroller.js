@@ -194,10 +194,8 @@ class ContextMenuController {
 
                             params = [];
                             if (backLink) {
-                                for (var i = 0; i < objs.length; i++) {
-                                    data = objs[i].getData();
-                                    params.push(backLink + ".id=" + data['id']);
-                                }
+                                var ids = objs.map(function (x) { return x.getData()['id'] });
+                                params.push(backLink + "_in=" + ids.join(','));
                             } else {
                                 var map = new Map();
                                 for (var i = 0; i < objs.length; i++) {
@@ -283,7 +281,7 @@ class ContextMenuController {
                             app.controller.setLoadingState(true);
 
                             try {
-                                var data = await p.getForm().readForm();
+                                var data = await p.getForm().readForm(false);
 
                                 for (var obj of objs)
                                     await obj.update(data);
