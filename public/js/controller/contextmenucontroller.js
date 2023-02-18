@@ -194,8 +194,12 @@ class ContextMenuController {
 
                             params = [];
                             if (backLink) {
-                                var ids = objs.map(function (x) { return x.getData()['id'] });
-                                params.push(backLink + "_in=" + ids.join(','));
+                                if (attr['via'] && objs.length == 1)
+                                    params.push(backLink + "=" + objs[0].getData()['id']);
+                                else {
+                                    var ids = objs.map(function (x) { return x.getData()['id'] });
+                                    params.push(backLink + "_in=" + ids.join(','));
+                                }
                             } else {
                                 var map = new Map();
                                 for (var i = 0; i < objs.length; i++) {
