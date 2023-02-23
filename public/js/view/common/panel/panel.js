@@ -43,7 +43,10 @@ class Panel {
             var content = await this._renderContent();
             this._$panel.append(content);
         } catch (error) {
-            app.controller.showError(error, "Rendering panel failed");
+            if (error.hasOwnProperty('status') && error['status'] == 0)
+                app.controller.showError(error, "Connection lost");
+            else
+                app.controller.showError(error, "Rendering panel failed");
         }
 
         await this._teardown();
