@@ -19,14 +19,18 @@ class WebClient {
 
             function error(event) { // or use xhr direct instead of event
                 var err = {};
-                var target = event['target'];
-                if (target) {
-                    if (target['status'] != undefined)
-                        err['status'] = target['status'];
-                    if (target['statusText'] != undefined)
-                        err['statusText'] = target['statusText'];
-                    if (target['response'] != undefined)
-                        err['response'] = target['response'];
+                var request;
+                if (event instanceof XMLHttpRequest)
+                    request = event;
+                else if (event['target'] && event['target'] instanceof XMLHttpRequest)
+                    request = event['target'];
+                if (request) {
+                    if (request['status'] != undefined)
+                        err['status'] = request['status'];
+                    if (request['statusText'] != undefined)
+                        err['statusText'] = request['statusText'];
+                    if (request['response'] != undefined)
+                        err['response'] = request['response'];
                 }
                 reject(err);
             }
