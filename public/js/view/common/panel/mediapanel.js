@@ -131,7 +131,12 @@ class MediaPanel extends CrudPanel {
     }
 
     _dblclick() {
-        this.openThumbnail();
+        var model = this._obj.getModel();
+        var action = model.getDoubleClickAction();
+        if (action)
+            action(this);
+        else
+            this.openThumbnail();
     }
 
     async openThumbnail() {

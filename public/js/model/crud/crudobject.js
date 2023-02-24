@@ -2,6 +2,56 @@ const ActionEnum = Object.freeze({ "create": 1, "read": 2, "update": 3, "delete"
 
 class CrudObject {
 
+
+    static collapse(skeleton, data) {
+        var res;
+        if (skeleton && data) {
+            res = {};
+            var property;
+            for (var field of skeleton) {
+                property = field['name'];
+                if (data[property]) {
+                    if (field['dataType'] == 'relation') {
+                        if (field['multiple']) {
+                            if (Array.isArray(data[property])) {
+                                var ids = [];
+                                for (var item of data[property]) {
+                                    if (isNaN(item)) {
+                                        if (item['id'])
+                                            ids.push(item['id']);
+                                    } else
+                                        ids.push(item);
+                                }
+                                res[property] = ids;
+                            } else
+                                throw new Error("An unexpected error occurred");
+                        } else {
+                            var id;
+                            if (Number.isInteger(data[property]))
+                                id = data[property];
+                            else if (data[property]['id'])
+                                id = data[property]['id'];
+                            res[property] = id;
+                        }
+                    } else if (field['dataType'] == 'file') {
+                        if (field['storage'] == 'filesystem') {
+                            if (typeof data[property] === 'string' || data[property] instanceof String) {
+                                res[property] = data[property];
+                            } else {
+                                if (data[property]['base64'] || data[property]['url']) {
+                                    res[property] = data[property];
+                                } else if (data[property]['filename'])
+                                    res[property] = data[property]['filename'];
+                            }
+                        }
+                    } else
+                        res[property] = data[property];
+                }
+            }
+        }
+        return res;
+    }
+
     /**
      * 
      * @param {*} skeleton 

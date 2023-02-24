@@ -404,7 +404,8 @@ class CrudPanel extends CanvasPanel {
                         var oldData = this.getObject().getData();
                         var newData = await this._readData();
                         app.controller.setLoadingState(false);
-                        var bConfirm = await app.controller.getModalController().openDiffJsonModal(oldData, newData);
+                        var skeleton = this._obj.getSkeleton(true);
+                        var bConfirm = await app.controller.getModalController().openDiffJsonModal(CrudObject.collapse(skeleton, oldData), CrudObject.collapse(skeleton, newData));
                         if (!bConfirm)
                             return Promise.reject();
                         app.controller.setLoadingState(true);
@@ -469,7 +470,12 @@ class CrudPanel extends CanvasPanel {
     }
 
     _dblclick() {
-        this.openInModal(ActionEnum.read);
+        var model = this._obj.getModel();
+        var action = model.getDoubleClickAction();
+        if (action)
+            action(this);
+        else
+            this.openInModal(ActionEnum.read);
     }
 
     async _drag(event) {

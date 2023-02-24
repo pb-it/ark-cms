@@ -17,6 +17,7 @@ class XModel {
     _version;
 
     _prepareDataAction;
+    _doubleClickAction;
     _crudDialogActions;
     _contextMenuExtensionAction;
 
@@ -111,6 +112,10 @@ class XModel {
 
     getPrepareDataAction() {
         return this._prepareDataAction;
+    }
+
+    getDoubleClickAction() {
+        return this._doubleClickAction;
     }
 
     getCrudDialogActions() {
