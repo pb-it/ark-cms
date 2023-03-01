@@ -38,9 +38,12 @@ class CrudObject {
                             if (typeof data[property] === 'string' || data[property] instanceof String) {
                                 res[property] = data[property];
                             } else {
-                                if (data[property]['base64'] || data[property]['url']) {
+                                if (data[property]['base64']) {
+                                    res[property] = { ...data[property] };
+                                    res[property]['base64'] = data[property]['base64'].substring(0, 80) + '...';
+                                } else if (data[property]['url'])
                                     res[property] = data[property];
-                                } else if (data[property]['filename'])
+                                else if (data[property]['filename'])
                                     res[property] = data[property]['filename'];
                             }
                         }
