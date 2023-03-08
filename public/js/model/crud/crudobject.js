@@ -387,9 +387,9 @@ class CrudObject {
     }
 
     async delete() {
-        await this.request(ActionEnum.delete);
+        var res = await this.request(ActionEnum.delete);
         this.setData(null);
-        return Promise.resolve();
+        return Promise.resolve(res);
     }
 
     async request(action, data) {

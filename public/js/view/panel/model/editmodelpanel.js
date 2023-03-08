@@ -170,7 +170,13 @@ class EditModelPanel extends TabPanel {
                             event.preventDefault();
 
                             panel.dispose();
-                            await this._checkConfirm(org, current);
+                            try {
+                                await this._checkConfirm(org, current);
+                            } catch (error) {
+                                app.controller.setLoadingState(false);
+                                if (error)
+                                    app.controller.showError(error);
+                            }
 
                             return Promise.resolve();
                         }.bind(this));
@@ -196,47 +202,39 @@ class EditModelPanel extends TabPanel {
     }
 
     async _checkConfirm(org, current) {
-        try {
-            if (app.controller.getConfigController().confirmOnApply()) {
-                var bConfirm = await app.controller.getModalController().openDiffJsonModal(org, current);
-                if (!bConfirm)
-                    return Promise.resolve();
-            }
-
-            app.controller.setLoadingState(true);
-
-            var bForce = false;
-            if (!app.controller.getVersionController().isCompatible()) {
-                app.controller.setLoadingState(false);
-                var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force upload?");
-                if (bConfirmation)
-                    bForce = true;
-                else
-                    return Promise.resolve();
-            }
-
-            app.controller.setLoadingState(true);
-            var id = this._model.getId();
-            await this._model.setDefinition(current, true, bForce);
-
-            if (!id)
-                await app.controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
-            else
-                await this._model.initModel();
-
-            this.dispose();
-
-            //await app.controller.getApiController().fetchApiInfo(); // needed for notification in side bar
-            //app.controller.getView().initView(); //redraw of visualisation with new menus is also done with event 'changed.model'
-            app.controller.reloadState();
-            //app.controller.reloadApplication();
-
-            app.controller.setLoadingState(false);
-        } catch (error) {
-            app.controller.setLoadingState(false);
-            app.controller.showError(error);
+        if (app.controller.getConfigController().confirmOnApply()) {
+            var bConfirm = await app.controller.getModalController().openDiffJsonModal(org, current);
+            if (!bConfirm)
+                return Promise.reject();
         }
-        return Promise.resolve();
+
+        app.controller.setLoadingState(true);
+
+        var bForce = false;
+        if (!app.controller.getVersionController().isCompatible()) {
+            app.controller.setLoadingState(false);
+            var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force upload?");
+            if (bConfirmation)
+                bForce = true;
+            else
+                return Promise.reject();
+        }
+
+        app.controller.setLoadingState(true);
+        var id = this._model.getId();
+        await this._model.setDefinition(current, true, bForce);
+
+        if (!id)
+            await app.controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
+        else
+            await this._model.initModel();
+
+        this.dispose();
+
+        //await app.controller.getApiController().fetchApiInfo(); // needed for notification in side bar
+        //app.controller.getView().initView(); //redraw of visualisation with new menus is also done with event 'changed.model'
+        return app.controller.reloadState(true);
+        //app.controller.reloadApplication();
     }
 
     async _hasChanged() {

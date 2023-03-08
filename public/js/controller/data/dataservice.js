@@ -264,9 +264,10 @@ class DataService {
             if (resp) {
                 var cache = this._cache.getModelCache(typeString);
                 if (action == ActionEnum.delete) {
-                    if (resp == "OK") //delete default 200 response text
+                    if (resp == "OK") {//delete default 200 response text
+                        res = resp;
                         cache.delete(id);
-                    else
+                    } else
                         throw new Error("deleting record failed");
                 } else {
                     res = JSON.parse(resp);

@@ -25,6 +25,7 @@ class Controller {
     _modelController;
     _profileController;
     _routeController;
+    _extensionController;
     _bookmarkController;
 
     _panelController;
@@ -92,6 +93,10 @@ class Controller {
         return this._profileController;
     }
 
+    getExtensionController() {
+        return this._extensionController;
+    }
+
     getBookmarkController() {
         return this._bookmarkController;
     }
@@ -144,6 +149,9 @@ class Controller {
             await this._modelController.init();
 
             this._dataservice = new DataService();
+
+            this._extensionController = new ExtensionController();
+            await this._extensionController.init();
 
             this._profileController = new ProfileController();
             await this._profileController.init();
@@ -414,11 +422,14 @@ class Controller {
         location.reload();
     }
 
-    reloadState() {
+    async reloadState(bIgnoreCache) {
         if (this._stateController) {
             var state = this.getStateController().getState();
-            this.loadState(state);
-        }
+            if (bIgnoreCache)
+                state.bIgnoreCache = true;
+            return this.loadState(state);
+        } else
+            return Promise.reject();
     }
 
     isInDebugMode() {

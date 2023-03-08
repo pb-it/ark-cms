@@ -68,8 +68,12 @@ class WebClient {
             var params;
             if (data) {
                 if (typeof data === 'object') {
-                    xhr.setRequestHeader("Content-type", "application/json");
-                    params = JSON.stringify(data, function (k, v) { return v === undefined ? null : v; });
+                    if (data instanceof FormData) {
+                        params = data;
+                    } else {
+                        xhr.setRequestHeader("Content-type", "application/json");
+                        params = JSON.stringify(data, function (k, v) { return v === undefined ? null : v; });
+                    }
                 } else {
                     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                     params = data; //urlEncode(data);

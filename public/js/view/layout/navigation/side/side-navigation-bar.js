@@ -136,6 +136,23 @@ class SideNavigationBar {
                 };
                 menuItem = new MenuItem(conf);
                 this._topIconBar.addMenuItem(menuItem);
+
+                conf = {
+                    'style': 'iconbar',
+                    'icon': "puzzle-piece",
+                    'tooltip': "Extensions",
+                    'click': async function (event, icon) {
+                        var activeIcon = this._topIconBar.getActiveItem();
+                        if (activeIcon != icon) {
+                            this._topIconBar.activateItem(icon);
+                            await this._sidePanel.showExtensionSelect();
+                        } else {
+                            this.close();
+                        }
+                    }.bind(this)
+                };
+                menuItem = new MenuItem(conf);
+                this._topIconBar.addMenuItem(menuItem);
             }
 
             conf = {
