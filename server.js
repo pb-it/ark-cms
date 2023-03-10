@@ -24,12 +24,12 @@ if (fs.existsSync(path.join(appRoot, '.svn')))
 else if (fs.existsSync(path.join(appRoot, '.git')))
     vcs = VcsEnum.GIT;
 
-async function update(version, bForce) {
+async function update(version, bReset, bRemove) {
     console.log("[App] Processing update request..");
     if (vcs) {
         var updateCmd;
         if (vcs === VcsEnum.GIT) {
-            if (bForce)
+            if (bReset)
                 updateCmd = 'git reset --hard && '; //git clean -fxd
             else
                 updateCmd = "";
@@ -43,20 +43,25 @@ async function update(version, bForce) {
         } else if (vcs === VcsEnum.SVN)
             updateCmd = 'svn update';
 
-        if (bForce)
-            updateCmd += " rm -r node_modules";
+        if (updateCmd) {
+            if (bRemove)
+                updateCmd += " && rm -r node_modules";
+        }
 
         return new Promise((resolve, reject) => {
-            require("child_process").exec('cd ' + appRoot + ' && ' + updateCmd + ' && npm install', function (err, stdout, stderr) {
-                if (err)
-                    reject(err);
-                else {
-                    resolve(stdout);
-                }
-            }.bind(this));
+            if (updateCmd) {
+                require("child_process").exec('cd ' + appRoot + ' && ' + updateCmd + ' && npm install', function (err, stdout, stderr) {
+                    if (err)
+                        reject(err);
+                    else {
+                        resolve(stdout);
+                    }
+                }.bind(this));
+            } else
+                reject();
         });
     } else
-        throw new Error('No version control system detected');
+        throw new Error('No version control system detected!');
 }
 
 function restart() {
@@ -94,34 +99,45 @@ systemRouter.get('/info', function (req, res) {
     res.json(info);
 });
 systemRouter.get('/update', async function (req, res) {
-    var version = req.query['v'];
-    var bForce = req.query['force'] && (req.query['force'] === 'true');
-    var msg;
     var bUpdated = false;
-    try {
-        msg = await update(version, bForce);
-        console.log(msg);
-        var strUpToDate;
-        if (vcs === VcsEnum.GIT)
-            strUpToDate = 'Already up to date.';
-        else if (vcs === VcsEnum.SVN)
-            strUpToDate = 'Updating \'.\':' + os.EOL + 'At revision';
-        if (msg.startsWith(strUpToDate))
-            console.log("[App] Already up to date");
-        else {
-            console.log("[App] ✔ Updated");
-            bUpdated = true;
+    if (vcs) {
+        if (req.query['v'])
+            version = req.query['v'];
+        else if (req.query['version'])
+            version = req.query['version'];
+        var sReset = req.query['force'] || req.query['reset'];
+        var bReset = (sReset === 'true');
+        var bRemove = req.query['rm'] && (req.query['rm'] === 'true');
+        var msg;
+        try {
+            msg = await update(version, bReset, bRemove);
+            console.log(msg);
+            if (msg) {
+                var strUpToDate;
+                if (vcs === VcsEnum.GIT)
+                    strUpToDate = 'Already up to date.'; // 'Bereits aktuell.' ... localize
+                else if (vcs === VcsEnum.SVN)
+                    strUpToDate = 'Updating \'.\':' + os.EOL + 'At revision';
+                if (msg.startsWith(strUpToDate))
+                    console.log("[App] Already up to date");
+                else {
+                    console.log("[App] ✔ Updated");
+                    bUpdated = true;
+                }
+            } else
+                throw new Error('Missing response from version control system!');
+        } catch (error) {
+            if (error['message'])
+                msg = error['message']; // 'Command failed:...'
+            else
+                msg = error;
+            console.error(msg);
+            console.log("[App] ✘ Update failed");
+        } finally {
+            res.send(msg.replace('\n', '<br/>'));
         }
-    } catch (error) {
-        if (error['message'])
-            msg = error['message'];
-        else
-            msg = error;
-        console.error(msg);
-        console.log("[App] ✘ Update failed");
-    } finally {
-        res.send(msg.replace('\n', '<br/>'));
-    }
+    } else
+        res.send('No version control system detected!');
     if (bUpdated)
         restart();
     return Promise.resolve();

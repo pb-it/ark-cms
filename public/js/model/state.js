@@ -56,9 +56,9 @@ class State {
                         else
                             state.customRoute = path;
                     } else
-                        throw new Error("invalid url");
+                        state.customRoute = path; //throw new Error("invalid url");
                 } else
-                    throw new Error("invalid url");
+                    state.customRoute = path; //throw new Error("invalid url");
             }
 
             var index = path.indexOf("#");

@@ -16,6 +16,10 @@ class ExtensionController {
         return this._extensions;
     }
 
+    getExtension(name) {
+        return this._extensions.filter(function (x) { return x['name'] == name });
+    }
+
     async addExtension(file) {
         var res;
         var formData = new FormData();
@@ -30,7 +34,7 @@ class ExtensionController {
 
     async deleteExtension(name) {
         var res;
-        var data = this._extensions.filter(function (x) { return x['name'] == name });
+        var data = this.getExtension(name);
         if (data && data.length == 1) {
             var obj = new CrudObject('_extension', data[0]);
             res = await obj.delete();

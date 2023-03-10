@@ -233,13 +233,16 @@ class Controller {
             if (state) {
                 typeString = state.typeString;
                 if (typeString !== null && typeString !== undefined) {
-                    var mc = app.controller.getModelController();
-                    if (mc.isModelDefined(typeString)) {
+                    if (this._modelController.isModelDefined(typeString)) {
                         var action = state.action;
                         if (action && action == ActionEnum.create)
                             this._data = state['data'];
                         else
                             this._data = await this._dataservice.fetchDataByState(state);
+                    } else if (this._extensionController.getExtension(typeString)) {
+                        bSpecial = true;
+                        this._data = await this._dataservice.fetchDataByState(state);
+                        await this._view.getCanvas().showPanels([new JsonPanel(this._data)]);
                     } else {
                         bSpecial = true;
                         var rc = app.controller.getRouteController();
