@@ -354,7 +354,8 @@ class CrudPanel extends CanvasPanel {
 
                 if (app.controller.getConfigController().confirmOnApply()) {
                     app.controller.setLoadingState(false);
-                    var bConfirm = await app.controller.getModalController().openDiffJsonModal({}, changed);
+                    var skeleton = this._obj.getSkeleton(true);
+                    var bConfirm = await app.controller.getModalController().openDiffJsonModal({}, CrudObject.collapse(skeleton, changed));
                     if (!bConfirm)
                         return Promise.reject();
                     app.controller.setLoadingState(true);

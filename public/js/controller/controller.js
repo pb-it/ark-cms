@@ -197,9 +197,27 @@ class Controller {
             if (oldState && oldState['action'] && oldState['action'] == ActionEnum.create) {
                 var panels = this._view.getCanvas().getPanels();
                 if (panels && panels.length == 1) {
+                    var obj = panels[0].getObject();
                     var form = panels[0].getForm();
-                    if (form)
-                        oldState['data'] = await form.readForm(true, false);
+                    if (obj && form) {
+                        var skeleton = obj.getSkeleton(true);
+                        var data = await form.readForm(true, false);
+                        var res = {};
+                        var property;
+                        var tmp;
+                        for (var field of skeleton) {
+                            property = field['name'];
+                            if (data[property]) {
+                                if (field['dataType'] == 'file' && data[property]['base64']) {
+                                    tmp = { ...data[property] };
+                                    delete tmp['base64'];
+                                    res[property] = tmp;
+                                } else
+                                    res[property] = data[property];
+                            }
+                        }
+                        oldState['data'] = res;
+                    }
                 }
                 /*var modals = this.getModalController().getModals();
                 if (modals && modals.length > 0) {
