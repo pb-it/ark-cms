@@ -6,7 +6,12 @@
 
 ## Description
 
-Client-side rendered CMS application(JAM-stack) for usage with an API provided by a headless CMS backend
+Client-side rendered CMS application(JAM-stack) for usage with an API provided by a headless CMS backend.
+
+
+## Requirements
+
+This application is intended to be used with a 'modern' browser which at least support [ECMAScript 2016](https://262.ecma-international.org/7.0/).
 
 
 ## Current State
