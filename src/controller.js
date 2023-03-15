@@ -32,15 +32,19 @@ class Controller {
             this._vcs = { 'client': VcsEnum.GIT };
             var tag;
             try {
-                tag = await common.exec('git describe');
+                tag = await common.exec('cd ' + this._appRoot + ' && git describe');
                 this._vcs['tag'] = tag;
             } catch (error) {
                 ;//console.log(error);
             }
             if (!tag) {
-                var revision = await common.exec('git rev-parse HEAD');
-                if (revision && revision.endsWith(EOL))
-                    this._vcs['revision'] = revision.substring(0, revision.length - EOL.length);
+                try {
+                    var revision = await common.exec('cd ' + this._appRoot + ' && git rev-parse HEAD');
+                    if (revision && revision.endsWith(EOL))
+                        this._vcs['revision'] = revision.substring(0, revision.length - EOL.length);
+                } catch (error) {
+                    ;//console.log(error);
+                }
             }
         }
 
