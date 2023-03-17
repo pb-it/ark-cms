@@ -40,7 +40,7 @@ class Server {
         }.bind(this));
         systemRouter.get('/update', async function (req, res) {
             var bUpdated = false;
-            if (vcs) {
+            if (this._vcs) {
                 var version;
                 if (req.query['v'])
                     version = req.query['v'];
@@ -51,7 +51,7 @@ class Server {
                 var bRemove = req.query['rm'] && (req.query['rm'] === 'true');
                 var msg;
                 try {
-                    msg = await this._controller.update(version, bReset, bRemove);
+                    msg = await this.update(version, bReset, bRemove);
                     console.log(msg);
                     if (msg) {
                         var strUpToDate;
@@ -80,9 +80,9 @@ class Server {
             } else
                 res.send('No version control system detected!');
             if (bUpdated)
-                this._controller.restart();
+                this.restart();
             return Promise.resolve();
-        });
+        }.bind(this._controller));
         systemRouter.get('/restart', async (req, res) => {
             res.send("Restarting..");
             this._controller.restart();
