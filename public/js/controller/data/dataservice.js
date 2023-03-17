@@ -163,6 +163,11 @@ class DataService {
         }
 
         if (!res) {
+            if (model.getDefinition()['bConfirmFullFetch'] && !id && !where && (!limit || limit == -1)) {
+                if (!confirm('Continue fetching all \'' + typeString + '\'?'))
+                    throw new Error('Aborted');
+            }
+
             res = await this.fetchPath(typeUrl);
 
             var cache = this._cache.getModelCache(typeString);

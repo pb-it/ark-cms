@@ -26,30 +26,43 @@ class Controller {
             fs.copyFileSync(serverConfigtemplatePath, serverConfigPath);
         this._serverConfig = require(serverConfigPath);
 
-        if (fs.existsSync(path.join(this._appRoot, '.svn')))
-            this._vcs = { 'client': VcsEnum.SVN };
-        else if (fs.existsSync(path.join(this._appRoot, '.git'))) {
-            this._vcs = { 'client': VcsEnum.GIT };
+        this._vcs = await this._checkVcs(this._appRoot);
+
+        this._server = new Server(this);
+        return Promise.resolve();
+    }
+
+    async _checkVcs(appRoot) {
+        var vcs;
+        if (fs.existsSync(path.join(appRoot, '.svn')))
+            vcs = { 'client': VcsEnum.SVN };
+        else if (fs.existsSync(path.join(appRoot, '.git'))) {
+            vcs = { 'client': VcsEnum.GIT };
             var tag;
             try {
-                tag = await common.exec('cd ' + this._appRoot + ' && git describe');
-                this._vcs['tag'] = tag;
+                tag = await common.exec('cd ' + appRoot + ' && git describe --tags --exact-match');
+                if (tag) {
+                    if (tag.endsWith(EOL))
+                        tag = tag.substring(0, tag.length - EOL.length);
+                    vcs['tag'] = tag;
+                }
             } catch (error) {
                 ;//console.log(error);
             }
             if (!tag) {
                 try {
-                    var revision = await common.exec('cd ' + this._appRoot + ' && git rev-parse HEAD');
-                    if (revision && revision.endsWith(EOL))
-                        this._vcs['revision'] = revision.substring(0, revision.length - EOL.length);
+                    var revision = await common.exec('cd ' + appRoot + ' && git rev-parse HEAD');
+                    if (revision) {
+                        if (revision.endsWith(EOL))
+                            revision = revision.substring(0, revision.length - EOL.length);
+                        vcs['revision'] = revision;
+                    }
                 } catch (error) {
                     ;//console.log(error);
                 }
             }
         }
-
-        this._server = new Server(this);
-        return Promise.resolve();
+        return Promise.resolve(vcs);
     }
 
     getAppRoot() {
