@@ -55,9 +55,9 @@ class Server {
                     console.log(msg);
                     if (msg) {
                         var strUpToDate;
-                        if (vcs['client'] === VcsEnum.GIT)
+                        if (this._vcs['client'] === VcsEnum.GIT)
                             strUpToDate = 'Already up to date.'; // 'Bereits aktuell.' ... localize
-                        else if (vcs['client'] === VcsEnum.SVN)
+                        else if (this._vcs['client'] === VcsEnum.SVN)
                             strUpToDate = 'Updating \'.\':' + os.EOL + 'At revision';
                         if (msg.startsWith(strUpToDate))
                             console.log("[App] Already up to date");
