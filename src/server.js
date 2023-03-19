@@ -6,6 +6,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const Flatted = require('flatted');
 
+const VcsEnum = require('./common/vcs-enum.js');
 const webclient = require('./common/webclient.js');
 
 class Server {

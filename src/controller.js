@@ -2,13 +2,12 @@ const { EOL } = require('os');
 const path = require('path');
 const fs = require('fs');
 
+const VcsEnum = require('./common/vcs-enum.js');
 const common = require('./common/common.js');
 const Server = require('./server.js');
 
 const serverConfigPath = path.join(__dirname, '../config/server-config.js');
 const serverConfigtemplatePath = path.join(__dirname, '../config/server-config-template.js');
-
-const VcsEnum = Object.freeze({ GIT: 'git', SVN: 'svn' });
 
 class Controller {
 
