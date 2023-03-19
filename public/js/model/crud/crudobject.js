@@ -187,14 +187,14 @@ class CrudObject {
                                                 }
                                             }
                                         }
-                                        if (newValue['url'] && (!field['url_prop'] || olddata[field['url_prop']] != newValue['url'])) {
+                                    } else {
+                                        if (newValue['filename'] || newValue['base64']) {
                                             relevant[property] = newValue;
                                             continue;
                                         }
-                                    } else {
-                                        if (newValue['filename'] || newValue['url'] || newValue['base64'])
-                                            relevant[property] = newValue;
                                     }
+                                    if (newValue['url'] && (!field['url_prop'] || (olddata && olddata[field['url_prop']] != newValue['url'])))
+                                        relevant[property] = newValue;
                                     break;
                                 default:
                                     if (!olddata || (newdata[property] !== olddata[property]))
