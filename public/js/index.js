@@ -12,7 +12,7 @@ function featureDetection() {
 
 function goodbye(e) {
     var bWarning = true;
-    if (bWarning) {
+    if (bWarning && app.getController().hasConnection()) {
         if (!e)
             e = window.event;
         e.cancelBubble = true;
