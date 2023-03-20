@@ -10,8 +10,24 @@ function featureDetection() {
     return bSupported;
 }
 
+function goodbye(e) {
+    var bWarning = true;
+    if (bWarning) {
+        if (!e)
+            e = window.event;
+        e.cancelBubble = true;
+        e.returnValue = 'You sure you want to leave?';
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+}
+
 window.onload = function () {
 };
+
+window.onbeforeunload = goodbye;
 
 $(document).ready(async function () {
     if (featureDetection()) {

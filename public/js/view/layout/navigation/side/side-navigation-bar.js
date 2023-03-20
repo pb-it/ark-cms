@@ -212,7 +212,23 @@ class SideNavigationBar {
     _initBottomIconBar() {
         this._bottomIconBar.clearMenu();
 
-        var conf = {
+        var conf;
+        var menuItem;
+        if (app.controller.hasConnection() && app.controller.isInDebugMode()) {
+            conf = {
+                'style': 'iconbar',
+                'icon': "terminal",
+                'tooltip': "Terminal",
+                'click': function (event, icon) {
+                    this.close();
+                    app.controller.loadState(new State({ customRoute: '/terminal' }), true);
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            this._bottomIconBar.addMenuItem(menuItem);
+        }
+
+        conf = {
             'style': 'iconbar',
             'icon': "cog",
             'tooltip': "Configuration",

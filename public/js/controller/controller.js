@@ -246,11 +246,12 @@ class Controller {
             await this.clearSelected();
             this._view.initView();
 
+            var bHome = false;
             var typeString;
             var bSpecial = false;
             if (state) {
                 typeString = state.typeString;
-                if (typeString !== null && typeString !== undefined) {
+                if (typeString) {
                     if (this._modelController.isModelDefined(typeString)) {
                         var action = state.action;
                         if (action && action == ActionEnum.create)
@@ -270,12 +271,16 @@ class Controller {
                         else
                             throw new Error("Unknown model '" + typeString + "'");
                     }
-                }
-            }
-            if (typeString) {
-                if (!bSpecial)
-                    await this.updateCanvas();
-            } else {
+                    if (!bSpecial)
+                        await this.updateCanvas();
+                } else if (state['customRoute'] && state['customRoute'] == '/terminal') {
+                    this.openTerminal();
+                } else
+                    bHome = true;
+            } else
+                bHome = true;
+
+            if (bHome) {
                 var homePanels = [];
                 /*var panel = new Panel();
                 panel.setContent(`TODO:<br/>
@@ -460,5 +465,11 @@ class Controller {
             res = true;
         }
         return res;
+    }
+
+    async openTerminal() {
+        var panel = new Panel();
+        await this._view.getCanvas().showPanels([new TerminalPanel()]);
+        return Promise.resolve();
     }
 }

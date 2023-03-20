@@ -98,7 +98,8 @@ class State {
                     }
                 });
             }
-        }
+        } else
+            state = new State({ customRoute: path });
         return state;
     }
 
@@ -111,7 +112,7 @@ class State {
         var url;
         if (state) {
             if (state['customRoute'])
-                url = "/data/" + state['customRoute'];
+                url = state['customRoute'];
             else if (state.typeString) {
                 url = "/data/" + state.typeString;
                 if (state.action) {
