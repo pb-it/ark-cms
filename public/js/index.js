@@ -11,8 +11,9 @@ function featureDetection() {
 }
 
 function goodbye(e) {
-    var bWarning = true;
-    if (bWarning && app.getController().hasConnection()) {
+    var controller = app.getController();
+    var cc = controller.getConfigController();
+    if (controller.hasConnection() && cc && cc.confirmOnLeave()) {
         if (!e)
             e = window.event;
         e.cancelBubble = true;

@@ -106,6 +106,24 @@ class TerminalPanel extends Panel {
             .attr('rows', 40)
             .attr('cols', 100)
             .val('await sleep(1000);\nreturn \'123\';');
+        this._$input.keydown(function (e) {
+            e.stopPropagation(); //https://www.rockyourcode.com/assertion-failed-input-argument-is-not-an-htmlinputelement/
+            if (e.keyCode == 9) { // TAB
+                e.preventDefault();
+                //TODO: ident selection
+                var input = this[0];
+                if (input.selectionStart != undefined && input.selectionStart >= '0') {
+                    var cursorPosition = input.selectionStart;
+                    var txt = this.val();
+                    this.val(txt.slice(0, cursorPosition) + '\t' + txt.slice(cursorPosition));
+                    cursorPosition++;
+                    input.selectionStart = cursorPosition;
+                    input.selectionEnd = cursorPosition;
+                    input.focus();
+                }
+                return false;
+            }
+        }.bind(this._$input));
         $leftDiv.append(this._$input);
         $leftDiv.append('<br />');
 

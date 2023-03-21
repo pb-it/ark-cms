@@ -157,6 +157,10 @@ class ConfigController {
             app.controller.getStorageController().storeLocal(API_IDENT, '');
     }
 
+    confirmOnLeave() {
+        return app.controller.getStorageController().loadLocal('bConfirmOnLeave') === 'true';
+    }
+
     confirmOnApply() {
         return app.controller.isInDebugMode() || (app.controller.getStorageController().loadLocal('bConfirmOnApply') === 'true');
     }

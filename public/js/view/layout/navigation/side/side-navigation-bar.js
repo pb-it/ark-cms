@@ -218,7 +218,7 @@ class SideNavigationBar {
             conf = {
                 'style': 'iconbar',
                 'icon': "terminal",
-                'tooltip': "Terminal",
+                'tooltip': "Console",
                 'click': function (event, icon) {
                     this.close();
 

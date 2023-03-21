@@ -46,6 +46,7 @@ class ConfigPanel extends TabPanel {
                 this._data = {
                     'version': app.controller.getVersionController().getAppVersion(),
                     'api': app.controller.getApiController().getApiOrigin(),
+                    'bConfirmOnLeave': app.controller.getStorageController().loadLocal('bConfirmOnLeave') === 'true',
                     'bDebug': bDebug,
                     'bConfirmOnApply': bDebug || (app.controller.getStorageController().loadLocal('bConfirmOnApply') === 'true')
                 };
@@ -53,6 +54,13 @@ class ConfigPanel extends TabPanel {
             var skeleton = [
                 { name: 'version', dataType: 'string', readonly: true },
                 { name: 'api', label: 'API', dataType: 'string' },
+                {
+                    name: 'bConfirmOnLeave',
+                    label: 'Confirm on leave',
+                    dataType: 'boolean',
+                    required: true,
+                    defaultValue: false
+                },
                 {
                     name: 'bDebug',
                     label: 'Debug Mode',
@@ -179,6 +187,9 @@ class ConfigPanel extends TabPanel {
                             cc.setApi(fdata['api']);
                             bReloadApp = true;
                         }
+
+                        app.controller.getStorageController().storeLocal('bConfirmOnLeave', fdata['bConfirmOnLeave']);
+
                         var conf = cc.getDebugConfig();
                         conf['bDebug'] = fdata['bDebug']
                         cc.setDebugConfig(conf);

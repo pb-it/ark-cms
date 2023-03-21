@@ -170,6 +170,18 @@ class Controller {
             this.setLoadingState(false);
         }
 
+        $(document).keyup(async function (e) {
+            if ((e.keyCode == 88 && e.ctrlKey) || e.keyCode == 27) { // strg+x or esc
+                var modals = this._modalController.getModals();
+                if (modals) {
+                    var length = modals.length;
+                    if (length > 0)
+                        await modals[length - 1]._closeOnConfirm();
+                }
+            }
+            return Promise.resolve();
+        }.bind(this));
+
         this._bFirstLoadAfterInit = true;
         return Promise.resolve(bInitDone);
     }
