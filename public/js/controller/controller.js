@@ -274,7 +274,7 @@ class Controller {
                     if (!bSpecial)
                         await this.updateCanvas();
                 } else if (state['customRoute'] && state['customRoute'] == '/terminal') {
-                    this.openTerminal();
+                    await this._view.getCanvas().showPanels([new TerminalPanel()]);
                 } else
                     bHome = true;
             } else
@@ -465,11 +465,5 @@ class Controller {
             res = true;
         }
         return res;
-    }
-
-    async openTerminal() {
-        var panel = new Panel();
-        await this._view.getCanvas().showPanels([new TerminalPanel()]);
-        return Promise.resolve();
     }
 }

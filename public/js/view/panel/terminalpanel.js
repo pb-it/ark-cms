@@ -101,7 +101,7 @@ class TerminalPanel extends Panel {
         $div.append($loadDiv);
 
         var $leftDiv = $('<div/>')
-            .css({ 'float': 'left' });
+            .css({ display: 'inline-block' });
         this._$input = $('<textarea/>')
             .attr('rows', 40)
             .attr('cols', 100)
@@ -156,7 +156,11 @@ class TerminalPanel extends Panel {
         $leftDiv.append($format);
         $div.append($leftDiv);
 
-        var $rightDiv = $('<div/>');
+        var $rightDiv = $('<div/>')
+            .css({
+                'display': 'inline-block',
+                'vertical-align': 'top'
+            });
         this._$oFormat = $('<select/>');
         var options = ['json', 'html'];
         var $option = $('<option/>', { value: '' }).text('undefined');
@@ -167,18 +171,51 @@ class TerminalPanel extends Panel {
             this._$oFormat.append($option);
         }
         this._$oFormat.on("change", async function (event) {
-            var output = this._$output.val();
-            output = await TerminalPanel._format(output, event.target.value);
-            this._$output.val(output);
+            try {
+                app.controller.setLoadingState(true);
+                var output = this._$output.val();
+                output = await TerminalPanel._format(output, event.target.value);
+                this._$output.val(output);
+                app.controller.setLoadingState(false);
+            } catch (error) {
+                app.controller.setLoadingState(false);
+                app.controller.showError(error);
+            }
             return Promise.resolve();
         }.bind(this));
         $rightDiv.append(this._$oFormat);
         $rightDiv.append('<br />');
 
         this._$output = $('<textarea/>')
-            .attr('rows', 40)
-            .attr('cols', 100);
+            .attr('rows', 35)
+            .attr('cols', 100)
+            .prop("disabled", true);
         $rightDiv.append(this._$output);
+        $rightDiv.append('<br />');
+
+        var $copy = $('<button>')
+            .text('Copy Result to Clipboard')
+            .css({ 'float': 'right' })
+            .click(async function (event) {
+                event.stopPropagation();
+
+                navigator.clipboard.writeText(this._$output.val());
+
+                return Promise.resolve();
+            }.bind(this));
+        $rightDiv.append($copy);
+
+        var $saveFile = $('<button>')
+            .text('Save to File')
+            .css({ 'float': 'right' })
+            .click(async function (event) {
+                event.stopPropagation();
+
+                FileCreator.createFileFromText('output.txt', this._$output.val());
+
+                return Promise.resolve();
+            }.bind(this));
+        $rightDiv.append($saveFile);
 
         $div.append($rightDiv);
 

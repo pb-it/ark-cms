@@ -221,7 +221,11 @@ class SideNavigationBar {
                 'tooltip': "Terminal",
                 'click': function (event, icon) {
                     this.close();
-                    app.controller.loadState(new State({ customRoute: '/terminal' }), true);
+
+                    if (event.ctrlKey)
+                        app.getController().getModalController().openPanelInModal(new TerminalPanel());
+                    else
+                        app.getController().loadState(new State({ customRoute: '/terminal' }), true);
                 }.bind(this)
             };
             menuItem = new MenuItem(conf);
