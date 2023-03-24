@@ -144,6 +144,7 @@ class EditAttributesPanel extends Panel {
                     ];
                     break;
                 case 'string':
+                case 'url':
                 case 'text':
                     skeleton = [
                         { 'name': 'length', 'dataType': 'string', 'tooltip': '**Info**: Constraints depend on database and character encoding. Default is 255 for \'string\' and 65,535 for \'text\'' }
@@ -166,7 +167,9 @@ class EditAttributesPanel extends Panel {
                             }
                         );
                     }
-                    if (this._data['dataType'] === 'string') {
+                    if (this._data['dataType'] === 'url')
+                        skeleton.push({ 'name': 'cdn', 'label': 'CDN', 'tooltip': 'If all resources/entries share the same CDN you can define it here and omit it in the input field.', 'dataType': 'string' });
+                    if (this._data['dataType'] === 'string' || this._data['dataType'] === 'url') {
                         skeleton.push(
                             { 'name': 'unique', 'tooltip': '**Info**: Unique attributes may be limited in length by your database system!', 'dataType': 'boolean' }
                         );
@@ -212,14 +215,6 @@ You will not see this information in forms, but it is stored with your actual st
                     skeleton = [
                         { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' },
                         { 'name': 'size', 'dataType': 'string' },
-                        { 'name': 'required', 'dataType': 'boolean' },
-                        { 'name': 'defaultValue', 'dataType': 'string' }
-                    ];
-                    break;
-                case 'url':
-                    skeleton = [
-                        { 'name': 'length', 'dataType': 'string' },
-                        { 'name': 'cdn', 'label': 'CDN', 'tooltip': 'If all resources/entries share the same CDN you can define it here and omit it in the input field.', 'dataType': 'string' },
                         { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'string' }
                     ];
@@ -502,6 +497,7 @@ You will not see this information in forms, but it is stored with your actual st
                     }
                     break;
                 case 'string':
+                case 'url':
                     if (data.length) {
                         if (!isNaN(data.length)) {
                             var length = parseInt(data.length);
@@ -512,24 +508,12 @@ You will not see this information in forms, but it is stored with your actual st
                         } else
                             throw new Error("Field 'length' is not a number");
                     }
+                    if (this._data['dataType'] == 'url' && data.cdn)
+                        this._data.cdn = data.cdn;
                     if (data.charEncoding)
                         this._data.charEncoding = data.charEncoding;
                     if (data.unique)
                         this._data.unique = data.unique;
-                    break;
-                case 'url':
-                    if (data.length) {
-                        if (!isNaN(data.length)) {
-                            var length = parseInt(data.length);
-                            if (length > 0 && length < 256)
-                                this._data.length = data.length;
-                            else
-                                throw new Error("Field 'length' has to be between 0 and 256");
-                        } else
-                            throw new Error("Field 'length' is not a number");
-                    }
-                    if (data.cdn)
-                        this._data.cdn = data.cdn;
                     break;
                 case 'enumeration':
                     this._data['view'] = data['view'];

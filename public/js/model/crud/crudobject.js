@@ -148,7 +148,7 @@ class CrudObject {
                                             id = newdata[property];
                                         else if (newdata[property]['id'])
                                             id = newdata[property]['id'];
-                                        if (!olddata || !olddata[property] || (olddata[property]['id'] != id)) {
+                                        if (!olddata || !olddata[property] || (olddata[property] != id && olddata[property]['id'] != id)) {
                                             relevant[property] = id;
                                         }
                                     }

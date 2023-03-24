@@ -287,8 +287,12 @@ class ContextMenuController {
                             try {
                                 var data = await p.getForm().readForm(false);
 
-                                for (var obj of objs)
-                                    await obj.update(data);
+                                for (var obj of objs) {
+                                    if (obj.getId())
+                                        await obj.update(data);
+                                    else
+                                        obj.getData()[attr['name']] = data[attr['name']];
+                                }
 
                                 app.controller.setLoadingState(false);
                             } catch (error) {
