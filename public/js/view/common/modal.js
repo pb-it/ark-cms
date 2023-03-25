@@ -1,6 +1,7 @@
 class Modal {
 
     _panel;
+    _bClosing;
 
     _$modal;
     _$close;
@@ -65,8 +66,8 @@ class Modal {
         }.bind(this));
 
         $content.on("dispose", function (event) {
-            event.stopPropagation();
-            this.close();
+            if (!this._bClosing)
+                this.close();
         }.bind(this));
 
         this._$modal.show();
@@ -87,6 +88,11 @@ class Modal {
     }
 
     close() {
+        if (this._panel && !this._bClosing) {
+            this._bClosing = true;
+            this._panel.dispose();
+            this._panel = null;
+        }
         this._$modal.remove();
     }
 

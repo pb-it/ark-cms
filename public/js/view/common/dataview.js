@@ -256,34 +256,38 @@ class DataView {
         var model = app.controller.getModelController().getModel(modelName);
         var mpcc = model.getModelPanelConfigController();
         var panelConfig = mpcc.getPanelConfig();
-        if (panelConfig['details'])
+        if (panelConfig['details'] != DetailsEnum.none)
             delete panelConfig['details'];
         var panel;
-        if (attribute['multiple'] && Array.isArray(data)) {
-            var ids = data.map(function (x) { return x['id'] });
-            var objs = [];
-            var add;
-            for (var j = 0; j < Math.ceil(ids.length / 100); j++) {
-                add = await app.controller.getDataService().fetchObjectById(modelName, ids.slice(j * 100, (j + 1) * 100));
-                objs.push(...add);
-            }
-            for (var obj of objs) {
-                $li = $("<li/>").attr({ 'data-id': obj.getData().id })
-                    .css({ 'clear': 'left' });
-                panel = PanelController.createPanelForObject(obj, panelConfig);
-                $li.append(await panel.render());
-                $list.append($li);
-            }
-        } else {
-            var id = data['id'];
-            if (id) {
-                var obj = await app.controller.getDataService().fetchObjectById(modelName, id);
-                if (obj) {
-                    $li = $("<li/>").attr({ 'data-id': obj.getData()['id'] })
-                        .css({ 'clear': 'left' });
+        if (data) {
+            if (attribute['multiple'] && Array.isArray(data)) {
+                var ids = data.map(function (x) { return x['id'] });
+                var objs = [];
+                var add;
+                for (var j = 0; j < Math.ceil(ids.length / 100); j++) {
+                    add = await app.controller.getDataService().fetchObjectById(modelName, ids.slice(j * 100, (j + 1) * 100));
+                    objs.push(...add);
+                }
+                for (var obj of objs) {
+                    $li = $("<li/>")
+                        .attr({ 'data-id': obj.getData().id })
+                        .css({ 'display': 'inline-block' });
                     panel = PanelController.createPanelForObject(obj, panelConfig);
                     $li.append(await panel.render());
                     $list.append($li);
+                }
+            } else {
+                var id = data['id'];
+                if (id) {
+                    var obj = await app.controller.getDataService().fetchObjectById(modelName, id);
+                    if (obj) {
+                        $li = $("<li/>")
+                            .attr({ 'data-id': obj.getData()['id'] })
+                            .css({ 'display': 'inline-block' });
+                        panel = PanelController.createPanelForObject(obj, panelConfig);
+                        $li.append(await panel.render());
+                        $list.append($li);
+                    }
                 }
             }
         }

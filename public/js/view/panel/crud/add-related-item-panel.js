@@ -13,21 +13,16 @@ class AddRelatedItemPanel extends Panel {
     _addSelect;
     _removeSelect;
 
-    constructor(objs, attr, cb) {
+    constructor(objs, attr, data, cb) {
         super();
 
         this._objs = objs;
         this._attr = attr;
+        this._data = data;
         this._cb = cb;
 
         this._attrName = this._attr['name'];
         this._modelName = this._attr['model'];
-
-        if (this._attr['via'] && this._objs.length == 1) {
-            this._id = this._objs[0].getData()['id'];
-            this._data = {};
-            this._data[this._attr['via']] = this._id;
-        }
     }
 
     async _renderContent() {
@@ -37,14 +32,14 @@ class AddRelatedItemPanel extends Panel {
         $div.append("Add the following '" + this._modelName + "' to '" + this._attrName + "':<br/><br/>");
 
         this._addSelect = new Select(this._attrName, this._modelName, -1);
-        if (this._data)
+        if (this._data && Object.keys(this._data).length > 0)
             this._addSelect.setCreateData(this._data);
         await this._addSelect.initSelect();
         $div.append(await this._addSelect.render());
 
         $div.append("<br/><br/><br/>");
 
-        if (!this._data) {
+        if (!this._attr['via']) {
             $div.append("Remove the following '" + this._modelName + "' from '" + this._attrName + "':<br/><br/>");
 
             this._removeSelect = new Select(this._attrName, this._modelName, -1);
@@ -68,23 +63,27 @@ class AddRelatedItemPanel extends Panel {
                     if (add || remove) {
                         app.controller.setLoadingState(true);
 
-                        if (this._data) {
-                            var bUpdate;
+                        var backlink = this._attr['via'];
+                        if (backlink) {
+                            var id = this._data[backlink]['id'];
+                            var update = {};
+                            update[backlink] = id;
+                            var bMatch;
                             var data;
                             var prop;
                             var selected = this._addSelect.getSelectedOptions();
                             for (var opt of selected) {
-                                bUpdate = true;
+                                bMatch = false;
                                 data = opt.getData();
                                 prop = data[this._attr['via']];
                                 if (prop) {
                                     if (Number.isInteger(prop))
-                                        bUpdate = (prop != this._id);
+                                        bMatch = (prop == id);
                                     else
-                                        bUpdate = (prop['id'] != this._id);
+                                        bMatch = (prop['id'] == id);
                                 }
-                                if (bUpdate)
-                                    await new CrudObject(this._modelName, data).update(this._data);
+                                if (!bMatch)
+                                    await new CrudObject(this._modelName, data).update(update);
                             }
                         } else {
                             for (var obj of this._objs)

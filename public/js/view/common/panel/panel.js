@@ -92,6 +92,10 @@ class Panel {
      * Modal listens on dispose of its content
      */
     dispose() {
-        this._$panel.trigger("dispose");
+        if (this._$panel) {
+            this._$panel.trigger("dispose");
+            this._$panel.remove();
+            this._$panel = null;
+        }
     }
 }

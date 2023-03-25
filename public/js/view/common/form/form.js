@@ -22,6 +22,10 @@ class Form {
         return this._name;
     }
 
+    getFormData() {
+        return this._data;
+    }
+
     setFormData(data) {
         this._data = data;
     }

@@ -20,6 +20,13 @@ class SelectFormEntry extends FormEntry {
         } else {
             this._select = new Select(this._id, this._attribute['model'], this._attribute['multiple'] ? -1 : 1, this._form.getCallback());
 
+            var backlink = this._attribute['via'];
+            if (backlink) {
+                var obj = {};
+                obj[backlink] = this._form.getFormData();
+                this._select.setCreateData(obj);
+            }
+
             if (value) {
                 if (!this._attribute['multiple'])
                     value = [value];

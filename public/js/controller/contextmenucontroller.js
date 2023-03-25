@@ -249,16 +249,17 @@ class ContextMenuController {
 
                             if (attr['multiple'] && !attr['readonly']) {
                                 if (!attr['via'] || objs.length == 1) {
+                                    var data = {};
+                                    if (backLink)
+                                        data[backLink] = objs[0].getData();
                                     if (attr['hidden'] && backLink) {
-                                        var data = {};
-                                        data[backLink] = [objs[0].getData()];
                                         entry = new ContextMenuEntry(attr['name'], function () {
                                             var panel = PanelController.createPanel(attr['model'], this, ActionEnum.create);
                                             return app.controller.getModalController().openPanelInModal(panel);
                                         }.bind(data));
                                         addGroup.push(entry);
                                     } else {
-                                        var addPanel = new AddRelatedItemPanel(objs, attr, async function () {
+                                        var addPanel = new AddRelatedItemPanel(objs, attr, data, async function () {
                                             var obj = this.getObject();
                                             if (obj.getId())
                                                 await obj.read();
@@ -272,7 +273,6 @@ class ContextMenuController {
                                         addGroup.push(entry);
                                     }
                                 }
-
                                 bAddSetEntry = false;
                             }
                         }
