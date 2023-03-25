@@ -259,9 +259,11 @@ class ContextMenuController {
                                         addGroup.push(entry);
                                     } else {
                                         var addPanel = new AddRelatedItemPanel(objs, attr, async function () {
-                                            await this.getObject().read();
+                                            var obj = this.getObject();
+                                            if (obj.getId())
+                                                await obj.read();
                                             await this.render();
-                                            return Promise.resolve(true);
+                                            return Promise.resolve();
                                         }.bind(panel));
 
                                         entry = new ContextMenuEntry(attr.name, async function () {

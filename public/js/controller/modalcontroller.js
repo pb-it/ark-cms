@@ -2,17 +2,20 @@ class ModalController {
 
     static async changeIds(obj, property, addIds, removeIds) {
         var oldList;
-        var data = obj.getData()[property];
-        if (data) {
-            oldList = data.map(function (x) {
-                return x.id;
+        var data = obj.getData();
+        if (data && data[property]) {
+            oldList = data[property].map(function (item) {
+                if (isNaN(item))
+                    return item['id'];
+                else
+                    return item;
             });
         } else
             oldList = [];
 
         var newList;
         var changed = false;
-        if (removeIds) {
+        if (removeIds && removeIds.length > 0) {
             newList = [];
             for (var id of oldList) {
                 if (removeIds.indexOf(id) == -1)
@@ -22,16 +25,21 @@ class ModalController {
             }
         } else
             newList = oldList;
-        for (var newId of addIds) {
-            if (newList.indexOf(newId) == -1) {
-                newList.push(newId);
-                changed = true;
+        if (addIds && addIds.length > 0) {
+            for (var newId of addIds) {
+                if (newList.indexOf(newId) == -1) {
+                    newList.push(newId);
+                    changed = true;
+                }
             }
         }
         if (changed) {
-            var data = {};
-            data[property] = newList;
-            await obj.update(data);
+            if (obj.getId()) {
+                var change = {};
+                change[property] = newList;
+                await obj.update(change);
+            } else
+                data[property] = newList;
         }
         return Promise.resolve();
     }

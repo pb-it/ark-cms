@@ -100,6 +100,7 @@ class AddRelatedItemPanel extends Panel {
                     } else
                         alert("nothing to do");
                 } catch (error) {
+                    app.controller.setLoadingState(false);
                     app.controller.showError(error);
                 }
                 return Promise.resolve();

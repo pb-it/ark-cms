@@ -113,19 +113,19 @@ class CrudObject {
                                 case "relation":
                                     if (field['multiple']) {
                                         if (Array.isArray(newdata[property])) {
-                                            var newIds = [];
-                                            for (var item of newdata[property]) {
-                                                if (isNaN(item)) {
-                                                    if (item['id'])
-                                                        newIds.push(item['id']);
-                                                } else
-                                                    newIds.push(item);
-                                            }
-
+                                            var newIds = newdata[property].map(function (item) {
+                                                if (isNaN(item))
+                                                    return item['id'];
+                                                else
+                                                    return item;
+                                            });
                                             if (olddata && olddata[property] && olddata[property].length > 0) {
                                                 if (newIds.length == olddata[property].length) {
-                                                    var oldIds = olddata[property].map(function (data) {
-                                                        return data['id'];
+                                                    var oldIds = olddata[property].map(function (item) {
+                                                        if (isNaN(item))
+                                                            return item['id'];
+                                                        else
+                                                            return item;
                                                     });
 
                                                     for (var id of oldIds) {
@@ -397,6 +397,8 @@ class CrudObject {
         if (this._model.getDefinition()['options']['increments']) {
             if (this._data && this._data['id'])
                 id = this._data['id'];
+            if (!id && action != ActionEnum.create)
+                throw new Error('Missing ID');
         } else {
             var name;
             for (var attr of this._model.getModelAttributesController().getAttributes()) {
