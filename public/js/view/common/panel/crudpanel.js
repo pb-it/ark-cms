@@ -437,7 +437,7 @@ class CrudPanel extends CanvasPanel {
                             await this.render();
                         }
                     } else {
-                        this._obj.setData(changed);
+                        this._obj.setData(newData);
                         this.dispose();
                     }
 
