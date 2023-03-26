@@ -1,7 +1,7 @@
 class Modal {
 
     _panel;
-    _bClosing;
+    _bDispose;
 
     _$modal;
     _$close;
@@ -66,8 +66,8 @@ class Modal {
         }.bind(this));
 
         $content.on("dispose", function (event) {
-            if (!this._bClosing)
-                this.close();
+            this._bDispose = true;
+            this.close();
         }.bind(this));
 
         this._$modal.show();
@@ -88,12 +88,16 @@ class Modal {
     }
 
     close() {
-        if (this._panel && !this._bClosing) {
-            this._bClosing = true;
-            this._panel.dispose();
+        if (this._panel) {
+            if (!this._bDispose) {
+                this._bDispose = true;
+                this._panel.dispose();
+            }
             this._panel = null;
         }
-        this._$modal.remove();
+        if (this._$modal)
+            this._$modal.remove();
+        console.log('close');
     }
 
     async waitClosed() {
