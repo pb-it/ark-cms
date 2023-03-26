@@ -97,7 +97,6 @@ class Modal {
         }
         if (this._$modal)
             this._$modal.remove();
-        console.log('close');
     }
 
     async waitClosed() {

@@ -11,6 +11,13 @@ class TerminalPanel extends Panel {
     static async _format(response, format) {
         if (typeof response === 'string' || response instanceof String) {
             if (format) {
+                if (format == 'auto') {
+                    if ((response.startsWith('{') && response.endsWith('}')) ||
+                        (response.startsWith('[') && response.endsWith(']')))
+                        format = 'json';
+                    else if (response.startsWith('<html'))
+                        format = 'html';
+                }
                 switch (format) {
                     case 'json':
                         response = JSON.stringify(JSON.parse(response), null, '\t');
@@ -33,10 +40,12 @@ class TerminalPanel extends Panel {
     }
 
     _snippets;
+    _console;
 
     _$name;
     _$input;
     _$output;
+    _$console
     _$oFormat;
 
     constructor() {
@@ -47,6 +56,18 @@ class TerminalPanel extends Panel {
             this._snippets = JSON.parse(snippets);
         else
             this._snippets = {};
+
+        var xconsole = {};
+        xconsole.log = this._log.bind(this);
+        xconsole.info = console.info;
+        xconsole.warn = console.warn;
+        xconsole.error = console.error;
+        this._console = xconsole;
+    }
+
+    async _init() {
+        await super._init();
+        return Promise.resolve();
     }
 
     async _renderContent() {
@@ -137,8 +158,10 @@ class TerminalPanel extends Panel {
                     var code = this._$input.val();
                     //eval(code);
 
+                    this._$console.val('');
+
                     const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-                    var response = await new AsyncFunction(code)();
+                    var response = await new AsyncFunction('console', code).bind(this, this._console)();
                     if (response) {
                         var oFormat = this._$oFormat.val();
                         response = await TerminalPanel._format(response, oFormat);
@@ -179,11 +202,20 @@ class TerminalPanel extends Panel {
                 'display': 'inline-block',
                 'vertical-align': 'top'
             });
+        $rightDiv.append('Console:<br>');
+        this._$console = $('<textarea/>')
+            .attr('rows', 5)
+            .attr('cols', 100)
+            .prop("disabled", true);
+        $rightDiv.append(this._$console);
+        $rightDiv.append('<br><br>');
+        $rightDiv.append('Output Format: ');
         this._$oFormat = $('<select/>');
-        var options = ['json', 'html'];
-        var $option = $('<option/>', { value: '' }).text('undefined');
+        var options = ['auto', 'text', 'json', 'html'];
+        var $option;
+        //$option = $('<option/>', { value: '' }).text('undefined');
         //$option.prop('selected', true);
-        this._$oFormat.append($option);
+        //this._$oFormat.append($option);
         for (var option of options) {
             $option = $('<option/>', { value: option }).text(option);
             this._$oFormat.append($option);
@@ -205,7 +237,7 @@ class TerminalPanel extends Panel {
         $rightDiv.append('<br />');
 
         this._$output = $('<textarea/>')
-            .attr('rows', 35)
+            .attr('rows', 30)
             .attr('cols', 100)
             .prop("disabled", true);
         $rightDiv.append(this._$output);
@@ -242,5 +274,10 @@ class TerminalPanel extends Panel {
         $div.append($footer);
 
         return Promise.resolve($div);
+    }
+
+    _log(x) {
+        var val = this._$console.val()
+        this._$console.val(val + x + '\n');
     }
 }

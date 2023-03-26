@@ -159,7 +159,7 @@ class CrudObject {
                                         var oldValue = olddata[property];
                                         if (field['storage'] == 'filesystem') {
                                             if (typeof oldValue === 'string' || oldValue instanceof String) {
-                                                if (newValue['filename'] != oldValue) {
+                                                if ((newValue['filename'] || oldValue) && newValue['filename'] != oldValue) {
                                                     relevant[property] = newValue;
                                                     continue;
                                                 }
@@ -169,7 +169,7 @@ class CrudObject {
                                                     continue;
                                                 }
                                             } else {
-                                                if (newValue['filename'] != oldValue['filename']) {
+                                                if ((newValue['filename'] || oldValue['filename']) && newValue['filename'] != oldValue['filename']) {
                                                     relevant[property] = newValue;
                                                     continue;
                                                 }
