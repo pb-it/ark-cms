@@ -93,7 +93,8 @@ class VersionController {
         try {
             app.controller.setLoadingState(true);
             var url = 'https://raw.githubusercontent.com/pb-it/wing-cms/main/package.json';
-            var pkg = await WebClient.curl(url);
+            var response = await HttpClient.request('GET', url);
+            var pkg = JSON.parse(response);
             var version = pkg['version'];
             if (version === current)
                 alert('You are up to date');
@@ -114,7 +115,8 @@ class VersionController {
 
     async initVersionController() {
         var infoUrl = window.location.origin + "/cms/info";
-        var info = await WebClient.fetchJson(infoUrl);
+        var response = await HttpClient.request('GET', infoUrl);
+        var info = JSON.parse(response);
         this._appVersion = info['version'];
         if (this._appVersion) {
             var bSet = false;

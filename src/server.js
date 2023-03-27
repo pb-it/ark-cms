@@ -4,10 +4,8 @@ const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const Flatted = require('flatted');
 
 const VcsEnum = require('./common/vcs-enum.js');
-const webclient = require('./common/webclient.js');
 
 class Server {
 
@@ -91,26 +89,6 @@ class Server {
         systemRouter.get('/shutdown', async (req, res) => {
             res.send("Shutdown initiated");
             process.exit();
-        });
-        systemRouter.post('/curl', async (req, res, next) => {
-            var url = req.body.url;
-            try {
-                var response = await webclient.get(url);
-                res.setHeader('Content-Type', 'application/json');
-                res.end(Flatted.stringify(response));
-            } catch (err) {
-                next(err);
-            }
-        });
-        systemRouter.get('/curl', async (req, res, next) => {
-            var url = req.query['url'];
-            try {
-                var response = await webclient.get(url);
-                res.setHeader('Content-Type', 'application/json');
-                res.end(Flatted.stringify(response));
-            } catch (err) {
-                next(err);
-            }
         });
         app.use('/cms', systemRouter);
 

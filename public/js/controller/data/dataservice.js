@@ -107,9 +107,11 @@ class DataService {
     }
 
     _cache;
+    _apiClient;
 
     constructor() {
         this._cache = new Cache();
+        this._apiClient = app.getController().getApiController().getApiClient();
     }
 
     getCache() {
@@ -210,7 +212,7 @@ class DataService {
     }
 
     async fetchPath(path) {
-        return WebClient.fetchJson(app.controller.getApiController().getApiOrigin() + "/api/" + path);
+        return this._apiClient.requestJson("/api/" + path);
     }
 
     async fetchObjectById(typeString, id) {
@@ -262,10 +264,10 @@ class DataService {
             typeUrl = typeString + "/" + id;
         else
             typeUrl = typeString;
-        var url = app.controller.getApiController().getApiOrigin() + "/api/" + typeUrl;
+        var url = "/api/" + typeUrl;
 
         if (method && url) {
-            var resp = await WebClient.request(method, url, data);
+            var resp = await this._apiClient.request(method, url, data);
             if (resp) {
                 var cache = this._cache.getModelCache(typeString);
                 if (action == ActionEnum.delete) {

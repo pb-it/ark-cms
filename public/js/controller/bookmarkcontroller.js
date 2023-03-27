@@ -2,12 +2,13 @@ class BookmarkController {
 
     static CONFIG_BOKKMARK_IDENT = 'bookmarks';
 
-    _url;
+    _apiClient;
     //_obj;
 
     _bookmarks;
 
     constructor() {
+        this._apiClient = app.getController().getApiController().getApiClient();
     }
 
     async init() {
@@ -59,8 +60,7 @@ class BookmarkController {
             }
         }*/
 
-        this._url = app.controller.getApiController().getApiOrigin() + "/api/_registry";
-        var entry = await WebClient.fetchJson(this._url + '?key=bookmarks');
+        var entry = await this._apiClient.requestJson("/api/_registry?key=bookmarks");
         if (entry && entry.length == 1) {
             var value = entry[0]['value'];
             if (value)
@@ -75,7 +75,7 @@ class BookmarkController {
 
     async setBookmarks(bookmarks) {
         this._bookmarks = bookmarks;
-        return WebClient.request("PUT", this._url, { 'key': 'bookmarks', 'value': JSON.stringify(this._bookmarks) });
+        return this._apiClient.request("PUT", "/api/_registry", { 'key': 'bookmarks', 'value': JSON.stringify(this._bookmarks) });
     }
 
     async addBookmark(state) {

@@ -6,18 +6,24 @@ class ApiController {
 
     _api;
     _info;
+    _apiClient;
 
     constructor(api) {
         this._api = api;
+        this._apiClient = new ApiClient(this._api);
     }
 
     getApiOrigin() {
         return this._api;
     }
 
+    getApiClient() {
+        return this._apiClient;
+    }
+
     async fetchApiInfo() {
         this._info = null;
-        this._info = await WebClient.fetchJson(this._api + "/sys/info?t=" + (new Date()).getTime()); // breaking cache
+        this._info = await this._apiClient.requestJson("/sys/info?t=" + (new Date()).getTime()); // breaking cache
         return Promise.resolve(this._info);
     }
 
@@ -26,14 +32,12 @@ class ApiController {
     }
 
     async reloadModels() {
-        var url = this._api + "/sys/reload";
-        await WebClient.request("GET", url);
+        await this._apiClient.request("GET", "/sys/reload");
         return Promise.resolve();
     }
 
     async restartApi() {
-        var url = this._api + "/sys/restart";
-        await WebClient.request("GET", url);
+        await this._apiClient.request("GET", "/sys/restart");
         return Promise.resolve();
     }
 
@@ -44,7 +48,7 @@ class ApiController {
             if (i > 1)
                 await sleep(3000);
             try {
-                await app.controller.getApiController().fetchApiInfo();
+                await this.fetchApiInfo();
                 bReady = true;
             } catch (error) {
                 if (error && (error.status == 401 || error.status == 403))

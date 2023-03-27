@@ -12,12 +12,11 @@ class ModelController {
 
     async init() {
         this._models = [];
-        var ac = app.controller.getApiController();
-        var modelsUrl = ac.getApiOrigin() + "/api/_model";
-        var apiModels = await WebClient.fetchJson(modelsUrl);
-        if (apiModels) {
+        var apiClient = app.getController().getApiController().getApiClient();
+        var models = await apiClient.requestJson("/api/_model");
+        if (models) {
             var model;
-            for (var data of apiModels) {
+            for (var data of models) {
                 try {
                     model = new XModel(data['definition']);
                     model.setId(data['id']);

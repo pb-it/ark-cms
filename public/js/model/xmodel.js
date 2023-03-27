@@ -6,10 +6,10 @@ class XModel {
             var info = ac.getApiInfo();
             version = info['version'];
         }
-        var url = app.controller.getApiController().getApiOrigin() + "/api/_model?v=" + encodeURIComponent(version);
+        var resource = "/api/_model?v=" + encodeURIComponent(version);
         if (bForce)
-            url += "&forceMigration=true";
-        return WebClient.request("PUT", url, data);
+            resource += "&forceMigration=true";
+        return app.getController().getApiController().getApiClient().request("PUT", resource, data);
     }
 
     _data;
@@ -74,10 +74,8 @@ class XModel {
     }
 
     async deleteModel() {
-        if (this._id) {
-            var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._id;
-            await WebClient.request("DELETE", url);
-        }
+        if (this._id)
+            await app.getController().getApiController().getApiClient().request("DELETE", "/api/_model/" + this._id);
         return Promise.resolve();
     }
 

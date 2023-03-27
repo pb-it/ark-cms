@@ -10,9 +10,11 @@ class ModelDefaultsController {
     static PANEL_TYPE_IDENT = 'panelType';
     static VIEW_IDENT = 'view';
 
+    _apiClient;
     _model;
 
     constructor(model) {
+        this._apiClient = app.getController().getApiController().getApiClient();
         this._model = model;
     }
 
@@ -40,8 +42,7 @@ class ModelDefaultsController {
         }
         defaults[ModelDefaultsController.SORT_IDENT] = sort;
         await this._model.setDefinition(data, false);
-        var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/defaults/sort";
-        return WebClient.request("PUT", url, { 'sort': sort });
+        return this._apiClient.request("PUT", "/api/_model/" + this._model.getId() + "/defaults/sort", { 'sort': sort });
     }
 
     getDefaultTitleProperty(bFallback = true) {
@@ -116,7 +117,6 @@ class ModelDefaultsController {
         }
         defaults[ModelDefaultsController.VIEW_IDENT] = config;
         await this._model.setDefinition(data, false);
-        var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/defaults/view";
-        return WebClient.request("PUT", url, config);
+        return this._apiClient.request("PUT", "/api/_model/" + this._model.getId() + "/defaults/view", config);
     }
 }

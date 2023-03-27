@@ -40,8 +40,7 @@ class ModelFilterController {
         var data = this._model.getDefinition();
         data[ModelFilterController.FILTERS_IDENT] = filters;
         await this._model.setDefinition(data, false);
-        var url = app.controller.getApiController().getApiOrigin() + "/api/_model/" + this._model.getId() + "/" + ModelFilterController.FILTERS_IDENT;
-        return WebClient.request("PUT", url, filters);
+        return app.getController().getApiController().getApiClient().request("PUT", "/api/_model/" + this._model.getId() + "/" + ModelFilterController.FILTERS_IDENT, filters);
     }
 
     async saveFilter(filter, bUpdate) {

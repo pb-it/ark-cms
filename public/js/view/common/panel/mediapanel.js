@@ -118,7 +118,7 @@ class MediaPanel extends CrudPanel {
             if (prop) {
                 if (bUrl) {
                     if (bConvert) {
-                        var blob = await WebClient.fetchBlob(file);
+                        var blob = await HttpClient.request('GET', file, { 'responseType': 'blob' });
                         data[prop] = { 'base64': await Base64.encodeObject(blob) };
                     } else
                         data[prop] = file;

@@ -4,16 +4,16 @@ class ProfileController {
     static CONFIG_PROFILE_AVAILABLE_IDENT = 'available';
     static CONFIG_PROFILE_MENU_IDENT = 'menu';
 
-    _url;
+    _apiClient;
     _config;
     _profiles;
 
     constructor() {
+        this._apiClient = app.getController().getApiController().getApiClient();
     }
 
     async init() {
-        this._url = app.controller.getApiController().getApiOrigin() + "/api/_registry";
-        var entry = await WebClient.fetchJson(this._url + '?key=profiles');
+        var entry = await this._apiClient.requestJson("/api/_registry?key=profiles");
         if (entry && entry.length == 1) {
             var value = entry[0]['value'];
             if (value)
@@ -26,7 +26,7 @@ class ProfileController {
 
     async setProfiles(profiles) {
         this._profiles = profiles;
-        return WebClient.request("PUT", this._url, { 'key': 'profiles', 'value': JSON.stringify(this._profiles) });
+        return this._apiClient.request("PUT", "/api/_registry", { 'key': 'profiles', 'value': JSON.stringify(this._profiles) });
     }
 
     getProfileConfig() {
