@@ -59,9 +59,16 @@ class AuthController {
             }.bind(this));
         $d.append($continue);
 
+        var $footer = $('<div/>')
+            .addClass('clear');
+        $d.append($footer);
+
         panel.setContent($d);
 
         await app.getController().getModalController().openPanelInModal(panel);
+
+        $username.focus();
+
         return Promise.resolve();
     }
 

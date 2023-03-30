@@ -66,23 +66,48 @@ class ExtensionSelect {
                         var $input = $('<input/>')
                             .prop('type', 'file')
                             .prop('accept', 'application/zip')
+                            .prop('multiple', true)
                             .on("change", async function () {
-                                if (this.files.length == 1) {
-                                    if (this.files[0].type == 'application/zip') {
-                                        try {
-                                            app.controller.setLoadingState(true);
-                                            var res = await app.controller.getExtensionController().addExtension(this.files[0]);
-                                            app.controller.setLoadingState(false);
-                                            if (res == 'OK')
-                                                alert('Upload successfully');
-                                            else
-                                                alert('Something went wrong!');
-                                        } catch (error) {
-                                            app.controller.setLoadingState(false);
-                                            app.controller.showError(error);
+                                if (this.files.length > 0) {
+                                    try {
+                                        app.controller.setLoadingState(true);
+                                        var name;
+                                        var existing;
+                                        var res;
+                                        var msg;
+                                        var extensions = app.controller.getExtensionController().getExtensions();
+                                        for (var file of this.files) {
+                                            if (file.type == 'application/zip') {
+                                                name = file.name.split('@')[0];
+                                                existing = null;
+                                                for (var x of extensions) {
+                                                    if (x['name'] == name) {
+                                                        existing = x;
+                                                        break;
+                                                    }
+                                                }
+                                                if (!existing)
+                                                    res = await app.controller.getExtensionController().addExtension(file);
+                                                else if (confirm('An extension with name \'' + name + '\' already exists. Do you want to override it?'))
+                                                    res = await app.controller.getExtensionController().addExtension(file, existing);
+                                                else
+                                                    msg = 'Aborted';
+
+                                                if (!msg) {
+                                                    if (res == 'OK')
+                                                        msg = 'Uploaded \'' + name + '\' successfully';
+                                                    else
+                                                        msg = 'Something went wrong!';
+                                                }
+                                            } else
+                                                msg = 'An extension has to be provided as zip archive! Skipping \'' + name + '\'';
+                                            alert(msg)
                                         }
-                                    } else
-                                        alert("An extension has to be provided as zip archive!");
+                                        app.controller.setLoadingState(false);
+                                    } catch (error) {
+                                        app.controller.setLoadingState(false);
+                                        app.controller.showError(error);
+                                    }
                                 }
                                 return Promise.resolve();
                             });

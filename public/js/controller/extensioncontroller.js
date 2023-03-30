@@ -8,6 +8,14 @@ class ExtensionController {
     async init() {
         //var model = app.controller.getModelController().getModel('_extension'); //readAll???
         this._extensions = await app.controller.getDataService().fetchData('_extension');
+        for (var ext of this._extensions) {
+            if (ext['client-extension']) {
+                const objectURL = URL.createObjectURL(new Blob([ext['client-extension']], { type: 'text/javascript' }));
+                const module = await import(objectURL);
+                if (module.init)
+                    module.init();
+            }
+        }
         $(window).trigger('changed.extension');
         return Promise.resolve();
     }
@@ -17,17 +25,30 @@ class ExtensionController {
     }
 
     getExtension(name) {
-        return this._extensions.filter(function (x) { return x['name'] == name });
+        var ext;
+        for (var x of this._extensions) {
+            if (x['name'] == name) {
+                ext = x;
+                break;
+            }
+        }
+        return ext;
     }
 
-    async addExtension(file) {
+    async addExtension(file, existing) {
         var res;
         var formData = new FormData();
         //formData.append('name', this.files[0].name);
         formData.append('extension', file);
         //await app.controller.getDataService().request('_extension', 'PUT', null, formData);
-        var obj = new CrudObject('_extension', formData);
-        res = await obj.create();
+        var obj;
+        if (existing) {
+            obj = new CrudObject('_extension', existing);
+            res = await obj.update(formData);
+        } else {
+            obj = new CrudObject('_extension', formData);
+            res = await obj.create();
+        }
         await this.init();
         return Promise.resolve('OK');
     }
@@ -35,8 +56,8 @@ class ExtensionController {
     async deleteExtension(name) {
         var res;
         var data = this.getExtension(name);
-        if (data && data.length == 1) {
-            var obj = new CrudObject('_extension', data[0]);
+        if (data) {
+            var obj = new CrudObject('_extension', data);
             res = await obj.delete();
         }
         await this.init();

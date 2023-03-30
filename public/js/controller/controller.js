@@ -285,8 +285,13 @@ class Controller {
                     }
                     if (!bSpecial)
                         await this.updateCanvas();
-                } else if (state['customRoute'] && state['customRoute'] == '/terminal') {
-                    await this._view.getCanvas().showPanels([new TerminalPanel()]);
+                } else if (state['customRoute']) {
+                    var rc = app.controller.getRouteController();
+                    var route = rc.getMatchingRoute(state['customRoute']);
+                    if (route && route['fn'])
+                        route['fn']();
+                    else
+                        throw new Error("Unknown route '" + state['customRoute'] + "'");
                 } else
                     bHome = true;
             } else

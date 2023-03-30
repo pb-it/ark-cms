@@ -4,9 +4,11 @@ class SideNavigationBar {
 
     _topIconBar;
     _$topIconBar;
+    _topIconBarExtensions;
 
     _bottomIconBar;
     _$bottomIconBar;
+    _bottomIconBarExtensions;
 
     _confMenuItem;
 
@@ -15,6 +17,9 @@ class SideNavigationBar {
 
     constructor() {
         this._$sideNav = $('div#sidenav');
+
+        this._topIconBarExtensions = [];
+        this._bottomIconBarExtensions = [];
 
         this._topIconBar = new Menu();
         this._$topIconBar = this._topIconBar.renderMenu();
@@ -206,6 +211,16 @@ class SideNavigationBar {
                 menuItem = new MenuItem(conf);
                 this._topIconBar.addMenuItem(menuItem);
             }
+
+            if (this._topIconBarExtensions && this._topIconBarExtensions.length > 0) {
+                for (var ext of this._topIconBarExtensions) {
+                    conf = ext();
+                    if (conf) {
+                        menuItem = new MenuItem(conf);
+                        this._topIconBar.addMenuItem(menuItem);
+                    }
+                }
+            }
         }
     }
 
@@ -214,22 +229,14 @@ class SideNavigationBar {
 
         var conf;
         var menuItem;
-        if (app.controller.hasConnection() && app.controller.isInDebugMode()) {
-            conf = {
-                'style': 'iconbar',
-                'icon': "terminal",
-                'tooltip': "Console",
-                'click': function (event, icon) {
-                    this.close();
-
-                    if (event.ctrlKey)
-                        app.getController().getModalController().openPanelInModal(new TerminalPanel());
-                    else
-                        app.getController().loadState(new State({ customRoute: '/terminal' }), true);
-                }.bind(this)
-            };
-            menuItem = new MenuItem(conf);
-            this._bottomIconBar.addMenuItem(menuItem);
+        if (this._bottomIconBarExtensions && this._bottomIconBarExtensions.length > 0) {
+            for (var ext of this._bottomIconBarExtensions) {
+                conf = ext();
+                if (conf) {
+                    menuItem = new MenuItem(conf);
+                    this._bottomIconBar.addMenuItem(menuItem);
+                }
+            }
         }
 
         conf = {
@@ -249,5 +256,12 @@ class SideNavigationBar {
     close() {
         this._topIconBar.activateItem();
         this._sidePanel.hideSidePanel();
+    }
+
+    addIconBarItem(ext, bTop = true) {
+        if (bTop)
+            this._topIconBarExtensions.push(ext);
+        else
+            this._bottomIconBarExtensions.push(ext);
     }
 }
