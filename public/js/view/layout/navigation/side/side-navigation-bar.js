@@ -37,7 +37,7 @@ class SideNavigationBar {
         this._$sideNav.append(this._$sidePanel);
 
         window.addEventListener('click', function (event) {
-            if (!app.controller.getModalController().isModalOpen()) {
+            if (!app.getController().getModalController().isModalOpen()) {
                 var node = $(event.target);
                 var bInside = node.is(this._$sideNav);
                 while (!bInside) {
@@ -61,17 +61,18 @@ class SideNavigationBar {
         this._initBottomIconBar();
         this._bottomIconBar.renderMenu();
 
+        var controller = app.getController();
         var bInfo = false;
-        if (!app.controller.hasConnection())
+        if (!controller.hasConnection())
             bInfo = true;
         else {
-            var info = app.controller.getApiController().getApiInfo();
+            var info = controller.getApiController().getApiInfo();
             if (info) {
                 if (info['state'] !== 'running') // openReloadRequest, ...
                     bInfo = true;
             } else
                 bInfo = true;
-            var vc = app.controller.getVersionController();
+            var vc = controller.getVersionController();
             if (vc) {
                 if (!vc.isCompatible())
                     bInfo = true;
@@ -88,7 +89,8 @@ class SideNavigationBar {
     _initTopIconBar() {
         this._topIconBar.clearMenu();
 
-        if (app.controller.hasConnection()) {
+        var controller = app.getController();
+        if (controller.hasConnection()) {
             var conf = {
                 'style': 'iconbar',
                 'icon': "home",
@@ -101,16 +103,17 @@ class SideNavigationBar {
             var menuItem = new MenuItem(conf);
             this._topIconBar.addMenuItem(menuItem, true);
 
-            if (app.controller.isInDebugMode()) {
+            if (controller.isInDebugMode()) {
                 conf = {
                     'style': 'iconbar',
                     'icon': "redo",
                     'tooltip': "Reload",
                     'click': function (event, icon) {
                         this.close();
-                        var state = app.controller.getStateController().getState();
+                        var controller = app.getController();
+                        var state = controller.getStateController().getState();
                         state.bIgnoreCache = true;
-                        app.controller.loadState(state);
+                        controller.loadState(state);
                     }.bind(this)
                 };
                 menuItem = new MenuItem(conf);
@@ -123,7 +126,7 @@ class SideNavigationBar {
                     'click': async function (event, icon) {
                         this.close();
 
-                        return app.controller.getModalController().openPanelInModal(new NavigationPanel());
+                        return app.getController().getModalController().openPanelInModal(new NavigationPanel());
                     }.bind(this)
                 };
                 menuItem = new MenuItem(conf);
@@ -136,24 +139,7 @@ class SideNavigationBar {
                     'click': async function (event, icon) {
                         this.close();
 
-                        return app.controller.getModalController().openPanelInModal(new CachePanel());
-                    }.bind(this)
-                };
-                menuItem = new MenuItem(conf);
-                this._topIconBar.addMenuItem(menuItem);
-
-                conf = {
-                    'style': 'iconbar',
-                    'icon': "puzzle-piece",
-                    'tooltip': "Extensions",
-                    'click': async function (event, icon) {
-                        var activeIcon = this._topIconBar.getActiveItem();
-                        if (activeIcon != icon) {
-                            this._topIconBar.activateItem(icon);
-                            await this._sidePanel.showExtensionSelect();
-                        } else {
-                            this.close();
-                        }
+                        return app.getController().getModalController().openPanelInModal(new CachePanel());
                     }.bind(this)
                 };
                 menuItem = new MenuItem(conf);
@@ -196,7 +182,7 @@ class SideNavigationBar {
             menuItem = new MenuItem(conf);
             this._topIconBar.addMenuItem(menuItem);
 
-            if (app.controller.isInDebugMode()) {
+            if (controller.isInDebugMode()) {
                 conf = {
                     'style': 'iconbar',
                     'icon': "bookmark",
@@ -205,7 +191,7 @@ class SideNavigationBar {
                         this.close();
 
                         var config = { 'minWidth': '1000px' };
-                        return app.controller.getModalController().openPanelInModal(new ManageBookmarkPanel(config));
+                        return app.getController().getModalController().openPanelInModal(new ManageBookmarkPanel(config));
                     }.bind(this)
                 };
                 menuItem = new MenuItem(conf);
@@ -239,6 +225,26 @@ class SideNavigationBar {
             }
         }
 
+        var controller = app.getController();
+        if (controller && controller.getApiController().isAdministrator()) {
+            conf = {
+                'style': 'iconbar',
+                'icon': "puzzle-piece",
+                'tooltip': "Extensions",
+                'click': async function (event, icon) {
+                    var activeIcon = this._topIconBar.getActiveItem();
+                    if (activeIcon != icon) {
+                        this._bottomIconBar.activateItem(icon);
+                        await this._sidePanel.showExtensionSelect();
+                    } else {
+                        this.close();
+                    }
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            this._bottomIconBar.addMenuItem(menuItem);
+        }
+
         conf = {
             'style': 'iconbar',
             'icon': "cog",
@@ -246,7 +252,7 @@ class SideNavigationBar {
             'click': async function (event, icon) {
                 this.close();
 
-                return app.controller.getModalController().openPanelInModal(new ConfigPanel());
+                return app.getController().getModalController().openPanelInModal(new ConfigPanel());
             }.bind(this)
         };
         this._confMenuItem = new MenuItem(conf);
@@ -255,6 +261,7 @@ class SideNavigationBar {
 
     close() {
         this._topIconBar.activateItem();
+        this._bottomIconBar.activateItem();
         this._sidePanel.hideSidePanel();
     }
 

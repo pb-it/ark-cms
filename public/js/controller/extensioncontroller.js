@@ -49,7 +49,7 @@ class ExtensionController {
             obj = new CrudObject('_extension', formData);
             res = await obj.create();
         }
-        await this.init();
+        //await this.init(); // messes up sidemenu
         return Promise.resolve('OK');
     }
 
@@ -60,7 +60,7 @@ class ExtensionController {
             var obj = new CrudObject('_extension', data);
             res = await obj.delete();
         }
-        await this.init();
+        //await this.init(); // messes up sidemenu
         return Promise.resolve(res);
     }
 }

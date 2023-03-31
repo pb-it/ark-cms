@@ -1,5 +1,7 @@
 class NavigationPanel extends Panel {
 
+    _$form;
+
     constructor() {
         super();
     }
@@ -7,11 +9,17 @@ class NavigationPanel extends Panel {
     async _renderContent() {
         var $div = $('<div/>');
 
-        var skeleton = [{ name: 'path', dataType: 'string' }];
+        var skeleton = [{ id: 'path', name: 'path', dataType: 'string' }];
         var data = { 'path': window.location.pathname + window.location.search + window.location.hash };
         var form = new Form(skeleton, data);
-        var $form = await form.renderForm();
-        $div.append($form);
+        this._$form = await form.renderForm();
+        this._$form.on('submit', async function () {
+            this.dispose();
+            var fdata = await form.readForm();
+            await app.getController().navigate(fdata['path']);
+            return true;
+        }.bind(this));
+        $div.append(this._$form);
 
         $div.append("<br>");
 
@@ -21,11 +29,9 @@ class NavigationPanel extends Panel {
             .click(async function (event) {
                 event.stopPropagation();
 
-                this.dispose();
+                this._$form.submit();
 
-                var fdata = await form.readForm();
-
-                return app.getController().navigate(fdata['path']);
+                return Promise.resolve();
             }.bind(this));
         $div.append($apply);
         return Promise.resolve($div);

@@ -159,6 +159,7 @@ class Controller {
             this._bookmarkController = new BookmarkController();
             await this._bookmarkController.init();
 
+            await this._apiController.fetchSessionInfo();
             this._bConnection = true;
             bInitDone = true;
         } catch (error) {

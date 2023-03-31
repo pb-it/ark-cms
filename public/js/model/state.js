@@ -10,7 +10,7 @@ class State {
         var state;
         if (path === '/')
             state = new State();
-        else if (path.startsWith("/data/")) {
+        else if (path && path.startsWith("/data/")) {
             path = path.substring(6);
             state = new State();
 

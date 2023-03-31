@@ -5,8 +5,10 @@ class ApiController {
     }
 
     _api;
-    _info;
     _apiClient;
+    _info;
+    _session;
+    _bAdministrator;
 
     constructor(api) {
         this._api = api;
@@ -29,6 +31,34 @@ class ApiController {
 
     getApiInfo() {
         return this._info;
+    }
+
+    async fetchSessionInfo() {
+        this._session = null;
+        this._session = await this._apiClient.requestJson("/sys/session?t=" + (new Date()).getTime());
+        this._bAdministrator = false;
+        if (this._session) {
+            if (this._session['auth']) {
+                if (this._session['user'] && this._session['user']['roles']) {
+                    for (var role of this._session['user']['roles']) {
+                        if (role == 'administrator') {
+                            this._bAdministrator = true;
+                            break;
+                        }
+                    }
+                }
+            } else
+                this._bAdministrator = true;
+        }
+        return Promise.resolve(this._session);
+    }
+
+    getSessionInfo() {
+        return this._session;
+    }
+
+    isAdministrator() {
+        return this._bAdministrator;
     }
 
     async reloadModels() {

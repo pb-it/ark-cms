@@ -15,7 +15,9 @@ class FormEntry {
         this._attribute = attribute;
 
         var formName = this._form.getName();
-        if (formName)
+        if (this._attribute.id)
+            this._id = this._attribute.id;
+        else if (formName)
             this._id = formName + "." + this._attribute.name;
         else
             this._id = this._attribute.name + Date.now();

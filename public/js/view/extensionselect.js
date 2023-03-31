@@ -95,7 +95,7 @@ class ExtensionSelect {
 
                                                 if (!msg) {
                                                     if (res == 'OK')
-                                                        msg = 'Uploaded \'' + name + '\' successfully';
+                                                        msg = 'Uploaded \'' + name + '\' successfully. Reload website for the changes to take effect!';
                                                     else
                                                         msg = 'Something went wrong!';
                                                 }
@@ -186,7 +186,7 @@ class ExtensionSelect {
 
                         if (res == 'OK') {
                             app.controller.getView().getSideNavigationBar().close();
-                            alert('Deleted successfully')
+                            alert('Deleted extension successfully. Reload website for the changes to take effect!')
                         } else
                             alert('Something went wrong!');
                     } catch (error) {
