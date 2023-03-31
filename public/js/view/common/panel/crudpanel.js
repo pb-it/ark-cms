@@ -170,7 +170,7 @@ class CrudPanel extends CanvasPanel {
 
         $div.append(this._renderActionButtons());
 
-        var text = this._obj.getId() ? 'Commit' : 'Change';
+        var text = 'Update';
         $div.append($('<button/>')
             .css({ 'float': 'right' })
             .html(text)
@@ -406,39 +406,34 @@ class CrudPanel extends CanvasPanel {
                 var newData = await this._readData();
                 var changed = CrudObject.getChanges(this._skeleton, oldData, newData);
                 if (changed) {
-                    if (this._obj.getId()) {
-                        if (app.controller.getConfigController().confirmOnApply()) {
-                            app.controller.setLoadingState(false);
-                            var skeleton = this._obj.getSkeleton(true);
-                            var bConfirm = await app.controller.getModalController().openDiffJsonModal(CrudObject.collapse(skeleton, oldData), CrudObject.collapse(skeleton, newData));
-                            if (!bConfirm)
-                                return Promise.reject();
-                            app.controller.setLoadingState(true);
-                        }
+                    if (app.controller.getConfigController().confirmOnApply()) {
+                        app.controller.setLoadingState(false);
+                        var skeleton = this._obj.getSkeleton(true);
+                        var bConfirm = await app.controller.getModalController().openDiffJsonModal(CrudObject.collapse(skeleton, oldData), CrudObject.collapse(skeleton, newData));
+                        if (!bConfirm)
+                            return Promise.reject();
+                        app.controller.setLoadingState(true);
+                    }
 
-                        await this._obj.update(changed);
+                    await this._obj.update(changed);
 
-                        if (this._config.crudCallback) {
-                            if (await this._config.crudCallback(this.getObject().getData()))
-                                this.dispose();
-                        } else {
-                            var state = app.controller.getStateController().getState();
-                            if (this._obj.getTypeString() === state.typeString && state.panelConfig)
-                                this._config = state.panelConfig;
-                            else {
-                                var model = this._obj.getModel();
-                                /*var mpcc = model.getModelPanelConfigController();
-                                this._config = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.all);*/
-                                var config = new MediaPanelConfig();
-                                config.initPanelConfig(model, ActionEnum.read, this._config);
-                                this._config = config;
-                            }
-
-                            await this.render();
-                        }
+                    if (this._config.crudCallback) {
+                        if (await this._config.crudCallback(this.getObject().getData()))
+                            this.dispose();
                     } else {
-                        this._obj.setData(newData);
-                        this.dispose();
+                        var state = app.controller.getStateController().getState();
+                        if (this._obj.getTypeString() === state.typeString && state.panelConfig)
+                            this._config = state.panelConfig;
+                        else {
+                            var model = this._obj.getModel();
+                            /*var mpcc = model.getModelPanelConfigController();
+                            this._config = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.all);*/
+                            var config = new MediaPanelConfig();
+                            config.initPanelConfig(model, ActionEnum.read, this._config);
+                            this._config = config;
+                        }
+
+                        await this.render();
                     }
 
                     app.controller.setLoadingState(false);

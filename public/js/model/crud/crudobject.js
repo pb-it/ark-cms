@@ -381,7 +381,9 @@ class CrudObject {
     async update(data) {
         if (!data)
             data = this._data;
-        data = await this.request(ActionEnum.update, data);
+
+        if (!this._model.getDefinition()['options']['increments'] || this._data['id'])
+            data = await this.request(ActionEnum.update, data);
         this.setData(data);
         return Promise.resolve(data);
     }
