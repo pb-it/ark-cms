@@ -251,7 +251,7 @@ class ContextMenuController {
                                 if (!attr['via'] || objs.length == 1) {
                                     var data = {};
                                     if (backLink)
-                                        data[backLink] = objs[0].getData();
+                                        data[backLink] = [objs[0].getId()];
                                     if (attr['hidden'] && backLink) {
                                         entry = new ContextMenuEntry(attr['name'], function () {
                                             var panel = PanelController.createPanel(attr['model'], this, ActionEnum.create);

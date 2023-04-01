@@ -3,6 +3,7 @@ class FileFormEntry extends FormEntry {
     _$inputFilename;
     _$inputUrl;
     _$inputFile;
+    _$delete;
 
     constructor(form, attribute) {
         super(form, attribute);
@@ -33,6 +34,18 @@ class FileFormEntry extends FormEntry {
         }
 
         if (this._attribute['storage'] == 'filesystem' || this._attribute['filename_prop']) {
+            this._$delete = $('<input/>')
+                .attr('type', 'checkbox')
+                .prop('checked', value['delete'])
+                .click(function () {
+                    if (this._$delete.prop('checked'))
+                        this._$inputFilename.val('');
+                }.bind(this));
+            var $label = $('<label/>');
+            $label.append(this._$delete);
+            $label.append('Delete');
+            this._$value.append($label);
+            this._$value.append("<br/>");
             this._$value.append('filename: ');
             this._$inputFilename = $('<input/>')
                 .attr('type', 'text')
@@ -117,7 +130,9 @@ class FileFormEntry extends FormEntry {
             if (file)
                 data['base64'] = await Base64.encodeObject(file);
             else if (this._value['base64'])
-                data['base64'] = this._value['base64']
+                data['base64'] = this._value['base64'];
+            if (this._$delete && this._$delete.prop('checked'))
+                data['delete'] = true;
         }
         return Promise.resolve(data);
     }
