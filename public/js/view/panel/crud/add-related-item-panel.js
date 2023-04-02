@@ -65,7 +65,11 @@ class AddRelatedItemPanel extends Panel {
 
                         var backlink = this._attr['via'];
                         if (backlink) {
-                            var id = this._data[backlink]['id'];
+                            var id;
+                            if (Number.isInteger(this._data[backlink]))
+                                id = this._data[backlink];
+                            else
+                                id = this._data[backlink]['id'];
                             var update = {};
                             update[backlink] = id;
                             var bMatch;
@@ -75,7 +79,7 @@ class AddRelatedItemPanel extends Panel {
                             for (var opt of selected) {
                                 bMatch = false;
                                 data = opt.getData();
-                                prop = data[this._attr['via']];
+                                prop = data[backlink];
                                 if (prop) {
                                     if (Number.isInteger(prop))
                                         bMatch = (prop == id);
