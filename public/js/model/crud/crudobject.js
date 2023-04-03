@@ -90,6 +90,19 @@ class CrudObject {
                                     } else
                                         relevant[property] = newdata[property];
                                     break;
+                                case "decimal":
+                                case "double":
+                                    if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
+                                        var oldValue;
+                                        if (typeof olddata[property] === 'string' || olddata[property] instanceof String)
+                                            oldValue = parseFloat(olddata[property]);
+                                        else
+                                            oldValue = olddata[property];
+                                        if (oldValue !== newdata[property])
+                                            relevant[property] = newdata[property];
+                                    } else
+                                        relevant[property] = newdata[property];
+                                    break;
                                 case "date":
                                     if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
                                         if (newdata[property].indexOf('T') >= 0) {

@@ -101,7 +101,7 @@ class DataView {
                                                 case 'markdown':
                                                     $value.addClass('markdown');
                                                     value = value.replace(/\[([^\]\r\n]*)\]\((\/data\/.*?)\)/gm, function (match, c1, c2) {
-                                                        return "<a href='#' onclick='app.getController().navigate(\"" + c2 + "\");return false;'>" + c1 + "</a>";
+                                                        return "<a href='" + c1 + "' onclick='app.getController().navigate(\"" + c2 + "\");return false;'>" + c1 + "</a>";
                                                     });
                                                     if (typeof showdown === 'undefined') {
                                                         var buildUrl = "https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/";
