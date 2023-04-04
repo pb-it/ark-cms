@@ -1,7 +1,11 @@
 class CachePanel extends Panel {
 
+    _cache;
+
     constructor() {
         super();
+
+        this._cache = app.getController().getDataService().getCache();
     }
 
     async _renderContent() {
@@ -12,8 +16,7 @@ class CachePanel extends Panel {
         var size;
         var $button;
 
-        var cache = app.controller.getDataService().getCache();
-        var arr = cache.getModelCache();
+        var arr = this._cache.getModelCache();
         for (var typeString in arr) {
             $row = $('<tr>');
             $col = $('<td>').text(typeString);
@@ -39,6 +42,16 @@ class CachePanel extends Panel {
         }
         $div.append($table);
         $div.append("<br>");
+
+        $button = $('<button>')
+            .text('Update')
+            .click(typeString, async function (event) {
+                event.stopPropagation();
+                await this._cache.update();
+                await this.render();
+                return Promise.resolve();
+            }.bind(this));
+        $div.append($button);
 
         /*$table = $('<table>');
         var urls = cache.getCachedUrls();

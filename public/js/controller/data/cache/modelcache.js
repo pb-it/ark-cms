@@ -16,23 +16,38 @@ class ModelCache {
     }
 
     cache(action, url, data) {
-        if (action && action == ActionEnum.create) {
-            if (this._completeRecordSet) {
-                this._completeRecordSet.push(data);
-                if (this._defaultSort)
-                    this._completeRecordSet = DataService.sortData(this._model, this._defaultSort, this._completeRecordSet);
-            }
-            this._urls = []; // delete outdated queries
-        }
-        this._urls[url] = data;
+        var bNew = false;
         if (Array.isArray(data)) {
-            for (var d of data)
+            var id;
+            var bExist;
+            for (var d of data) {
+                id = d['id'];
+                bExist = this._dataCache[id];
                 this._dataCache[d['id']] = d;
-        } else
-            this._dataCache[data['id']] = data;
+                if (!bExist && this._completeRecordSet) {
+                    this._completeRecordSet.push(d);
+                    bNew = true;
+                }
+            }
+        } else {
+            var id = data['id'];
+            var bExist = this._dataCache[id];
+            this._dataCache[id] = data;
+            if (!bExist && this._completeRecordSet) {
+                this._completeRecordSet.push(data);
+                bNew = true;
+            }
+        }
+        if (bNew)
+            this._urls = []; // delete outdated queries
+        this._urls[url] = data;
 
         if (this._completeRecordSet) {
-            var arr = [];
+            this._completeRecordSet = Array.from(this._dataCache.values()).filter(x => x); // remove empty slots
+            if (this._defaultSort)
+                this._completeRecordSet = DataService.sortData(this._model, this._defaultSort, this._completeRecordSet);
+
+            /*var arr = [];
             if (Array.isArray(data)) {
                 var map = new Map();
                 for (var d of data)
@@ -54,7 +69,8 @@ class ModelCache {
                         arr.push(d);
                 }
             }
-            this._completeRecordSet = arr;
+            this._completeRecordSet = arr;*/
+
         }
     }
 
