@@ -191,7 +191,7 @@ class DataService {
                         else if (filter.query.startsWith('{')) {
                             Filter.filterObj(res, new CrudObject(typeString, JSON.parse(filter.query)));
                         } else
-                            res = Filter.filterStr(res, filter.query);
+                            res = Filter.filterStr(typeString, res, filter.query);
                     } else {
                         res = Filter.filterObj(res, new CrudObject(typeString, filter.query));
                     }
@@ -199,7 +199,7 @@ class DataService {
             }
 
             if (search)
-                res = Filter.filterStr(res, search);
+                res = Filter.filterStr(typeString, res, search);
 
             if (bSort)
                 res = DataService.sortData(model, sort, res);

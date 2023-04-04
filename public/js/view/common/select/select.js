@@ -29,12 +29,30 @@ class Select {
         this._cb = cb;
     }
 
+    getModelName() {
+        return this._typeString;
+    }
+
     setCreateData(createData) {
         this._createData = createData;
     }
 
     setSelectedValues(values) {
         this._selectedValues = values;
+    }
+
+    async addSelectedValues(values) {
+        for (var value of values) {
+            for (var option of this._options) {
+                if (value == option.getData()) {
+                    if (!option.isSelected())
+                        option.setSelected(true);
+                    break;
+                }
+            }
+        }
+        await this._update();
+        return Promise.resolve();
     }
 
     async initSelect(optData) {
@@ -169,8 +187,21 @@ class Select {
 
         this._$div.append("&nbsp;");
 
+        var $searchButton = $("<button/>")
+            .text("Search")
+            .prop("disabled", bDisable)
+            .click(function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                var panel = new SearchEntryPanel(this);
+                return app.controller.getModalController().openPanelInModal(panel);
+            }.bind(this));
+        this._$div.append($searchButton);
+
+        this._$div.append("&nbsp;");
+
         this._$createButton = $("<button/>")
-            .text("create")
+            .text("Create")
             .prop("disabled", bDisable)
             .click(function (event) {
                 event.preventDefault();

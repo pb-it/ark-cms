@@ -15,7 +15,7 @@ class Filter {
         return path;
     }
 
-    static filterStr(items, str) {
+    static filterStr(typeString, items, str) {
         var filtered_items;
         if (items) {
             var state = app.controller.getStateController().getState();
@@ -23,8 +23,9 @@ class Filter {
             if (path) {
                 filtered_items = jPath(items, path);
             } else {
-                if (state['typeString']) {
-                    if (state['panelConfig'] && state['panelConfig']['searchFields']) {
+                if (typeString) {
+                    if (state && state['typeString'] && typeString == state['typeString'] &&
+                        state['panelConfig'] && state['panelConfig']['searchFields']) {
                         filtered_items = [];
                         var obj;
                         for (var prop of state['panelConfig']['searchFields'].map(function (x) { return x['value'] })) {
@@ -42,7 +43,7 @@ class Filter {
                             }
                         }
                     } else {
-                        var model = app.controller.getModelController().getModel(state.typeString);
+                        var model = app.controller.getModelController().getModel(typeString);
                         var prop = model.getModelDefaultsController().getDefaultTitleProperty();
                         if (prop) {
                             var obj = {};
