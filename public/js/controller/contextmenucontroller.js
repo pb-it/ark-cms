@@ -285,7 +285,13 @@ class ContextMenuController {
                 }
                 if (bAddSetEntry && !attr['readonly']) {
                     entry = new ContextMenuEntry(attr['name'], function () {
-                        var skeleton = [attr];
+                        var skeleton;
+                        if (attr['hidden']) {
+                            var copy = { ...attr };
+                            delete copy['hidden'];
+                            skeleton = [copy];
+                        } else
+                            skeleton = [attr];
                         var panel = new FormPanel(null, skeleton);
                         panel.setApplyAction(async function (p) {
                             app.controller.setLoadingState(true);
