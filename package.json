@@ -4,6 +4,7 @@
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
+        "webframework",
         "headless",
         "Jamstack",
         "nodejs",
@@ -21,11 +22,20 @@
     },
     "main": "server.js",
     "scripts": {
-        "start": "node server.js"
+        "start": "node server.js",
+        "test": "npm run test-all",
+        "test-login": "./node_modules/.bin/mocha --timeout 10000 tests/login.test.js",
+        "test-all": "mocha tests/all.test.js"
     },
     "dependencies": {
         "body-parser": "^1.19.0",
         "cors": "^2.8.5",
         "express": "^4.17.1"
+    },
+    "devDependencies": {
+        "gulp": "^4.0.2",
+        "gulp-mocha": "^8.0.0",
+        "mocha": "^10.2.0",
+        "selenium-webdriver": "^4.8.2"
     }
 }
