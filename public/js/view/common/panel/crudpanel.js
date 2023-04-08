@@ -462,7 +462,7 @@ class CrudPanel extends CanvasPanel {
             } else
                 this.dispose();
 
-            return app.controller.reloadState(true);
+            return app.controller.reloadState();
         } catch (error) {
             app.controller.setLoadingState(false);
             app.controller.showError(error);

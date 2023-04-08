@@ -231,10 +231,7 @@ class EditModelPanel extends TabPanel {
 
         this.dispose();
 
-        //await app.controller.getApiController().fetchApiInfo(); // needed for notification in side bar
-        //app.controller.getView().initView(); //redraw of visualisation with new menus is also done with event 'changed.model'
-        return app.controller.reloadState(true);
-        //app.controller.reloadApplication();
+        return app.controller.reloadState();
     }
 
     async _hasChanged() {

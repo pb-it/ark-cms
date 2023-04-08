@@ -330,11 +330,12 @@ class Controller {
     showError(error, message) {
         var msg;
         if (error) {
-            if (error.status && error.statusText) {
+            if (error.status) {
+                msg = "status:" + error.status;
+                if (error.statusText)
+                    msg += " - " + error.statusText;
                 if (error.response)
-                    msg = error.status + ": " + error.response;
-                else
-                    msg = error.status + ": " + error.statusText;
+                    msg += "\nresposnse: " + error.response;
             } else if (error.message)
                 msg = error.message;
 

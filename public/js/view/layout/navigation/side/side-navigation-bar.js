@@ -112,10 +112,7 @@ class SideNavigationBar {
                     'tooltip': "Reload",
                     'click': function (event, icon) {
                         this.close();
-                        var controller = app.getController();
-                        var state = controller.getStateController().getState();
-                        state.bIgnoreCache = true;
-                        controller.loadState(state);
+                        app.getController().reloadState(event.ctrlKey);
                     }.bind(this)
                 };
                 menuItem = new MenuItem(conf);
@@ -154,11 +151,10 @@ class SideNavigationBar {
                 'tooltip': "Models",
                 'click': async function (event, icon) {
                     var activeIcon = this._topIconBar.getActiveItem();
+                    this.close();
                     if (activeIcon != icon) {
                         this._topIconBar.activateItem(icon);
                         await this._sidePanel.showModelSelect();
-                    } else {
-                        this.close();
                     }
                 }.bind(this)
             };
@@ -173,11 +169,10 @@ class SideNavigationBar {
                     //event.preventDefault();
                     //event.stopPropagation();
                     var activeIcon = this._topIconBar.getActiveItem();
+                    this.close();
                     if (activeIcon != icon) {
                         this._topIconBar.activateItem(icon);
                         await this._sidePanel.showStateSelect();
-                    } else {
-                        this.close();
                     }
                 }.bind(this)
             };
@@ -235,11 +230,10 @@ class SideNavigationBar {
                 'tooltip': "Extensions",
                 'click': async function (event, icon) {
                     var activeIcon = this._topIconBar.getActiveItem();
+                    this.close();
                     if (activeIcon != icon) {
                         this._bottomIconBar.activateItem(icon);
                         await this._sidePanel.showExtensionSelect();
-                    } else {
-                        this.close();
                     }
                 }.bind(this)
             };

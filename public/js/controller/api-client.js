@@ -14,6 +14,10 @@ class ApiClient {
         this._root = `${this._baseUrl}/api/${this._version}/`;
     }
 
+    getApiRoot() {
+        return this._root;
+    }
+
     async request(method, resource, data) {
         return HttpClient.request(method, this._baseUrl + resource, { 'withCredentials': true }, data);
     }
@@ -24,7 +28,9 @@ class ApiClient {
         if (response) {
             if (method == 'GET')
                 res = JSON.parse(response)['data'];
-            else if (method != 'DELETE')
+            else if (method == 'DELETE') // empty or 'OK'
+                res = response;
+            else
                 res = JSON.parse(response);
         }
         return res;
