@@ -51,7 +51,7 @@ class Server {
                 var msg;
                 try {
                     var bUpdate;
-                    if (this._vcs['client'] === VcsEnum.GIT) {
+                    if (this._vcs['client'] === VcsEnum.GIT && version !== 'latest') {
                         var url = 'https://raw.githubusercontent.com/pb-it/wing-cms/main/package.json';
                         var response = await fetch(url);
                         var json = await response.json();
@@ -68,7 +68,7 @@ class Server {
                             } else
                                 bUpdate = true;
                         } else {
-                            Logger.info("[App] Already up to date");
+                            console.log("[App] Already up to date");
                             msg = "Already up to date";
                         }
                     } else
