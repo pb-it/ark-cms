@@ -126,13 +126,13 @@ class Controller {
         this._storageController = new StorageController();
         this._configController = new ConfigController();
         await this._configController.initConfigController();
+
+        this._versionController = new VersionController();
         this._apiController = new ApiController(this._configController.getApi());
         this._authController = new AuthController();
 
         try {
             await this._apiController.initApiController();
-
-            this._versionController = new VersionController();
             await this._versionController.initVersionController();
 
             this._routeController = new RouteController();
