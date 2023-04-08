@@ -212,7 +212,7 @@ class DataService {
     }
 
     async fetchPath(path) {
-        return this._apiClient.requestJson("/api/" + path);
+        return this._apiClient.requestData("GET", path);
     }
 
     async fetchObjectById(typeString, id) {
@@ -259,27 +259,24 @@ class DataService {
                 break;
         }
 
-        var typeUrl;
+        var resource;
         if (id)
-            typeUrl = typeString + "/" + id;
+            resource = typeString + "/" + id;
         else
-            typeUrl = typeString;
-        var url = "/api/" + typeUrl;
+            resource = typeString;
 
-        if (method && url) {
-            var resp = await this._apiClient.request(method, url, data);
+        if (method && resource) {
+            var resp = await this._apiClient.requestData(method, resource, data);
             if (resp) {
                 var cache = this._cache.getModelCache(typeString);
                 if (action == ActionEnum.delete) {
-                    if (resp == "OK") {//delete default 200 response text
-                        res = resp;
+                    if (resp == "OK") //delete default 200 response text
                         cache.delete(id);
-                    } else
+                    else
                         throw new Error("deleting record failed");
-                } else {
-                    res = JSON.parse(resp);
-                    cache.cache(action, typeUrl, res);
-                }
+                } else
+                    cache.cache(action, resource, resp);
+                res = resp;
             } else
                 throw new Error("request returned empty respose");
         }

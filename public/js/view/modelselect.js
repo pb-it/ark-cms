@@ -10,7 +10,8 @@ class ModelSelect {
             { name: "timestamps", dataType: "boolean", required: true, readonly: true }
         ];
         var info = app.controller.getApiController().getApiInfo();
-        if (info['db_client'] === 'mysql' || info['db_client'] === 'mysql2') {
+        var client = info['db']['client'];
+        if (client === 'mysql' || client === 'mysql2') {
             skeleton.push(
                 {
                     'name': 'charEncoding',

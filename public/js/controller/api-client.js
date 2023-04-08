@@ -1,20 +1,32 @@
 class ApiClient {
 
     _baseUrl;
+    _version;
+    _root;
 
     constructor(baseUrl) {
         this._baseUrl = baseUrl;
+        this._root = this._baseUrl + "/api/";
+    }
+
+    setVersion(version) {
+        this._version = version;
+        this._root = `${this._baseUrl}/api/${this._version}/`;
     }
 
     async request(method, resource, data) {
         return HttpClient.request(method, this._baseUrl + resource, { 'withCredentials': true }, data);
     }
 
-    async requestJson(resource) {
-        var obj;
-        var response = await this.request('GET', resource);
-        if (response)
-            obj = JSON.parse(response);
-        return obj;
+    async requestData(method, resource, data) {
+        var res;
+        var response = await HttpClient.request(method, this._root + resource, { 'withCredentials': true }, data);
+        if (response) {
+            if (method == 'GET')
+                res = JSON.parse(response)['data'];
+            else if (method != 'DELETE')
+                res = JSON.parse(response);
+        }
+        return res;
     }
 }

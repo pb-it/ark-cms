@@ -122,17 +122,15 @@ class Controller {
         this._bConnection = false;
         this.setLoadingState(true);
 
+        this._modalController = new ModalController(); //VersionController may open a modal
         this._storageController = new StorageController();
-
         this._configController = new ConfigController();
         await this._configController.initConfigController();
-
         this._apiController = new ApiController(this._configController.getApi());
-
-        this._modalController = new ModalController(); //VersionController may open a modal
+        this._authController = new AuthController();
 
         try {
-            this._authController = new AuthController();
+            await this._apiController.initApiController();
 
             this._versionController = new VersionController();
             await this._versionController.initVersionController();

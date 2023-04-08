@@ -13,7 +13,7 @@ class ModelController {
     async init() {
         this._models = [];
         var apiClient = app.getController().getApiController().getApiClient();
-        var models = await apiClient.requestJson("/api/_model");
+        var models = await apiClient.requestData("GET", "_model");
         if (models) {
             var model;
             for (var data of models) {

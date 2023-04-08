@@ -37,7 +37,9 @@ class SideNavigationBar {
         this._$sideNav.append(this._$sidePanel);
 
         window.addEventListener('click', function (event) {
-            if (!app.getController().getModalController().isModalOpen()) {
+            var controller = app.getController();
+            var modalController = controller.getModalController();
+            if (modalController && !modalController.isModalOpen()) {
                 var node = $(event.target);
                 var bInside = node.is(this._$sideNav);
                 while (!bInside) {

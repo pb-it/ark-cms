@@ -60,7 +60,7 @@ class BookmarkController {
             }
         }*/
 
-        var entry = await this._apiClient.requestJson("/api/_registry?key=bookmarks");
+        var entry = await this._apiClient.requestData("GET", "_registry?key=bookmarks");
         if (entry && entry.length == 1) {
             var value = entry[0]['value'];
             if (value)
@@ -75,7 +75,7 @@ class BookmarkController {
 
     async setBookmarks(bookmarks) {
         this._bookmarks = bookmarks;
-        return this._apiClient.request("PUT", "/api/_registry", { 'key': 'bookmarks', 'value': JSON.stringify(this._bookmarks) });
+        return this._apiClient.requestData("PUT", "_registry", { 'key': 'bookmarks', 'value': JSON.stringify(this._bookmarks) });
     }
 
     async addBookmark(state) {

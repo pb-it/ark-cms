@@ -42,7 +42,7 @@ class ModelDefaultsController {
         }
         defaults[ModelDefaultsController.SORT_IDENT] = sort;
         await this._model.setDefinition(data, false);
-        return this._apiClient.request("PUT", "/api/_model/" + this._model.getId() + "/defaults/sort", { 'sort': sort });
+        return this._apiClient.requestData("PUT", "_model/" + this._model.getId() + "/defaults/sort", { 'sort': sort });
     }
 
     getDefaultTitleProperty(bFallback = true) {
@@ -117,6 +117,6 @@ class ModelDefaultsController {
         }
         defaults[ModelDefaultsController.VIEW_IDENT] = config;
         await this._model.setDefinition(data, false);
-        return this._apiClient.request("PUT", "/api/_model/" + this._model.getId() + "/defaults/view", config);
+        return this._apiClient.requestData("PUT", "_model/" + this._model.getId() + "/defaults/view", config);
     }
 }

@@ -1,11 +1,9 @@
 class AuthController {
 
     _controller;
-    _apiClient;
 
     constructor() {
         this._controller = app.getController();
-        this._apiClient = this._controller.getApiController().getApiClient();
     }
 
     async showLoginDialog() {
@@ -48,7 +46,7 @@ class AuthController {
 
                 var data = { 'user': $username.val(), 'pass': $password.val() };
                 try {
-                    await this._apiClient.request('POST', "/sys/auth/login", HttpClient.urlEncode(data));
+                    await this._controller.getApiController().getApiClient().request('POST', "/sys/auth/login", HttpClient.urlEncode(data));
                     panel.dispose();
                     this._controller.reloadApplication();
                 } catch (error) {
@@ -74,7 +72,7 @@ class AuthController {
 
     async logout() {
         try {
-            await this._apiClient.request('GET', "/sys/auth/logout");
+            await this._controller.getApiController().getApiClient().request('GET', "/sys/auth/logout");
             this._controller.reloadApplication();
         } catch (error) {
             this._controller.showError(error, "Logout failed");

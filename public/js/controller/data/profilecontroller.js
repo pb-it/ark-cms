@@ -13,7 +13,7 @@ class ProfileController {
     }
 
     async init() {
-        var entry = await this._apiClient.requestJson("/api/_registry?key=profiles");
+        var entry = await this._apiClient.requestData("GET", "_registry?key=profiles");
         if (entry && entry.length == 1) {
             var value = entry[0]['value'];
             if (value)
@@ -26,7 +26,7 @@ class ProfileController {
 
     async setProfiles(profiles) {
         this._profiles = profiles;
-        return this._apiClient.request("PUT", "/api/_registry", { 'key': 'profiles', 'value': JSON.stringify(this._profiles) });
+        return this._apiClient.requestData("PUT", "_registry", { 'key': 'profiles', 'value': JSON.stringify(this._profiles) });
     }
 
     getProfileConfig() {

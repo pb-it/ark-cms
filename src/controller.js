@@ -72,10 +72,14 @@ class Controller {
         return this._serverConfig;
     }
 
-    getInfo() {
+    getPkgVersion() {
         var pkg = require('../package.json');
+        return pkg['version'];
+    }
+
+    getInfo() {
         var info = {};
-        info['version'] = pkg['version'];
+        info['version'] = this.getPkgVersion();
         if (this._vcs)
             info['vcs'] = this._vcs;
         return info;

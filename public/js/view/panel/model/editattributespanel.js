@@ -150,7 +150,8 @@ class EditAttributesPanel extends Panel {
                         { 'name': 'length', 'dataType': 'string', 'tooltip': '**Info**: Constraints depend on database and character encoding. Default is 255 for \'string\' and 65,535 for \'text\'' }
                     ];
                     var info = app.controller.getApiController().getApiInfo();
-                    if (info['db_client'] === 'mysql' || info['db_client'] === 'mysql2') {
+                    var client = info['db']['client'];
+                    if (client === 'mysql' || client === 'mysql2') {
                         skeleton.push(
                             {
                                 'name': 'charEncoding',

@@ -40,32 +40,58 @@ class Server {
         systemRouter.get('/update', async function (req, res) {
             var bUpdated = false;
             if (this._vcs) {
-                var version;
+                var newVersion;
                 if (req.query['v'])
-                    version = req.query['v'];
+                    newVersion = req.query['v'];
                 else if (req.query['version'])
-                    version = req.query['version'];
+                    newVersion = req.query['version'];
                 var sReset = req.query['force'] || req.query['reset'];
                 var bReset = (sReset === 'true');
                 var bRemove = req.query['rm'] && (req.query['rm'] === 'true');
                 var msg;
                 try {
-                    msg = await this.update(version, bReset, bRemove);
-                    console.log(msg);
-                    if (msg) {
-                        var strUpToDate;
-                        if (this._vcs['client'] === VcsEnum.GIT)
-                            strUpToDate = 'Already up to date.'; // 'Bereits aktuell.' ... localize
-                        else if (this._vcs['client'] === VcsEnum.SVN)
-                            strUpToDate = 'Updating \'.\':' + os.EOL + 'At revision';
-                        if (msg.startsWith(strUpToDate))
-                            console.log("[App] Already up to date");
-                        else {
-                            console.log("[App] ✔ Updated");
-                            bUpdated = true;
+                    var bUpdate;
+                    if (this._vcs['client'] === VcsEnum.GIT) {
+                        var url = 'https://raw.githubusercontent.com/pb-it/wing-cms/main/package.json';
+                        var response = await fetch(url);
+                        var json = await response.json();
+                        var newVersion = json['version'];
+
+                        var appVersion = this.getPkgVersion();
+                        if (newVersion !== appVersion) {
+                            var partsApp = appVersion.split('.');
+                            var partsNew = newVersion.split('.');
+                            if ((partsNew[0] > partsApp[0] ||
+                                (partsNew[0] == partsApp[0] && partsNew[1] > partsApp[1])) &&
+                                !bReset) {
+                                msg = "An update of the major or minor release version may result in incompatibilitiy problems! Force only after studying changelog!";
+                            } else
+                                bUpdate = true;
+                        } else {
+                            Logger.info("[App] Already up to date");
+                            msg = "Already up to date";
                         }
                     } else
-                        throw new Error('Missing response from version control system!');
+                        bUpdate = true;
+
+                    if (bUpdate) {
+                        msg = await this.update(newVersion, bReset, bRemove);
+                        console.log(msg);
+                        if (msg) {
+                            var strUpToDate;
+                            if (this._vcs['client'] === VcsEnum.GIT)
+                                strUpToDate = 'Already up to date.'; // 'Bereits aktuell.' ... localize
+                            else if (this._vcs['client'] === VcsEnum.SVN)
+                                strUpToDate = 'Updating \'.\':' + os.EOL + 'At revision';
+                            if (msg.startsWith(strUpToDate))
+                                console.log("[App] Already up to date");
+                            else {
+                                console.log("[App] ✔ Updated");
+                                bUpdated = true;
+                            }
+                        } else
+                            throw new Error('Missing response from version control system!');
+                    }
                 } catch (error) {
                     if (error['message'])
                         msg = error['message']; // 'Command failed:...'
