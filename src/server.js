@@ -51,26 +51,32 @@ class Server {
                 var msg;
                 try {
                     var bUpdate;
-                    if (this._vcs['client'] === VcsEnum.GIT && version !== 'latest') {
-                        var url = 'https://raw.githubusercontent.com/pb-it/wing-cms/main/package.json';
-                        var response = await fetch(url);
-                        var json = await response.json();
-                        var newVersion = json['version'];
-
-                        var appVersion = this.getPkgVersion();
-                        if (newVersion !== appVersion) {
-                            var partsApp = appVersion.split('.');
-                            var partsNew = newVersion.split('.');
-                            if ((partsNew[0] > partsApp[0] ||
-                                (partsNew[0] == partsApp[0] && partsNew[1] > partsApp[1])) &&
-                                !bReset) {
-                                msg = "An update of the major or minor release version may result in incompatibilitiy problems! Force only after studying changelog!";
+                    if (!bReset && this._vcs['client'] === VcsEnum.GIT) {
+                        if (version) {
+                            var v;
+                            if (version === 'latest') {
+                                var url = 'https://raw.githubusercontent.com/pb-it/wing-cms/main/package.json';
+                                var response = await fetch(url);
+                                var json = await response.json();
+                                v = json['version'];
                             } else
-                                bUpdate = true;
-                        } else {
-                            console.log("[App] Already up to date");
-                            msg = "Already up to date";
-                        }
+                                v = version;
+
+                            var appVersion = this.getPkgVersion();
+                            if (v !== appVersion) {
+                                var partsApp = appVersion.split('.');
+                                var partsNew = v.split('.');
+                                if (partsNew[0] > partsApp[0] ||
+                                    (partsNew[0] == partsApp[0] && partsNew[1] > partsApp[1])) {
+                                    msg = "An update of the major or minor release version may result in incompatibilitiy problems! Force only after studying changelog!";
+                                } else
+                                    bUpdate = true;
+                            } else {
+                                console.log("[App] Already up to date");
+                                msg = "Already up to date";
+                            }
+                        } else
+                            bUpdate = true;
                     } else
                         bUpdate = true;
 

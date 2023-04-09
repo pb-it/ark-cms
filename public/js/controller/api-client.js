@@ -6,12 +6,12 @@ class ApiClient {
 
     constructor(baseUrl) {
         this._baseUrl = baseUrl;
-        this._root = this._baseUrl + "/api/";
+        this._root = this._baseUrl + "/api/data/";
     }
 
     setVersion(version) {
         this._version = version;
-        this._root = `${this._baseUrl}/api/${this._version}/`;
+        this._root = `${this._baseUrl}/api/data/${this._version}/`;
     }
 
     getApiRoot() {

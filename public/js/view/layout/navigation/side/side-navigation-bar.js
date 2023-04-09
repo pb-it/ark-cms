@@ -229,7 +229,7 @@ class SideNavigationBar {
                 'icon': "puzzle-piece",
                 'tooltip': "Extensions",
                 'click': async function (event, icon) {
-                    var activeIcon = this._topIconBar.getActiveItem();
+                    var activeIcon = this._bottomIconBar.getActiveItem();
                     this.close();
                     if (activeIcon != icon) {
                         this._bottomIconBar.activateItem(icon);
