@@ -16,6 +16,8 @@ class XModel {
     _id;
     _version;
 
+    _module;
+
     _prepareDataAction;
     _doubleClickAction;
     _crudDialogActions;
@@ -32,10 +34,10 @@ class XModel {
         if (this._data['extensions']) {
             var extension = this._data['extensions']['client'];
             if (extension) {
-                var module = await loadModule(extension);
+                this._module = await loadModule(extension);
                 // this._crudDialogActions.push(module.checkAction);
-                if (module && module.init)
-                    module.init.call(this);
+                if (this._module && this._module.init)
+                    this._module.init.call(this);
                 // eval(extension);
                 // loadCode(extension);
             }
@@ -66,6 +68,10 @@ class XModel {
 
     getName() {
         return this._data['name'];
+    }
+
+    getModule() {
+        return this._module;
     }
 
     async uploadData(bForce) {
