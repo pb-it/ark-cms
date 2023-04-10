@@ -7,38 +7,6 @@
     <title>WING-CMS</title>
 
     <script>
-        async function loadScript(url) {
-            return new Promise(function (resolve, reject) {
-                var script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.src = url;
-                script.async = false;
-
-                script.onload = () => resolve();
-                script.onerror = () => reject(new Error("Error while loading '" + url + "'"));
-                //script.onreadystatechange
-
-                document.head.append(script);
-            });
-        }
-
-        async function loadStyle(url) {
-            return new Promise(function (resolve, reject) {
-                var link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.type = 'text/css';
-                link.media = 'all';
-                link.href = url;
-
-                link.onload = () => resolve();
-                link.onerror = () => reject(new Error("Error while loading '" + url + "'"));
-                //script.onreadystatechange
-
-                document.head.append(link);
-            });
-        }
-
-
         function missingDependecy(dep) {
             alert("Error while loading '" + dep['src'] + "'");
         }

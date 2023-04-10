@@ -10,9 +10,8 @@ class ExtensionController {
         this._extensions = await app.controller.getDataService().fetchData('_extension');
         for (var ext of this._extensions) {
             if (ext['client-extension']) {
-                const objectURL = URL.createObjectURL(new Blob([ext['client-extension']], { type: 'text/javascript' }));
-                const module = await import(objectURL);
-                if (module.init)
+                var module = await loadModule(ext['client-extension']);
+                if (module && module.init)
                     module.init();
             }
         }
