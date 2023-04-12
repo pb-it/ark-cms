@@ -301,7 +301,7 @@ class Controller {
                     if (this._modelController.isModelDefined(typeString)) {
                         if (state['data'])
                             this._data = state['data'];
-                        else
+                        else if (!state['action'] || state['action'] == ActionEnum.read)
                             this._data = await this._dataservice.fetchDataByState(state);
                         await this.updateCanvas();
                     } else {
