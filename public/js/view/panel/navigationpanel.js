@@ -7,7 +7,8 @@ class NavigationPanel extends Panel {
     }
 
     async _renderContent() {
-        var $div = $('<div/>');
+        var $div = $('<div/>')
+            .css({ 'padding': '10' });
 
         var skeleton = [{ id: 'path', name: 'path', dataType: 'string' }];
         var data = { 'path': window.location.pathname + window.location.search + window.location.hash };
@@ -21,9 +22,7 @@ class NavigationPanel extends Panel {
         }.bind(this));
         $div.append(this._$form);
 
-        $div.append("<br>");
-
-        var $apply = $('<button>')
+        var $load = $('<button>')
             .text('Load')
             .css({ 'float': 'right' })
             .click(async function (event) {
@@ -33,7 +32,12 @@ class NavigationPanel extends Panel {
 
                 return Promise.resolve();
             }.bind(this));
-        $div.append($apply);
+        $div.append($load);
+
+        var $footer = $('<div/>')
+            .addClass('clear');
+        $div.append($footer);
+
         return Promise.resolve($div);
     }
 }

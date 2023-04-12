@@ -259,38 +259,58 @@ class Controller {
 
             var bHome = false;
             var typeString;
-            var bSpecial = false;
             if (state) {
-                typeString = state.typeString;
-                if (typeString) {
+                if (state['customRoute']) {
+                    if (state['customRoute'].startsWith('/ext/')) {
+                        var parts = state['customRoute'].split('/');
+                        if (parts.length >= 4 && this._extensionController.getExtension(parts[3])) {
+                            var response = await this._apiController.getApiClient().request("GET", '/api/' + state['customRoute']);
+                            var panel;
+                            try {
+                                var data = JSON.parse(response);
+                                panel = new JsonPanel(data);
+                            } catch (error) {
+                                ;
+                            }
+                            if (!panel) {
+                                panel = new Panel();
+                                var $iframe = $('<iframe>', {
+                                    src: 'about:blank',
+                                    frameborder: 0,
+                                    scrolling: 'no'
+                                });
+                                $iframe.on("load", function () {
+                                    this.contents().find('body').append(response);
+                                }.bind($iframe));
+                                panel.setContent($iframe);
+                            }
+                            await this._view.getCanvas().showPanels([panel]);
+                        }
+                    } else if (state['customRoute'].startsWith('/data/')) {
+                        this._data = await this._apiController.getApiClient().requestData("GET", state['customRoute'].substring('/data/'.length));
+                        await this.updateCanvas();
+                    } else {
+                        var route = this._routeController.getMatchingRoute(state['customRoute']);
+                        if (route && route['fn'])
+                            route['fn']();
+                        else
+                            throw new Error("Unknown route '" + state['customRoute'] + "'");
+                    }
+                } else if (state['typeString']) {
+                    var typeString = state.typeString;
                     if (this._modelController.isModelDefined(typeString)) {
-                        var action = state.action;
-                        if (action && action == ActionEnum.create)
+                        if (state['data'])
                             this._data = state['data'];
                         else
                             this._data = await this._dataservice.fetchDataByState(state);
-                    } else if (this._extensionController.getExtension(typeString)) {
-                        bSpecial = true;
-                        this._data = await this._dataservice.fetchDataByState(state);
-                        await this._view.getCanvas().showPanels([new JsonPanel(this._data)]);
+                        await this.updateCanvas();
                     } else {
-                        bSpecial = true;
-                        var rc = app.controller.getRouteController();
-                        var route = rc.getMatchingRoute(typeString);
+                        var route = this._routeController.getMatchingRoute(typeString);
                         if (route && route['fn'])
                             route['fn']();
                         else
                             throw new Error("Unknown model '" + typeString + "'");
                     }
-                    if (!bSpecial)
-                        await this.updateCanvas();
-                } else if (state['customRoute']) {
-                    var rc = app.controller.getRouteController();
-                    var route = rc.getMatchingRoute(state['customRoute']);
-                    if (route && route['fn'])
-                        route['fn']();
-                    else
-                        throw new Error("Unknown route '" + state['customRoute'] + "'");
                 } else
                     bHome = true;
             } else
@@ -302,16 +322,16 @@ class Controller {
                 panel.setContent(`TODO:<br/>
                 Allow customizing 'Home' page with panels/shortcuts - see following panels for examles`);
                 homePanels.push(panel);
-    
+         
                 panel = new Panel();
                 panel.setContent(`common tasks:<br/>
                 <a href="#" onclick=\"event.stopPropagation();ModelSelect.openCreateModelModal();return false;\">create model</a><br/>...`);
                 homePanels.push(panel);
-    
+         
                 panel = new Panel();
                 panel.setContent(`recently created models/entries:</br>...`);
                 homePanels.push(panel);
-    
+         
                 panel = new Panel();
                 panel.setContent(`recently / most used / favourite states:</br>...`);
                 homePanels.push(panel);*/

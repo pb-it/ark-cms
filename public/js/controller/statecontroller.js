@@ -17,7 +17,7 @@ class StateController {
         if (url && url !== "/") {
             title += " - " + url;
         }
-        if (push) {
+        if (push || replace) {
             var s;
             if (state && state['panelConfig']) {
                 s = { ...state };
@@ -26,17 +26,10 @@ class StateController {
                 delete s['panelConfig']['_panelClass'];
             } else
                 s = state;
-            window.history.pushState(s, null, url);
-        } else if (replace) {
-            var s;
-            if (state && state['panelConfig']) {
-                s = { ...state };
-                s['panelConfig'] = { ...state['panelConfig'] };
-                delete s['panelConfig']['_model'];
-                delete s['panelConfig']['_panelClass'];
-            } else
-                s = state;
-            window.history.replaceState(s, null, url);
+            if (push)
+                window.history.pushState(s, null, url);
+            else
+                window.history.replaceState(s, null, url);
         }
         document.title = title;
     }

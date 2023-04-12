@@ -119,11 +119,7 @@ class DataService {
     }
 
     async fetchDataByState(state) {
-        var res;
-        if (state['customRoute'])
-            res = await this.fetchPath(state['customRoute']);
-        else
-            res = await this.fetchData(state.typeString, state.id, state.where, state.sort, state.limit, state.filters, state.search, state.bIgnoreCache);
+        var res = await this.fetchData(state.typeString, state.id, state.where, state.sort, state.limit, state.filters, state.search, state.bIgnoreCache);
         return Promise.resolve(res);
     }
 
@@ -170,7 +166,7 @@ class DataService {
                     throw new Error('Aborted');
             }
 
-            res = await this.fetchPath(typeUrl);
+            res = await this._apiClient.requestData("GET", typeUrl);
 
             var cache = this._cache.getModelCache(typeString);
             if (!id && !where && (!limit || limit == -1)) {
@@ -209,10 +205,6 @@ class DataService {
         }
 
         return Promise.resolve(res);
-    }
-
-    async fetchPath(path) {
-        return this._apiClient.requestData("GET", path);
     }
 
     async fetchObjectById(typeString, id) {

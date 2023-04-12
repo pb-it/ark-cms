@@ -7,7 +7,8 @@ class ExtensionController {
 
     async init() {
         //var model = app.controller.getModelController().getModel('_extension'); //readAll???
-        this._extensions = await app.controller.getDataService().fetchData('_extension');
+        var res = await app.controller.getDataService().fetchData('_extension');
+        this._extensions = [...res];
         for (var ext of this._extensions) {
             if (ext['client-extension']) {
                 var module = await loadModule(ext['client-extension']);
@@ -48,7 +49,16 @@ class ExtensionController {
             obj = new CrudObject('_extension', formData);
             res = await obj.create();
         }
-        //await this.init(); // messes up sidemenu
+        if (res) {
+            //await this.init(); // messes up sidemenu
+            if (existing) {
+                var name = res['name'];
+                if (name)
+                    this._extensions = this._extensions.filter((x) => x['name'] !== name);
+            }
+            this._extensions.push(res);
+            $(window).trigger('changed.extension');
+        }
         return Promise.resolve('OK');
     }
 
@@ -59,7 +69,11 @@ class ExtensionController {
             var obj = new CrudObject('_extension', data);
             res = await obj.delete();
         }
-        //await this.init(); // messes up sidemenu
+        if (res) {
+            //await this.init(); // messes up sidemenu
+            this._extensions = this._extensions.filter((x) => x['name'] !== name);
+            $(window).trigger('changed.extension');
+        }
         return Promise.resolve(res);
     }
 }

@@ -11,26 +11,26 @@ class State {
         if (path === '/')
             state = new State();
         else if (path && path.startsWith("/data/")) {
-            path = path.substring(6);
+            var spath = path.substring(6);
             state = new State();
 
-            var index = path.indexOf("#");
+            var index = spath.indexOf("#");
             if (index >= 0) {
-                fragment = path.substring(index + 1);
-                path = path.substring(0, index);
+                fragment = spath.substring(index + 1);
+                spath = spath.substring(0, index);
             }
             if (fragment) {
                 if (fragment.startsWith('#'))
                     fragment = fragment.substring(1);
                 state.anchor = fragment;
             }
-            index = path.indexOf("?");
+            index = spath.indexOf("?");
             if (index >= 0) {
-                search = path.substring(index + 1);
-                path = path.substring(0, index);
+                search = spath.substring(index + 1);
+                spath = spath.substring(0, index);
             }
 
-            var parts = path.split('/');
+            var parts = spath.split('/');
             if (parts.length > 0) {
                 state.typeString = parts[0];
                 if (parts.length == 1) {
@@ -59,12 +59,6 @@ class State {
                         state.customRoute = path; //throw new Error("invalid url");
                 } else
                     state.customRoute = path; //throw new Error("invalid url");
-            }
-
-            var index = path.indexOf("#");
-            if (index >= 0) {
-                path = path.substring(0, index);
-                state.anchor = path.substring(index + 1);
             }
 
             if (search) {
