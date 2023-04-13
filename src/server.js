@@ -45,22 +45,22 @@ class Server {
                     newVersion = req.query['v'];
                 else if (req.query['version'])
                     newVersion = req.query['version'];
-                var sReset = req.query['force'] || req.query['reset'];
-                var bReset = (sReset === 'true');
-                var bRemove = req.query['rm'] && (req.query['rm'] === 'true');
+                var bForce = req.query['force'] === 'true';
+                var bReset = req.query['reset'] === 'true';
+                var bRemove = req.query['rm'] === 'true';
                 var msg;
                 try {
                     var bUpdate;
-                    if (!bReset && this._vcs['client'] === VcsEnum.GIT) {
-                        if (version) {
+                    if (!bForce && this._vcs['client'] === VcsEnum.GIT) {
+                        if (newVersion) {
                             var v;
-                            if (version === 'latest') {
+                            if (newVersion === 'latest') {
                                 var url = 'https://raw.githubusercontent.com/pb-it/wing-cms/main/package.json';
                                 var response = await fetch(url);
                                 var json = await response.json();
                                 v = json['version'];
                             } else
-                                v = version;
+                                v = newVersion;
 
                             var appVersion = this.getPkgVersion();
                             if (v !== appVersion) {
