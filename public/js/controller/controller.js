@@ -261,9 +261,13 @@ class Controller {
             var typeString;
             if (state) {
                 if (state['customRoute']) {
-                    if (state['customRoute'].startsWith('/ext/')) {
+                    var route = this._routeController.getMatchingRoute(state['customRoute']);
+                    if (route) {
+                        if (route['fn'])
+                            route['fn']();
+                    } else if (state['customRoute'].startsWith('/ext/')) {
                         var parts = state['customRoute'].split('/');
-                        if (parts.length >= 4 && this._extensionController.getExtension(parts[3])) {
+                        if (parts.length >= 3 && this._extensionController.getExtension(parts[2])) {
                             var response = await this._apiController.getApiClient().request("GET", '/api/' + state['customRoute']);
                             var panel;
                             try {
@@ -285,17 +289,13 @@ class Controller {
                                 panel.setContent($iframe);
                             }
                             await this._view.getCanvas().showPanels([panel]);
-                        }
+                        } else
+                            throw new Error("Unknown route '" + state['customRoute'] + "'");
                     } else if (state['customRoute'].startsWith('/data/')) {
                         this._data = await this._apiController.getApiClient().requestData("GET", state['customRoute'].substring('/data/'.length));
                         await this.updateCanvas();
-                    } else {
-                        var route = this._routeController.getMatchingRoute(state['customRoute']);
-                        if (route && route['fn'])
-                            route['fn']();
-                        else
-                            throw new Error("Unknown route '" + state['customRoute'] + "'");
-                    }
+                    } else
+                        throw new Error("Unknown route '" + state['customRoute'] + "'");
                 } else if (state['typeString']) {
                     var typeString = state.typeString;
                     if (this._modelController.isModelDefined(typeString)) {
@@ -304,13 +304,8 @@ class Controller {
                         else if (!state['action'] || state['action'] == ActionEnum.read)
                             this._data = await this._dataservice.fetchDataByState(state);
                         await this.updateCanvas();
-                    } else {
-                        var route = this._routeController.getMatchingRoute(typeString);
-                        if (route && route['fn'])
-                            route['fn']();
-                        else
-                            throw new Error("Unknown model '" + typeString + "'");
-                    }
+                    } else
+                        throw new Error("Unknown model '" + typeString + "'");
                 } else
                     bHome = true;
             } else

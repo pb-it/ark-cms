@@ -278,16 +278,18 @@ class DataView {
                 }
             } else {
                 var id = data['id'];
-                if (id) {
-                    var obj = await app.controller.getDataService().fetchObjectById(modelName, id);
-                    if (obj) {
-                        $li = $("<li/>")
-                            .attr({ 'data-id': obj.getData()['id'] })
-                            .css({ 'display': 'inline-block' });
-                        panel = PanelController.createPanelForObject(obj, panelConfig);
-                        $li.append(await panel.render());
-                        $list.append($li);
-                    }
+                var obj;
+                if (id)
+                    obj = await app.controller.getDataService().fetchObjectById(modelName, id);
+                else
+                    obj = new CrudObject(modelName, data);
+                if (obj) {
+                    $li = $("<li/>")
+                        .attr({ 'data-id': obj.getData()['id'] })
+                        .css({ 'display': 'inline-block' });
+                    panel = PanelController.createPanelForObject(obj, panelConfig);
+                    $li.append(await panel.render());
+                    $list.append($li);
                 }
             }
         }

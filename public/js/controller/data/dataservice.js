@@ -60,15 +60,10 @@ class DataService {
     static _getUrl(typeString, id, where, sort, limit) {
         var url = typeString;
         var query = "";
-        var params;
         if (id) {
-            if (Array.isArray(id)) {
-                params = [];
-                for (var i = 0; i < id.length; i++) {
-                    params.push(`id=${id[i]}`);
-                }
-                query += "&" + params.join('&');
-            } else
+            if (Array.isArray(id))
+                query += "&id_in=" + id.join(',');
+            else
                 url += "/" + id;
         }
         if (where)
