@@ -15,7 +15,7 @@ class ModelCache {
         this._urls = [];
     }
 
-    cache(action, url, data) {
+    cache(url, data) {
         var bNew = false;
         if (Array.isArray(data)) {
             var id;
@@ -40,37 +40,13 @@ class ModelCache {
         }
         if (bNew)
             this._urls = []; // delete outdated queries
-        this._urls[url] = data;
+        if (url)
+            this._urls[url] = data;
 
         if (this._completeRecordSet) {
             this._completeRecordSet = Array.from(this._dataCache.values()).filter(x => x); // remove empty slots
             if (this._defaultSort)
                 this._completeRecordSet = DataService.sortData(this._model, this._defaultSort, this._completeRecordSet);
-
-            /*var arr = [];
-            if (Array.isArray(data)) {
-                var map = new Map();
-                for (var d of data)
-                    map.set(d['id'], d);
-
-                var x;
-                for (var d of this._completeRecordSet) {
-                    x = map.get(d['id']);
-                    if (x)
-                        arr.push(x);
-                    else
-                        arr.push(d);
-                }
-            } else {
-                for (var d of this._completeRecordSet) {
-                    if (d['id'] == data['id'])
-                        arr.push(data);
-                    else
-                        arr.push(d);
-                }
-            }
-            this._completeRecordSet = arr;*/
-
         }
     }
 

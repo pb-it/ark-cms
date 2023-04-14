@@ -1,5 +1,7 @@
 class DataService {
 
+    static BLOCK_SIZE = 100;
+
     static sortData(model, sort, arr) {
         if (arr) {
             var parts = sort.split(":");
@@ -144,13 +146,22 @@ class DataService {
             }
 
             if (!res) {
-                typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
-                res = cache.getUrl(typeUrl);
-                if (!res && sort) {
-                    sortlessUrl = DataService._getUrl(typeString, id, where, null, limit);
-                    res = cache.getUrl(sortlessUrl);
-                    if (res)
-                        bSort = true;
+                if (id && id.length > DataService.BLOCK_SIZE) {
+                    typeUrl = [];
+                    var ids = new Array(Math.ceil(id.length / DataService.BLOCK_SIZE))
+                        .fill()
+                        .map(_ => id.splice(0, DataService.BLOCK_SIZE));
+                    for (var part of ids)
+                        typeUrl.push(DataService._getUrl(typeString, part, where, sort, limit));
+                } else {
+                    typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
+                    res = cache.getUrl(typeUrl);
+                    if (!res && sort) {
+                        sortlessUrl = DataService._getUrl(typeString, id, where, null, limit);
+                        res = cache.getUrl(sortlessUrl);
+                        if (res)
+                            bSort = true;
+                    }
                 }
             }
         }
@@ -161,15 +172,25 @@ class DataService {
                     throw new Error('Aborted');
             }
 
-            res = await this._apiClient.requestData("GET", typeUrl);
+            if (Array.isArray(typeUrl)) {
+                res = [];
+                for (var url of typeUrl) {
+                    res = res.concat(await this._apiClient.requestData("GET", url));
+                }
+            } else
+                res = await this._apiClient.requestData("GET", typeUrl);
 
             var cache = this._cache.getModelCache(typeString);
             if (!id && !where && (!limit || limit == -1)) {
                 cache.setCompleteRecordSet(res, sort);
             } else {
-                cache.cache(null, typeUrl, res);
-                if (sortlessUrl)
-                    cache.cache(null, sortlessUrl, res);
+                if (Array.isArray(typeUrl)) {
+                    cache.cache(null, res);
+                } else {
+                    cache.cache(typeUrl, res);
+                    if (sortlessUrl)
+                        cache.cache(sortlessUrl, res);
+                }
             }
         }
 
@@ -262,7 +283,7 @@ class DataService {
                     else
                         throw new Error("deleting record failed");
                 } else
-                    cache.cache(action, resource, resp);
+                    cache.cache(resource, resp);
                 res = resp;
             } else
                 throw new Error("request returned empty respose");
