@@ -261,7 +261,12 @@ class DataView {
         var panel;
         if (data) {
             if (attribute['multiple'] && Array.isArray(data)) {
-                var ids = data.map(function (x) { return x['id'] });
+                var ids = data.map(function (x) {
+                    if (isNaN(x))
+                        return x['id'];
+                    else
+                        return x;
+                });
                 var objs = [];
                 var add;
                 for (var j = 0; j < Math.ceil(ids.length / 100); j++) {

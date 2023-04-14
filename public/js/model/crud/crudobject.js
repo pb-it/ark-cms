@@ -14,15 +14,17 @@ class CrudObject {
                     if (field['dataType'] == 'relation') {
                         if (field['multiple']) {
                             if (Array.isArray(data[property])) {
-                                var ids = [];
-                                for (var item of data[property]) {
-                                    if (isNaN(item)) {
-                                        if (item['id'])
-                                            ids.push(item['id']);
-                                    } else
-                                        ids.push(item);
+                                if (data[property].length > 0) {
+                                    var ids = [];
+                                    for (var item of data[property]) {
+                                        if (isNaN(item)) {
+                                            if (item['id'])
+                                                ids.push(item['id']);
+                                        } else
+                                            ids.push(item);
+                                    }
+                                    res[property] = ids;
                                 }
-                                res[property] = ids;
                             } else
                                 throw new Error("An unexpected error occurred");
                         } else {
@@ -392,12 +394,18 @@ class CrudObject {
     }
 
     async update(data) {
-        if (!data)
-            data = this._data;
-
-        if (!this._model.getDefinition()['options']['increments'] || this._data['id'])
+        if (!this._model.getDefinition()['options']['increments'] || this._data['id']) {
             data = await this.request(ActionEnum.update, data);
-        this.setData(data);
+            this.setData(data);
+        } else {
+            for (const [key, value] of Object.entries(data)) {
+                if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length == 0))
+                    delete this._data[key];
+                else
+                    this._data[key] = value;
+            }
+            data = this._data;
+        }
         return Promise.resolve(data);
     }
 

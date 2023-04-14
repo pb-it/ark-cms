@@ -268,7 +268,7 @@ class Controller {
                     } else if (state['customRoute'].startsWith('/ext/')) {
                         var parts = state['customRoute'].split('/');
                         if (parts.length >= 3 && this._extensionController.getExtension(parts[2])) {
-                            var response = await this._apiController.getApiClient().request("GET", '/api/' + state['customRoute']);
+                            var response = await this._apiController.getApiClient().request("GET", '/api' + state['customRoute']);
                             var panel;
                             try {
                                 var data = JSON.parse(response);
