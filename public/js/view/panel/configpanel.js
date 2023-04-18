@@ -34,7 +34,8 @@ class ConfigPanel extends TabPanel {
 
             $div.append("LocalStorage:");
 
-            var cc = app.controller.getConfigController();
+            var controller = app.getController();
+            var cc = controller.getConfigController();
 
             if (!this._data) {
                 var bDebug;
@@ -44,23 +45,17 @@ class ConfigPanel extends TabPanel {
                 else
                     bDebug = false;
                 this._data = {
-                    'version': app.controller.getVersionController().getAppVersion(),
-                    'api': app.controller.getApiController().getApiOrigin(),
-                    'bConfirmOnLeave': app.controller.getStorageController().loadLocal('bConfirmOnLeave') === 'true',
+                    'version': controller.getVersionController().getAppVersion(),
+                    'api': controller.getApiController().getApiOrigin(),
                     'bDebug': bDebug,
-                    'bConfirmOnApply': bDebug || (app.controller.getStorageController().loadLocal('bConfirmOnApply') === 'true')
+                    'bConfirmOnApply': bDebug || (controller.getStorageController().loadLocal('bConfirmOnApply') === 'true'),
+                    'bConfirmOnLeave': controller.getStorageController().loadLocal('bConfirmOnLeave') === 'true',
+                    'bIndexedDB': controller.getStorageController().loadLocal('bIndexedDB') === 'true',
                 };
             }
             var skeleton = [
                 { name: 'version', dataType: 'string', readonly: true },
                 { name: 'api', label: 'API', dataType: 'string' },
-                {
-                    name: 'bConfirmOnLeave',
-                    label: 'Confirm on leave',
-                    dataType: 'boolean',
-                    required: true,
-                    defaultValue: false
-                },
                 {
                     name: 'bDebug',
                     label: 'Debug Mode',
@@ -90,6 +85,20 @@ class ConfigPanel extends TabPanel {
                     required: true,
                     defaultValue: false,
                     readonly: this._data['bDebug']
+                },
+                {
+                    name: 'bConfirmOnLeave',
+                    label: 'Confirm on leave',
+                    dataType: 'boolean',
+                    required: true,
+                    defaultValue: false
+                },
+                {
+                    name: 'bIndexedDB',
+                    label: 'Cache whith IndexedDB',
+                    dataType: 'boolean',
+                    required: true,
+                    defaultValue: false
                 }
             ];
             this._form = new Form(skeleton, this._data);
@@ -101,9 +110,9 @@ class ConfigPanel extends TabPanel {
             $div.append('State of API:<br/>');
             var msg;
             var color;
-            var info = app.controller.getApiController().getApiInfo();
+            var info = controller.getApiController().getApiInfo();
             if (info) { // app.controller.hasConnection()
-                if (app.controller.getVersionController().isCompatible()) {
+                if (controller.getVersionController().isCompatible()) {
                     msg = info['state'];
                     if (info['state'] === 'running')
                         color = 'green';
@@ -130,14 +139,14 @@ class ConfigPanel extends TabPanel {
                 .click(async function (event) {
                     event.stopPropagation();
 
-                    app.controller.setLoadingState(true);
+                    controller.setLoadingState(true);
                     try {
-                        await app.controller.getApiController().fetchApiInfo();
+                        await controller.getApiController().fetchApiInfo();
                         await this._$commonPanel.render();
-                        app.controller.setLoadingState(false);
+                        controller.setLoadingState(false);
                     } catch (error) {
-                        app.controller.setLoadingState(false);
-                        app.controller.showError(error);
+                        controller.setLoadingState(false);
+                        controller.showError(error);
                     }
                     return Promise.resolve();
                 }.bind(this));
@@ -160,7 +169,7 @@ class ConfigPanel extends TabPanel {
                 .click(function (event) {
                     event.stopPropagation();
 
-                    app.controller.getVersionController().checkForUpdates();
+                    controller.getVersionController().checkForUpdates();
                 }.bind(this));
             $div.append($clear);
 
@@ -175,12 +184,12 @@ class ConfigPanel extends TabPanel {
                         var fdata = await this._form.readForm();
 
                         if (fdata['bConfirmOnApply']) {
-                            if (!await app.controller.getModalController().openDiffJsonModal(this._data, fdata))
+                            if (!await controller.getModalController().openDiffJsonModal(this._data, fdata))
                                 return Promise.reject();
                         }
 
                         if (!fdata['version']) {
-                            app.controller.getVersionController().clearAppVersion(fdata['version']);
+                            controller.getVersionController().clearAppVersion(fdata['version']);
                             bReloadApp = true;
                         }
                         if (this._data['api'] !== fdata['api']) {
@@ -188,22 +197,26 @@ class ConfigPanel extends TabPanel {
                             bReloadApp = true;
                         }
 
-                        app.controller.getStorageController().storeLocal('bConfirmOnLeave', fdata['bConfirmOnLeave']);
-
                         var conf = cc.getDebugConfig();
                         conf['bDebug'] = fdata['bDebug']
                         cc.setDebugConfig(conf);
 
-                        app.controller.getStorageController().storeLocal('bConfirmOnApply', fdata['bConfirmOnApply']);
+                        var sc = controller.getStorageController();
+                        sc.storeLocal('bConfirmOnLeave', fdata['bConfirmOnLeave']);
+                        sc.storeLocal('bConfirmOnApply', fdata['bConfirmOnApply']);
+                        sc.storeLocal('bIndexedDB', fdata['bIndexedDB']);
 
-                        if (bReloadApp)
-                            app.controller.reloadApplication();
-                        else {
-                            app.controller.reloadState();
+                        if (bReloadApp) {
+                            var db = controller.getDatabase();
+                            if (db)
+                                await db.deleteDatabase();
+                            controller.reloadApplication();
+                        } else {
+                            controller.reloadState();
                             this.dispose();
                         }
                     } catch (error) {
-                        app.controller.showError(error);
+                        controller.showError(error);
                     }
 
                     return Promise.resolve();
@@ -221,7 +234,7 @@ class ConfigPanel extends TabPanel {
             var $div = $('<div/>')
                 .css({ 'padding': '10' });
 
-            for (var entry of app.controller.getLogger().getAllLogEntries()) {
+            for (var entry of app.getController().getLogger().getAllLogEntries()) {
                 $div.append(entry.toString() + "<br/>");
             }
 

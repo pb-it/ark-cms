@@ -52,6 +52,51 @@ class CachePanel extends Panel {
                 return Promise.resolve();
             }.bind(this));
         $div.append($button);
+        $div.append("<br>");
+
+        var db = app.getController().getDatabase();
+        if (db) {
+            $div.append('IndexedDB:<br>');
+            $button = $('<button>')
+                .text('Reconnect')
+                .click(typeString, async function (event) {
+                    event.stopPropagation();
+
+                    var controller = app.getController();
+                    try {
+                        controller.setLoadingState(true);
+
+                        await db.initDatabase();
+                        controller.setLoadingState(false);
+                        alert('Reconnected!');
+                    } catch (error) {
+                        controller.setLoadingState(false);
+                        controller.showError(error);
+                    }
+                    return Promise.resolve();
+                }.bind(this));
+            $div.append($button);
+            $button = $('<button>')
+                .text('Clear Database')
+                .click(typeString, async function (event) {
+                    event.stopPropagation();
+
+                    var controller = app.getController();
+                    try {
+                        controller.setLoadingState(true);
+
+                        await db.deleteDatabase();
+                        await db.initDatabase();
+                        controller.setLoadingState(false);
+                        alert('Database cleared!');
+                    } catch (error) {
+                        controller.setLoadingState(false);
+                        controller.showError(error);
+                    }
+                    return Promise.resolve();
+                }.bind(this));
+            $div.append($button);
+        }
 
         /*$table = $('<table>');
         var urls = cache.getCachedUrls();

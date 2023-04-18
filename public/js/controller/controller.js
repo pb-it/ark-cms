@@ -4,6 +4,7 @@ class Controller {
     _view;
 
     _logger;
+    _database;
 
     _storageController;
     _configController;
@@ -51,6 +52,10 @@ class Controller {
             this._logger[name] = logger;
         }
         return logger;
+    }
+
+    getDatabase() {
+        return this._database;
     }
 
     getView() {
@@ -123,13 +128,20 @@ class Controller {
         this.setLoadingState(true);
 
         this._modalController = new ModalController(); //VersionController may open a modal
+
         this._storageController = new StorageController();
+
         this._configController = new ConfigController();
         await this._configController.initConfigController();
 
         this._versionController = new VersionController();
         this._apiController = new ApiController(this._configController.getApi());
         this._authController = new AuthController();
+
+        if (app.getController().getStorageController().loadLocal('bIndexedDB') === 'true') {
+            this._database = new Database('cache');
+            await this._database.initDatabase();
+        }
 
         try {
             await this._apiController.initApiController();

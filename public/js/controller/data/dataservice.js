@@ -136,7 +136,7 @@ class DataService {
                 if (Array.isArray(id) && id.length != res.length)
                     res = null;
             } else
-                res = cache.getCompleteRecordSet();
+                res = await cache.getCompleteRecordSet();
             if (res) {
                 if (where)
                     res = null; //TODO: apply where - consider '_null='
@@ -182,14 +182,14 @@ class DataService {
 
             var cache = this._cache.getModelCache(typeString);
             if (!id && !where && (!limit || limit == -1)) {
-                cache.setCompleteRecordSet(res, sort);
+                await cache.setCompleteRecordSet(res, sort);
             } else {
                 if (Array.isArray(typeUrl)) {
-                    cache.cache(null, res);
+                    await cache.cacheData(null, res);
                 } else {
-                    cache.cache(typeUrl, res);
+                    await cache.cacheData(typeUrl, res);
                     if (sortlessUrl)
-                        cache.cache(sortlessUrl, res);
+                        await cache.cacheData(sortlessUrl, res);
                 }
             }
         }
@@ -279,11 +279,11 @@ class DataService {
                 var cache = this._cache.getModelCache(typeString);
                 if (action == ActionEnum.delete) {
                     if (resp == "OK") //delete default 200 response text
-                        cache.delete(id);
+                        await cache.delete(id);
                     else
                         throw new Error("deleting record failed");
                 } else
-                    cache.cache(resource, resp);
+                    await cache.cacheData(resource, resp);
                 res = resp;
             } else
                 throw new Error("request returned empty respose");

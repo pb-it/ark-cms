@@ -44,11 +44,12 @@ class Cache {
                         if (cache.getEntry(id))
                             await this._controller.getDataService().fetchData(modelName, id, null, null, null, null, null, true);
                     } else if (method == 'POST') {
-                        if (cache.getCompleteRecordSet())
+                        var rs = await cache.getCompleteRecordSet();
+                        if (rs)
                             await this._controller.getDataService().fetchData(modelName, id);
                     } else if (method == 'DELETE') {
                         if (cache.getEntry(id))
-                            cache.delete(id);
+                            await cache.delete(id);
                     }
                 }
             }

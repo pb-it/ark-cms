@@ -223,7 +223,10 @@ class SideNavigationBar {
         }
 
         var controller = app.getController();
-        if (controller && controller.getApiController().isAdministrator()) {
+        var apiController;
+        if (controller)
+            apiController = controller.getApiController();
+        if (apiController && apiController.isAdministrator()) {
             conf = {
                 'style': 'iconbar',
                 'icon': "puzzle-piece",

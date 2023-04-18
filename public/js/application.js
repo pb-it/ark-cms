@@ -39,28 +39,32 @@ class Application {
         } catch (err) {
             console.log(err);
         }
-        if (!bLoaded)
+        if (!bLoaded) {
+            this.controller.setLoadingState(false);
             this.controller.getView().initView();
+        }
         return Promise.resolve();
     }
 }
 
 window.onpopstate = async function (e) {
     var bError = false;
-    if (!app.controller.hasConnection()) {
-        if (!await app.controller.initController())
+    var controller = app.getController();
+    if (!controller.hasConnection()) {
+        if (!await controller.initController())
             bError = true;
     }
 
     if (bError) {
-        app.controller.getView().initView();
+        controller.setLoadingState(false);
+        controller.getView().initView();
     } else {
         var state;
         if (e.state)
             state = new State(e.state);
         else
             state = State.getStateFromUrl();
-        app.controller.loadState(state);
+        controller.loadState(state);
     }
 };
 

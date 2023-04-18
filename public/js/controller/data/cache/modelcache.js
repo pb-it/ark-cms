@@ -7,15 +7,21 @@ class ModelCache {
     _urls;
     _completeRecordSet;
 
+    _db;
+
     constructor(model) {
         this._model = model;
         this._defaultSort = model.getModelDefaultsController().getDefaultSort();
 
         this._dataCache = [];
         this._urls = [];
+
+        var db = app.getController().getDatabase();
+        if (db && this._model.getDefinition()['options']['increments'])
+            this._db = db;
     }
 
-    cache(url, data) {
+    async cacheData(url, data) {
         var bNew = false;
         if (Array.isArray(data)) {
             var id;
@@ -24,20 +30,19 @@ class ModelCache {
                 id = d['id'];
                 bExist = this._dataCache[id];
                 this._dataCache[d['id']] = d;
-                if (!bExist && this._completeRecordSet) {
-                    this._completeRecordSet.push(d);
+                if (!bExist && !bNew)
                     bNew = true;
-                }
             }
         } else {
             var id = data['id'];
             var bExist = this._dataCache[id];
             this._dataCache[id] = data;
-            if (!bExist && this._completeRecordSet) {
-                this._completeRecordSet.push(data);
+            if (!bExist && !bNew)
                 bNew = true;
-            }
         }
+        if (this._completeRecordSet && this._db)
+            await this._db.put(this._model.getName(), data);
+
         if (bNew)
             this._urls = []; // delete outdated queries
         if (url)
@@ -48,13 +53,18 @@ class ModelCache {
             if (this._defaultSort)
                 this._completeRecordSet = DataService.sortData(this._model, this._defaultSort, this._completeRecordSet);
         }
+        return Promise.resolve();
     }
 
-    delete(id) {
+    async delete(id) {
         this._urls = []; // delete outdated queries
         delete this._dataCache[id];
-        if (this._completeRecordSet)
+        if (this._completeRecordSet) {
             this._completeRecordSet = this._completeRecordSet.filter(function (x) { return x['id'] != id });
+            if (this._db)
+                await this._db.delete(this._model.getName(), id);
+        }
+        return Promise.resolve();
     }
 
     getUrl(url) {
@@ -87,11 +97,11 @@ class ModelCache {
         return res;
     }
 
-    setCompleteRecordSet(data, sort) {
+    async setCompleteRecordSet(data, sort) {
         var sorted;
-        if (sort) {
+        if (this._defaultSort) {
             var sorted;
-            if (this._defaultSort && this._defaultSort != sort)
+            if (!sort || this._defaultSort != sort)
                 sorted = DataService.sortData(this._model, this._defaultSort, [...data]);
         }
         if (!sorted)
@@ -101,9 +111,20 @@ class ModelCache {
         for (var d of data) {
             this._dataCache[d['id']] = d;
         }
+
+        if (this._db) {
+            await this._db.initObjectStore(this._model.getName());
+            this._db.put(this._model.getName(), data);
+        }
+        return Promise.resolve();
     }
 
-    getCompleteRecordSet() {
-        return this._completeRecordSet;
+    async getCompleteRecordSet() {
+        if (!this._completeRecordSet && this._db) {
+            var rs = await this._db.getAll(this._model.getName());
+            if (rs)
+                await this.setCompleteRecordSet(rs);
+        }
+        return Promise.resolve(this._completeRecordSet);
     }
 }
