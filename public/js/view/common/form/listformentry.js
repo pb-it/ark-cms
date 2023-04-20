@@ -34,7 +34,9 @@ class ListFormEntry extends FormEntry {
             alignment: 'vertical',
             selectButtons: true
         }
-        this._listVis = new SelectableListVis(vListConfig, 'attributes', this._list);
+        if (this._attribute['columns'])
+            vListConfig['columns'] = this._attribute['columns'];
+        this._listVis = new SelectableListVis(vListConfig, this._attribute['name'], this._list);
         this._listVis.init();
         this._$value.append(this._listVis.renderList());
 

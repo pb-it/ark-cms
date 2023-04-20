@@ -36,7 +36,7 @@ class SelectableListVis extends ListVis {
                         node.setSelected(true);
                     }
                 }.bind(this));
-            this._$ul.append($selectAllButton);
+            this._$div.append($selectAllButton);
 
             var $deselectAllButton = $("<button/>")
                 .text("Deselect All")
@@ -47,8 +47,8 @@ class SelectableListVis extends ListVis {
                         node.setSelected(false);
                     }
                 }.bind(this));
-            this._$ul.append($deselectAllButton);
+            this._$div.append($deselectAllButton);
         }
-        return this._$ul;
+        return this._$div;
     }
 }

@@ -493,7 +493,7 @@ class CrudPanel extends CanvasPanel {
                     var params = [];
                     for (var item of selected)
                         params.push("id=" + item.getData().id);
-                    state.where = params.join('&');
+                    state.setQuery(params);
                 }
             } else
                 state.id = this._obj.getData().id;

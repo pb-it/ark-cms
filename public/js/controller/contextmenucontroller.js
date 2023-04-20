@@ -239,10 +239,25 @@ class ContextMenuController {
                                 else
                                     state.name = str.substring(0, 70) + '...';
                                 state.typeString = attr.model;
-                                state.where = params.join('&');
+                                state.setQuery(params);
 
                                 entry = new ContextMenuEntry(attr['name'], async function () {
-                                    await app.controller.loadState(this, true);
+                                    var controller = app.getController();
+                                    var current = controller.getStateController().getState();
+                                    var name = attr['name'];
+                                    var scope;
+                                    if (current['query']) {
+                                        for (var part of current['query']) {
+                                            if (part.startsWith(name + '_in')) {
+                                                scope = part;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (scope && confirm('Keep current filter on \'' + name + '\'?')) {
+                                        this.where = `id_in=${scope.substring(scope.indexOf('=') + 1)}&${this.where}`;
+                                    }
+                                    await controller.loadState(this, true);
                                 }.bind(state));
                                 showGroup.push(entry);
                             }

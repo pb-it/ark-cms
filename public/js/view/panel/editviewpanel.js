@@ -72,6 +72,7 @@ class EditViewPanel extends TabPanel {
                 name: "detailsAttr",
                 dataType: "list",
                 options: options,
+                columns: 5,
                 hidden: bHidden
             },
             {
@@ -102,7 +103,8 @@ class EditViewPanel extends TabPanel {
                 name: "searchFields",
                 label: "*SearchFields",
                 dataType: "list",
-                options: options
+                options: options,
+                columns: 5
             }
         ];
         form.init(skeleton, data);

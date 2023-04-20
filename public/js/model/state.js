@@ -68,7 +68,9 @@ class State {
                 if (state.customRoute)
                     state.customRoute += "?" + search;
 
+                state['query'] = [];
                 search.split("&").forEach(function (part) {
+                    state['query'].push(part);
                     if (part.startsWith("_")) {
                         if (part.startsWith("_sort="))
                             state.sort = decodeURIComponent(part.substring("_sort=".length));
@@ -168,6 +170,7 @@ class State {
     id;
     data;
 
+    query;
     where;
     sort;
     limit;
@@ -196,6 +199,7 @@ class State {
         this.id = data.id;
         this.data = data.data;
 
+        this.query = data.query;
         this.where = data.where;
         this.sort = data.sort;
         if (data.limit && typeof data.limit == 'string')
@@ -218,5 +222,10 @@ class State {
 
     getModel() {
         return app.controller.getModelController().getModel(this.typeString);
+    }
+
+    setQuery(arr) {
+        this.query = arr;
+        this.where = arr.join('&');
     }
 }

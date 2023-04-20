@@ -25,7 +25,7 @@ class CreateCsvPanel extends Panel {
             alignment: 'vertical',
             selectButtons: true,
         }
-        this._listVis = new SelectableListVis(vListConfig, 'models', list);
+        this._listVis = new SelectableListVis(vListConfig, 'attributes', list);
         this._listVis.init();
         $div.append(this._listVis.renderList());
 
