@@ -15,8 +15,8 @@ class Cache {
         if (name)
             res = this._modelCacheArr[name];
         else
-            res = this._modelCacheArr;
-        if (!res) {
+            res = { ...this._modelCacheArr };
+        if (!res && name) {
             var model = this._controller.getModelController().getModel(name);
             if (!model)
                 throw new Error('Unknown model \'' + name + '\'');
@@ -26,6 +26,14 @@ class Cache {
             res = cache;
         }
         return Promise.resolve(res);
+    }
+
+    async deleteModelCache(name) {
+        var db = app.getController().getDatabase();
+        if (db)
+            await db.deleteObjectStore(name);
+        delete this._modelCacheArr[name];
+        return Promise.resolve();
     }
 
     async update() {

@@ -82,11 +82,22 @@ class FormEntry {
         var $label;
         if (!(this._attribute['dataType'] === 'enumeration' && this._attribute['view'] === 'radio') &&
             !(this._attribute['dataType'] === 'boolean' && this._attribute['view'] === 'labelRight')) {
+            var text;
+            if (this._attribute['persistent'] === false)
+                text = $('<i/>').append(this.getLabel());
+            else
+                text = this.getLabel();
             $label = $('<label/>')
                 .attr('for', this._id)
-                .text(this.getLabel() + ":");
+                .append(text)
+                .append(':');
+            var tooltip;
             if (this._attribute['tooltip'])
-                $label.attr('title', this._attribute['tooltip']);
+                tooltip = this._attribute['tooltip'];
+            else
+                tooltip = '';
+            $label.attr('title', tooltip);
+
         }
         return $label;
     }

@@ -16,7 +16,7 @@ class CachePanel extends Panel {
         var size;
         var $button;
 
-        var arr = this._cache.getModelCache();
+        var arr = await this._cache.getModelCache();
         for (var typeString in arr) {
             $row = $('<tr>');
             $col = $('<td>').text(typeString);
@@ -30,10 +30,21 @@ class CachePanel extends Panel {
             $col = $('<td>');
             $button = $('<button>')
                 .text('Clear')
-                .click(typeString, function (event) {
+                .click(typeString, async function (event) {
                     event.stopPropagation();
-                    delete arr[event.data];
+
+                    var controller = app.getController();
+                    controller.setLoadingState(true);
+                    try {
+                        await this._cache.deleteModelCache(event.data);
+                        controller.setLoadingState(false);
+                    } catch (error) {
+                        controller.setLoadingState(false);
+                        controller.showError(error);
+                    }
+
                     this.render();
+                    return Promise.resolve();
                 }.bind(this));
             $col.append($button);
             $row.append($col);
