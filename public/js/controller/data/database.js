@@ -37,8 +37,6 @@ class Database {
                 app.getController().getStorageController().storeLocal(Database.VERSION_IDENT, event.newVersion);
                 resolve(db);
             };
-
-
         });
     }
 
@@ -113,6 +111,20 @@ class Database {
         });
     }
 
+    static async _clear(db, storeName) {
+        return new Promise((resolve, reject) => {
+            const trx = db.transaction(storeName, "readwrite", { durability: "relaxed" });
+            const store = trx.objectStore(storeName);
+
+            trx.onerror = reject;
+            trx.oncomplete = () => resolve();
+
+            store.clear();
+
+            trx.commit();
+        });
+    }
+
     _controller;
 
     _name;
@@ -143,6 +155,10 @@ class Database {
     async deleteDatabase() {
         this._db.close();
         return Database._deleteDatabase(this._name);
+    }
+
+    hasObjectStore(name) {
+        return this._db.objectStoreNames.contains(name);
     }
 
     async initObjectStore(name) {
@@ -178,7 +194,7 @@ class Database {
         return Database._delete(this._db, storeName, id);
     }
 
-    /*async clear(storeName) {
-        //TODO:
-    }*/
+    async clear(storeName) {
+        return Database._clear(this._db, storeName);
+    }
 }

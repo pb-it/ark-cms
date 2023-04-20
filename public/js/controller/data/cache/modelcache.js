@@ -21,6 +21,15 @@ class ModelCache {
             this._db = db;
     }
 
+    async initCache() {
+        if (this._db) {
+            var rs = await this._db.getAll(this._model.getName());
+            if (rs)
+                await this.setCompleteRecordSet(rs, null, true);
+        }
+        return Promise.resolve();
+    }
+
     async cacheData(url, data) {
         var bNew = false;
         if (Array.isArray(data)) {
@@ -97,7 +106,7 @@ class ModelCache {
         return res;
     }
 
-    async setCompleteRecordSet(data, sort) {
+    async setCompleteRecordSet(data, sort, bInit) {
         var sorted;
         if (this._defaultSort) {
             var sorted;
@@ -112,19 +121,18 @@ class ModelCache {
             this._dataCache[d['id']] = d;
         }
 
-        if (this._db) {
-            await this._db.initObjectStore(this._model.getName());
-            this._db.put(this._model.getName(), data);
+        if (this._db && !bInit) {
+            var name = this._model.getName();
+            if (this._db.hasObjectStore(name))
+                await this._db.clear(name);
+            else
+                await this._db.initObjectStore(name);
+            this._db.put(name, data);
         }
         return Promise.resolve();
     }
 
     async getCompleteRecordSet() {
-        if (!this._completeRecordSet && this._db) {
-            var rs = await this._db.getAll(this._model.getName());
-            if (rs)
-                await this.setCompleteRecordSet(rs);
-        }
         return Promise.resolve(this._completeRecordSet);
     }
 }

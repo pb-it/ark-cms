@@ -204,7 +204,7 @@ class Breadcrumb {
             if (id.length > 10)
                 text = 'id:' + id.slice(0, 9).join(',') + ',...';
             else
-                text = 'id:' + id.concat(',');
+                text = 'id:' + id.join(',');
         } else if (isNaN(id)) {
             if (id.length < 70)
                 text = 'id:' + id;

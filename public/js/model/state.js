@@ -36,11 +36,11 @@ class State {
                 if (parts.length == 1) {
                     state.action = null; //ActionEnum.read;
                 } else if (parts.length == 2) {
-                    if (!isNaN(parts[1]) || parts[1].indexOf(',') != -1) {
-                        if (parts[1].indexOf(',') != -1)
-                            state.id = parts[1].split(',').map(Number);
-                        else
-                            state.id = parseInt(parts[1]);
+                    if (!isNaN(parts[1])) {
+                        state.id = parseInt(parts[1]);
+                        state.action = ActionEnum.read;
+                    } else if (parts[1].indexOf(',') != -1) {
+                        state.id = parts[1].split(',').map(Number);
                         state.action = ActionEnum.read;
                     } else {
                         if (parts[1] === "new")

@@ -10,7 +10,7 @@ class Cache {
         this._lastUpdate = new Date();
     }
 
-    getModelCache(name) {
+    async getModelCache(name) {
         var res;
         if (name)
             res = this._modelCacheArr[name];
@@ -20,10 +20,12 @@ class Cache {
             var model = this._controller.getModelController().getModel(name);
             if (!model)
                 throw new Error('Unknown model \'' + name + '\'');
-            res = new ModelCache(model);
-            this._modelCacheArr[name] = res;
+            var cache = new ModelCache(model);
+            await cache.initCache();
+            this._modelCacheArr[name] = cache;
+            res = cache;
         }
-        return res;
+        return Promise.resolve(res);
     }
 
     async update() {

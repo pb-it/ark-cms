@@ -125,7 +125,7 @@ class DataService {
         var typeUrl;
         var sortlessUrl;
         var model = app.controller.getModelController().getModel(typeString);
-        var cache = this._cache.getModelCache(typeString);
+        var cache = await this._cache.getModelCache(typeString);
 
         if (bIgnoreCache)
             typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
@@ -180,7 +180,6 @@ class DataService {
             } else
                 res = await this._apiClient.requestData("GET", typeUrl);
 
-            var cache = this._cache.getModelCache(typeString);
             if (!id && !where && (!limit || limit == -1)) {
                 await cache.setCompleteRecordSet(res, sort);
             } else {
@@ -276,7 +275,7 @@ class DataService {
         if (method && resource) {
             var resp = await this._apiClient.requestData(method, resource, data);
             if (resp) {
-                var cache = this._cache.getModelCache(typeString);
+                var cache = await this._cache.getModelCache(typeString);
                 if (action == ActionEnum.delete) {
                     if (resp == "OK") //delete default 200 response text
                         await cache.delete(id);

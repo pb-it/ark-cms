@@ -348,20 +348,18 @@ class ContextMenuController {
 
         entries.push(new ContextMenuEntry("Open >", function () {
             var items = app.controller.getSelected();
+            var state = new State();
             if (!items || (items.length == 1 && items[0] == this)) {
-                var state = new State();
                 state.typeString = this._obj.getTypeString();
                 state.id = this._obj.getData().id;
-
-                app.controller.loadState(state, true);
             } else {
-                var objs = items.map(function (panel) {
-                    return panel.getObject();
+                var ids = items.map(function (panel) {
+                    return panel.getObject().getId();
                 });
-                var url = DataService.getUrlForObjects(objs);
-                var state = State.getStateFromUrl(new URL(url));
-                app.controller.loadState(state, true);
+                state.typeString = items[0].getObject().getTypeString();
+                state.id = ids;
             }
+            app.controller.loadState(state, true);
         }.bind(panel), openGroup));
 
         entries.push(new ContextMenuEntry("Details", function () {

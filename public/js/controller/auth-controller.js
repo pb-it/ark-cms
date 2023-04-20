@@ -14,34 +14,10 @@ class AuthController {
 
         $d.append("<h3>Login:</h3><br/>");
 
-        var $label = $('<label/>')
-            .attr('for', 'username')
-            .text('Username: ');
-        $d.append($label);
-        $d.append('<br/>');
-        var $username = $('<input/>')
-            .prop('id', 'username')
-            .prop('type', 'text');
-        $d.append($username);
-        $d.append('<br/>');
-
-        $label = $('<label/>')
-            .attr('for', 'password')
-            .text('Password: ');
-        $d.append($label);
-        $d.append('<br/>');
-        var $password = $('<input/>')
-            .prop('id', 'password')
-            .prop('type', 'password');
-        $d.append($password);
-        $d.append('<br/>');
-
-        $d.append('<br/>');
-
-        var $continue = $('<button>')
-            .text('Login')
-            .css({ 'float': 'right' })
-            .click(async function (event) {
+        var $form = $('<form/>')
+            .prop('target', '_blank')
+            .submit(async function (event) {
+                event.preventDefault();
                 event.stopPropagation();
 
                 var data = { 'user': $username.val(), 'pass': $password.val() };
@@ -55,7 +31,39 @@ class AuthController {
 
                 return Promise.resolve();
             }.bind(this));
-        $d.append($continue);
+        var $label = $('<label/>')
+            .attr('for', 'username')
+            .text('Username: ');
+        $form.append($label);
+        $form.append('<br/>');
+        var $username = $('<input/>')
+            .prop('id', 'username')
+            .prop('type', 'text');
+        $form.append($username);
+        $form.append('<br/>');
+
+        $label = $('<label/>')
+            .attr('for', 'password')
+            .text('Password: ');
+        $form.append($label);
+        $form.append('<br/>');
+        var $password = $('<input/>')
+            .prop('id', 'password')
+            .prop('type', 'password');
+        $form.append($password);
+        $form.append('<br/><br/>');
+
+        var $login = $('<button>')
+            .text('Login')
+            .css({ 'float': 'right' })
+            .click(async function (event) {
+                event.stopPropagation();
+
+                return $form.submit();
+            }.bind(this));
+        $form.append($login);
+
+        $d.append($form);
 
         var $footer = $('<div/>')
             .addClass('clear');
