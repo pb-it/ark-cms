@@ -159,7 +159,7 @@ class Canvas {
                 panelConfig = mpcc.getPanelConfig(action);
             var Cp = panelConfig.getPanelClass();
 
-            if (action == ActionEnum.create) {
+            if (action == ActionEnum.create || action == ActionEnum.update) {
                 panelConfig.crudCallback = async function (data) {
                     var state = new State();
                     state.typeString = typeString;

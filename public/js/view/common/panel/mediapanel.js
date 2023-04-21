@@ -29,7 +29,7 @@ class MediaPanel extends CrudPanel {
 
         var $d = await super._renderContent();
         if ($d) {
-            if (this._config.action != ActionEnum.create && (!this._config['details'] || this._config['details'] === DetailsEnum.title))
+            if (this._config.action != ActionEnum.create && this._config.action != ActionEnum.update && (!this._config['details'] || this._config['details'] === DetailsEnum.title))
                 $d.css({
                     "clear": "left",
                     "max-width": this._config.width,
