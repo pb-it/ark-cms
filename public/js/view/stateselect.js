@@ -324,6 +324,21 @@ class StateSelect {
             menuItem.setActive();
         group.addMenuItem(menuItem);
 
+        var model = app.getController().getModelController().getModel(this._model);
+        if (model.hasOwnProperty('createDashboard')) {
+            conf = {
+                'name': 'Dashboard',
+                'click': function (event, item) {
+                    var state = new State();
+                    //state.typeString = this._model;
+                    state['customRoute'] = '/dashboard/' + this._model;
+                    app.getController().loadState(state, true);
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            group.addMenuItem(menuItem);
+        }
+
         conf = {
             'name': 'All',
             'click': function (event, item) {

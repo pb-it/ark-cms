@@ -1,7 +1,36 @@
 class DataView {
 
     static getSyntax(str) {
-        return /^data:text\/(.*?);charset=utf-8$/ig.exec(str)[1]; //regex
+        var res;
+        var match = /^data:text\/(.*?);charset=utf-8(,.*)?$/sig.exec(str); //regex
+        if (match)
+            res = match[1];
+        return res;
+    }
+
+    static async parseMarkdown(text) {
+        text = text.replace(/\[([^\]\r\n]*)\]\((\/data\/.*?)\)/gm, function (match, c1, c2) {
+            return "<a href='" + c1 + "' onclick='app.getController().navigate(\"" + c2 + "\");return false;'>" + c1 + "</a>";
+        });
+        if (typeof showdown === 'undefined') {
+            var buildUrl = "https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/";
+            await loadScript(buildUrl + "showdown.min.js");
+        }
+        const converter = new showdown.Converter({ tables: true });
+        text = converter.makeHtml(text);
+        return Promise.resolve(text);
+    }
+
+    static async highlight(elem) {
+        if (typeof hljs === 'undefined') {
+            var buildUrl = "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.6.0/build/";
+            await loadStyle(buildUrl + "styles/default.min.css");
+            await loadScript(buildUrl + "highlight.min.js");
+        }
+        elem.querySelectorAll('code').forEach(el => {
+            hljs.highlightElement(el);
+        });
+        return Promise.resolve();
     }
 
     static _parseText(text) {
@@ -100,15 +129,7 @@ class DataView {
                                                     break;
                                                 case 'markdown':
                                                     $value.addClass('markdown');
-                                                    value = value.replace(/\[([^\]\r\n]*)\]\((\/data\/.*?)\)/gm, function (match, c1, c2) {
-                                                        return "<a href='" + c1 + "' onclick='app.getController().navigate(\"" + c2 + "\");return false;'>" + c1 + "</a>";
-                                                    });
-                                                    if (typeof showdown === 'undefined') {
-                                                        var buildUrl = "https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/";
-                                                        await loadScript(buildUrl + "showdown.min.js");
-                                                    }
-                                                    const converter = new showdown.Converter({ tables: true });
-                                                    value = converter.makeHtml(value);
+                                                    value = await DataView.parseMarkdown(value);
                                                     break;
                                                 case 'csv':
                                                 case 'xml':
@@ -128,16 +149,8 @@ class DataView {
                                 } else
                                     value = "";
                                 $value.html(value);
-                                if (view && view === 'markdown') {
-                                    if (typeof hljs === 'undefined') {
-                                        var buildUrl = "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.6.0/build/";
-                                        await loadStyle(buildUrl + "styles/default.min.css");
-                                        await loadScript(buildUrl + "highlight.min.js");
-                                    }
-                                    $value[0].querySelectorAll('code').forEach(el => {
-                                        hljs.highlightElement(el);
-                                    });
-                                }
+                                if (view && view === 'markdown')
+                                    await DataView.highlight($value[0]);
                                 break;
                             case "time":
                                 if (data && data[name]) {

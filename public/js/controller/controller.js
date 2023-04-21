@@ -270,7 +270,6 @@ class Controller {
             this._view.initView();
 
             var bHome = false;
-            var typeString;
             if (state) {
                 if (state['customRoute']) {
                     var route = this._routeController.getMatchingRoute(state['customRoute']);
@@ -306,6 +305,17 @@ class Controller {
                     } else if (state['customRoute'].startsWith('/data/')) {
                         this._data = await this._apiController.getApiClient().requestData("GET", state['customRoute'].substring('/data/'.length));
                         await this.updateCanvas();
+                    } else if (state['customRoute'].startsWith('/dashboard/')) {
+                        var parts = state['customRoute'].split('/');
+                        if (parts.length == 3) {
+                            var model = this._modelController.getModel(parts[2]);
+                            if (model && model.hasOwnProperty('createDashboard'))
+                                panels = await model.createDashboard();
+                        }
+                        if (panels)
+                            await this._view.getCanvas().showPanels(panels);
+                        else
+                            throw new Error("No dashboard defined");
                     } else
                         throw new Error("Unknown route '" + state['customRoute'] + "'");
                 } else if (state['typeString']) {

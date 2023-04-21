@@ -2,8 +2,15 @@ class NotePanel extends CrudPanel {
 
     _$note;
 
-    constructor(config, obj) {
+    _prop;
+    _syntax;
+
+    constructor(config, obj, prop) {
         super(config, obj);
+        if (prop)
+            this._prop = prop;
+        else
+            this._prop = 'note';
     }
 
     getClass() {
@@ -17,47 +24,60 @@ class NotePanel extends CrudPanel {
                 $div = await super._renderContent();
                 break;
             case DetailsEnum.title:
-                $div = this._renderNote();
+                $div = await this._renderNote();
                 break;
             case DetailsEnum.none:
         }
         return Promise.resolve($div);
     }
 
-    _renderNote() {
+    async _renderNote() {
         this._$note = $('<div/>')
             .addClass('note')
             //.attr("data-id", obj.getData().id)
-            .dblclick(function () {
+            .dblclick(async function () {
                 if (!this._$note.hasClass("cellEditing")) {
-                    this._edit(true);
+                    await this._edit(true);
                 }
+                return Promise.resolve();
             }.bind(this))
             .after("<br />")
             .bind('_close', this._close.bind(this))
             .bind('_abort', this._abort.bind(this));
-        this._edit(false);
-        return this._$note;
+        await this._edit(false);
+        return Promise.resolve(this._$note);
     }
 
-    _edit(edit) {
-        var note = this._obj.getData()['note'];
+    async _edit(edit) {
+        var note = this._obj.getData()[this._prop];
+        this._syntax = DataView.getSyntax(note);
+        if (this._syntax)
+            note = note.substring(note.indexOf(',') + 1);
         if (edit) {
             if (note === undefined || note === null)
                 note = '';
-            this._$note.addClass("cellEditing");
+            this._$note.removeClass('markdown');
+            this._$note.addClass('cellEditing');
             //this.$note.html("<p name='note' contenteditable>" + encodeText(originalContent) + "</p>");
             this._$note.html("<textarea name='note'>" + note + "</textarea>"); //cols='40' rows='5'
             this._$note.children().first().focus();
         } else {
-            this._$note.removeClass("cellEditing");
+            this._$note.removeClass('cellEditing');
             var html;
-            if (note)
-                html = encodeText(note)
-            else
+            if (note) {
+                if (this._syntax === 'markdown')
+                    html = await DataView.parseMarkdown(note);
+                else
+                    html = encodeText(note)
+            } else
                 html = "";
             this._$note.html(html);
+            if (this._syntax === 'markdown') {
+                this._$note.addClass('markdown');
+                await DataView.highlight(this._$note[0]);
+            }
         }
+        return Promise.resolve();
     }
 
     async _abort() {
@@ -65,27 +85,31 @@ class NotePanel extends CrudPanel {
     }
 
     async _close() {
-        app.controller.setLoadingState(true);
-
-        var newContent = this._$note.children().first().val();
+        var controller = app.getController();
+        controller.setLoadingState(true);
         try {
+            var newContent = this._$note.children().first().val();
+            var data = {};
+            if (this._syntax)
+                data[this._prop] = 'data:text/' + this._syntax + ';charset=utf-8,' + newContent;
+            else
+                data[this._prop] = newContent;
             if (this._obj.getId()) {
-                await this._obj.update({ 'note': newContent });
-                this._edit(false);
+                await this._obj.update(data);
+                await this._edit(false);
             } else {
-                await this._obj.create({ 'note': newContent });
+                await this._obj.create(data);
 
                 var state = new State();
                 state['typeString'] = this._obj.getTypeString();
                 state['id'] = this._obj.getId();
-                app.controller.loadState(state, true);
+                controller.loadState(state, true);
             }
         } catch (e) {
             console.log(e);
         } finally {
-            app.controller.setLoadingState(false);
+            controller.setLoadingState(false);
         }
-
         return Promise.resolve();
     }
 }
