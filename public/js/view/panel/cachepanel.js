@@ -1,73 +1,202 @@
-class CachePanel extends Panel {
+class CachePanel extends TabPanel {
 
     _cache;
+    _db;
 
-    constructor() {
-        super();
+    _$cachePanel;
+    _$databasePanel;
 
-        this._cache = app.getController().getDataService().getCache();
+    constructor(config) {
+        super(config);
+
+        var controller = app.getController();
+        this._cache = controller.getDataService().getCache();
+        this._db = controller.getDatabase();
     }
 
-    async _renderContent() {
-        var $div = $('<div/>');
-        var $table = $('<table>');
-        var $row;
-        var $col;
-        var size;
-        var $button;
+    async _init() {
+        await super._init();
 
-        var arr = await this._cache.getModelCache();
-        for (var typeString in arr) {
-            $row = $('<tr>');
-            $col = $('<td>').text(typeString);
-            $row.append($col);
+        this._$cachePanel = await this._createCachePanel();
+        this._panels.push(this._$cachePanel);
 
-            size = Object.keys(arr[typeString].getEntry()).length;
+        if (this._db) {
+            this._$databasePanel = await this._createDatabasePanel();
+            this._panels.push(this._$databasePanel);
+        }
 
-            $col = $('<td>').text(size);
-            $row.append($col);
+        await this.openTab(this._$cachePanel);
 
-            $col = $('<td>');
+        return Promise.resolve();
+    }
+
+    async _createCachePanel() {
+        var panel = new Panel({ 'title': 'Cache' });
+        panel._renderContent = async function () {
+            var $div = $('<div/>');
+            var $table = $('<table>');
+            var $row;
+            var $col;
+            var size;
+            var $button;
+
+            var arr = this._cache.getModelCache();
+            for (var typeString in arr) {
+                $row = $('<tr>');
+                $col = $('<td>').text(typeString);
+                $row.append($col);
+
+                size = Object.keys(arr[typeString].getEntry()).length;
+
+                $col = $('<td>').text(size);
+                $row.append($col);
+
+                $col = $('<td>');
+                $button = $('<button>')
+                    .text('Clear')
+                    .click(typeString, async function (event) {
+                        event.stopPropagation();
+
+                        var controller = app.getController();
+                        controller.setLoadingState(true);
+                        try {
+                            await this._cache.deleteModelCache(event.data);
+                            controller.setLoadingState(false);
+                        } catch (error) {
+                            controller.setLoadingState(false);
+                            controller.showError(error);
+                        }
+
+                        this._$cachePanel.render();
+                        return Promise.resolve();
+                    }.bind(this));
+                $col.append($button);
+                $row.append($col);
+
+                $table.append($row);
+            }
+            $div.append($table);
+            $div.append("<br>");
+
+            if (!this._db) {
+                $button = $('<button>')
+                    .text('Update')
+                    .click(typeString, async function (event) {
+                        event.stopPropagation();
+                        await this._cache.update();
+                        await this._$cachePanel.render();
+                        return Promise.resolve();
+                    }.bind(this));
+                $div.append($button);
+            }
+
+            return Promise.resolve($div);
+        }.bind(this);
+
+        return Promise.resolve(panel);
+    }
+
+    async _createDatabasePanel() {
+        var panel = new Panel({ 'title': 'Database' });
+        panel._renderContent = async function () {
+            var $div = $('<div/>');
+            var $table = $('<table>');
+            var $row;
+            var $col;
+            var all;
+            var size;
+            var timestamp;
+            var $button;
+
+            var arr = await this._db.getObjectStoreNames();
+            var meta = this._db.getMetaData();
+            for (var typeString of arr) {
+                $row = $('<tr>');
+                $col = $('<td>').text(typeString);
+                $row.append($col);
+
+                all = await this._db.getAll(typeString);
+                size = all.length;
+                $col = $('<td>').text(size);
+                $row.append($col);
+
+                timestamp = meta[typeString];
+                $col = $('<td>').text(timestamp);
+                $row.append($col);
+
+                $col = $('<td>');
+                $button = $('<button>')
+                    .text('Reload')
+                    .click(typeString, async function (event) {
+                        event.stopPropagation();
+
+                        var controller = app.getController();
+                        controller.setLoadingState(true);
+                        try {
+                            await this._relaod(event.data);
+                            controller.setLoadingState(false);
+                        } catch (error) {
+                            controller.setLoadingState(false);
+                            controller.showError(error);
+                        }
+
+                        this._$databasePanel.render();
+                        return Promise.resolve();
+                    }.bind(this));
+                $col.append($button);
+                $row.append($col);
+
+                $table.append($row);
+            }
+            $div.append($table);
+            $div.append("<br>");
+
             $button = $('<button>')
-                .text('Clear')
-                .click(typeString, async function (event) {
+                .text('Reload All')
+                .click(async function (event) {
                     event.stopPropagation();
 
                     var controller = app.getController();
                     controller.setLoadingState(true);
                     try {
-                        await this._cache.deleteModelCache(event.data);
+                        var meta = this._db.getMetaData();
+                        var promises = [];
+                        for (var x in meta) {
+                            promises.push(this._relaod(x));
+                        }
+                        await Promise.all(promises);
                         controller.setLoadingState(false);
                     } catch (error) {
                         controller.setLoadingState(false);
                         controller.showError(error);
                     }
 
-                    this.render();
+                    await this._$databasePanel.render();
                     return Promise.resolve();
                 }.bind(this));
-            $col.append($button);
-            $row.append($col);
+            $div.append($button);
 
-            $table.append($row);
-        }
-        $div.append($table);
-        $div.append("<br>");
+            $button = $('<button>')
+                .text('Update')
+                .click(async function (event) {
+                    event.stopPropagation();
 
-        $button = $('<button>')
-            .text('Update')
-            .click(typeString, async function (event) {
-                event.stopPropagation();
-                await this._cache.update();
-                await this.render();
-                return Promise.resolve();
-            }.bind(this));
-        $div.append($button);
-        $div.append("<br>");
+                    var controller = app.getController();
+                    controller.setLoadingState(true);
+                    try {
+                        await this._db.updateDatabase();
+                        controller.setLoadingState(false);
+                    } catch (error) {
+                        controller.setLoadingState(false);
+                        controller.showError(error);
+                    }
 
-        var db = app.getController().getDatabase();
-        if (db) {
-            $div.append('IndexedDB:<br>');
+                    await this._$databasePanel.render();
+                    return Promise.resolve();
+                }.bind(this));
+            $div.append($button);
+            $div.append("<br>");
+
             $button = $('<button>')
                 .text('Reconnect')
                 .click(typeString, async function (event) {
@@ -77,7 +206,7 @@ class CachePanel extends Panel {
                     try {
                         controller.setLoadingState(true);
 
-                        await db.initDatabase();
+                        await this._db.initDatabase();
                         controller.setLoadingState(false);
                         alert('Reconnected!');
                     } catch (error) {
@@ -96,8 +225,8 @@ class CachePanel extends Panel {
                     try {
                         controller.setLoadingState(true);
 
-                        await db.deleteDatabase();
-                        await db.initDatabase();
+                        await this._db.deleteDatabase();
+                        await this._db.initDatabase();
                         controller.setLoadingState(false);
                         alert('Database cleared!');
                     } catch (error) {
@@ -107,33 +236,17 @@ class CachePanel extends Panel {
                     return Promise.resolve();
                 }.bind(this));
             $div.append($button);
-        }
 
-        /*$table = $('<table>');
-        var urls = cache.getCachedUrls();
-        for (var url in urls) {
-            $row = $('<tr>');
-            $col = $('<td>').text(url);
-            $row.append($col);
-            $col = $('<td>').text(urls[url].length);
-            $row.append($col);
+            return Promise.resolve($div);
+        }.bind(this);
 
-            $col = $('<td>');
-            $button = $('<button>')
-                .text('Remove')
-                .click(url, function (event) {
-                    event.stopPropagation();
-                    var ds = app.controller.getDataService();
-                    var cache = ds.getCache();
-                    cache.removeCachedUrl(event.data);
-                    this.render();
-                }.bind(this));
-            $col.append($button);
-            $row.append($col);
+        return Promise.resolve(panel);
+    }
 
-            $table.append($row);
-        }
-        $div.append($table);*/
-        return Promise.resolve($div);
+    async _relaod(modelName) {
+        await this._db.clearObjectStore(modelName);
+        await this._cache.deleteModelCache(modelName);
+        await app.getController().getDataService().fetchData(modelName, null, null, null, null, null, null, true);
+        return Promise.resolve();
     }
 }

@@ -125,7 +125,9 @@ class DataService {
         var typeUrl;
         var sortlessUrl;
         var model = app.controller.getModelController().getModel(typeString);
-        var cache = await this._cache.getModelCache(typeString);
+        var cache = this._cache.getModelCache(typeString);
+        if (!cache)
+            cache = await this._cache.createModelCache(typeString);
 
         if (bIgnoreCache)
             typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
@@ -167,6 +169,7 @@ class DataService {
         }
 
         if (!res) {
+            var timestamp;
             if (model.getDefinition()['bConfirmFullFetch'] && !id && !where && (!limit || limit == -1)) {
                 if (!confirm('Continue fetching all \'' + typeString + '\'?'))
                     throw new Error('Aborted');
@@ -177,11 +180,17 @@ class DataService {
                 for (var url of typeUrl) {
                     res = res.concat(await this._apiClient.requestData("GET", url));
                 }
-            } else
-                res = await this._apiClient.requestData("GET", typeUrl);
+            } else {
+                var response = await this._apiClient.request("GET", this._apiClient.getDataPath() + typeUrl);
+                if (response) {
+                    var o = JSON.parse(response);
+                    timestamp = o['timestamp'];
+                    res = o['data'];
+                }
+            }
 
             if (!id && !where && (!limit || limit == -1)) {
-                await cache.setCompleteRecordSet(res, sort);
+                await cache.setCompleteRecordSet(res, sort, timestamp);
             } else {
                 if (Array.isArray(typeUrl)) {
                     await cache.cacheData(null, res);
@@ -275,7 +284,9 @@ class DataService {
         if (method && resource) {
             var resp = await this._apiClient.requestData(method, resource, data);
             if (resp) {
-                var cache = await this._cache.getModelCache(typeString);
+                var cache = this._cache.getModelCache(typeString);
+                if (!cache)
+                    cache = await this._cache.createModelCache(typeString);
                 if (action == ActionEnum.delete) {
                     if (resp == "OK") //delete default 200 response text
                         await cache.delete(id);

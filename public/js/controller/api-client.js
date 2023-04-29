@@ -2,20 +2,20 @@ class ApiClient {
 
     _baseUrl;
     _version;
-    _root;
+    _dataPath;
 
     constructor(baseUrl) {
         this._baseUrl = baseUrl;
-        this._root = this._baseUrl + "/api/data/";
+        this._dataPath = "/api/data/";
     }
 
     setVersion(version) {
         this._version = version;
-        this._root = `${this._baseUrl}/api/data/${this._version}/`;
+        this._dataPath = `/api/data/${this._version}/`;
     }
 
-    getApiRoot() {
-        return this._root;
+    getDataPath() {
+        return this._dataPath;
     }
 
     async request(method, resource, data) {
@@ -24,7 +24,7 @@ class ApiClient {
 
     async requestData(method, resource, data) {
         var res;
-        var response = await HttpClient.request(method, this._root + resource, { 'withCredentials': true }, data);
+        var response = await HttpClient.request(method, this._baseUrl + this._dataPath + resource, { 'withCredentials': true }, data);
         if (response) {
             if (method == 'GET')
                 res = JSON.parse(response)['data'];

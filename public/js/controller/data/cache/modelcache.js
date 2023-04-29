@@ -25,7 +25,7 @@ class ModelCache {
         if (this._db) {
             var rs = await this._db.getAll(this._model.getName());
             if (rs)
-                await this.setCompleteRecordSet(rs, null, true);
+                await this.setCompleteRecordSet(rs);
         }
         return Promise.resolve();
     }
@@ -106,7 +106,7 @@ class ModelCache {
         return res;
     }
 
-    async setCompleteRecordSet(data, sort, bInit) {
+    async setCompleteRecordSet(data, sort, timestamp) {
         var sorted;
         if (this._defaultSort) {
             var sorted;
@@ -121,13 +121,9 @@ class ModelCache {
             this._dataCache[d['id']] = d;
         }
 
-        if (this._db && !bInit) {
+        if (this._db && timestamp) {
             var name = this._model.getName();
-            if (this._db.hasObjectStore(name))
-                await this._db.clear(name);
-            else
-                await this._db.initObjectStore(name);
-            this._db.put(name, data);
+            await this._db.initObjectStore(name, data, timestamp);
         }
         return Promise.resolve();
     }

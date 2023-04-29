@@ -1,6 +1,7 @@
 class Database {
 
     static VERSION_IDENT = 'IndexedDB_version';
+    static META_IDENT = 'IndexedDB_meta';
 
     static async _open(name, callback) {
         return new Promise(function (resolve, reject) {
@@ -23,7 +24,10 @@ class Database {
 
             request.onerror = (event) => {
                 clearTimeout(timeout);
-                reject(new Error(`Database error: ${event.target.errorCode}`));
+                var msg = 'Database error';
+                if (event.target.errorCode)
+                    msg += ': ' + event.target.errorCode;
+                reject(new Error(msg));
             };
             request.onsuccess = (event) => {
                 clearTimeout(timeout);
@@ -47,7 +51,10 @@ class Database {
             const request = indexedDB.deleteDatabase(name);
             request.onsuccess = resolve;
             request.onerror = (event) => {
-                reject(new Error(`Database error: ${event.target.errorCode}`));
+                var msg = 'Database error';
+                if (event.target.errorCode)
+                    msg += ': ' + event.target.errorCode;
+                reject(new Error(msg));
             };
             request.onblocked = (event) => {
                 reject(new Error(`Database error: ${event.type}`));
@@ -130,10 +137,23 @@ class Database {
     _name;
     _db;
 
+    _meta;
+
     constructor(name) {
         this._controller = app.getController();
 
         this._name = name;
+
+        var sc = this._controller.getStorageController();
+        var meta = sc.loadLocal(Database.META_IDENT);
+        if (meta)
+            this._meta = JSON.parse(meta);
+        else
+            this._meta = {};
+    }
+
+    getMetaData() {
+        return this._meta;
     }
 
     async initDatabase(callback) {
@@ -147,7 +167,10 @@ class Database {
         }
         this._db = await Database._open(this._name);
         this._db.onerror = (event) => {
-            console.error(`Database error: ${event.target.errorCode}`);
+            var msg = 'Database error';
+            if (event.target.errorCode)
+                msg += ': ' + event.target.errorCode;
+            console.error(msg);
         };
         return Promise.resolve();
     }
@@ -157,15 +180,23 @@ class Database {
         return Database._deleteDatabase(this._name);
     }
 
-    hasObjectStore(name) {
-        return this._db.objectStoreNames.contains(name);
+    getObjectStoreNames() {
+        return this._db.objectStoreNames;
     }
 
-    async initObjectStore(name) {
-        if (this._db && !this._db.objectStoreNames.contains(name)) {
-            await this.initDatabase(function (db) {
-                db.createObjectStore(name, { 'keyPath': 'id', autoIncrement: false });
-            });
+    async initObjectStore(name, data, timestamp) {
+        if (this._db) {
+            if (this._db.objectStoreNames.contains(name))
+                await this.clearObjectStore(name);
+            else {
+                await this.initDatabase(function (db) {
+                    db.createObjectStore(name, { 'keyPath': 'id', autoIncrement: false });
+                });
+            }
+            await this.put(name, data);
+            this._meta[name] = timestamp;
+            var sc = app.getController().getStorageController();
+            sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
         }
         return Promise.resolve();
     }
@@ -181,7 +212,7 @@ class Database {
 
     async getAll(storeName) {
         var result;
-        if (this._db.objectStoreNames.contains(storeName))
+        if (this._db && this._db.objectStoreNames.contains(storeName))
             result = await Database._getAll(this._db, storeName);
         return Promise.resolve(result);
     }
@@ -194,7 +225,19 @@ class Database {
         return Database._delete(this._db, storeName, id);
     }
 
-    async clear(storeName) {
-        return Database._clear(this._db, storeName);
+    async clearObjectStore(storeName) {
+        await Database._clear(this._db, storeName);
+        this._meta[storeName] = null;
+        return Promise.resolve();
+    }
+
+    async updateDatabase() {
+        var timestamp = await app.getController().getDataService().getCache().updateCache();
+        for (var x in this._meta) {
+            this._meta[x] = timestamp;
+        }
+        var sc = app.getController().getStorageController();
+        sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
+        return Promise.resolve();
     }
 }

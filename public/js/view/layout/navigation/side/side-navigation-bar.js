@@ -138,7 +138,8 @@ class SideNavigationBar {
                     'click': async function (event, icon) {
                         this.close();
 
-                        return app.getController().getModalController().openPanelInModal(new CachePanel());
+                        var config = { 'minWidth': '400px' };
+                        return app.getController().getModalController().openPanelInModal(new CachePanel(config));
                     }.bind(this)
                 };
                 menuItem = new MenuItem(conf);
