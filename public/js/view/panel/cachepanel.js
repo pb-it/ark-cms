@@ -33,6 +33,11 @@ class CachePanel extends TabPanel {
     async _createCachePanel() {
         var panel = new Panel({ 'title': 'Cache' });
         panel._renderContent = async function () {
+            var controller = app.getController();
+            var bLoading = controller.getLoadingState();
+            if (!bLoading)
+                controller.setLoadingState(true);
+
             var $div = $('<div/>');
             var $table = $('<table>');
             var $row;
@@ -57,7 +62,6 @@ class CachePanel extends TabPanel {
                     .click(typeString, async function (event) {
                         event.stopPropagation();
 
-                        var controller = app.getController();
                         controller.setLoadingState(true);
                         try {
                             await this._cache.deleteModelCache(event.data);
@@ -90,6 +94,9 @@ class CachePanel extends TabPanel {
                 $div.append($button);
             }
 
+            if (!bLoading)
+                controller.setLoadingState(false);
+
             return Promise.resolve($div);
         }.bind(this);
 
@@ -99,11 +106,15 @@ class CachePanel extends TabPanel {
     async _createDatabasePanel() {
         var panel = new Panel({ 'title': 'Database' });
         panel._renderContent = async function () {
+            var controller = app.getController();
+            var bLoading = controller.getLoadingState();
+            if (!bLoading)
+                controller.setLoadingState(true);
+
             var $div = $('<div/>');
             var $table = $('<table>');
             var $row;
             var $col;
-            var all;
             var size;
             var timestamp;
             var $button;
@@ -115,8 +126,7 @@ class CachePanel extends TabPanel {
                 $col = $('<td>').text(typeString);
                 $row.append($col);
 
-                all = await this._db.getAll(typeString);
-                size = all.length;
+                size = await this._db.count(typeString);
                 $col = $('<td>').text(size);
                 $row.append($col);
 
@@ -130,7 +140,6 @@ class CachePanel extends TabPanel {
                     .click(typeString, async function (event) {
                         event.stopPropagation();
 
-                        var controller = app.getController();
                         controller.setLoadingState(true);
                         try {
                             await this._relaod(event.data);
@@ -156,12 +165,12 @@ class CachePanel extends TabPanel {
                 .click(async function (event) {
                     event.stopPropagation();
 
-                    var controller = app.getController();
                     controller.setLoadingState(true);
                     try {
-                        var meta = this._db.getMetaData();
+                        //var meta = this._db.getMetaData();
+                        var names = this._db.getObjectStoreNames();
                         var promises = [];
-                        for (var x in meta) {
+                        for (var x of names) {
                             promises.push(this._relaod(x));
                         }
                         await Promise.all(promises);
@@ -181,10 +190,13 @@ class CachePanel extends TabPanel {
                 .click(async function (event) {
                     event.stopPropagation();
 
-                    var controller = app.getController();
                     controller.setLoadingState(true);
                     try {
-                        await this._db.updateDatabase();
+                        var timestamp = await this._db.updateDatabase();
+                        if (timestamp)
+                            alert('Updated successfully!');
+                        else
+                            alert('Nothing to update!');
                         controller.setLoadingState(false);
                     } catch (error) {
                         controller.setLoadingState(false);
@@ -202,7 +214,6 @@ class CachePanel extends TabPanel {
                 .click(typeString, async function (event) {
                     event.stopPropagation();
 
-                    var controller = app.getController();
                     try {
                         controller.setLoadingState(true);
 
@@ -221,7 +232,6 @@ class CachePanel extends TabPanel {
                 .click(typeString, async function (event) {
                     event.stopPropagation();
 
-                    var controller = app.getController();
                     try {
                         controller.setLoadingState(true);
 
@@ -236,6 +246,9 @@ class CachePanel extends TabPanel {
                     return Promise.resolve();
                 }.bind(this));
             $div.append($button);
+
+            if (!bLoading)
+                controller.setLoadingState(false);
 
             return Promise.resolve($div);
         }.bind(this);

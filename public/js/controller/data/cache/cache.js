@@ -51,41 +51,43 @@ class Cache {
     }
 
     async updateCache() {
-        var changes;
         var timestamp;
-        var apiClient = app.getController().getApiController().getApiClient();
-        var response = await apiClient.request("GET", apiClient.getDataPath() + '_change?timestamp_gte=' + this._lastUpdate.toISOString());
-        if (response) {
-            var o = JSON.parse(response);
-            timestamp = o['timestamp'];
-            changes = o['data'];
-        }
-        if (changes && changes.length > 0) {
-            var modelName;
-            var cache;
-            var method;
-            var id;
-            for (var change of changes) {
-                modelName = change['model'];
-                cache = this._modelCacheArr[modelName];
-                if (cache) {
-                    method = change['method'];
-                    id = change['record_id'];
-                    if (method == 'PUT') {
-                        if (cache.getEntry(id))
-                            await this._controller.getDataService().fetchData(modelName, id, null, null, null, null, null, true);
-                    } else if (method == 'POST') {
-                        var rs = await cache.getCompleteRecordSet();
-                        if (rs)
-                            await this._controller.getDataService().fetchData(modelName, id);
-                    } else if (method == 'DELETE') {
-                        if (cache.getEntry(id))
-                            await cache.delete(id);
+        if (this._lastUpdate) {
+            var changes;
+            var apiClient = app.getController().getApiController().getApiClient();
+            var response = await apiClient.request("GET", apiClient.getDataPath() + '_change?timestamp_gte=' + this._lastUpdate.toISOString());
+            if (response) {
+                var o = JSON.parse(response);
+                timestamp = o['timestamp'];
+                changes = o['data'];
+            }
+            if (changes && changes.length > 0) {
+                var modelName;
+                var cache;
+                var method;
+                var id;
+                for (var change of changes) {
+                    modelName = change['model'];
+                    cache = this._modelCacheArr[modelName];
+                    if (cache) {
+                        method = change['method'];
+                        id = change['record_id'];
+                        if (method == 'PUT') {
+                            if (cache.getEntry(id))
+                                await this._controller.getDataService().fetchData(modelName, id, null, null, null, null, null, true);
+                        } else if (method == 'POST') {
+                            var rs = await cache.getCompleteRecordSet();
+                            if (rs)
+                                await this._controller.getDataService().fetchData(modelName, id);
+                        } else if (method == 'DELETE') {
+                            if (cache.getEntry(id))
+                                await cache.delete(id);
+                        }
                     }
                 }
             }
+            this._lastUpdate = new Date(timestamp);
         }
-        this._lastUpdate = new Date(timestamp);
         return Promise.resolve(timestamp);
     }
 }

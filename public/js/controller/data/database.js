@@ -132,6 +132,19 @@ class Database {
         });
     }
 
+    static async _count(db, storeName) {
+        return new Promise((resolve, reject) => {
+            var store = db.transaction(storeName).objectStore(storeName);
+
+            var count = store.count();
+
+            count.onerror = reject;
+            count.onsuccess = function () {
+                resolve(count.result);
+            }
+        });
+    }
+
     _controller;
 
     _name;
@@ -225,6 +238,10 @@ class Database {
         return Database._delete(this._db, storeName, id);
     }
 
+    async count(storeName) {
+        return Database._count(this._db, storeName);
+    }
+
     async clearObjectStore(storeName) {
         await Database._clear(this._db, storeName);
         this._meta[storeName] = null;
@@ -238,6 +255,6 @@ class Database {
         }
         var sc = app.getController().getStorageController();
         sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
-        return Promise.resolve();
+        return Promise.resolve(timestamp);
     }
 }

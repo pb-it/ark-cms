@@ -198,7 +198,7 @@ class ContextMenuController {
                                     params.push(backLink + "=" + objs[0].getData()['id']);
                                 else {
                                     var ids = objs.map(function (x) { return x.getData()['id'] });
-                                    params.push(backLink + "_in=" + ids.join(','));
+                                    params.push(backLink + "_any=" + ids.join(','));
                                 }
                             } else {
                                 var map = new Map();
@@ -248,7 +248,7 @@ class ContextMenuController {
                                     var scope;
                                     if (current['query']) {
                                         for (var part of current['query']) {
-                                            if (part.startsWith(name + '_in')) {
+                                            if (part.startsWith(name + '_any')) {
                                                 scope = part;
                                                 break;
                                             }
