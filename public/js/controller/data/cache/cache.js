@@ -8,22 +8,7 @@ class Cache {
         this._controller = app.getController();
         this._modelCacheArr = [];
 
-        var db = app.getController().getDatabase();
-        if (db) {
-            var meta = db.getMetaData();
-            var timestamp;
-            var oldest;
-            for (var x in meta) {
-                timestamp = new Date(meta[x]);
-                if (oldest) {
-                    if (timestamp < oldest)
-                        oldest = timestamp;
-                } else
-                    oldest = timestamp;
-            }
-            this._lastUpdate = oldest;
-        } else
-            this._lastUpdate = new Date();
+        this._lastUpdate = new Date();
     }
 
     getModelCache(name) {
@@ -50,12 +35,14 @@ class Cache {
         return Promise.resolve();
     }
 
-    async updateCache() {
+    async updateCache(start) {
         var timestamp;
-        if (this._lastUpdate) {
+        if (!start)
+            start = this._lastUpdate;
+        if (start) {
             var changes;
             var apiClient = app.getController().getApiController().getApiClient();
-            var response = await apiClient.request("GET", apiClient.getDataPath() + '_change?timestamp_gte=' + this._lastUpdate.toISOString());
+            var response = await apiClient.request("GET", apiClient.getDataPath() + '_change?timestamp_gte=' + start.toISOString());
             if (response) {
                 var o = JSON.parse(response);
                 timestamp = o['timestamp'];
@@ -86,7 +73,8 @@ class Cache {
                     }
                 }
             }
-            this._lastUpdate = new Date(timestamp);
+            if (timestamp)
+                this._lastUpdate = new Date(timestamp);
         }
         return Promise.resolve(timestamp);
     }

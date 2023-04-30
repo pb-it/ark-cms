@@ -18,4 +18,13 @@ class StorageController {
             throw new Error('Local storage not available');
         return value;
     }
+
+    removeItem(key) {
+        var value;
+        if (window.localStorage)
+            value = window.localStorage.removeItem(key);
+        else
+            throw new Error('Local storage not available');
+        return value;
+    }
 }

@@ -243,6 +243,8 @@ class CachePanel extends TabPanel {
                         controller.setLoadingState(false);
                         controller.showError(error);
                     }
+
+                    await this._$databasePanel.render();
                     return Promise.resolve();
                 }.bind(this));
             $div.append($button);

@@ -190,7 +190,12 @@ class Database {
 
     async deleteDatabase() {
         this._db.close();
-        return Database._deleteDatabase(this._name);
+        await Database._deleteDatabase(this._name);
+        var sc = app.getController().getStorageController();
+        sc.removeItem(Database.VERSION_IDENT);
+        sc.removeItem(Database.META_IDENT);
+        this._meta = {};
+        return Promise.resolve();
     }
 
     getObjectStoreNames() {
@@ -249,12 +254,29 @@ class Database {
     }
 
     async updateDatabase() {
-        var timestamp = await app.getController().getDataService().getCache().updateCache();
-        for (var x in this._meta) {
-            this._meta[x] = timestamp;
+        var timestamp;
+        var ts;
+        var oldest;
+        if (Object.keys(this._meta).length > 0) {
+            for (var x in this._meta) {
+                if (this._meta[x]) {
+                    ts = new Date(this._meta[x]);
+                    if (oldest) {
+                        if (ts < oldest)
+                            oldest = ts;
+                    } else
+                        oldest = ts;
+                }
+            }
         }
-        var sc = app.getController().getStorageController();
-        sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
+        if (oldest) {
+            timestamp = await app.getController().getDataService().getCache().updateCache(oldest);
+            for (var x in this._meta) {
+                this._meta[x] = timestamp;
+            }
+            var sc = app.getController().getStorageController();
+            sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
+        }
         return Promise.resolve(timestamp);
     }
 }
