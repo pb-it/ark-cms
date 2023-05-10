@@ -272,10 +272,11 @@ class Controller {
             var bHome = false;
             if (state) {
                 if (state['customRoute']) {
-                    var route = this._routeController.getMatchingRoute(state['customRoute']);
-                    if (route) {
-                        if (route['fn'])
-                            route['fn']();
+                    var res = this._routeController.getMatchingRoute(state['customRoute']);
+                    if (res) {
+                        var route = res['route'];
+                        if (route && route['fn'])
+                            await route['fn'](res['match']);
                     } else if (state['customRoute'].startsWith('/ext/')) {
                         var parts = state['customRoute'].split('/');
                         if (parts.length >= 3 && this._extensionController.getExtension(parts[2])) {

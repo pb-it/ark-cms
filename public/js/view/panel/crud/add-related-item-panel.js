@@ -11,6 +11,7 @@ class AddRelatedItemPanel extends Panel {
     _data;
 
     _addSelect;
+    _$removeAll;
     _removeSelect;
 
     constructor(objs, attr, data, cb) {
@@ -40,6 +41,15 @@ class AddRelatedItemPanel extends Panel {
         $div.append("<br/><br/><br/>");
 
         if (!this._attr['via']) {
+            var id = 'remove-all';
+            this._$removeAll = $('<input />', { type: 'checkbox', 'id': id });
+            $div.append(this._$removeAll);
+            var $label = $('<label/>')
+                .attr('for', id)
+                .text('Remove all other');
+            $div.append($label);
+            $div.append('<br/><br/>');
+
             $div.append("Remove the following '" + this._modelName + "' from '" + this._attrName + "':<br/><br/>");
 
             this._removeSelect = new Select(this._attrName, this._modelName, -1);
@@ -90,8 +100,16 @@ class AddRelatedItemPanel extends Panel {
                                     await new CrudObject(this._modelName, data).update(update);
                             }
                         } else {
-                            for (var obj of this._objs)
-                                await ModalController.changeIds(obj, this._attrName, add, remove);
+                            if (this._$removeAll && this._$removeAll.is(':checked')) {
+                                for (var obj of this._objs) {
+                                    var change = {};
+                                    change[this._attrName] = add;
+                                    await obj.update(change);
+                                }
+                            } else {
+                                for (var obj of this._objs)
+                                    await ModalController.changeIds(obj, this._attrName, add, remove);
+                            }
                         }
 
                         if (this._cb)

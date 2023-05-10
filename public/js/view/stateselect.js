@@ -235,14 +235,19 @@ class StateSelect {
                     conf = {
                         'name': modelName
                     };
-                    var rc = app.controller.getRouteController();
-                    var route = rc.getMatchingRoute(modelName);
-                    if (route && route['fn']) {
-                        conf['click'] = function (event, item) {
-                            var state = new State();
-                            state.typeString = modelName;
-                            app.controller.loadState(state, true);
-                        }.bind(this);
+                    var controller = app.getController();
+                    var rc = controller.getRouteController();
+                    var path = '/' + modelName;
+                    var res = rc.getMatchingRoute(path);
+                    if (res) {
+                        var route = res['route'];
+                        if (route && route['fn']) {
+                            conf['click'] = function (event, item) {
+                                var state = new State();
+                                state['customRoute'] = path;
+                                controller.loadState(state, true);
+                            }.bind(this);
+                        }
                     }
                     menuItem = new MenuItem(conf);
                     if (model && model === modelName)

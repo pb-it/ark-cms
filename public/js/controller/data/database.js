@@ -165,6 +165,10 @@ class Database {
             this._meta = {};
     }
 
+    isConnected() {
+        return this._db !== undefined && this._db !== null;
+    }
+
     getMetaData() {
         return this._meta;
     }
@@ -199,7 +203,10 @@ class Database {
     }
 
     getObjectStoreNames() {
-        return this._db.objectStoreNames;
+        var names;
+        if (this._db)
+            names = this._db.objectStoreNames;
+        return names;
     }
 
     async initObjectStore(name, data, timestamp) {

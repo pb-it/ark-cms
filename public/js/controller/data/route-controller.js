@@ -18,7 +18,7 @@ class RouteController {
                 if (route['regex'] && route['fn']) {
                     match = new RegExp(route['regex'], 'ig').exec(path);
                     if (match) {
-                        res = route;
+                        res = { 'route': route, 'match': match };
                         break;
                     }
                 }

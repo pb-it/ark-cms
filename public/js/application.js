@@ -6,6 +6,15 @@ class Application {
 
     constructor() {
         this.controller = new Controller(new Model(), new View());
+
+        window.addEventListener('load', async () => {
+            try {
+                //await loadScript('/public/js/test.js');
+            } catch (error) {
+                alert(error);
+            }
+            return Promise.resolve();
+        });
     }
 
     getName() {
@@ -68,11 +77,41 @@ window.onpopstate = async function (e) {
     }
 };
 
-$(document).keydown(async function (e) {
-    if (e.keyCode == 65 && e.ctrlKey) {
-        if (document.activeElement == document.body) {
-            e.preventDefault();
-            await app.controller.selectAll();
+$(document).keydown(async function (e) { // window.addEventListener('keydown', function() { ... });
+    if (app) {
+        var controller = app.getController();
+        if (controller) {
+            if (e.keyCode == 27) { // ESC
+                if (controller.getLoadingState()) {
+                    if (confirm('Abort loading?'))
+                        controller.setLoadingState(false);
+                }
+                // } else if (e.keyCode === 116) { // F5
+            } else if (e.keyCode == 65 && e.ctrlKey) { // STRG + R
+                e.preventDefault();
+
+                var mc = controller.getModalController();
+                var modals = mc.getModals();
+                if (modals) {
+                    var length = modals.length;
+                    if (length > 0) {
+                        var modal = modals[length - 1];
+                        controller.setLoadingState(true);
+                        try {
+                            await modal.getPanel().render();
+                            controller.setLoadingState(false);
+                        } catch (error) {
+                            controller.setLoadingState(false);
+                            controller.showError(error);
+                        }
+                    }
+                }
+            } else if (e.keyCode == 65 && e.ctrlKey) { // STRG + A
+                if (document.activeElement == document.body) {
+                    e.preventDefault();
+                    await controller.selectAll();
+                }
+            }
         }
     }
     return Promise.resolve();

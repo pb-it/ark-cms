@@ -112,53 +112,57 @@ class CachePanel extends TabPanel {
                 controller.setLoadingState(true);
 
             var $div = $('<div/>');
-            var $table = $('<table>');
-            var $row;
-            var $col;
-            var size;
-            var timestamp;
-            var $button;
+            if (this._db.isConnected()) {
+                var $table = $('<table>');
+                var arr = await this._db.getObjectStoreNames();
+                if (arr) {
+                    var $row;
+                    var $col;
+                    var size;
+                    var timestamp;
+                    var $button;
+                    var meta = this._db.getMetaData();
+                    for (var typeString of arr) {
+                        $row = $('<tr>');
+                        $col = $('<td>').text(typeString);
+                        $row.append($col);
 
-            var arr = await this._db.getObjectStoreNames();
-            var meta = this._db.getMetaData();
-            for (var typeString of arr) {
-                $row = $('<tr>');
-                $col = $('<td>').text(typeString);
-                $row.append($col);
+                        size = await this._db.count(typeString);
+                        $col = $('<td>').text(size);
+                        $row.append($col);
 
-                size = await this._db.count(typeString);
-                $col = $('<td>').text(size);
-                $row.append($col);
+                        timestamp = meta[typeString];
+                        $col = $('<td>').text(timestamp);
+                        $row.append($col);
 
-                timestamp = meta[typeString];
-                $col = $('<td>').text(timestamp);
-                $row.append($col);
+                        $col = $('<td>');
+                        $button = $('<button>')
+                            .text('Reload')
+                            .click(typeString, async function (event) {
+                                event.stopPropagation();
 
-                $col = $('<td>');
-                $button = $('<button>')
-                    .text('Reload')
-                    .click(typeString, async function (event) {
-                        event.stopPropagation();
+                                controller.setLoadingState(true);
+                                try {
+                                    await this._relaod(event.data);
+                                    controller.setLoadingState(false);
+                                } catch (error) {
+                                    controller.setLoadingState(false);
+                                    controller.showError(error);
+                                }
 
-                        controller.setLoadingState(true);
-                        try {
-                            await this._relaod(event.data);
-                            controller.setLoadingState(false);
-                        } catch (error) {
-                            controller.setLoadingState(false);
-                            controller.showError(error);
-                        }
+                                this._$databasePanel.render();
+                                return Promise.resolve();
+                            }.bind(this));
+                        $col.append($button);
+                        $row.append($col);
 
-                        this._$databasePanel.render();
-                        return Promise.resolve();
-                    }.bind(this));
-                $col.append($button);
-                $row.append($col);
-
-                $table.append($row);
-            }
-            $div.append($table);
-            $div.append("<br>");
+                        $table.append($row);
+                    }
+                }
+                $div.append($table);
+                $div.append("<br>");
+            } else
+                $div.append("Not connected!<br>");
 
             $button = $('<button>')
                 .text('Reload All')
@@ -169,11 +173,13 @@ class CachePanel extends TabPanel {
                     try {
                         //var meta = this._db.getMetaData();
                         var names = this._db.getObjectStoreNames();
-                        var promises = [];
-                        for (var x of names) {
-                            promises.push(this._relaod(x));
+                        if (names) {
+                            var promises = [];
+                            for (var x of names) {
+                                promises.push(this._relaod(x));
+                            }
+                            await Promise.all(promises);
                         }
-                        await Promise.all(promises);
                         controller.setLoadingState(false);
                     } catch (error) {
                         controller.setLoadingState(false);

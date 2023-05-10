@@ -202,11 +202,25 @@ class DataView {
                             case "file":
                                 if (data && data[name]) {
                                     if (attribute['storage'] == 'filesystem') {
-                                        if (attribute['cdn'])
-                                            value = CrudObject._buildUrl(attribute['cdn'], data[name]);
-                                        else
-                                            value = data[name];
-                                        $value.html("<a href='" + value + "' target='_blank'>" + data[name] + "</a><br>");
+                                        var fileName;
+                                        var x = data[name];
+                                        if (typeof (x) === 'string' || (x) instanceof String)
+                                            fileName = x;
+                                        else {
+                                            if (x['filename'])
+                                                fileName = x['filename'];
+                                            else if (x['url']) {
+                                                fileName = x['url'];
+                                                value = x['url'];
+                                            }
+                                        }
+                                        if (!value) {
+                                            if (attribute['cdn'])
+                                                value = CrudObject._buildUrl(attribute['cdn'], fileName);
+                                            else
+                                                value = fileName;
+                                        }
+                                        $value.html("<a href='" + value + "' target='_blank'>" + fileName + "</a><br>");
                                     } else if (attribute['storage'] == 'base64') {
                                         var filename;
                                         if (attribute['filename_prop'] && data[attribute['filename_prop']])
