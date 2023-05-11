@@ -31,7 +31,10 @@ class Cache {
     }
 
     async deleteModelCache(name) {
-        delete this._modelCacheArr[name];
+        if (name)
+            delete this._modelCacheArr[name];
+        else
+            this._modelCacheArr = [];
         return Promise.resolve();
     }
 

@@ -81,36 +81,43 @@ $(document).keydown(async function (e) { // window.addEventListener('keydown', f
     if (app) {
         var controller = app.getController();
         if (controller) {
-            if (e.keyCode == 27) { // ESC
-                if (controller.getLoadingState()) {
-                    if (confirm('Abort loading?'))
-                        controller.setLoadingState(false);
-                }
-                // } else if (e.keyCode === 116) { // F5
-            } else if (e.keyCode == 65 && e.ctrlKey) { // STRG + R
-                e.preventDefault();
+            if (e.ctrlKey) {
+                if (e.keyCode == 82) { // STRG + R
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                var mc = controller.getModalController();
-                var modals = mc.getModals();
-                if (modals) {
-                    var length = modals.length;
-                    if (length > 0) {
-                        var modal = modals[length - 1];
-                        controller.setLoadingState(true);
-                        try {
-                            await modal.getPanel().render();
-                            controller.setLoadingState(false);
-                        } catch (error) {
-                            controller.setLoadingState(false);
-                            controller.showError(error);
+                    var mc = controller.getModalController();
+                    var modals = mc.getModals();
+                    if (modals) {
+                        var length = modals.length;
+                        if (length > 0) {
+                            var modal = modals[length - 1];
+                            controller.setLoadingState(true);
+                            try {
+                                await controller.getDataService().getCache().deleteModelCache();
+                                await modal.getPanel().render();
+                                controller.setLoadingState(false);
+                            } catch (error) {
+                                controller.setLoadingState(false);
+                                controller.showError(error);
+                            }
                         }
                     }
+                } else if (e.keyCode == 65) { // STRG + A
+                    if (document.activeElement == document.body) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        await controller.selectAll();
+                    }
                 }
-            } else if (e.keyCode == 65 && e.ctrlKey) { // STRG + A
-                if (document.activeElement == document.body) {
-                    e.preventDefault();
-                    await controller.selectAll();
-                }
+            } else {
+                if (e.keyCode == 27) { // ESC
+                    if (controller.getLoadingState()) {
+                        if (confirm('Abort loading?'))
+                            controller.setLoadingState(false);
+                    }
+                } // else if (e.keyCode === 116) { // F5
             }
         }
     }

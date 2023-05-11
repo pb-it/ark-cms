@@ -110,9 +110,11 @@ class SideNavigationBar {
                     'style': 'iconbar',
                     'icon': "redo",
                     'tooltip': "Reload",
-                    'click': function (event, icon) {
+                    'click': async function (event, icon) {
                         this.close();
-                        app.getController().reloadState(event.ctrlKey);
+                        if (event.ctrlKey)
+                            await controller.getDataService().getCache().deleteModelCache();
+                        return controller.reloadState(event.ctrlKey);
                     }.bind(this)
                 };
                 menuItem = new MenuItem(conf);
@@ -125,7 +127,7 @@ class SideNavigationBar {
                     'click': async function (event, icon) {
                         this.close();
 
-                        return app.getController().getModalController().openPanelInModal(new NavigationPanel());
+                        return controller.getModalController().openPanelInModal(new NavigationPanel());
                     }.bind(this)
                 };
                 menuItem = new MenuItem(conf);
@@ -139,7 +141,7 @@ class SideNavigationBar {
                         this.close();
 
                         var config = { 'minWidth': '400px' };
-                        return app.getController().getModalController().openPanelInModal(new CachePanel(config));
+                        return controller.getModalController().openPanelInModal(new CachePanel(config));
                     }.bind(this)
                 };
                 menuItem = new MenuItem(conf);
