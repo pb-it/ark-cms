@@ -245,6 +245,19 @@ class SideNavigationBar {
             };
             menuItem = new MenuItem(conf);
             this._bottomIconBar.addMenuItem(menuItem);
+
+            conf = {
+                'style': 'iconbar',
+                'icon': "map",
+                'tooltip': "Routes",
+                'click': async function (event, icon) {
+                    this.close();
+
+                    return app.getController().getModalController().openPanelInModal(new ManageRoutesPanel());
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            this._bottomIconBar.addMenuItem(menuItem);
         }
 
         conf = {

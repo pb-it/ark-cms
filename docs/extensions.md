@@ -19,7 +19,7 @@ var route = {
         return Promise.resolve();
     }
 };
-app.controller.getRouteController().addRoute(route);
+app.getController().getRouteController().addRoute(route);
 ```
 
 

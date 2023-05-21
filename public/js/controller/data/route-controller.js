@@ -10,6 +10,10 @@ class RouteController {
         Promise.resolve();
     }
 
+    getAllRoutes() {
+        return this._routes;
+    }
+
     getMatchingRoute(path) {
         var res;
         var match;

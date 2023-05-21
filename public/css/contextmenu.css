@@ -46,6 +46,6 @@ ul.contextmenu ul {
     display: none;
 }
 
-ul.contextmenu li:hover ul {
+ul.contextmenu li:hover>div>ul {
     display: block;
 }

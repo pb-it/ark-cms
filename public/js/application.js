@@ -86,22 +86,24 @@ $(document).keydown(async function (e) { // window.addEventListener('keydown', f
                     e.preventDefault();
                     e.stopPropagation();
 
-                    var mc = controller.getModalController();
-                    var modals = mc.getModals();
-                    if (modals) {
-                        var length = modals.length;
-                        if (length > 0) {
-                            var modal = modals[length - 1];
-                            controller.setLoadingState(true);
-                            try {
-                                await controller.getDataService().getCache().deleteModelCache();
-                                await modal.getPanel().render();
-                                controller.setLoadingState(false);
-                            } catch (error) {
-                                controller.setLoadingState(false);
-                                controller.showError(error);
-                            }
+                    try {
+                        await controller.getDataService().getCache().deleteModelCache();
+                        var modal;
+                        var mc = controller.getModalController();
+                        var modals = mc.getModals();
+                        if (modals) {
+                            var length = modals.length;
+                            if (length > 0)
+                                modal = modals[length - 1];
                         }
+                        if (modal)
+                            await modal.getPanel().render();
+                        else
+                            await controller.reloadState(true);
+                        controller.setLoadingState(false);
+                    } catch (error) {
+                        controller.setLoadingState(false);
+                        controller.showError(error);
                     }
                 } else if (e.keyCode == 65) { // STRG + A
                     if (document.activeElement == document.body) {
