@@ -33,6 +33,14 @@ class Select {
         return this._typeString;
     }
 
+    getUpperBound() {
+        return this._iUpperBound;
+    }
+
+    getOptions() {
+        return this._options;
+    }
+
     setCreateData(createData) {
         this._createData = createData;
     }
@@ -227,8 +235,10 @@ class Select {
         var selected = this.getSelectedOptions();
         var bDisable = this._iUpperBound > 0 && selected.length >= this._iUpperBound;
 
-        this._$input.prop("disabled", bDisable);
-        this._$createButton.prop("disabled", bDisable);
+        if (this._$input)
+            this._$input.prop("disabled", bDisable);
+        if (this._$createButton)
+            this._$createButton.prop("disabled", bDisable);
 
         this._updateDatalist();
         await this._rerenderSelected();
@@ -236,13 +246,15 @@ class Select {
     }
 
     _updateDatalist() {
-        this._$datalist.empty();
-        if (this._options) {
-            var text;
-            var options = this._options.filter(function (x) { return !x.isSelected() });
-            for (var option of options) {
-                text = option.getName();
-                this._$datalist.append($("<option>").attr('value', text).text(text));
+        if (this._$datalist) {
+            this._$datalist.empty();
+            if (this._options) {
+                var text;
+                var options = this._options.filter(function (x) { return !x.isSelected() });
+                for (var option of options) {
+                    text = option.getName();
+                    this._$datalist.append($("<option>").attr('value', text).text(text));
+                }
             }
         }
     }
@@ -267,11 +279,13 @@ class Select {
     }
 
     async _rerenderSelected() {
-        this._$list.empty();
-        if (this._options) {
-            var selected = this._options.filter(function (x) { return x.isSelected() });
-            for (var sel of selected)
-                this._$list.append(await this._renderSelectedOption(sel));
+        if (this._$list) {
+            this._$list.empty();
+            if (this._options) {
+                var selected = this._options.filter(function (x) { return x.isSelected() });
+                for (var sel of selected)
+                    this._$list.append(await this._renderSelectedOption(sel));
+            }
         }
 
         if (this._cb) this._cb();

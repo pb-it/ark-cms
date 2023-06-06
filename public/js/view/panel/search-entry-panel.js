@@ -1,7 +1,9 @@
 class SearchEntryPanel extends Panel {
 
     _select;
+    _bExclusive;
     _modelName;
+    _iUpperBound;
     _optData;
 
     _filter;
@@ -14,14 +16,17 @@ class SearchEntryPanel extends Panel {
 
         this._select = select;
         this._modelName = this._select.getModelName();
+        this._iUpperBound = this._select.getUpperBound();
+        var options = this._select.getOptions();
+        this._optData = options.map(function (x) {
+            return x.getData();
+        })
         this._filter = [];
     }
 
     async _renderContent() {
         var $div = $('<div/>')
             .css({ 'padding': '10' });
-
-        this._optData = await app.controller.getDataService().fetchData(this._modelName);
 
         if (this._filter.length > 0) {
             if (this._optData && this._optData.length > 0) {
@@ -145,13 +150,15 @@ class SearchEntryPanel extends Panel {
 
                 var selected = app.getController().getSelected();
                 if (selected && selected.length > 0) {
-                    var data = selected.map(function (panel) {
-                        return panel.getObject().getData();
-                    });
-                    await this._select.addSelectedValues(data);
+                    if (this._iUpperBound == -1 || selected.length <= this._iUpperBound) {
+                        var data = selected.map(function (panel) {
+                            return panel.getObject().getData();
+                        });
+                        await this._select.addSelectedValues(data);
+                        this.dispose();
+                    } else
+                        alert("The number of items is limited to " + this._iUpperBound + "!")
                 }
-
-                this.dispose();
                 return Promise.resolve();
             }.bind(this))
         );
@@ -163,7 +170,7 @@ class SearchEntryPanel extends Panel {
         $div.bind("click", async function (e) {
             if (e.target == $div[0]) {
                 e.preventDefault();
-                await app.controller.clearSelected();
+                await app.getController().clearSelected();
             }
             return Promise.resolve();
         }.bind(this));
