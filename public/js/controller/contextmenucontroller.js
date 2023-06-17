@@ -59,6 +59,19 @@ class ContextMenuController {
         var entries = [];
         var obj = panel.getObject();
         var model = obj.getModel();
+        var controller = app.getController();
+
+        entries.push(new ContextMenuEntry("Reload", async function () {
+            controller.setLoadingState(true);
+            var objs = controller.getSelectedObjects();
+            if (!objs)
+                objs = [this._obj];
+            var ids = objs.map(function (x) { return x.getData()['id'] });
+            await controller.getDataService().fetchData('stars', ids, null, null, null, null, null, true);
+
+            var state = controller.getStateController().getState();
+            controller.loadState(state);
+        }.bind(panel)));
 
         var createGroup = [];
         var showGroup = [];
@@ -85,7 +98,7 @@ class ContextMenuController {
             }
 
             var createCsvEntry = new ContextMenuEntry("CSV", async function () {
-                return app.controller.getModalController().openPanelInModal(new CreateCsvPanel(model, this._obj.getAllItems()));
+                return controller.getModalController().openPanelInModal(new CreateCsvPanel(model, this._obj.getAllItems()));
             }.bind(panel));
             createGroup.push(createCsvEntry);
 
@@ -93,12 +106,12 @@ class ContextMenuController {
                 try {
                     await this._obj.save();
                 } catch (error) {
-                    app.controller.showError(error);
+                    controller.showError(error);
                 }
             }.bind(panel)));
         } else {
             var createCopyEntry = new ContextMenuEntry("Copy", async function () {
-                var items = app.controller.getSelected();
+                var items = controller.getSelected();
                 if (!items || (items.length == 1 && items[0] == this)) {
                     var data = { ...this._obj.getData() };
 
@@ -113,17 +126,17 @@ class ContextMenuController {
 
                     var panel = PanelController.createPanel(this._obj.getTypeString(), data, ActionEnum.create);
 
-                    await app.controller.getModalController().openPanelInModal(panel);
+                    await controller.getModalController().openPanelInModal(panel);
                 }
                 return Promise.resolve();
             }.bind(panel));
             createGroup.push(createCopyEntry);
 
             var createCsvEntry = new ContextMenuEntry("CSV", async function () {
-                var items = app.controller.getSelectedObjects();
+                var items = controller.getSelectedObjects();
                 if (!items)
                     items = [this._obj];
-                return app.controller.getModalController().openPanelInModal(new CreateCsvPanel(model, items));
+                return controller.getModalController().openPanelInModal(new CreateCsvPanel(model, items));
             }.bind(panel));
             createGroup.push(createCsvEntry);
         }
@@ -386,26 +399,60 @@ class ContextMenuController {
         }.bind(panel)));
 
         entries.push(new ContextMenuEntry("Delete", async function () {
-            var selected = app.controller.getSelected();
-            if (!selected || selected.length == 0 || (selected.length == 1 && selected[0] == this))
-                this.openInModal(ActionEnum.delete);
-            else {
-                var bConfirmation = await app.controller.getModalController().openConfirmModal("Delete all selected items?");
+            var controller = app.getController();
+            var selected = controller.getSelected();
+            if (!selected || selected.length == 0 || (selected.length == 1 && selected[0] == this)) {
+                var parentPanel = this.parent;
+                if (parentPanel && parentPanel.getClass() == CollectionPanel) {
+                    var obj = this.getObject();
+                    var oData = obj.getData();
+
+                    var model = obj.getModel();
+                    var mpcc = model.getModelPanelConfigController();
+                    var panelConfig = mpcc.getPanelConfig(ActionEnum.delete);
+                    var panel = PanelController.createPanelForObject(obj, panelConfig);
+                    panelConfig.crudCallback = async function (data) {
+                        if (obj.isDeleted()) {
+                            var cObj = parentPanel.getObject();
+                            cObj.deleteItem(oData);
+                            if (cObj.getId())
+                                await cObj.save();
+                        }
+                        return Promise.resolve(true);
+                    };
+                    var modal = await controller.getModalController().openPanelInModal(panel);
+                } else
+                    this.openInModal(ActionEnum.delete)
+            } else {
+                var bConfirmation = await controller.getModalController().openConfirmModal("Delete all selected items?");
                 if (bConfirmation) {
-                    app.controller.setLoadingState(true);
+                    controller.setLoadingState(true);
 
                     try {
-                        for (var i = 0; i < selected.length; i++) {
-                            await selected[i].getObject().delete();
+                        var parentPanel = this.parent;
+                        if (parentPanel && parentPanel.getClass() == CollectionPanel) {
+                            var cObj = parentPanel.getObject();
+                            var obj;
+                            for (var i = 0; i < selected.length; i++) {
+                                obj = selected[i].getObject();
+                                cObj.deleteItem(obj.getData());
+                                await obj.delete();
+                            }
+                            if (cObj.getId())
+                                await cObj.save();
+                        } else {
+                            for (var i = 0; i < selected.length; i++) {
+                                await selected[i].getObject().delete();
+                            }
                         }
 
-                        app.controller.setLoadingState(false);
+                        controller.setLoadingState(false);
                     } catch (error) {
-                        app.controller.setLoadingState(false);
-                        app.controller.showError(error);
+                        controller.setLoadingState(false);
+                        controller.showError(error);
                     }
 
-                    app.controller.reloadState();
+                    controller.reloadState();
                 }
             }
             return Promise.resolve();

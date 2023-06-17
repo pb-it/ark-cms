@@ -61,6 +61,7 @@ class CrudContainer extends CrudObject {
                 }
             }
         }
+        return Promise.resolve();
     }
 
     getCollectionType() {
@@ -139,5 +140,6 @@ class CrudContainer extends CrudObject {
             foo[prop] = list;
             await this.update(foo);
         }
+        return Promise.resolve();
     }
 }

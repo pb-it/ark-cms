@@ -588,7 +588,7 @@ class CrudPanel extends CanvasPanel {
             return Promise.resolve(true);
         }.bind(this);
 
-        await app.controller.getModalController().openPanelInModal(panel);
-        return Promise.resolve();
+        var modal = await app.controller.getModalController().openPanelInModal(panel);
+        return Promise.resolve(modal);
     }
 }

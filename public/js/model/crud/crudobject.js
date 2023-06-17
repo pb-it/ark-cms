@@ -287,6 +287,7 @@ class CrudObject {
     _title;
 
     _bIncomplete; //TODO: unused
+    _bDeleted;
 
     constructor(typeString, data) {
         this._typeString = typeString;
@@ -379,6 +380,10 @@ class CrudObject {
         return url;
     }
 
+    isDeleted() {
+        return this._bDeleted;
+    }
+
     async create(data) {
         if (!data)
             data = this._data;
@@ -411,7 +416,8 @@ class CrudObject {
 
     async delete() {
         var res = await this.request(ActionEnum.delete);
-        this.setData(null);
+        //this.setData(null);
+        this._bDeleted = true;
         return Promise.resolve(res);
     }
 
