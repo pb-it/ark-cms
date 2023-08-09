@@ -79,10 +79,48 @@ class ContextMenuController {
         var setGroup = [];
 
         ContextMenuController.addEntriesForAllAttributes(panel, showGroup, setGroup, addGroup);
+        /*if (controller.isInDebugMode()) {
+            //showGroup.add(...); //TODO: Add entry for model '_changes'
+        }*/
+
+        var createCopyEntry = new ContextMenuEntry("Copy", async function () {
+            var items = controller.getSelected();
+            if (!items || (items.length == 1 && items[0] == this)) {
+                var data = { ...this._obj.getData() };
+
+                var skeleton = this._obj.getSkeleton();
+                delete data['id'];
+                delete data['created_at'];
+                delete data['updated_at'];
+                for (var attr of skeleton) {
+                    if (attr['hidden'] || attr['readonly'] || attr['unique'])
+                        delete data[attr['name']];
+                }
+
+                var panel = PanelController.createPanel(this._obj.getTypeString(), data, ActionEnum.create);
+
+                await controller.getModalController().openPanelInModal(panel);
+            }
+            return Promise.resolve();
+        }.bind(panel));
+        createGroup.push(createCopyEntry);
+
+        var createCsvEntry = new ContextMenuEntry("CSV", async function () {
+            var items;
+            if (model.isCollection())
+                items = this._obj.getAllItems();
+            else {
+                items = controller.getSelectedObjects();
+                if (!items)
+                    items = [this._obj];
+            }
+            return controller.getModalController().openPanelInModal(new CreateCsvPanel(model, items));
+        }.bind(panel));
+        createGroup.push(createCsvEntry);
 
         if (model.isCollection()) {
             var data = obj.getData();
-            if (data.subtype && data.subtype == "playlist") {
+            if (data.subtype && data.subtype == "Playlist") {
                 var createPlaylistEntry = new ContextMenuEntry("Playlist File", async function () {
                     var objects = this._obj.getAllItems();
                     if (objects) {
@@ -97,11 +135,6 @@ class ContextMenuController {
                 createGroup.push(createPlaylistEntry);
             }
 
-            var createCsvEntry = new ContextMenuEntry("CSV", async function () {
-                return controller.getModalController().openPanelInModal(new CreateCsvPanel(model, this._obj.getAllItems()));
-            }.bind(panel));
-            createGroup.push(createCsvEntry);
-
             entries.push(new ContextMenuEntry("Save", async function () {
                 try {
                     await this._obj.save();
@@ -109,36 +142,6 @@ class ContextMenuController {
                     controller.showError(error);
                 }
             }.bind(panel)));
-        } else {
-            var createCopyEntry = new ContextMenuEntry("Copy", async function () {
-                var items = controller.getSelected();
-                if (!items || (items.length == 1 && items[0] == this)) {
-                    var data = { ...this._obj.getData() };
-
-                    var skeleton = this._obj.getSkeleton();
-                    delete data['id'];
-                    delete data['created_at'];
-                    delete data['updated_at'];
-                    for (var attr of skeleton) {
-                        if (attr['hidden'] || attr['readonly'] || attr['unique'])
-                            delete data[attr['name']];
-                    }
-
-                    var panel = PanelController.createPanel(this._obj.getTypeString(), data, ActionEnum.create);
-
-                    await controller.getModalController().openPanelInModal(panel);
-                }
-                return Promise.resolve();
-            }.bind(panel));
-            createGroup.push(createCopyEntry);
-
-            var createCsvEntry = new ContextMenuEntry("CSV", async function () {
-                var items = controller.getSelectedObjects();
-                if (!items)
-                    items = [this._obj];
-                return controller.getModalController().openPanelInModal(new CreateCsvPanel(model, items));
-            }.bind(panel));
-            createGroup.push(createCsvEntry);
         }
 
         var contextMenuExtensions = model.getContextMenuExtensionAction();
@@ -267,7 +270,7 @@ class ContextMenuController {
                                             }
                                         }
                                     }
-                                    if (scope && confirm('Keep current filter on \'' + name + '\'?')) {
+                                    if (scope && controller.getConfigController().experimentalFeaturesEnabled() && confirm('Keep current filter on \'' + name + '\'?')) {
                                         this.where = `id_in=${scope.substring(scope.indexOf('=') + 1)}&${this.where}`;
                                     }
                                     await controller.loadState(this, true);

@@ -204,6 +204,7 @@ class DataView {
                                     if (attribute['storage'] == 'filesystem') {
                                         var fileName;
                                         var x = data[name];
+                                        value = null;
                                         if (typeof (x) === 'string' || (x) instanceof String)
                                             fileName = x;
                                         else {

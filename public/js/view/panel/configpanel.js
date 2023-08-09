@@ -47,6 +47,7 @@ class ConfigPanel extends TabPanel {
                 this._data = {
                     'version': controller.getVersionController().getAppVersion(),
                     'api': controller.getApiController().getApiOrigin(),
+                    'bExperimentalFeatures': controller.getStorageController().loadLocal('bExperimentalFeatures') === 'true',
                     'bDebug': bDebug,
                     'bConfirmOnApply': bDebug || (controller.getStorageController().loadLocal('bConfirmOnApply') === 'true'),
                     'bConfirmOnLeave': controller.getStorageController().loadLocal('bConfirmOnLeave') === 'true',
@@ -56,6 +57,14 @@ class ConfigPanel extends TabPanel {
             var skeleton = [
                 { name: 'version', dataType: 'string', readonly: true },
                 { name: 'api', label: 'API', dataType: 'string' },
+                {
+                    name: 'bExperimentalFeatures',
+                    label: 'Enable Experimental Features',
+                    dataType: 'boolean',
+                    required: true,
+                    defaultValue: false,
+                    readonly: false
+                },
                 {
                     name: 'bDebug',
                     label: 'Debug Mode',
@@ -202,6 +211,7 @@ class ConfigPanel extends TabPanel {
                         cc.setDebugConfig(conf);
 
                         var sc = controller.getStorageController();
+                        sc.storeLocal('bExperimentalFeatures', fdata['bExperimentalFeatures']);
                         sc.storeLocal('bConfirmOnLeave', fdata['bConfirmOnLeave']);
                         sc.storeLocal('bConfirmOnApply', fdata['bConfirmOnApply']);
                         sc.storeLocal('bIndexedDB', fdata['bIndexedDB']);

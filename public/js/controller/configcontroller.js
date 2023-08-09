@@ -164,4 +164,8 @@ class ConfigController {
     confirmOnApply() {
         return app.controller.isInDebugMode() || (app.controller.getStorageController().loadLocal('bConfirmOnApply') === 'true');
     }
+
+    experimentalFeaturesEnabled() {
+        return app.controller.getStorageController().loadLocal('bExperimentalFeatures') === 'true';
+    }
 }

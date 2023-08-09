@@ -150,9 +150,21 @@ class DataService {
             if (!res) {
                 if (id && id.length > DataService.BLOCK_SIZE) {
                     typeUrl = [];
-                    var ids = new Array(Math.ceil(id.length / DataService.BLOCK_SIZE))
-                        .fill()
-                        .map(_ => id.splice(0, DataService.BLOCK_SIZE));
+                    var blockCount = Math.ceil(id.length / DataService.BLOCK_SIZE);
+                    var ids = new Array(blockCount);
+                    /*ids.fill()
+                        .map(_ => id.splice(0, DataService.BLOCK_SIZE)); //splice destroys id array */
+                    var start = 0;
+                    var length = DataService.BLOCK_SIZE;
+                    for (var i = 0; i < blockCount; i++) {
+                        if (i > 0)
+                            start = i * DataService.BLOCK_SIZE;
+                        if (i == blockCount - 1)
+                            length = id.length % DataService.BLOCK_SIZE;
+                        ids[i] = new Array(length);
+                        for (var j = 0; j < length; j++)
+                            ids[i][j] = id[start + j];
+                    }
                     for (var part of ids)
                         typeUrl.push(DataService._getUrl(typeString, part, where, sort, limit));
                 } else {
