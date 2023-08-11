@@ -17,8 +17,7 @@ class SearchEntryPanel extends Panel {
         this._select = select;
         this._modelName = this._select.getModelName();
         this._iUpperBound = this._select.getUpperBound();
-        var options = this._select.getOptions();
-        this._optData = options.map(function (x) {
+        this._optData = this._select.getOptions().map(function (x) {
             return x.getData();
         })
         this._filter = [];
@@ -28,18 +27,19 @@ class SearchEntryPanel extends Panel {
         var $div = $('<div/>')
             .css({ 'padding': '10' });
 
+        var options = this._optData;
         if (this._filter.length > 0) {
-            if (this._optData && this._optData.length > 0) {
+            if (options && options.length > 0) {
                 for (var filter of this._filter) {
                     if (typeof filter.query === 'string' || filter.query instanceof String) {
                         if (filter.query === '[Object]')
                             alert("cannot restore [Object] filter");
                         else if (filter.query.startsWith('{')) {
-                            Filter.filterObj(this._optData, new CrudObject(typeString, JSON.parse(filter.query)));
+                            Filter.filterObj(options, new CrudObject(typeString, JSON.parse(filter.query)));
                         } else
-                            this._optData = Filter.filterStr(this._modelName, this._optData, filter.query);
+                            options = Filter.filterStr(this._modelName, options, filter.query);
                     } else {
-                        this._optData = Filter.filterObj(this._optData, new CrudObject(typeString, filter.query));
+                        options = Filter.filterObj(options, new CrudObject(typeString, filter.query));
                     }
                 }
             }
@@ -85,7 +85,7 @@ class SearchEntryPanel extends Panel {
         this._$search = $('<input/>');
         if (this._search) {
             this._$search.val(this._search);
-            this._optData = Filter.filterStr(this._modelName, this._optData, this._search);
+            options = Filter.filterStr(this._modelName, options, this._search);
         }
         $div.append(this._$search);
 
@@ -105,16 +105,16 @@ class SearchEntryPanel extends Panel {
 
         $div.append('<br>');
 
-        if (this._optData && this._optData.length > 0) {
+        if (options && options.length > 0) {
             var model = app.controller.getModelController().getModel(this._modelName);
             var mpcc = model.getModelPanelConfigController();
             var panelConfig = mpcc.getPanelConfig();
 
             var opt;
-            if (this._optData.length > 10)
-                opt = [...this._optData].splice(0, 10);
+            if (options.length > 10)
+                opt = [...options].splice(0, 10);
             else
-                opt = this._optData;
+                opt = options;
 
             var $list = $('<ul/>');
             var obj, $li, $d, panel;
@@ -137,8 +137,8 @@ class SearchEntryPanel extends Panel {
             }
             $div.append($list);
 
-            if (this._optData.length > 10)
-                $div.append('Only first 10 of ' + this._optData.length + ' options shown!<br>');
+            if (options.length > 10)
+                $div.append('Only first 10 of ' + options.length + ' options shown!<br>');
         }
 
         $div.append($('<button/>')

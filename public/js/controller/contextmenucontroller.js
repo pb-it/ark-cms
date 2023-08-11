@@ -120,7 +120,7 @@ class ContextMenuController {
 
         if (model.isCollection()) {
             var data = obj.getData();
-            if (data.subtype && data.subtype == "Playlist") {
+            if (data.subtype && data.subtype == "playlist") {
                 var createPlaylistEntry = new ContextMenuEntry("Playlist File", async function () {
                     var objects = this._obj.getAllItems();
                     if (objects) {

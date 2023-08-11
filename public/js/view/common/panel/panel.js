@@ -34,24 +34,26 @@ class Panel {
     * @return   {jQuery object}         Panel
     */
     async render() {
-        this._$panel.hide();
-        this._$panel.empty();
+        if (this._$panel) {
+            this._$panel.hide();
+            this._$panel.empty();
 
-        await this._init();
+            await this._init();
 
-        try {
-            var content = await this._renderContent();
-            this._$panel.append(content);
-        } catch (error) {
-            if (error.hasOwnProperty('status') && error['status'] == 0)
-                app.controller.showError(error, "Connection lost");
-            else
-                app.controller.showError(error, "Rendering panel failed");
+            try {
+                var content = await this._renderContent();
+                this._$panel.append(content);
+            } catch (error) {
+                if (error.hasOwnProperty('status') && error['status'] == 0)
+                    app.controller.showError(error, "Connection lost");
+                else
+                    app.controller.showError(error, "Rendering panel failed");
+            }
+
+            await this._teardown();
+
+            this._$panel.show();
         }
-
-        await this._teardown();
-
-        this._$panel.show();
         return Promise.resolve(this._$panel);
     }
 

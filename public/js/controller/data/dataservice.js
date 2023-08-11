@@ -234,7 +234,7 @@ class DataService {
                 res = Filter.filterStr(typeString, res, search);
 
             if (bSort)
-                res = DataService.sortData(model, sort, res);
+                res = DataService.sortData(model, sort, [...res]);
 
             if (limit && limit != -1 && res.length > limit)
                 res = res.slice(0, limit);
