@@ -181,16 +181,69 @@ class Controller {
             this.setLoadingState(false);
         }
 
-        $(document).keyup(async function (e) {
-            if ((e.keyCode == 88 && e.ctrlKey) || e.keyCode == 27) { // strg+x or esc
-                var modals = this._modalController.getModals();
-                if (modals) {
-                    var length = modals.length;
-                    if (length > 0)
-                        await modals[length - 1]._closeOnConfirm();
+        $(document).keydown(async function (e) { // window.addEventListener('keydown', function() { ... });
+            if (e.ctrlKey) {
+                if (!e.shiftKey) {
+                    switch (e.keyCode) {
+                        case 65: // STRG + A
+                            if (document.activeElement == document.body) {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                await this.selectAll();
+                            }
+                            break;
+                        case 82: // STRG + R
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            try {
+                                await this.getDataService().getCache().deleteModelCache();
+                                var modal;
+                                var mc = this.getModalController();
+                                var modals = mc.getModals();
+                                if (modals) {
+                                    var length = modals.length;
+                                    if (length > 0)
+                                        modal = modals[length - 1];
+                                }
+                                if (modal) {
+                                    var panel = modal.getPanel();
+                                    if (panel instanceof CrudPanel) {
+                                        var data = await panel.getData();
+                                        await panel.setData(data);
+                                    } else
+                                        await panel.render();
+                                } else
+                                    await this.reloadState(true);
+                                this.setLoadingState(false);
+                            } catch (error) {
+                                this.setLoadingState(false);
+                                this.showError(error);
+                            }
+                            break;
+                        case 88: // STRG + X
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            await this.escape();
+                            break;
+                    }
                 }
-            }
-            return Promise.resolve();
+            } else if (e.shiftKey) {
+                if (e.keyCode == 63) { // SHIFT + ?
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var mc = this.getModalController();
+                    await mc.openPanelInModal(new HelpPanel());
+                }
+            } else if (e.keyCode == 27) { // ESC
+                e.preventDefault();
+                e.stopPropagation();
+
+                await this.escape();
+            } // else if (e.keyCode === 116) { // F5
         }.bind(this));
 
         this._bFirstLoadAfterInit = true;
@@ -520,5 +573,20 @@ class Controller {
             res = true;
         }
         return res;
+    }
+
+    async escape() {
+        if (this.getLoadingState()) {
+            if (confirm('Abort loading?'))
+                this.setLoadingState(false);
+        } else {
+            var modals = this._modalController.getModals();
+            if (modals) {
+                var length = modals.length;
+                if (length > 0)
+                    await modals[length - 1]._closeOnConfirm();
+            }
+        }
+        return Promise.resolve();
     }
 }

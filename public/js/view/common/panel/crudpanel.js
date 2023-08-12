@@ -285,6 +285,10 @@ class CrudPanel extends CanvasPanel {
         return Promise.resolve();
     }
 
+    async getData() {
+        return this._readData(false);
+    }
+
     async _readData(bValidate) {
         var data;
         if (this._form)

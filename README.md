@@ -93,13 +93,14 @@ See [changelog](./CHANGELOG.md)
 
 ## Task List
 
+- [ ] Help system / Wiki
 - [ ] Add user management/authentication (Sessions, ACLs, etc.)
-- [ ] History / Content versioning
-- [ ] Help system
-- [ ] Configureable dashboard
 - [ ] Language localization (L10N)
+- [ ] Copy and Paste
+- [ ] Configureable dashboard
 - [ ] Parse models from existing database
 - [ ] Table view
+- [ ] History / Content versioning
 
 
 ## Roadmap / Milestones
