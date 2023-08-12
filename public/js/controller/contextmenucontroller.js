@@ -66,8 +66,9 @@ class ContextMenuController {
             var objs = controller.getSelectedObjects();
             if (!objs)
                 objs = [this._obj];
+            var typeString = objs[0].getTypeString();
             var ids = objs.map(function (x) { return x.getData()['id'] });
-            await controller.getDataService().fetchData('stars', ids, null, null, null, null, null, true);
+            await controller.getDataService().fetchData(typeString, ids, null, null, null, null, null, true);
 
             var state = controller.getStateController().getState();
             controller.loadState(state);
