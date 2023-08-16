@@ -78,16 +78,19 @@ class ModalController {
     }
 
     async openPanelInModal(panel) {
-        app.controller.setLoadingState(true);
+        var controller = app.getController();
+        var bLoading = controller.getLoadingState();
+        controller.setLoadingState(true);
+
         var modal = this.addModal();
 
         try {
             await modal.openPanel(panel);
         } catch (error) {
-            app.controller.showError(error);
+            controller.showError(error);
         }
 
-        app.controller.setLoadingState(false);
+        controller.setLoadingState(bLoading);
         return Promise.resolve(modal);
     }
 
@@ -236,7 +239,6 @@ class ModalController {
                 .attr('cols', 80)
                 .val(JSON.stringify(obj, null, '\t'));
             $textarea.keydown(function (e) {
-                e.stopPropagation(); //https://www.rockyourcode.com/assertion-failed-input-argument-is-not-an-htmlinputelement/
                 if (e.keyCode == 9) { // TAB
                     e.preventDefault();
                     //TODO: ident selection
@@ -251,6 +253,8 @@ class ModalController {
                         input.focus();
                     }
                     return false;
+                } else if (e.keyCode == 13) { // ENTER
+                    e.stopPropagation(); //https://www.rockyourcode.com/assertion-failed-input-argument-is-not-an-htmlinputelement/
                 }
             }.bind($textarea));
             $div.append($textarea);

@@ -232,6 +232,9 @@ class Database {
                 db.deleteObjectStore(name);
             });
         }
+        delete this._meta[name];
+        var sc = app.getController().getStorageController();
+        sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
         return Promise.resolve();
     }
 

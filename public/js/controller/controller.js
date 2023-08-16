@@ -232,11 +232,14 @@ class Controller {
                 }
             } else if (e.shiftKey) {
                 if (e.keyCode == 63) { // SHIFT + ?
-                    e.preventDefault();
-                    e.stopPropagation();
+                    var activeElement = e.currentTarget.activeElement;
+                    if (activeElement && activeElement.nodeType == 1 && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase())) {
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                    var mc = this.getModalController();
-                    await mc.openPanelInModal(new HelpPanel());
+                        var mc = this.getModalController();
+                        await mc.openPanelInModal(new HelpPanel());
+                    }
                 }
             } else if (e.keyCode == 27) { // ESC
                 e.preventDefault();

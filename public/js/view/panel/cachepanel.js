@@ -137,6 +137,25 @@ class CachePanel extends TabPanel {
 
                         $col = $('<td>');
                         $button = $('<button>')
+                            .text('Clear')
+                            .click(typeString, async function (event) {
+                                event.stopPropagation();
+
+                                controller.setLoadingState(true);
+                                try {
+                                    await this._db.deleteObjectStore(event.data);
+                                    await this._cache.deleteModelCache(event.data);
+                                    controller.setLoadingState(false);
+                                } catch (error) {
+                                    controller.setLoadingState(false);
+                                    controller.showError(error);
+                                }
+
+                                this._$databasePanel.render();
+                                return Promise.resolve();
+                            }.bind(this));
+                        $col.append($button);
+                        $button = $('<button>')
                             .text('Reload')
                             .click(typeString, async function (event) {
                                 event.stopPropagation();

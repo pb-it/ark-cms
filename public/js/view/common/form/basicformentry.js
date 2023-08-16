@@ -176,19 +176,21 @@ class BasicFormEntry extends FormEntry {
                         var $input;
                         var $label;
                         var v;
+                        var id;
                         for (var o of options) {
                             v = o['value'];
+                            id = this._id + '-' + v;
                             $input = $('<input/>')
                                 .attr('type', 'radio')
                                 .attr('name', this._id)
-                                .attr('id', v)
+                                .attr('id', id)
                                 .val(v)
                                 .prop('disabled', o['disabled'])
                                 .prop('checked', (value === v));
                             this._$input.append($input);
 
                             $label = $('<label/>')
-                                .attr('for', v)
+                                .attr('for', id)
                                 .text(v);
                             if (o['tooltip'])
                                 $label.attr('title', o['tooltip']);
@@ -315,7 +317,6 @@ class BasicFormEntry extends FormEntry {
                         .attr('cols', cols)
                         .val(value);
                     this._$input.keydown(function (e) {
-                        e.stopPropagation(); //https://www.rockyourcode.com/assertion-failed-input-argument-is-not-an-htmlinputelement/
                         if (e.keyCode == 9) { // TAB
                             e.preventDefault();
                             //TODO: ident selection
@@ -331,6 +332,7 @@ class BasicFormEntry extends FormEntry {
                             }
                             return false;
                         } else if (e.keyCode == 13) { // ENTER
+                            e.stopPropagation(); //https://www.rockyourcode.com/assertion-failed-input-argument-is-not-an-htmlinputelement/
                             if (this._$syntax && this._$syntax.val() === 'markdown') {
                                 var input = this._$input[0];
                                 if (input.selectionStart != undefined && input.selectionStart >= '0') {

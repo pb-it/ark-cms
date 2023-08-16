@@ -136,7 +136,7 @@ class State {
 
                 var purl = "";
                 if (state.where)
-                    purl += "&" + state.where;
+                    purl += "&" + encodeURI(state.where); // preserve reserved characters($ & + , / : ; = ? @) - replaceAll('%', '%25');
                 if (state.sort)
                     purl += "&_sort=" + encodeURIComponent(state.sort);
                 if (state.limit)
