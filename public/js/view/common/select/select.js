@@ -182,7 +182,7 @@ class Select {
                             alert("failed!");
                         }
                     }
-                } else
+                } else if (e.originalEvent.inputType === 'insertReplacementText') //'insertText','deleteContentBackward',...
                     this._checkInput();
 
                 return Promise.resolve();
