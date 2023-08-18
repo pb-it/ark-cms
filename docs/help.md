@@ -1,7 +1,11 @@
-### keyboard shortcuts / hotkeys
+### Keyboard Shortcuts / Hotkeys
 
-* hard refresh: <kbd>Ctrl</kbd> + <kbd>R</kbd>
+* Hard Refresh: <kbd>Ctrl</kbd> + <kbd>R</kbd>
 
 > ⚠️**CAUTION**⚠️
 >
 > If the focus is not on the document then the browser will apply its default action for the shortcut!
+
+* Settings: <kbd>Ctrl</kbd> + <kbd>,</kbd>
+
+* Debug: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd>

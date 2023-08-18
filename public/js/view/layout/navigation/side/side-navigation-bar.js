@@ -182,7 +182,7 @@ class SideNavigationBar {
             menuItem = new MenuItem(conf);
             this._topIconBar.addMenuItem(menuItem);
 
-            if (controller.isInDebugMode()) {
+            if (controller.isInDebugMode() && controller.getConfigController().experimentalFeaturesEnabled()) {
                 conf = {
                     'style': 'iconbar',
                     'icon': "bookmark",

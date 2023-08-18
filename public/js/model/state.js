@@ -111,18 +111,26 @@ class State {
                 url = state['customRoute'];
             else if (state.typeString) {
                 url = "/data/" + state.typeString;
+                var purl = "";
+
                 if (state.action) {
                     switch (state.action) {
                         case ActionEnum.create:
                             url += "/new";
                             break;
                         case ActionEnum.read:
-                            if (state.id)
-                                url += "/" + state.id
+                            if (state['id']) {
+                                if (Array.isArray(state['id']))
+                                    purl += "&id_in=" + state['id'].join(',');
+                                else
+                                    url += "/" + state.id;
+                            }
                             break;
                         case ActionEnum.update:
-                            if (state.id)
-                                url += "/" + state.id + "/edit";
+                            if (state['id'] && !Array.isArray(state['id']))
+                                url += "/" + state['id'] + "/edit";
+                            else
+                                throw new Error('Invalid state!');
                             break;
                         case ActionEnum.delete:
                             //TODO:
@@ -130,15 +138,18 @@ class State {
                         default:
                     }
                 } else {
-                    if (state.id)
-                        url += "/" + state.id
+                    if (state['id']) {
+                        if (Array.isArray(state['id']))
+                            purl += "&id_in=" + state['id'].join(',');
+                        else
+                            url += "/" + state.id;
+                    }
                 }
 
-                var purl = "";
                 if (state.where)
                     purl += "&" + encodeURI(state.where); // preserve reserved characters($ & + , / : ; = ? @) - replaceAll('%', '%25');
                 if (state.sort)
-                    purl += "&_sort=" + encodeURIComponent(state.sort);
+                    purl += "&_sort=" + encodeURI(state.sort);
                 if (state.limit)
                     purl += "&_limit=" + state.limit;
                 if (state.filters && state.filters.length > 0) {
@@ -151,7 +162,7 @@ class State {
                 }
 
                 if (state.search)
-                    purl += "&_search=" + encodeURIComponent(state.search);
+                    purl += "&_search=" + encodeURI(state.search);
                 if (purl.length > 0)
                     url = `${url}?${purl.substring(1)}`;
             } else

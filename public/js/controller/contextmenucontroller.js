@@ -74,6 +74,21 @@ class ContextMenuController {
             controller.loadState(state);
         }.bind(panel)));
 
+        entries.push(new ContextMenuEntry("Copy", async function () {
+            if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+                var objs = controller.getSelectedObjects();
+                if (!objs)
+                    objs = [this._obj];
+                var state = new State();
+                state.typeString = objs[0].getTypeString();
+                state.id = objs.map(function (x) { return x.getData()['id'] });
+                var text = window.location.origin + State.getUrlFromState(state);
+                await navigator.clipboard.writeText(text);
+            } else
+                this.showErrorMessage('The Clipboard API is not available!');
+            return Promise.resolve();
+        }.bind(panel)));
+
         var createGroup = [];
         var showGroup = [];
         var addGroup = [];

@@ -489,18 +489,14 @@ class CrudPanel extends CanvasPanel {
             var state = new State();
             state.typeString = this._obj.getTypeString();
 
-            var selected = app.controller.getSelectedObjects();
+            var selected = app.getController().getSelectedObjects();
             if (selected) {
-                if (selected.length == 1) {
-                    state.id = selected[0].getData().id;
-                } else {
-                    var params = [];
-                    for (var item of selected)
-                        params.push("id=" + item.getData().id);
-                    state.setQuery(params);
-                }
+                if (selected.length == 1)
+                    state.id = selected[0].getData()['id'];
+                else if (selected.length > 0)
+                    state.id = selected.map(function (x) { return x.getData()['id'] });
             } else
-                state.id = this._obj.getData().id;
+                state.id = this._obj.getData()['id'];
 
             event.originalEvent.dataTransfer.setData("text/plain", window.location.origin + State.getUrlFromState(state));
         }
@@ -541,28 +537,14 @@ class CrudPanel extends CanvasPanel {
                     if (droptype === "collections") {
                         alert("NotImplementedException");
                     } else if (droptype === this._obj.getCollectionType()) {
-                        var ids = [];
-                        if (state['id']) {
-                            ids.push(state['id']);
-                        } else if (url['search']) {
-                            var urlParams = new URLSearchParams(url['search']);
-                            var arr = urlParams.getAll('id');
-                            var id;
-                            for (var str of arr) {
-                                id = parseInt(str);
-                                if (isNaN(id)) {
-                                    alert("invalid data!");
-                                    return Promise.reject();
-                                } else
-                                    ids.push(id);
-                            }
-                        } else
-                            alert("invalid data!");
-
+                        var controller = app.getController();
                         try {
-                            var items = await app.controller.getDataService().fetchObjectById(droptype, ids);
+                            controller.setLoadingState(true);
+                            var items = await app.controller.getDataService().fetchDataByState(state);
                             this.addItems(items);
+                            controller.setLoadingState(false);
                         } catch (err) {
+                            controller.setLoadingState(false);
                             alert("failed!");
                         }
                     } else {

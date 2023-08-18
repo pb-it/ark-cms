@@ -96,7 +96,6 @@ See [changelog](./CHANGELOG.md)
 - [ ] Help system / Wiki
 - [ ] Add user management/authentication (Sessions, ACLs, etc.)
 - [ ] Language localization (L10N)
-- [ ] Copy and Paste
 - [ ] Configureable dashboard
 - [ ] Parse models from existing database
 - [ ] Table view

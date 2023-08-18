@@ -143,39 +143,48 @@ class Select {
             }.bind(this))
             .on('input', async function (e) {
                 e.preventDefault();
-                if (e.originalEvent.inputType === "insertReplacementText")
-                    this._checkInput();
-                else if (e.originalEvent.inputType === "insertFromDrop") {
-                    var data = e.originalEvent.data;
-                    if (data && (data.startsWith('http://') || data.startsWith('https://'))) {
-                        var url = new URL(data);
-                        var state = State.getStateFromUrl(url);
-                        if (state && state['typeString'] && state['typeString'] === this._typeString) {
-                            if (state.id) {
-                                if (!this.setSelected(state.id, true))
-                                    alert('ID:' + state.id + ' not found!');
-                            } else {
-                                var urlParams = new URLSearchParams(url.search); //state.where
 
-                                var arr = urlParams.getAll('id');
-                                var id;
-                                for (var str of arr) {
-                                    id = parseInt(str);
-                                    if (isNaN(id)) {
-                                        alert("Invalid data!");
-                                        return Promise.reject();
+                if (e.originalEvent.inputType == 'insertFromPaste' || e.originalEvent.inputType === 'insertFromDrop') {
+                    var str = this._$input.val();
+                    if (str && (str.startsWith('http://') || str.startsWith('https://'))) {
+                        var controller = app.getController();
+                        try {
+                            controller.setLoadingState(true);
+                            var url = new URL(str);
+                            var state = State.getStateFromUrl(url);
+                            if (state && state['typeString'] && state['typeString'] === this._typeString) {
+                                this._$input.val('');
+
+                                var data = await app.getController().getDataService().fetchDataByState(state);
+                                if (data) {
+                                    if (Array.isArray(data)) {
+                                        if (data.length > 0) {
+                                            var nok = [];
+                                            for (var item of data) {
+                                                if (!this.setSelected(item['id'], true))
+                                                    nok.push(item['id']);
+                                            }
+                                            if (nok.length > 0)
+                                                alert('IDs:' + nok.join(',') + ' not found!');
+                                        }
                                     } else {
-                                        if (!this.setSelected(id, true))
-                                            alert('ID:' + id + ' not found!');
+                                        if (!this.setSelected(data['id'], true))
+                                            alert('ID:' + data['id'] + ' not found!');
                                     }
                                 }
+                                await this._update();
+                                this._$input.blur(); //removes focus - closes datalist dropdown
+                                this._$input.focus();
                             }
-                            this._$input.val('');
-                            await this._update();
+                            controller.setLoadingState(false);
+                        } catch (err) {
+                            controller.setLoadingState(false);
+                            alert("failed!");
                         }
                     }
-                }
-                //"insertText","deleteContentBackward",...
+                } else
+                    this._checkInput();
+
                 return Promise.resolve();
             }.bind(this))
             .bind('keydown', function (e) { //keypress keydown keyup paste
@@ -269,9 +278,9 @@ class Select {
             }
         }
         if (match) {
+            this._$input.val('');
             match.setSelected(true);
             await this._update();
-            this._$input.val('');
             this._$input.blur(); //removes focus - closes datalist dropdown
             this._$input.focus();
         }

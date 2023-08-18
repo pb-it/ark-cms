@@ -185,15 +185,50 @@ class Controller {
             if (e.ctrlKey) {
                 if (!e.shiftKey) {
                     switch (e.keyCode) {
-                        case 65: // STRG + A
+                        case 65: // Ctrl + a
                             if (document.activeElement == document.body) {
                                 e.preventDefault();
                                 e.stopPropagation();
 
-                                await this.selectAll();
+                                try {
+                                    await this.selectAll();
+                                } catch (error) {
+                                    this.showError(error);
+                                }
                             }
                             break;
-                        case 82: // STRG + R
+                        case 67: // Ctrl + c
+                            var activeElement = e.currentTarget.activeElement;
+                            if (activeElement && activeElement.nodeType == 1 && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase())) {
+                                e.preventDefault();
+                                e.stopPropagation();
+
+                                //window.clipboardData.setData('text', '');
+                                //e.clipboardData.setData('text', '');
+                                try {
+                                    /*var result = await navigator.permissions.query({ name: "write-on-clipboard" });
+                                    if (result.state == "granted" || result.state == "prompt")*/
+                                    if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+                                        var text;
+
+                                        var selected = app.getController().getSelectedObjects();
+                                        if (selected && selected.length > 0) {
+                                            var state = new State();
+                                            state.typeString = selected[0].getTypeString();
+                                            state.id = selected.map(function (x) { return x.getData()['id'] });
+
+                                            text = window.location.origin + State.getUrlFromState(state);
+                                        }
+
+                                        await navigator.clipboard.writeText(text);
+                                    } else
+                                        this.showErrorMessage('The Clipboard API is not available!');
+                                } catch (error) {
+                                    this.showError(error);
+                                }
+                            }
+                            break;
+                        case 82: // Ctrl + r
                             e.preventDefault();
                             e.stopPropagation();
 
@@ -222,32 +257,73 @@ class Controller {
                                 this.showError(error);
                             }
                             break;
-                        case 88: // STRG + X
+                        case 88: // Ctrl + x
                             e.preventDefault();
                             e.stopPropagation();
 
-                            await this.escape();
+                            try {
+                                await this.escape();
+                            } catch (error) {
+                                this.showError(error);
+                            }
                             break;
+                        case 188: // Ctrl + ,
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            try {
+                                if (!this.getLoadingState())
+                                    await this.getModalController().openPanelInModal(new ConfigPanel());
+                            } catch (error) {
+                                this.showError(error);
+                            }
+                            break;
+                    }
+                } else {
+                    switch (e.keyCode) {
+                        case 68: // Ctrl + Shift + d
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            try {
+                                if (!this.getLoadingState()) {
+                                    var config = { 'minWidth': '400px' };
+                                    await this.getModalController().openPanelInModal(new CachePanel(config));
+                                }
+                                break;
+                            } catch (error) {
+                                this.showError(error);
+                            }
                     }
                 }
             } else if (e.shiftKey) {
-                if (e.keyCode == 63) { // SHIFT + ?
+                if (e.keyCode == 63) { // Shift + ?
                     var activeElement = e.currentTarget.activeElement;
                     if (activeElement && activeElement.nodeType == 1 && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase())) {
                         e.preventDefault();
                         e.stopPropagation();
 
-                        var mc = this.getModalController();
-                        await mc.openPanelInModal(new HelpPanel());
+                        try {
+                            var mc = this.getModalController();
+                            await mc.openPanelInModal(new HelpPanel());
+                        } catch (error) {
+                            this.showError(error);
+                        }
                     }
                 }
-            } else if (e.keyCode == 27) { // ESC
+            } else if (e.keyCode == 27) { // Esc
                 e.preventDefault();
                 e.stopPropagation();
 
-                await this.escape();
+                try {
+                    await this.escape();
+                } catch (error) {
+                    this.showError(error);
+                }
             } // else if (e.keyCode === 116) { // F5
         }.bind(this));
+
+        //$(document).on('copy', function(e) { ... }); //document.addEventListener('copy', ...);
 
         this._bFirstLoadAfterInit = true;
         return Promise.resolve(bInitDone);
@@ -257,10 +333,18 @@ class Controller {
         return this._bConnection;
     }
 
-    async navigate(path) {
+    async navigate(url) {
         try {
-            var state = State.getStateFromPath(path);
-            await this.loadState(state, true);
+            var path;
+            if (url.startsWith('/'))
+                path = url;
+            else if (url.startsWith(window.location.origin))
+                path = url.substring(window.location.origin.length);
+            if (path) {
+                var state = State.getStateFromPath(path);
+                await this.loadState(state, true);
+            } else
+                this.showErrorMessage('Invalid destination!');
         } catch (error) {
             this.showError(error);
         }
