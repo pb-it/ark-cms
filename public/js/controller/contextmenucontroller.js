@@ -75,17 +75,11 @@ class ContextMenuController {
         }.bind(panel)));
 
         entries.push(new ContextMenuEntry("Copy", async function () {
-            if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
-                var objs = controller.getSelectedObjects();
-                if (!objs)
-                    objs = [this._obj];
-                var state = new State();
-                state.typeString = objs[0].getTypeString();
-                state.id = objs.map(function (x) { return x.getData()['id'] });
-                var text = window.location.origin + State.getUrlFromState(state);
-                await navigator.clipboard.writeText(text);
-            } else
-                this.showErrorMessage('The Clipboard API is not available!');
+            try {
+                await controller.copy();
+            } catch (error) {
+                controller.showError(error);
+            }
             return Promise.resolve();
         }.bind(panel)));
 
@@ -147,9 +141,51 @@ class ContextMenuController {
                         }
                         FileCreator.createFileFromText("playlist.m3u", text);
                     }
+                    return Promise.resolve();
                 }.bind(panel));
                 createGroup.push(createPlaylistEntry);
             }
+
+            entries.push(new ContextMenuEntry("Paste", async function (e) {
+                try {
+                    var text;
+                    if (window.location.protocol == 'https:') {
+                        if (navigator && navigator.clipboard && navigator.clipboard.readText)
+                            text = await navigator.clipboard.readText();
+                        else
+                            this.showErrorMessage('The Clipboard API is not available!');
+                    } else if (false && document.queryCommandSupported('paste')) {//TODO:
+                        var div = document.createElement('div');
+                        div.contentEditable = true;
+                        var elem = document.activeElement.appendChild(div).parentNode;
+                        div.focus();
+                        document.execCommand('paste', null, null);
+                        text = div.innerText;
+                        elem.removeChild(div);
+                    } else
+                        this.showErrorMessage('Paste operation failed!');
+                    if (text) {
+                        if (text.startsWith('http')) {
+                            var url = new URL(str);
+                            var state = State.getStateFromUrl(url);
+                            if (state && state['typeString'] && state['typeString'] === this._obj.getCollectionType()) {
+                                try {
+                                    controller.setLoadingState(true);
+                                    var items = await controller.getDataService().fetchDataByState(state);
+                                    this.addItems(items);
+                                    controller.setLoadingState(false);
+                                } catch (err) {
+                                    controller.setLoadingState(false);
+                                    controller.showError(error);
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    controller.showError(error);
+                }
+                return Promise.resolve();
+            }.bind(panel)));
 
             entries.push(new ContextMenuEntry("Save", async function () {
                 try {
@@ -157,6 +193,7 @@ class ContextMenuController {
                 } catch (error) {
                     controller.showError(error);
                 }
+                return Promise.resolve();
             }.bind(panel)));
         }
 
@@ -185,7 +222,7 @@ class ContextMenuController {
             var sorted = [...attributes].sort((a, b) => a.name.localeCompare(b.name));
 
             var objs;
-            var selected = app.controller.getSelectedObjects();
+            var selected = app.getController().getSelectedObjects();
             if (selected && selected.length > 0)
                 objs = selected;
             else
@@ -206,13 +243,13 @@ class ContextMenuController {
                         if (attr['model']) {
                             backLink = null;
 
-                            if (attr.multiple) {
-                                if (attr.via)
-                                    backLink = attr.via;
+                            if (attr['multiple']) {
+                                if (attr['via'])
+                                    backLink = attr['via'];
                             }
 
                             if (!backLink) {
-                                var relModel = app.controller.getModelController().getModel(attr.model);
+                                var relModel = app.getController().getModelController().getModel(attr.model);
                                 var relAttributes = relModel.getModelAttributesController().getAttributes();
                                 if (relAttributes) {
                                     for (var relAttr of relAttributes) {
@@ -256,11 +293,8 @@ class ContextMenuController {
                                     }
                                 }
                                 var ids = Array.from(map.keys());
-                                if (ids.length > 0) {
-                                    for (var id of ids) {
-                                        params.push("id=" + id);
-                                    }
-                                }
+                                if (ids.length > 0)
+                                    params.push("id_in=" + ids.join(','));
                             }
 
                             if (params.length > 0) {
@@ -306,7 +340,7 @@ class ContextMenuController {
                                     if (attr['hidden'] && backLink) {
                                         entry = new ContextMenuEntry(attr['name'], function () {
                                             var panel = PanelController.createPanel(attr['model'], this, ActionEnum.create);
-                                            return app.controller.getModalController().openPanelInModal(panel);
+                                            return app.getController().getModalController().openPanelInModal(panel);
                                         }.bind(data));
                                         addGroup.push(entry);
                                     } else {
@@ -319,7 +353,7 @@ class ContextMenuController {
                                         }.bind(panel));
 
                                         entry = new ContextMenuEntry(attr.name, async function () {
-                                            return app.controller.getModalController().openPanelInModal(this);
+                                            return app.getController().getModalController().openPanelInModal(this);
                                         }.bind(addPanel));
                                         addGroup.push(entry);
                                     }
@@ -341,8 +375,8 @@ class ContextMenuController {
                             skeleton = [attr];
                         var panel = new FormPanel(null, skeleton);
                         panel.setApplyAction(async function (p) {
-                            app.controller.setLoadingState(true);
-
+                            var controller = app.getController();
+                            controller.setLoadingState(true);
                             try {
                                 var data = await p.getForm().readForm(false);
 
@@ -353,15 +387,14 @@ class ContextMenuController {
                                         obj.getData()[attr['name']] = data[attr['name']];
                                 }
 
-                                app.controller.setLoadingState(false);
+                                controller.setLoadingState(false);
                             } catch (error) {
-                                app.controller.setLoadingState(false);
-                                app.controller.showError(error);
+                                controller.setLoadingState(false);
+                                controller.showError(error);
                             }
-
                             return Promise.resolve(true);
                         });
-                        return app.controller.getModalController().openPanelInModal(panel);
+                        return app.getController().getModalController().openPanelInModal(panel);
                     }.bind(panel));
                     setGroup.push(entry);
                 }
@@ -372,7 +405,7 @@ class ContextMenuController {
     static appendCrudContextMenuEntries(panel, entries) {
         var openGroup = [];
         var openInNewTabEntry = new ContextMenuEntry("Open in new Tab", function () {
-            var items = app.controller.getSelected();
+            var items = app.getController().getSelected();
             if (!items || (items.length == 1 && items[0] == this)) {
                 this.openInNewTab(ActionEnum.read);
             } else {
@@ -383,18 +416,20 @@ class ContextMenuController {
                 var win = window.open(url, '_blank');
                 win.focus();
             }
+            return Promise.resolve();
         }.bind(panel));
         openGroup.push(openInNewTabEntry);
 
         if (panel.getClass() == MediaPanel) {
-            var openThumbnailEntry = new ContextMenuEntry("Open Thumbnail", function () {
-                this.openThumbnail();
+            var openThumbnailEntry = new ContextMenuEntry("Open Thumbnail", async function () {
+                return this.openThumbnail();
             }.bind(panel));
             openGroup.push(openThumbnailEntry);
         }
 
-        entries.push(new ContextMenuEntry("Open >", function () {
-            var items = app.controller.getSelected();
+        entries.push(new ContextMenuEntry("Open >", async function () {
+            var controller = app.getController();
+            var items = controller.getSelected();
             var state = new State();
             if (!items || (items.length == 1 && items[0] == this)) {
                 state.typeString = this._obj.getTypeString();
@@ -406,15 +441,15 @@ class ContextMenuController {
                 state.typeString = items[0].getObject().getTypeString();
                 state.id = ids;
             }
-            app.controller.loadState(state, true);
+            return controller.loadState(state, true);
         }.bind(panel), openGroup));
 
-        entries.push(new ContextMenuEntry("Details", function () {
-            this.openInModal(ActionEnum.read);
+        entries.push(new ContextMenuEntry("Details", async function () {
+            return this.openInModal(ActionEnum.read);
         }.bind(panel)));
 
-        entries.push(new ContextMenuEntry("Edit", function () {
-            this.openInModal(ActionEnum.update);
+        entries.push(new ContextMenuEntry("Edit", async function () {
+            return this.openInModal(ActionEnum.update);
         }.bind(panel)));
 
         entries.push(new ContextMenuEntry("Delete", async function () {
@@ -477,10 +512,10 @@ class ContextMenuController {
             return Promise.resolve();
         }.bind(panel)));
 
-        if (app.controller.isInDebugMode()) {
+        if (app.getController().isInDebugMode()) {
             var debugGroup = [];
             var jsonEntry = new ContextMenuEntry("JSON", function () {
-                return app.controller.getModalController().openPanelInModal(new JsonPanel(this.getObject().getData()));
+                return app.getController().getModalController().openPanelInModal(new JsonPanel(this.getObject().getData()));
             }.bind(panel));
             debugGroup.push(jsonEntry);
 

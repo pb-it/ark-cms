@@ -199,32 +199,21 @@ class Controller {
                             break;
                         case 67: // Ctrl + c
                             var activeElement = e.currentTarget.activeElement;
-                            if (activeElement && activeElement.nodeType == 1 && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase())) {
-                                e.preventDefault();
-                                e.stopPropagation();
+                            if (activeElement && activeElement == document.body) { //activeElement.nodeType == 1 && !['input', 'textarea'].includes(activeElement.tagName.toLowerCase()
+                                var text;
+                                if (window.getSelection)
+                                    text = window.getSelection().toString();
+                                else if (document.selection && document.selection.type != "Control")
+                                    text = document.selection.createRange().text;
+                                if (!text) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
 
-                                //window.clipboardData.setData('text', '');
-                                //e.clipboardData.setData('text', '');
-                                try {
-                                    /*var result = await navigator.permissions.query({ name: "write-on-clipboard" });
-                                    if (result.state == "granted" || result.state == "prompt")*/
-                                    if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
-                                        var text;
-
-                                        var selected = app.getController().getSelectedObjects();
-                                        if (selected && selected.length > 0) {
-                                            var state = new State();
-                                            state.typeString = selected[0].getTypeString();
-                                            state.id = selected.map(function (x) { return x.getData()['id'] });
-
-                                            text = window.location.origin + State.getUrlFromState(state);
-                                        }
-
-                                        await navigator.clipboard.writeText(text);
-                                    } else
-                                        this.showErrorMessage('The Clipboard API is not available!');
-                                } catch (error) {
-                                    this.showError(error);
+                                    try {
+                                        await this.copy();
+                                    } catch (error) {
+                                        this.showError(error);
+                                    }
                                 }
                             }
                             break;
@@ -672,6 +661,42 @@ class Controller {
                 var length = modals.length;
                 if (length > 0)
                     await modals[length - 1]._closeOnConfirm();
+            }
+        }
+        return Promise.resolve();
+    }
+
+    async copy() {
+        var text;
+        var selected = app.getController().getSelectedObjects();
+        if (selected && selected.length > 0) {
+            var state = new State();
+            state.typeString = selected[0].getTypeString();
+            state.id = selected.map(function (x) { return x.getData()['id'] });
+            text = window.location.origin + State.getUrlFromState(state);
+        }
+        if (text) {
+            if (window.location.protocol == 'https:') {
+                /*var result = await navigator.permissions.query({ name: "write-on-clipboard" });
+                if (result.state == "granted" || result.state == "prompt")*/
+                if (navigator && navigator.clipboard && navigator.clipboard.writeText)
+                    await navigator.clipboard.writeText(text);
+                else
+                    this.showErrorMessage('The Clipboard API is not available!');
+            } else if (document.queryCommandSupported('copy')) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'absolute';
+                textArea.style.left = '-999999px';
+                document.body.prepend(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                } catch (error) {
+                    this.showError(error);
+                } finally {
+                    textArea.remove();
+                }
             }
         }
         return Promise.resolve();

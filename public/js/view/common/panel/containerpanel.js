@@ -15,17 +15,20 @@ class ContainerPanel extends CrudPanel {
 
     async _renderContent() {
         var $div;
-        switch (this._config.details) {
-            case DetailsEnum.all:
-                $div = await super._renderContent();
-                break;
-            case DetailsEnum.title:
-                $div = await super._renderContent();
-                if (!this._config.action || this._config.action == ActionEnum.read)
-                    $div.append(await this._renderList());
-                break;
-            case DetailsEnum.none:
-        }
+        if (this._config.details) {
+            switch (this._config.details) {
+                case DetailsEnum.all:
+                    $div = await super._renderContent();
+                    break;
+                case DetailsEnum.title:
+                    $div = await super._renderContent();
+                    if (!this._config.action || this._config.action == ActionEnum.read)
+                        $div.append(await this._renderList());
+                    break;
+                case DetailsEnum.none:
+            }
+        } else
+            $div = await super._renderContent();
         return Promise.resolve($div);
     }
 

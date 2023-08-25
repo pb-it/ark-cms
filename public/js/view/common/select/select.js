@@ -155,7 +155,7 @@ class Select {
                             if (state && state['typeString'] && state['typeString'] === this._typeString) {
                                 this._$input.val('');
 
-                                var data = await app.getController().getDataService().fetchDataByState(state);
+                                var data = await controller.getDataService().fetchDataByState(state);
                                 if (data) {
                                     if (Array.isArray(data)) {
                                         if (data.length > 0) {
@@ -179,7 +179,7 @@ class Select {
                             controller.setLoadingState(false);
                         } catch (err) {
                             controller.setLoadingState(false);
-                            alert("failed!");
+                            controller.showError(error);
                         }
                     }
                 } else if (e.originalEvent.inputType === 'insertReplacementText') //'insertText','deleteContentBackward',...

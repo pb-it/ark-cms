@@ -244,7 +244,8 @@ class CrudPanel extends CanvasPanel {
 
                 var data = await this._readData(false);
                 data = await fn.call(this, data);
-                await this.setData(data);
+                if (data)
+                    await this.setData(data);
             } catch (error) {
                 app.controller.showError(error)
             }

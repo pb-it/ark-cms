@@ -59,6 +59,8 @@ class CanvasPanel extends Panel {
         this._$panel.on("click.panel", async function (event) {
             event.preventDefault();
             event.stopPropagation();
+            window.getSelection()?.removeAllRanges(); //TODO: close side navigation bar
+
             //if (event.target == this._$panel[0]) {
             await app.controller.select(event.ctrlKey, event.shiftKey, this);
             this._clicks++;
