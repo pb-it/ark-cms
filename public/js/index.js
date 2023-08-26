@@ -33,7 +33,11 @@ async function loadScript(url) {
         script.async = false;
 
         script.onload = () => resolve();
-        script.onerror = () => reject(new Error("Error while loading '" + url + "'"));
+        script.onerror = function (err) {
+            alert("Error while loading '" + url + "'");
+            //console.error(err);
+            reject(err);
+        }
         //script.onreadystatechange
 
         document.head.append(script);

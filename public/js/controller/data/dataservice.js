@@ -68,8 +68,6 @@ class DataService {
             else
                 url += "/" + id;
         }
-        if (where)
-            query += "&" + where;
         if (!id && !sort) {
             var model = app.controller.getModelController().getModel(typeString);
             if (model)
@@ -77,12 +75,9 @@ class DataService {
             else
                 throw new Error("Model '" + typeString + "' is not defined");
         }
-        if (sort)
-            query += "&_sort=" + sort;
         if (!id && !limit)
             limit = "-1";
-        if (limit)
-            query += "&_limit=" + limit;
+        query += "&" + State.createSearchParamString(where, sort, limit);
         if (query.length > 0)
             url += "?" + query.substring(1);
         return url;

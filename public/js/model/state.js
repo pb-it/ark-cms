@@ -1,5 +1,35 @@
 class State {
 
+    static createSearchParamString(where, sort, limit, filters, search) {
+        var str = "";
+        if (where) {
+            var parts = where.split('&');
+            var index;
+            for (var part of parts) {
+                index = part.indexOf('=');
+                if (index == -1)
+                    str += '&' + part;
+                else
+                    str += '&' + part.substring(0, index) + '=' + encodeURIComponent(part.substring(index + 1));
+            }
+        }
+        if (sort)
+            str += "&_sort=" + encodeURI(sort); // preserve reserved characters($ & + , / : ; = ? @) - replaceAll('%', '%25');
+        if (limit)
+            str += "&_limit=" + limit;
+        if (filters && filters.length > 0) {
+            for (var filter of filters) {
+                if (typeof filter.query === 'string' || filter.query instanceof String)
+                    str += "&_filter=" + encodeURIComponent(filter.query);
+                else
+                    str += "&_filter=[Object]"; //JSON.stringify(state.filter)
+            }
+        }
+        if (search)
+            str += "&_search=" + encodeURIComponent(search);
+        return str;
+    }
+
     static getStateFromUrl(url) {
         if (!url)
             url = window.location;
@@ -145,24 +175,7 @@ class State {
                             url += "/" + state.id;
                     }
                 }
-
-                if (state.where)
-                    purl += "&" + encodeURI(state.where); // preserve reserved characters($ & + , / : ; = ? @) - replaceAll('%', '%25');
-                if (state.sort)
-                    purl += "&_sort=" + encodeURI(state.sort);
-                if (state.limit)
-                    purl += "&_limit=" + state.limit;
-                if (state.filters && state.filters.length > 0) {
-                    for (var filter of state.filters) {
-                        if (typeof filter.query === 'string' || filter.query instanceof String)
-                            purl += "&_filter=" + encodeURIComponent(filter.query);
-                        else
-                            purl += "&_filter=[Object]"; //JSON.stringify(state.filter)
-                    }
-                }
-
-                if (state.search)
-                    purl += "&_search=" + encodeURI(state.search);
+                purl += State.createSearchParamString(state.where, state.sort, state.limit, state.filters, state.search);
                 if (purl.length > 0)
                     url = `${url}?${purl.substring(1)}`;
             } else
