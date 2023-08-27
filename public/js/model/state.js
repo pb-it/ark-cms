@@ -3,7 +3,7 @@ class State {
     static createSearchParamString(where, sort, limit, filters, search) {
         var str = "";
         if (where) {
-            var parts = where.split('&');
+            /*var parts = where.split('&');
             var index;
             for (var part of parts) {
                 index = part.indexOf('=');
@@ -11,7 +11,8 @@ class State {
                     str += '&' + part;
                 else
                     str += '&' + part.substring(0, index) + '=' + encodeURIComponent(part.substring(index + 1));
-            }
+            }*/
+            str += "&" + where;
         }
         if (sort)
             str += "&_sort=" + encodeURI(sort); // preserve reserved characters($ & + , / : ; = ? @) - replaceAll('%', '%25');
@@ -118,9 +119,9 @@ class State {
                     }
                     else {
                         if (state.where)
-                            state.where = `${state.where}&${decodeURIComponent(part)}`;
+                            state.where = `${state.where}&${part}`;
                         else
-                            state.where = decodeURIComponent(part);
+                            state.where = part;
                     }
                 });
             }
