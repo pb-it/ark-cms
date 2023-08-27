@@ -64,13 +64,13 @@ class ContainerPanel extends CrudPanel {
         }.bind(this));
     }
 
-    addItems(item) {
+    async addItems(item) {
         this._obj.addItems(item);
-        this.render();
+        return this.render();
     }
 
-    deleteItem(item) {
+    async deleteItem(item) {
         this._obj.deleteItem(item);
-        this.render();
+        return this.render();
     }
 }

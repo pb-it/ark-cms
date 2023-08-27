@@ -514,7 +514,8 @@ class CrudPanel extends CanvasPanel {
             var url = new URL(str);
             var state = State.getStateFromUrl(url);
             if (state) {
-                var droptype = state.typeString;
+                var controller = app.getController();
+                var droptype = state['typeString'];
                 var model = this._obj.getModel();
                 if (this._config.getPanelClass() == MediaPanel) {
                     var id = state.id;
@@ -525,7 +526,7 @@ class CrudPanel extends CanvasPanel {
                     var prop = model.getModelDefaultsController().getDefaultThumbnailProperty();
                     if (prop) {
                         if (droptype === "contents") {
-                            var bConfirmation = await app.controller.getModalController().openConfirmModal("Change thumbnail?");
+                            var bConfirmation = await controller.getModalController().openConfirmModal("Change thumbnail?");
                             if (bConfirmation) {
                                 var obj = new Object();
                                 obj[prop] = id;
@@ -538,11 +539,16 @@ class CrudPanel extends CanvasPanel {
                     if (droptype === "collections") {
                         alert("NotImplementedException");
                     } else if (droptype === this._obj.getCollectionType()) {
-                        var controller = app.getController();
                         try {
                             controller.setLoadingState(true);
-                            var items = await app.controller.getDataService().fetchDataByState(state);
-                            this.addItems(items);
+                            var data = await controller.getDataService().fetchDataByState(state);
+                            if (data && data.length > 0) {
+                                var items = [];
+                                for (var x of data) {
+                                    items.push(new CrudObject(droptype, x));
+                                }
+                                await this.addItems(items);
+                            }
                             controller.setLoadingState(false);
                         } catch (err) {
                             controller.setLoadingState(false);

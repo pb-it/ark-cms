@@ -149,11 +149,11 @@ class ContextMenuController {
             entries.push(new ContextMenuEntry("Paste", async function (e) {
                 try {
                     var text;
-                    if (window.location.protocol == 'https:') {
+                    if (window.location.protocol == 'https:' || window.location.hostname == 'localhost') {
                         if (navigator && navigator.clipboard && navigator.clipboard.readText)
                             text = await navigator.clipboard.readText();
                         else
-                            this.showErrorMessage('The Clipboard API is not available!');
+                            controller.showErrorMessage('The Clipboard API is not available!');
                     } else if (false && document.queryCommandSupported('paste')) {//TODO:
                         var div = document.createElement('div');
                         div.contentEditable = true;
@@ -163,20 +163,31 @@ class ContextMenuController {
                         text = div.innerText;
                         elem.removeChild(div);
                     } else
-                        this.showErrorMessage('Paste operation failed!');
+                        controller.showErrorMessage('Paste operation failed!');
                     if (text) {
                         if (text.startsWith('http')) {
                             var url = new URL(str);
                             var state = State.getStateFromUrl(url);
-                            if (state && state['typeString'] && state['typeString'] === this._obj.getCollectionType()) {
-                                try {
-                                    controller.setLoadingState(true);
-                                    var items = await controller.getDataService().fetchDataByState(state);
-                                    this.addItems(items);
-                                    controller.setLoadingState(false);
-                                } catch (err) {
-                                    controller.setLoadingState(false);
-                                    controller.showError(error);
+                            var typeString = this._obj.getCollectionType();
+                            if (state) {
+                                var droptype = state['typeString'];
+                                if (droptype === this._obj.getCollectionType()) {
+                                    try {
+                                        controller.setLoadingState(true);
+                                        var items;
+                                        var data = await controller.getDataService().fetchDataByState(state);
+                                        if (data && data.length > 0) {
+                                            var items = [];
+                                            for (var x of data) {
+                                                items.push(new CrudObject(droptype, x));
+                                            }
+                                            await this.addItems(items);
+                                        }
+                                        controller.setLoadingState(false);
+                                    } catch (err) {
+                                        controller.setLoadingState(false);
+                                        controller.showError(error);
+                                    }
                                 }
                             }
                         }

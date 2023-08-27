@@ -82,10 +82,10 @@ class CrudContainer extends CrudObject {
                 var id;
                 var exists;
                 for (var item of items) {
-                    id = item.id;
+                    id = item['id'];
                     exists = false;
                     for (var i = 0; i < this._items.length; i++) {
-                        if (this._items[i].getData().id === id) {
+                        if (this._items[i].getData()['id'] === id) {
                             exists = true;
                             break;
                         }
@@ -98,10 +98,10 @@ class CrudContainer extends CrudObject {
                 this._items = items;
         } else {
             if (this._items) {
-                var id = items.id;
+                var id = items['id'];
                 var exists = false;
                 for (var i = 0; i < this._items.length; i++) {
-                    if (this._items[i].getData().id === id) {
+                    if (this._items[i].getData()['id'] === id) {
                         exists = true;
                         break;
                     }
@@ -116,9 +116,9 @@ class CrudContainer extends CrudObject {
 
     deleteItem(item) {
         if (this._items) {
-            var id = item.id;
+            var id = item['id'];
             for (var i = 0; i < this._items.length; i++) {
-                if (this._items[i].getData().id === id) {
+                if (this._items[i].getData()['id'] === id) {
                     this._items.splice(i, 1);
                     break;
                 }
@@ -130,7 +130,7 @@ class CrudContainer extends CrudObject {
         var arr = [];
         if (this._items) {
             for (var i = 0; i < this._items.length; i++) {
-                arr.push(this._items[i].getData().id);
+                arr.push(this._items[i].getData()['id']);
             }
         }
         var list = arr.join(",");
