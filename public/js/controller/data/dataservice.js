@@ -79,7 +79,7 @@ class DataService {
             limit = "-1";
         var tmp = State.createSearchParamString(where, sort, limit);
         if (tmp)
-            query += "&" + tmp;
+            query += tmp;
         if (query.length > 0)
             url += "?" + query.substring(1);
         return url;

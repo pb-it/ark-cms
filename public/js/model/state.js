@@ -178,7 +178,7 @@ class State {
                 }
                 var tmp = State.createSearchParamString(state.where, state.sort, state.limit, state.filters, state.search);
                 if (tmp)
-                    purl += '&' + tmp;
+                    purl += tmp;
                 if (purl.length > 0)
                     url = `${url}?${purl.substring(1)}`;
             } else
