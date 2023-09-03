@@ -166,9 +166,8 @@ class ContextMenuController {
                         controller.showErrorMessage('Paste operation failed!');
                     if (text) {
                         if (text.startsWith('http')) {
-                            var url = new URL(str);
+                            var url = new URL(text);
                             var state = State.getStateFromUrl(url);
-                            var typeString = this._obj.getCollectionType();
                             if (state) {
                                 var droptype = state['typeString'];
                                 if (droptype === this._obj.getCollectionType()) {
@@ -176,15 +175,20 @@ class ContextMenuController {
                                         controller.setLoadingState(true);
                                         var items;
                                         var data = await controller.getDataService().fetchDataByState(state);
-                                        if (data && data.length > 0) {
-                                            var items = [];
-                                            for (var x of data) {
-                                                items.push(new CrudObject(droptype, x));
-                                            }
-                                            await this.addItems(items);
+                                        if (data) {
+                                            if (Array.isArray(data)) {
+                                                if (data.length > 0) {
+                                                    var items = [];
+                                                    for (var x of data) {
+                                                        items.push(new CrudObject(droptype, x));
+                                                    }
+                                                    await this.addItems(items);
+                                                }
+                                            } else
+                                                await this.addItems(new CrudObject(droptype, data));
                                         }
                                         controller.setLoadingState(false);
-                                    } catch (err) {
+                                    } catch (error) {
                                         controller.setLoadingState(false);
                                         controller.showError(error);
                                     }

@@ -499,7 +499,11 @@ class CrudPanel extends CanvasPanel {
             } else
                 state.id = this._obj.getData()['id'];
 
-            event.originalEvent.dataTransfer.setData("text/plain", window.location.origin + State.getUrlFromState(state));
+            var url = window.location.origin + State.getUrlFromState(state);
+            //console.log(url);
+            event.originalEvent.dataTransfer.setData("text/plain", url);
+            event.originalEvent.dataTransfer.dropEffect = 'copy'; // 'move'
+
         }
         return Promise.resolve();
     }
@@ -536,27 +540,32 @@ class CrudPanel extends CanvasPanel {
                         }
                     }
                 } else if (model.isCollection()) {
-                    if (droptype === "collections") {
+                    if (droptype === "collections")
                         alert("NotImplementedException");
-                    } else if (droptype === this._obj.getCollectionType()) {
+                    else if (droptype === this._obj.getCollectionType()) {
                         try {
                             controller.setLoadingState(true);
+                            var items;
                             var data = await controller.getDataService().fetchDataByState(state);
-                            if (data && data.length > 0) {
-                                var items = [];
-                                for (var x of data) {
-                                    items.push(new CrudObject(droptype, x));
-                                }
-                                await this.addItems(items);
+                            if (data) {
+                                if (Array.isArray(data)) {
+                                    if (data.length > 0) {
+                                        var items = [];
+                                        for (var x of data) {
+                                            items.push(new CrudObject(droptype, x));
+                                        }
+                                        await this.addItems(items);
+                                    }
+                                } else
+                                    await this.addItems(new CrudObject(droptype, data));
                             }
                             controller.setLoadingState(false);
-                        } catch (err) {
+                        } catch (error) {
                             controller.setLoadingState(false);
-                            alert("failed!");
+                            controller.showError(error);
                         }
-                    } else {
+                    } else
                         alert("type not supported by the collection");
-                    }
                 }
             }
         }

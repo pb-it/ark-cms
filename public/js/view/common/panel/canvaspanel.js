@@ -118,6 +118,9 @@ class CanvasPanel extends Panel {
     }
 
     async _drop(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        return Promise.resolve();
     }
 
     setLazy(bLazy) {
