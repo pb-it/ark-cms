@@ -230,7 +230,7 @@ class DataService {
             if (search)
                 res = Filter.filterStr(typeString, res, search);
 
-            if (bSort)
+            if (bSort || (id && Array.isArray(id) && sort))
                 res = DataService.sortData(model, sort, [...res]);
 
             if (limit && limit != -1 && res.length > limit)
