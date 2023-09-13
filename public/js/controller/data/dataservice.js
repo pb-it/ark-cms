@@ -69,7 +69,7 @@ class DataService {
                 url += "/" + id;
         }
         if (!id && !sort) {
-            var model = app.controller.getModelController().getModel(typeString);
+            var model = app.getController().getModelController().getModel(typeString);
             if (model)
                 sort = model.getModelDefaultsController().getDefaultSort();
             else
@@ -119,58 +119,33 @@ class DataService {
 
     async fetchData(typeString, id, where, sort, limit, filters, search, bIgnoreCache) {
         var res;
+        var tmp;
         var typeUrl;
         var sortlessUrl;
+        var bSort = false;
         var model = app.controller.getModelController().getModel(typeString);
         var cache = this._cache.getModelCache(typeString);
         if (!cache)
             cache = await this._cache.createModelCache(typeString);
 
-        if (bIgnoreCache)
-            typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
-        else {
-            var bSort = false;
+        if (!bIgnoreCache) {
             if (id) {
-                res = cache.getEntry(id);
-                if (Array.isArray(id) && id.length != res.length)
-                    res = null;
-            } else
-                res = await cache.getCompleteRecordSet();
-            if (res) {
-                if (where)
-                    res = null; //TODO: apply where - consider '_null='
-
-                if (sort)
-                    bSort = true;
-            }
-
-            if (!res) {
-                if (id && id.length > DataService.BLOCK_SIZE) {
-                    typeUrl = [];
-                    var blockCount = Math.ceil(id.length / DataService.BLOCK_SIZE);
-                    var ids = new Array(blockCount);
-                    /*ids.fill()
-                        .map(_ => id.splice(0, DataService.BLOCK_SIZE)); //splice destroys id array */
-                    var start = 0;
-                    var length = DataService.BLOCK_SIZE;
-                    for (var i = 0; i < blockCount; i++) {
-                        if (i > 0)
-                            start = i * DataService.BLOCK_SIZE;
-                        if (i == blockCount - 1)
-                            length = id.length % DataService.BLOCK_SIZE;
-                        ids[i] = new Array(length);
-                        for (var j = 0; j < length; j++)
-                            ids[i][j] = id[start + j];
-                    }
-                    for (var part of ids)
-                        typeUrl.push(DataService._getUrl(typeString, part, where, sort, limit));
-                } else {
-                    typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
-                    res = cache.getUrl(typeUrl);
-                    if (!res && sort) {
-                        sortlessUrl = DataService._getUrl(typeString, id, where, null, limit);
-                        res = cache.getUrl(sortlessUrl);
-                        if (res)
+                tmp = cache.getEntry(id);
+                if (tmp && (!Array.isArray(id) || id.length == tmp.length))
+                    res = tmp;
+            } else {
+                typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
+                res = cache.getUrl(typeUrl);
+                if (!res && sort) {
+                    sortlessUrl = DataService._getUrl(typeString, id, where, null, limit);
+                    res = cache.getUrl(sortlessUrl);
+                    if (res)
+                        bSort = true;
+                }
+                if (!res && !where) { //TODO: apply where - consider '_null='
+                    res = await cache.getCompleteRecordSet();
+                    if (res) {
+                        if (sort)
                             bSort = true;
                     }
                 }
@@ -178,12 +153,37 @@ class DataService {
         }
 
         if (!res) {
-            var timestamp;
             if (model.getDefinition()['bConfirmFullFetch'] && !id && !where && (!limit || limit == -1)) {
                 if (!confirm('Continue fetching all \'' + typeString + '\'?'))
                     throw new Error('Aborted');
             }
 
+            if (id && id.length > DataService.BLOCK_SIZE) {
+                typeUrl = [];
+                var blockCount = Math.ceil(id.length / DataService.BLOCK_SIZE);
+                var ids = new Array(blockCount);
+                /*ids.fill()
+                    .map(_ => id.splice(0, DataService.BLOCK_SIZE)); //splice destroys id array */
+                var start = 0;
+                var length = DataService.BLOCK_SIZE;
+                for (var i = 0; i < blockCount; i++) {
+                    if (i > 0)
+                        start = i * DataService.BLOCK_SIZE;
+                    if (i == blockCount - 1)
+                        length = id.length % DataService.BLOCK_SIZE;
+                    ids[i] = new Array(length);
+                    for (var j = 0; j < length; j++)
+                        ids[i][j] = id[start + j];
+                }
+                for (var part of ids)
+                    typeUrl.push(DataService._getUrl(typeString, part, where, sort, limit));
+            } else if (!typeUrl) {
+                typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
+                if (sort)
+                    sortlessUrl = DataService._getUrl(typeString, id, where, null, limit);
+            }
+
+            var timestamp;
             if (Array.isArray(typeUrl)) {
                 res = [];
                 for (var url of typeUrl) {
