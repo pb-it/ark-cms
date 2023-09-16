@@ -389,6 +389,7 @@ class CrudObject {
             data = this._data;
         data = await this.request(ActionEnum.create, data);
         this.setData(data);
+        await this._updateRelations(null, data);
         return Promise.resolve(data);
     }
 
@@ -400,8 +401,11 @@ class CrudObject {
 
     async update(data) {
         if (!this._model.getDefinition()['options']['increments'] || this._data['id']) {
+            var oldData = this._data;
+            var newData = data;
             data = await this.request(ActionEnum.update, data);
             this.setData(data);
+            await this._updateRelations(oldData, newData);
         } else {
             for (const [key, value] of Object.entries(data)) {
                 if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length == 0))
@@ -418,7 +422,65 @@ class CrudObject {
         var res = await this.request(ActionEnum.delete);
         //this.setData(null);
         this._bDeleted = true;
+        await this._updateRelations(this._data);
         return Promise.resolve(res);
+    }
+
+    async _updateRelations(oldData, newData) {
+        var ac = this._model.getModelAttributesController();
+        var ds = app.getController().getDataService();
+        var attribute;
+        if (oldData) {
+            if (newData) {
+                var bFound;
+                var changed;
+                for (const [key, value] of Object.entries(newData)) {
+                    attribute = ac.getAttribute(key);
+                    if (attribute && attribute['dataType'] === 'relation') {
+                        changed = [];
+                        for (var item of oldData[key]) {
+                            bFound = false;
+                            for (var x of value) {
+                                if (item['id'] == x) {
+                                    bFound = true;
+                                    break;
+                                }
+                            }
+                            if (!bFound)
+                                changed.push(item['id']);
+                        }
+                        for (var item of value) {
+                            bFound = false;
+                            for (var x of oldData[key]) {
+                                if (item == x['id']) {
+                                    bFound = true;
+                                    break;
+                                }
+                            }
+                            if (!bFound)
+                                changed.push(item);
+                        }
+                        console.log(changed);
+                        await ds.fetchData(attribute['model'], changed, null, null, null, null, null, true);
+                    }
+                }
+            } else {
+                for (const [key, value] of Object.entries(oldData)) {
+                    attribute = ac.getAttribute(key);
+                    if (attribute && attribute['dataType'] === 'relation') {
+                        await ds.fetchData(attribute['model'], value.map(function (x) { return x['id'] }), null, null, null, null, null, true);
+                    }
+                }
+            }
+        } else {
+            for (const [key, value] of Object.entries(newData)) {
+                attribute = ac.getAttribute(key);
+                if (attribute && attribute['dataType'] === 'relation') {
+                    await ds.fetchData(attribute['model'], value.map(function (x) { return x['id'] }), null, null, null, null, null, true);
+                }
+            }
+        }
+        return Promise.resolve();
     }
 
     async request(action, data) {
@@ -441,6 +503,6 @@ class CrudObject {
                 }
             }
         }
-        return await app.controller.getDataService().request(this.getTypeString(), action, id, data);
+        return await app.getController().getDataService().request(this.getTypeString(), action, id, data);
     }
 }

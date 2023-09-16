@@ -38,6 +38,7 @@ See [Task List](#Task-List) or [Roadmap / Milestones](#Roadmap--Milestones) for 
 
 
 #### Installation
+
 ```bash
 npm install
 ```
@@ -51,6 +52,7 @@ By default the application uses port 4000.
 
 
 #### Run
+
 ```bash
 npm run start
 ```
@@ -63,12 +65,14 @@ Browse 'http://localhost:4000'
 
 
 #### Build
+
 ```bash
 docker build . -t <image name>
 ```
 
 
 #### Run
+
 ```bash
 docker run -p 4000:4000 -d <image name>
 ```
@@ -78,6 +82,22 @@ or
 ```bash
 # with interactive bash
 docker run -p 4000:4000 -it <image name> /bin/bash
+```
+
+## Tests
+
+**_PREREQUISITE:_** If not included or already installed setup driver(geckodriver) for your desired browser.
+
+> ℹ️ **_NOTE:_** Using Firefox installation via Snap might cause troubles! There might also occur problems with executeScript/executeAsyncScript functions when using firefox. Hence I recommend to use Chrome for testing.
+
+Create an profile for your browser (firefox: `about:profiles`, chrome: `chrome://version`).
+
+Adapt test configuration `./tests/config.js`
+
+```bash
+# npm install --only=dev
+# sudo npm install -g mocha
+npm run test
 ```
 
 

@@ -37,7 +37,11 @@ class TestHelper {
 
     async getButton(element, text) {
         var button;
-        var elements = await element.findElements(webdriver.By.xpath(`//button[text()="${text}"]`));
+        var elements;
+        if (text == 'Create')
+            elements = await element.findElements(webdriver.By.xpath(`//button[text()="${text}" and not(ancestor::div[@class="formentry"])]`));
+        else
+            elements = await element.findElements(webdriver.By.xpath(`//button[text()="${text}"]`));
         if (elements && elements.length == 1)
             button = elements[0];
         return Promise.resolve(button);
