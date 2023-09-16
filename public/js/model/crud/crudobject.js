@@ -430,53 +430,80 @@ class CrudObject {
         var ac = this._model.getModelAttributesController();
         var ds = app.getController().getDataService();
         var attribute;
+        var changed;
         if (oldData) {
             if (newData) {
                 var bFound;
-                var changed;
                 for (const [key, value] of Object.entries(newData)) {
                     attribute = ac.getAttribute(key);
                     if (attribute && attribute['dataType'] === 'relation') {
                         changed = [];
-                        for (var item of oldData[key]) {
-                            bFound = false;
-                            for (var x of value) {
-                                if (item['id'] == x) {
-                                    bFound = true;
-                                    break;
-                                }
-                            }
-                            if (!bFound)
-                                changed.push(item['id']);
+                        if (attribute['multiple']) {
+                            if (oldData[key]) {
+                                if (value) {
+                                    for (var item of oldData[key]) {
+                                        bFound = false;
+                                        for (var x of value) {
+                                            if (item['id'] == x) {
+                                                bFound = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!bFound)
+                                            changed.push(item['id']);
+                                    }
+                                    for (var item of value) {
+                                        bFound = false;
+                                        for (var x of oldData[key]) {
+                                            if (item == x['id']) {
+                                                bFound = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!bFound)
+                                            changed.push(item);
+                                    }
+                                } else
+                                    changed = oldData[key].map(function (x) { return x['id'] });
+                            } else if (value)
+                                changed = value;
+                        } else {
+                            if (oldData[key])
+                                changed.push(oldData[key]);
+                            if (value)
+                                changed.push(value);
                         }
-                        for (var item of value) {
-                            bFound = false;
-                            for (var x of oldData[key]) {
-                                if (item == x['id']) {
-                                    bFound = true;
-                                    break;
-                                }
-                            }
-                            if (!bFound)
-                                changed.push(item);
-                        }
-                        console.log(changed);
-                        await ds.fetchData(attribute['model'], changed, null, null, null, null, null, true);
+                        if (changed.length > 0)
+                            await ds.fetchData(attribute['model'], changed, null, null, null, null, null, true);
                     }
                 }
             } else {
                 for (const [key, value] of Object.entries(oldData)) {
                     attribute = ac.getAttribute(key);
-                    if (attribute && attribute['dataType'] === 'relation') {
-                        await ds.fetchData(attribute['model'], value.map(function (x) { return x['id'] }), null, null, null, null, null, true);
+                    if (attribute && attribute['dataType'] === 'relation' && value) {
+                        changed = null;
+                        if (attribute['multiple']) {
+                            if (Array.isArray(value) && value.length > 0)
+                                changed = value.map(function (x) { return x['id'] });
+                        } else
+                            changed = value;
+                        if (changed)
+                            await ds.fetchData(attribute['model'], changed, null, null, null, null, null, true);
                     }
                 }
             }
         } else {
             for (const [key, value] of Object.entries(newData)) {
                 attribute = ac.getAttribute(key);
-                if (attribute && attribute['dataType'] === 'relation') {
-                    await ds.fetchData(attribute['model'], value.map(function (x) { return x['id'] }), null, null, null, null, null, true);
+                if (attribute && attribute['dataType'] === 'relation' && value) {
+                    changed = null;
+                    if (attribute['multiple']) {
+                        if (Array.isArray(value) && value.length > 0)
+                            changed = value.map(function (x) { return x['id'] });
+                    } else
+                        changed = value;
+                    if (changed)
+                        await ds.fetchData(attribute['model'], changed, null, null, null, null, null, true);
                 }
             }
         }
