@@ -469,7 +469,7 @@ class CrudObject {
                                 changed = value;
                         } else {
                             if (oldData[key])
-                                changed.push(oldData[key]);
+                                changed.push(oldData[key]['id']);
                             if (value)
                                 changed.push(value);
                         }
@@ -486,7 +486,7 @@ class CrudObject {
                             if (Array.isArray(value) && value.length > 0)
                                 changed = value.map(function (x) { return x['id'] });
                         } else
-                            changed = value;
+                            changed = value['id'];
                         if (changed)
                             await ds.fetchData(attribute['model'], changed, null, null, null, null, null, true);
                     }
@@ -501,7 +501,7 @@ class CrudObject {
                         if (Array.isArray(value) && value.length > 0)
                             changed = value.map(function (x) { return x['id'] });
                     } else
-                        changed = value;
+                        changed = value['id'];
                     if (changed)
                         await ds.fetchData(attribute['model'], changed, null, null, null, null, null, true);
                 }
