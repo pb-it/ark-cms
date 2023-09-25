@@ -263,30 +263,52 @@ class Database {
         return Promise.resolve();
     }
 
-    async updateDatabase() {
+    async updateDatabase(changes) {
         var timestamp;
-        var ts;
+        var cache = await app.getController().getDataService().getCache();
+        if (!changes) {
+            var oldest = this.getTimestamp();
+            if (oldest)
+                changes = await cache.getChanges(oldest);
+        }
+        if (changes) {
+            timestamp = await cache.applyChanges(changes);
+            this.setTimestamp(null, timestamp);
+        }
+        return Promise.resolve(timestamp);
+    }
+
+    getTimestamp(name) {
         var oldest;
-        if (Object.keys(this._meta).length > 0) {
-            for (var x in this._meta) {
-                if (this._meta[x]) {
-                    ts = new Date(this._meta[x]);
-                    if (oldest) {
-                        if (ts < oldest)
+        if (name)
+            oldest = new Date(this._meta[name]);
+        else {
+            var ts;
+            if (Object.keys(this._meta).length > 0) {
+                for (var x in this._meta) {
+                    if (this._meta[x]) {
+                        ts = new Date(this._meta[x]);
+                        if (oldest) {
+                            if (ts < oldest)
+                                oldest = ts;
+                        } else
                             oldest = ts;
-                    } else
-                        oldest = ts;
+                    }
                 }
             }
         }
-        if (oldest) {
-            timestamp = await app.getController().getDataService().getCache().updateCache(oldest);
+        return oldest;
+    }
+
+    setTimestamp(name, timestamp) {
+        if (name)
+            this._meta[name] = timestamp;
+        else {
             for (var x in this._meta) {
                 this._meta[x] = timestamp;
             }
-            var sc = app.getController().getStorageController();
-            sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
         }
-        return Promise.resolve(timestamp);
+        var sc = app.getController().getStorageController();
+        sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
     }
 }

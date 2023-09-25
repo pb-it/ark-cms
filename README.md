@@ -86,7 +86,7 @@ docker run -p 4000:4000 -it <image name> /bin/bash
 
 ## Tests
 
-**_PREREQUISITE:_** If not included or already installed setup driver(geckodriver) for your desired browser.
+**_PREREQUISITE:_** If not included or already installed setup driver(selenium-webdriver, chromedriver, geckodriver, iedriver) depending on your desired browser.
 
 > ℹ️ **_NOTE:_** Using Firefox installation via Snap might cause troubles! There might also occur problems with executeScript/executeAsyncScript functions when using firefox. Hence I recommend to use Chrome for testing.
 

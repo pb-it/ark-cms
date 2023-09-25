@@ -16,6 +16,7 @@ class Select {
     _$div;
     _$input;
     _$datalist;
+    _$searchButton;
     _$createButton;
     _$list;
 
@@ -66,7 +67,7 @@ class Select {
     async initSelect(optData) {
         this._options = [];
         if (!optData)
-            optData = await app.controller.getDataService().fetchData(this._typeString);
+            optData = await app.getController().getDataService().fetchData(this._typeString);
 
         if (this._selectedValues && this._selectedValues.length > 0) {
             var ids = [];
@@ -80,7 +81,7 @@ class Select {
 
             for (var data of optData) {
                 if (Number.isInteger(data))
-                    data = await app.controller.getDataService().fetchData(this._typeString, data);
+                    data = await app.getController().getDataService().fetchData(this._typeString, data);
                 this._options.push(new Option(CrudObject.getTitle(this._typeString, data), data, ids.indexOf(data.id) >= 0));
             }
         } else {
@@ -129,14 +130,15 @@ class Select {
             .prop("disabled", bDisable)
             .on('mousedown', async function (e) {
                 if (!this._bInitDone) {
+                    var controller = app.getController();
                     try {
-                        app.getController().setLoadingState(true);
+                        controller.setLoadingState(true);
                         await this.initSelect();
                         await this._rerender();
                         this._$input.focus(); // TODO: open datalist dropdown
-                        app.getController().setLoadingState(false);
+                        controller.setLoadingState(false);
                     } catch (error) {
-                        app.getController().setLoadingState(false);
+                        controller.setLoadingState(false);
                     }
                 }
                 return Promise.resolve();
@@ -204,16 +206,16 @@ class Select {
 
         this._$div.append("&nbsp;");
 
-        var $searchButton = $("<button/>")
+        this._$searchButton = $("<button/>")
             .text("Search")
             .prop("disabled", bDisable)
             .click(function (event) {
                 event.preventDefault();
                 event.stopPropagation();
                 var panel = new SearchEntryPanel(this);
-                return app.controller.getModalController().openPanelInModal(panel);
+                return app.getController().getModalController().openPanelInModal(panel);
             }.bind(this));
-        this._$div.append($searchButton);
+        this._$div.append(this._$searchButton);
 
         this._$div.append("&nbsp;");
 
@@ -229,7 +231,7 @@ class Select {
                     await this._update();
                     return Promise.resolve(true);
                 }.bind(this);
-                return app.controller.getModalController().openPanelInModal(panel);
+                return app.getController().getModalController().openPanelInModal(panel);
             }.bind(this));
         this._$div.append(this._$createButton);
 
@@ -246,6 +248,8 @@ class Select {
 
         if (this._$input)
             this._$input.prop("disabled", bDisable);
+        if (this._$searchButton)
+            this._$searchButton.prop("disabled", bDisable);
         if (this._$createButton)
             this._$createButton.prop("disabled", bDisable);
 

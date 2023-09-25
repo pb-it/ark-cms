@@ -127,6 +127,8 @@ class Controller {
         this._bConnection = false;
         this.setLoadingState(true);
 
+        this.setupShortcuts();
+
         this._modalController = new ModalController(); //VersionController may open a modal
 
         this._storageController = new StorageController();
@@ -138,7 +140,7 @@ class Controller {
         this._apiController = new ApiController(this._configController.getApi());
         this._authController = new AuthController();
 
-        if (app.getController().getStorageController().loadLocal('bIndexedDB') === 'true') {
+        if (this._storageController.loadLocal('bIndexedDB') === 'true') {
             this._database = new Database('cache');
             await this._database.initDatabase();
         }
@@ -170,6 +172,21 @@ class Controller {
             await this._bookmarkController.init();
 
             await this._apiController.fetchSessionInfo();
+
+            if (this._database) {
+                var oldest = this._database.getTimestamp();
+                if (oldest) {
+                    var changes = await this._dataservice.getCache().getChanges(oldest);
+                    if (changes) {
+                        var data = changes['data'];
+                        if (data && data.length > 0) {
+                            await this._modalController.openPanelInModal(new UpdateCachePanel(changes));
+                            this.setLoadingState(false);
+                        }
+                    }
+                }
+            }
+
             this._bConnection = true;
             bInitDone = true;
         } catch (error) {
@@ -181,6 +198,11 @@ class Controller {
             this.setLoadingState(false);
         }
 
+        this._bFirstLoadAfterInit = true;
+        return Promise.resolve(bInitDone);
+    }
+
+    setupShortcuts() {
         $(document).keydown(async function (e) { // window.addEventListener('keydown', function() { ... });
             if (e.ctrlKey) {
                 if (!e.shiftKey) {
@@ -313,9 +335,6 @@ class Controller {
         }.bind(this));
 
         //$(document).on('copy', function(e) { ... }); //document.addEventListener('copy', ...);
-
-        this._bFirstLoadAfterInit = true;
-        return Promise.resolve(bInitDone);
     }
 
     hasConnection() {
