@@ -444,19 +444,71 @@ class ContextMenuController {
 
         entries.push(new ContextMenuEntry("Open >", async function () {
             var controller = app.getController();
-            var items = controller.getSelected();
-            var state = new State();
-            if (!items || (items.length == 1 && items[0] == this)) {
-                state.typeString = this._obj.getTypeString();
-                state.id = this._obj.getData().id;
-            } else {
-                var ids = items.map(function (panel) {
-                    return panel.getObject().getId();
-                });
-                state.typeString = items[0].getObject().getTypeString();
-                state.id = ids;
+            try {
+                var items = controller.getSelected();
+                var typeString;
+                var model;
+                var def;
+                var id;
+                var where;
+                if (!items || (items.length == 1 && items[0] == this)) {
+                    typeString = this._obj.getTypeString();
+                    model = this._obj.getModel();
+                    def = model.getDefinition();
+                    if (def['options']['increments'])
+                        id = this._obj.getData()['id'];
+                    else {
+                        var attributes = model.getModelAttributesController().getAttributes();
+                        var prime = [];
+                        for (var attr of attributes) {
+                            if (attr['primary'])
+                                prime.push(attr['name']);
+                        }
+                        if (prime.length == 1) {
+                            var key = prime[0];
+                            where = key + "=" + this._obj.getData()[key];
+                        } else
+                            throw new Error('Failed to determine primary key!');
+                    }
+                } else {
+                    var obj = items[0].getObject();
+                    typeString = obj.getTypeString();
+                    model = obj.getModel();
+                    def = model.getDefinition();
+                    if (def['options']['increments']) {
+                        id = items.map(function (panel) {
+                            return panel.getObject().getId();
+                        });
+                    } else {
+                        var attributes = model.getModelAttributesController().getAttributes();
+                        var prime = [];
+                        for (var attr of attributes) {
+                            if (attr['primary'])
+                                prime.push(attr['name']);
+                        }
+                        if (prime.length == 1) {
+                            var key = prime[0];
+                            for (var item of items) {
+                                if (where)
+                                    where += "&" + key + "=" + item.getObject().getData()[key];
+                                else
+                                    where = key + "=" + item.getObject().getData()[key];
+                            }
+                        } else
+                            throw new Error('Failed to determine primary key!');
+                    }
+                }
+                var state = new State();
+                state.typeString = typeString;
+                if (id)
+                    state.id = id;
+                if (where)
+                    state.where = where;
+                return controller.loadState(state, true);
+            } catch (error) {
+                controller.showError(error);
             }
-            return controller.loadState(state, true);
+            return Promise.resolve();
         }.bind(panel), openGroup));
 
         entries.push(new ContextMenuEntry("Details", async function () {

@@ -465,12 +465,28 @@ class CrudObject {
                 url = "/new"
                 break;
             case ActionEnum.read:
-                if (this._data.id)
-                    url += "/" + this._data.id;
+                if (this._model.getDefinition()['options']['increments']) {
+                    if (this._data['id'])
+                        url += "/" + this._data['id'];
+                } else {
+                    var attributes = this._model.getModelAttributesController().getAttributes();
+                    var prime = [];
+                    for (var attr of attributes) {
+                        if (attr['primary'])
+                            prime.push(attr['name']);
+                    }
+                    if (prime.length == 1) {
+                        var key = prime[0];
+                        url += "?" + key + "=" + this._data[key];
+                    } else
+                        throw new Error('Failed to determine primary key!');
+                }
                 break;
             case ActionEnum.update:
-                if (this._data.id)
-                    url += "/" + this._data.id + "/edit";
+                if (this._model.getDefinition()['options']['increments']) {
+                    if (this._data['id'])
+                        url += "/" + this._data['id'] + "/edit";
+                }
                 break;
             case ActionEnum.delete:
                 //TODO:
@@ -500,7 +516,7 @@ class CrudObject {
     }
 
     async update(data) {
-        if (!this._model.getDefinition()['options']['increments'] || this._data['id']) {
+        if (this._data['id'] || !this._model.getDefinition()['options']['increments']) {
             var oldData = this._data;
             var newData = data;
             data = await this.request(ActionEnum.update, data);

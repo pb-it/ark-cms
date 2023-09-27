@@ -7,6 +7,7 @@ class ModelCache {
     _urls;
     _completeRecordSet;
 
+    _bIncrements;
     _db;
 
     constructor(model) {
@@ -16,8 +17,9 @@ class ModelCache {
         this._dataCache = [];
         this._urls = [];
 
+        this._bIncrements = this._model.getDefinition()['options']['increments'];
         var db = app.getController().getDatabase();
-        if (db && this._model.getDefinition()['options']['increments'])
+        if (db && this._bIncrements)
             this._db = db;
     }
 
@@ -117,8 +119,10 @@ class ModelCache {
             sorted = data;
         this._completeRecordSet = sorted;
 
-        for (var d of data) {
-            this._dataCache[d['id']] = d;
+        if (this._bIncrements) {
+            for (var d of data) {
+                this._dataCache[d['id']] = d;
+            }
         }
 
         if (this._db && timestamp) {

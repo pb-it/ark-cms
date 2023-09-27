@@ -86,18 +86,43 @@ class DataService {
     }
 
     static getUrlForObjects(objs) {
+        var url;
         if (Array.isArray(objs)) {
             if (objs.length > 0) {
                 var obj = objs[0];
                 var typeString = obj.getTypeString();
-                var ids = objs.map(function (x) {
-                    return x.getData()['id'];
-                });
+                var model = obj.getModel();
+                var def = model.getDefinition();
+                var ids;
+                var where;
+                if (def['options']['increments']) {
+                    ids = objs.map(function (x) {
+                        return x.getData()['id'];
+                    });
+                } else {
+                    var attributes = model.getModelAttributesController().getAttributes();
+                    var prime = [];
+                    for (var attr of attributes) {
+                        if (attr['primary'])
+                            prime.push(attr['name']);
+                    }
+                    if (prime.length == 1) {
+                        var key = prime[0];
+                        for (var item of objs) {
+                            if (where)
+                                where += "&" + key + "=" + item.getData()[key];
+                            else
+                                where = key + "=" + item.getData()[key];
+                        }
+                    } else
+                        throw new Error('Failed to determine primary key!');
+                }
+                url = window.location.origin + "/data/" + DataService._getUrl(typeString, ids, where);
             } else
                 throw new Error("Invalid data: Empty array");
         } else
             throw new Error("Invalid data: No array");
-        return window.location.origin + "/data/" + DataService._getUrl(typeString, ids);
+        return url;
     }
 
     _cache;
@@ -123,12 +148,12 @@ class DataService {
         var typeUrl;
         var sortlessUrl;
         var bSort = false;
-        var model = app.controller.getModelController().getModel(typeString);
+        var model = app.getController().getModelController().getModel(typeString);
         var cache = this._cache.getModelCache(typeString);
-        if (!cache)
+        if (!cache && model.getDefinition()['options']['increments'])
             cache = await this._cache.createModelCache(typeString);
 
-        if (!bIgnoreCache) {
+        if (cache && !bIgnoreCache) {
             if (id) {
                 tmp = cache.getEntry(id);
                 if (tmp && (!Array.isArray(id) || id.length == tmp.length))
@@ -198,15 +223,17 @@ class DataService {
                 }
             }
 
-            if (!id && !where && (!limit || limit == -1)) {
-                await cache.setCompleteRecordSet(res, sort, timestamp);
-            } else {
-                if (Array.isArray(typeUrl)) {
-                    await cache.cacheData(null, res);
+            if (cache) {
+                if (!id && !where && (!limit || limit == -1)) {
+                    await cache.setCompleteRecordSet(res, sort, timestamp);
                 } else {
-                    await cache.cacheData(typeUrl, res);
-                    if (sortlessUrl)
-                        await cache.cacheData(sortlessUrl, res);
+                    if (Array.isArray(typeUrl)) {
+                        await cache.cacheData(null, res);
+                    } else {
+                        await cache.cacheData(typeUrl, res);
+                        if (sortlessUrl)
+                            await cache.cacheData(sortlessUrl, res);
+                    }
                 }
             }
         }
