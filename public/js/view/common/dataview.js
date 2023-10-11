@@ -10,7 +10,7 @@ class DataView {
 
     static async parseMarkdown(text) {
         text = text.replace(/\[([^\]\r\n]*)\]\((\/(data|ext)\/(\([^()]*\)|.)*?)\)/gm, function (match, c1, c2) {
-            return "<a href='" + c1 + "' onclick='app.getController().navigate(\"" + c2 + "\");return false;'>" + c1 + "</a>";
+            return "<a href='" + c2 + "' onclick='app.getController().navigate(\"" + c2 + "\");return false;'>" + c1 + "</a>";
         });
         if (typeof showdown === 'undefined') {
             var buildUrl = "https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/";
@@ -21,16 +21,30 @@ class DataView {
         return Promise.resolve(text);
     }
 
-    static async highlight(elem) {
+    static async highlightBlock(block) {
         if (typeof hljs === 'undefined') {
-            var buildUrl = "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.6.0/build/";
+            var buildUrl = "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/";
             await loadStyle(buildUrl + "styles/default.min.css");
             await loadScript(buildUrl + "highlight.min.js");
         }
-        elem.querySelectorAll('code').forEach(el => {
-            hljs.highlightElement(el);
+        block.querySelectorAll('code').forEach(elem => { // 'pre code:not(.hljs)'
+            hljs.highlightElement(elem);
         });
         return Promise.resolve();
+    }
+
+    static async highlightCode(code, language) {
+        if (typeof hljs === 'undefined') {
+            var buildUrl = "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/";
+            await loadStyle(buildUrl + "styles/default.min.css");
+            await loadScript(buildUrl + "highlight.min.js");
+        }
+        var res;
+        if (language)
+            res = hljs.highlight(code, { 'language': language }).value
+        else
+            res = hljs.highlightAuto(code).value
+        return Promise.resolve(res);
     }
 
     static _parseText(text) {
@@ -123,13 +137,17 @@ class DataView {
                                             switch (view) {
                                                 case 'html':
                                                     break;
-                                                case 'plain+html':
-                                                    $value.addClass('pre');
-                                                    value = DataView._parseText(value);
-                                                    break;
                                                 case 'markdown':
                                                     $value.addClass('markdown');
                                                     value = await DataView.parseMarkdown(value);
+                                                    break;
+                                                case 'javascript':
+                                                    $value.addClass('pre');
+                                                    value = await DataView.highlightCode(value, view);
+                                                    break;
+                                                case 'plain+html':
+                                                    $value.addClass('pre');
+                                                    value = DataView._parseText(value);
                                                     break;
                                                 case 'csv':
                                                 case 'xml':
@@ -149,8 +167,10 @@ class DataView {
                                 } else
                                     value = "";
                                 $value.html(value);
-                                if (view && view === 'markdown')
-                                    await DataView.highlight($value[0]);
+                                if (view) {
+                                    if (view === 'markdown')
+                                        await DataView.highlightBlock($value[0]);
+                                }
                                 break;
                             case "time":
                                 if (data && data[name]) {

@@ -565,7 +565,9 @@ class CrudObject {
                     var data = changes['data'];
                     if (data && data.length == 1) {
                         var sessionInfo = apiController.getSessionInfo();
-                        if (data[0]['model'] == this._typeString && data[0]['record_id'] == this._data['id'] && data[0]['user']['id'] == sessionInfo['user']['id'])
+                        console.log(sessionInfo);
+                        if (data[0]['model'] == this._typeString && data[0]['record_id'] == this._data['id'] &&
+                            ((!sessionInfo['user'] && !data[0]['user']) || data[0]['user']['id'] == sessionInfo['user']['id']))
                             db.setTimestamp(null, changes['timestamp']);
                     }
                 }

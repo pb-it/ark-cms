@@ -171,3 +171,39 @@ function isVideo(url) {
     var ext = getFileExtensionFromUrl(url).toLowerCase();
     return (ext === "mp4" || ext === "avi" || ext === "webm" || ext === "mkv" || ext === "vid");
 }
+
+async function formatCode(code, language) {
+    var res;
+    if (language) {
+        if (language === 'json')
+            res = JSON.stringify(JSON.parse(code), null, '\t');
+        else {
+            var parser;
+            switch (language) {
+                /*case 'jsonx':
+                    parser = 'json';
+                    break;*/
+                case 'javascript':
+                    parser = 'babel';
+                    break;
+            }
+            if (parser) {
+                if (typeof prettier === 'undefined') {
+                    var buildUrl = "https://unpkg.com/prettier@2.7.1/";
+                    var p1 = loadScript(buildUrl + "standalone.js");
+                    //var p2 = loadScript(buildUrl + "parser-html.js");
+                    var p2 = loadScript(buildUrl + "parser-babel.js");
+                    await Promise.all([p1, p2]);
+                }
+                res = prettier.format(code, {
+                    'parser': parser,
+                    'plugins': prettierPlugins,
+                    'tabWidth': 3
+                });
+            }
+        }
+    }
+    if (!res)
+        res = code;
+    return Promise.resolve(res);
+}

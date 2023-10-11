@@ -9,6 +9,7 @@ class BasicFormEntry extends FormEntry {
 
     _$input;
     _$syntax;
+    _$formatButton;
 
     constructor(form, attribute) {
         super(form, attribute);
@@ -226,8 +227,8 @@ class BasicFormEntry extends FormEntry {
                 case "text":
                 case "json":
                     if (this._attribute['dataType'] === "text") {
+                        var syntax;
                         if (this._attribute['bSyntaxPrefix']) {
-                            var syntax;
                             var index = value.indexOf(','); //data:text/plain;charset=utf-8,
                             if (index > -1) {
                                 syntax = DataView.getSyntax(value.substr(0, index));
@@ -235,7 +236,7 @@ class BasicFormEntry extends FormEntry {
                             }
 
                             this._$syntax = $('<select/>');
-                            var options = ['plain', 'csv', 'xml', 'html', 'plain+html', 'markdown'];
+                            var options = ['plain', 'csv', 'xml', 'html', 'plain+html', 'markdown', 'javascript'];
                             var $option;
                             for (var i of options) {
                                 $option = $('<option/>').attr('value', i).text(i);
@@ -243,7 +244,28 @@ class BasicFormEntry extends FormEntry {
                                     $option.prop('selected', true);
                                 this._$syntax.append($option);
                             };
+                            this._$syntax.on('change', function () {
+                                if (this._$formatButton)
+                                    this._$formatButton.prop('disabled', this._$syntax.val() !== 'javascript')
+                            }.bind(this));
                             this._$value.append(this._$syntax);
+                        } else
+                            syntax = this._attribute['view'];
+                        if (this._attribute['bSyntaxPrefix'] || (syntax && syntax !== 'plain')) {
+                            this._$formatButton = $('<button>')
+                                .text('format')
+                                .prop('disabled', syntax !== 'javascript')
+                                .click(async function (event) {
+                                    event.stopPropagation();
+
+                                    var val = this._$input.val();
+                                    var syntax = this._$syntax.val();
+                                    val = await formatCode(val, syntax);
+                                    this._$input.val(val);
+
+                                    return Promise.resolve();
+                                }.bind(this));
+                            this._$value.append(this._$formatButton);
 
                             var $previewButton = $('<button>')
                                 .text('preview')
@@ -257,7 +279,7 @@ class BasicFormEntry extends FormEntry {
 
                                     var panel = new Panel();
                                     panel.setContent(await DataView.renderData(skeleton, data));
-                                    return app.controller.getModalController().openPanelInModal(panel);
+                                    return app.getController().getModalController().openPanelInModal(panel);
                                 }.bind(this));
                             this._$value.append($previewButton);
 

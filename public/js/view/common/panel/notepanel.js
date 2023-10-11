@@ -74,7 +74,7 @@ class NotePanel extends CrudPanel {
             this._$note.html(html);
             if (this._syntax === 'markdown') {
                 this._$note.addClass('markdown');
-                await DataView.highlight(this._$note[0]);
+                await DataView.highlightBlock(this._$note[0]);
             }
         }
         return Promise.resolve();

@@ -188,7 +188,8 @@ class EditAttributesPanel extends Panel {
                                     { 'value': 'plain' },
                                     { 'value': 'html' },
                                     { 'value': 'plain+html' },
-                                    { 'value': 'markdown' }
+                                    { 'value': 'markdown' },
+                                    { 'value': 'javascript' }
                                 ],
                                 'tooltip': `Default behavior is as \'plain\' which may result in WYSIWYG.
 \'plain+html\' enables you to mix preformatted plain text with interpret and rendered html-code between \<html\>/\</html\> tags.`,

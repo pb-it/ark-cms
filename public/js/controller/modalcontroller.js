@@ -287,19 +287,9 @@ class ModalController {
                     event.preventDefault();
                     event.stopPropagation();
 
-                    $textarea.val(JSON.stringify(JSON.parse($textarea.val()), null, '\t'));
-                    /*if (typeof prettier === 'undefined') {
-                        var buildUrl = "https://unpkg.com/prettier@2.7.1/";
-                        var p1 = loadScript(buildUrl + "standalone.js");
-                        //var p2 = loadScript(buildUrl + "parser-html.js");
-                        var p2 = loadScript(buildUrl + "parser-babel.js");
-                        await Promise.all([p1, p2]);
-                    }
-                    data['snippet'] = prettier.format(data['snippet'], {
-                        parser: 'json', // parser: 'babel'
-                        plugins: prettierPlugins,
-                        tabWidth: 3
-                    });*/
+                    var text = await formatCode($textarea.val(), 'json');
+                    $textarea.val(text);
+                    return Promise.resolve();
                 }.bind(this)));
 
             modal.open($div);
