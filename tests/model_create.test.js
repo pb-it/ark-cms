@@ -71,6 +71,9 @@ describe('Testsuit', function () {
 
         await delay(1000);
 
+        modal = await helper.getTopModal();
+        assert.equal(modal, null);
+
         //TODO: check
 
         //driver.quit();

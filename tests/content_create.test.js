@@ -37,6 +37,8 @@ describe('Testsuit', function () {
         button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         button.click();
 
+        await delay(1000);
+
         xpath = `//*[@id="sidepanel"]/div/div[contains(@class, 'menu')][2]/div[contains(@class, 'menuitem') and .="Create"]`;
         button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         button.click();

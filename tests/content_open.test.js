@@ -26,10 +26,15 @@ describe('Testsuit', function () {
             }
         }
 
-        var response = await driver.executeAsyncScript(() => {
+        var response = await driver.executeAsyncScript(async () => {
             var callback = arguments[arguments.length - 1];
 
             localStorage.setItem('debug', JSON.stringify({ bDebug: true }));
+            var controller = app.getController();
+            //controller.reloadApplication(); // will kill this script
+            await controller.initController();
+            controller.getView().initView();
+            //await controller.reloadState();
 
             var data = {
                 'key': 'test',
@@ -87,6 +92,19 @@ describe('Testsuit', function () {
 
         elements = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(elements.length, count);
+
+        response = await driver.executeAsyncScript(async () => {
+            var callback = arguments[arguments.length - 1];
+
+            localStorage.setItem('debug', JSON.stringify({ bDebug: false }));
+            var controller = app.getController();
+            //controller.reloadApplication(); // will kill this script
+            await controller.initController();
+            controller.getView().initView();
+            //await controller.reloadState();
+
+            callback();
+        });
 
         //driver.quit();
         return Promise.resolve();
