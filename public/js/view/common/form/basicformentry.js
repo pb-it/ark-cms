@@ -246,7 +246,7 @@ class BasicFormEntry extends FormEntry {
                             };
                             this._$syntax.on('change', function () {
                                 if (this._$formatButton)
-                                    this._$formatButton.prop('disabled', this._$syntax.val() !== 'javascript')
+                                    this._$formatButton.prop('disabled', !app.getController().getFormatter().isSupported(this._$syntax.val()))
                             }.bind(this));
                             this._$value.append(this._$syntax);
                         } else
@@ -254,14 +254,21 @@ class BasicFormEntry extends FormEntry {
                         if (this._attribute['bSyntaxPrefix'] || (syntax && syntax !== 'plain')) {
                             this._$formatButton = $('<button>')
                                 .text('format')
-                                .prop('disabled', syntax !== 'javascript')
+                                .prop('disabled', !app.getController().getFormatter().isSupported(syntax))
                                 .click(async function (event) {
                                     event.stopPropagation();
 
-                                    var val = this._$input.val();
-                                    var syntax = this._$syntax.val();
-                                    val = await formatCode(val, syntax);
-                                    this._$input.val(val);
+                                    var syntax;
+                                    if (this._$syntax)
+                                        syntax = this._$syntax.val();
+                                    else
+                                        syntax = this._attribute['view'];
+                                    if (syntax) {
+                                        var val = this._$input.val();
+                                        var formatter = app.getController().getFormatter();
+                                        val = await formatter.formatText(val, syntax);
+                                        this._$input.val(val);
+                                    }
 
                                     return Promise.resolve();
                                 }.bind(this));

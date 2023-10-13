@@ -32,6 +32,8 @@ class Controller {
     _panelController;
     _modalController;
 
+    _formatter;
+
     constructor(model, view) {
         this._model = model;
         this._view = view;
@@ -719,5 +721,11 @@ class Controller {
             }
         }
         return Promise.resolve();
+    }
+
+    getFormatter() {
+        if (!this._formatter)
+            this._formatter = new Formatter();
+        return this._formatter;
     }
 }
