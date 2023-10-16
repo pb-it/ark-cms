@@ -211,8 +211,19 @@ class CrudObject {
                                         relevant[property] = newValue;
                                     break;
                                 default:
-                                    if (!olddata || (newdata[property] !== olddata[property]))
-                                        relevant[property] = newdata[property];
+                                    const dtc = app.getController().getDataTypeController();
+                                    var dt = dtc.getDataType(field['dataType']);
+                                    if (dt && dt.hasChanged) {
+                                        var newValue = newdata[property];
+                                        var oldValue;
+                                        if (olddata && olddata[property])
+                                            oldValue = olddata[property];
+                                        if (dt.hasChanged(oldValue, newValue))
+                                            relevant[property] = newValue;
+                                    } else {
+                                        if (!olddata || (newdata[property] !== olddata[property]))
+                                            relevant[property] = newdata[property];
+                                    }
                             }
                         }
                     }

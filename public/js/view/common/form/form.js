@@ -97,7 +97,13 @@ class Form {
                                 entry = new FileFormEntry(this, attribute);
                                 break;
                             default:
-                                entry = new BasicFormEntry(this, attribute);
+                                const dtc = app.getController().getDataTypeController();
+                                var dt = dtc.getDataType(attribute['dataType']);
+                                if (dt && dt['formEntryClass']) {
+                                    var C = dt['formEntryClass'];
+                                    entry = new C(this, attribute);
+                                } else
+                                    entry = new BasicFormEntry(this, attribute);
                         }
                         this._entries.push(entry);
                     }

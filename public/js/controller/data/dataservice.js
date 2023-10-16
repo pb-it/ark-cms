@@ -39,20 +39,26 @@ class DataService {
                             });
                         break;
                     default:
-                        if (parts[1] === "asc")
-                            arr.sort(function (a, b) {
-                                if (a[prop] === "" || a[prop] === null) return 1;
-                                if (b[prop] === "" || b[prop] === null) return -1;
-                                if (a[prop] === b[prop]) return 0;
-                                return a[prop] - b[prop];
-                            });
-                        else if (parts[1] === "desc")
-                            arr.sort(function (a, b) {
-                                if (a[prop] === "" || a[prop] === null) return 1;
-                                if (b[prop] === "" || b[prop] === null) return -1;
-                                if (a[prop] === b[prop]) return 0;
-                                return b[prop] - a[prop];
-                            });
+                        const dtc = app.getController().getDataTypeController();
+                        var dt = dtc.getDataType(attr['dataType']);
+                        if (dt && dt.sort)
+                            dt.sort(arr, parts[1]);
+                        else {
+                            if (parts[1] === "asc")
+                                arr.sort(function (a, b) {
+                                    if (a[prop] === "" || a[prop] === null) return 1;
+                                    if (b[prop] === "" || b[prop] === null) return -1;
+                                    if (a[prop] === b[prop]) return 0;
+                                    return a[prop] - b[prop];
+                                });
+                            else if (parts[1] === "desc")
+                                arr.sort(function (a, b) {
+                                    if (a[prop] === "" || a[prop] === null) return 1;
+                                    if (b[prop] === "" || b[prop] === null) return -1;
+                                    if (a[prop] === b[prop]) return 0;
+                                    return b[prop] - a[prop];
+                                });
+                        }
                 }
             }
         }

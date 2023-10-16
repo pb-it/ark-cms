@@ -1,6 +1,6 @@
 {
     "name": "wing-cms",
-    "version": "0.5.2-beta",
+    "version": "0.5.3-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",

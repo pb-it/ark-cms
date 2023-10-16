@@ -64,6 +64,30 @@ class EditAttributesPanel extends Panel {
     }
 
     async _renderForm1() {
+        var dataTypeOptions = [
+            { 'value': 'boolean' },
+            { 'value': 'integer' },
+            { 'value': 'decimal' },
+            { 'value': 'double' },
+            { 'value': 'string' },
+            { 'value': 'text' },
+            { 'value': 'url' },
+            { 'value': 'json' },
+            { 'value': 'time' },
+            { 'value': 'date' },
+            { 'value': 'datetime' },
+            { 'value': 'timestamp' },
+            { 'value': 'enumeration' },
+            { 'value': 'relation' },
+            { 'value': 'file' }
+        ];
+        const dtc = app.getController().getDataTypeController();
+        var types = dtc.getDataType();
+        if (types) {
+            var tags = Object.keys(types);
+            for (var tag of tags)
+                dataTypeOptions.push({ 'value': tag });
+        }
         var skeleton = [
             {
                 name: 'name',
@@ -73,23 +97,7 @@ class EditAttributesPanel extends Panel {
             {
                 name: 'dataType',
                 dataType: 'enumeration',
-                options: [
-                    { 'value': 'boolean' },
-                    { 'value': 'integer' },
-                    { 'value': 'decimal' },
-                    { 'value': 'double' },
-                    { 'value': 'string' },
-                    { 'value': 'text' },
-                    { 'value': 'url' },
-                    { 'value': 'json' },
-                    { 'value': 'time' },
-                    { 'value': 'date' },
-                    { 'value': 'datetime' },
-                    { 'value': 'timestamp' },
-                    { 'value': 'enumeration' },
-                    { 'value': 'relation' },
-                    { 'value': 'file' }
-                ],
+                options: dataTypeOptions,
                 view: 'select',
                 required: true
             }
@@ -130,7 +138,6 @@ class EditAttributesPanel extends Panel {
             switch (this._data['dataType']) {
                 case 'boolean':
                     skeleton = [
-                        { 'name': 'required', 'dataType': 'boolean' },
                         {
                             'name': 'defaultValue',
                             'dataType': 'enumeration',
@@ -176,40 +183,10 @@ class EditAttributesPanel extends Panel {
                         );
                     } else {
                         skeleton.push(
-                            {
-                                'name': 'view',
-                                'label': 'syntax',
-                                'dataType': 'enumeration',
-                                'options': [
-                                    { 'value': '<auto>', 'disabled': true },
-                                    { 'value': 'csv' },
-                                    { 'value': 'xml' },
-                                    { 'value': 'json', 'disabled': true },
-                                    { 'value': 'plain' },
-                                    { 'value': 'html' },
-                                    { 'value': 'plain+html' },
-                                    { 'value': 'markdown' },
-                                    { 'value': 'javascript' }
-                                ],
-                                'tooltip': `Default behavior is as \'plain\' which may result in WYSIWYG.
-\'plain+html\' enables you to mix preformatted plain text with interpret and rendered html-code between \<html\>/\</html\> tags.`,
-                                'view': 'select'
-                            },
-                            {
-                                'name': 'bSyntaxPrefix',
-                                'label': 'individual syntax',
-                                'tooltip': `Choose syntax individual for every entry.
-An media / MIME type string will be prepended to your data.
-You will not see this information in forms, but it is stored with your actual string in the database and consumes space.`,
-                                'dataType': 'boolean',
-                                'required': true,
-                                'defaultValue': false
-                            },
                             { 'name': 'size', 'dataType': 'string' }
                         );
                     }
                     skeleton.push(
-                        { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'string' }
                     );
                     break;
@@ -217,7 +194,6 @@ You will not see this information in forms, but it is stored with your actual st
                     skeleton = [
                         { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' },
                         { 'name': 'size', 'dataType': 'string' },
-                        { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'string' }
                     ];
                     break;
@@ -237,7 +213,6 @@ You will not see this information in forms, but it is stored with your actual st
                             'required': true,
                             'tooltip': 'separate options with semicolon(;) and without whitespaces'
                         },
-                        { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'string' },
                         { 'name': 'bUseString', 'label': 'Use basic string datatype.', 'dataType': 'boolean', 'view': 'labelRight', 'required': true, 'defaultValue': false }
                     ];
@@ -253,13 +228,11 @@ You will not see this information in forms, but it is stored with your actual st
                             ],
                             'view': 'select'
                         },
-                        { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'time' }
                     ];
                     break;
                 case 'date':
                     skeleton = [
-                        { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'date' }
                     ];
                     break;
@@ -274,7 +247,6 @@ You will not see this information in forms, but it is stored with your actual st
                             ],
                             'view': 'select'
                         },
-                        { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'datetime' }
                     ];
                     break;
@@ -289,7 +261,6 @@ You will not see this information in forms, but it is stored with your actual st
                             ],
                             'view': 'select'
                         },
-                        { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'timestamp' }
                     ];
                     break;
@@ -324,21 +295,18 @@ You will not see this information in forms, but it is stored with your actual st
                     skeleton = [
                         { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'integer' },
                         { 'name': 'unsigned', 'dataType': 'boolean', 'required': true, 'defaultValue': false },
-                        { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'integer' }
                     ];
                     break;
                 case 'decimal':
                     skeleton = [
                         { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
-                        { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'decimal' }
                     ];
                     break;
                 case 'double':
                     skeleton = [
                         { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
-                        { 'name': 'required', 'dataType': 'boolean' },
                         { 'name': 'defaultValue', 'dataType': 'double' }
                     ];
                     break;
@@ -410,17 +378,22 @@ You will not see this information in forms, but it is stored with your actual st
                             'dataType': 'enumeration',
                             'options': options,
                             'view': 'select'
-                        },
-                        { 'name': 'required', 'dataType': 'boolean' },
+                        }
                         //{ 'name': 'unique', 'dataType': 'boolean', 'defaultValue': true, 'readonly': false }
                     ];
                     break;
                 default:
-                    skeleton = [];
+                    const dtc = app.getController().getDataTypeController();
+                    var dt = dtc.getDataType(this._data['dataType']);
+                    if (dt && dt.skeleton)
+                        skeleton = dt.skeleton;
+                    else
+                        skeleton = [];
             }
             skeleton.push({ 'name': 'persistent', 'dataType': 'boolean', 'required': true, 'defaultValue': true });
             skeleton.push({ 'name': 'readonly', 'dataType': 'boolean', 'required': true, 'defaultValue': false });
             skeleton.push({ 'name': 'hidden', 'dataType': 'boolean' });
+            skeleton.push({ 'name': 'required', 'dataType': 'boolean' });
         }
 
         var attrPanel = new FormPanel(null, skeleton, {});
@@ -488,6 +461,7 @@ You will not see this information in forms, but it is stored with your actual st
     async _addAttribute(panel) {
         var data = await panel.getForm().readForm();
 
+        var dt;
         if (this._data['dataType']) {
             switch (this._data['dataType']) {
                 case 'boolean':
@@ -530,8 +504,6 @@ You will not see this information in forms, but it is stored with your actual st
                         this._data.charEncoding = data.charEncoding;
                     if (data.view)
                         this._data.view = data.view;
-                    if (data.bSyntaxPrefix)
-                        this._data.bSyntaxPrefix = data.bSyntaxPrefix;
                     if (data.size)
                         this._data.size = data.size;
                     break;
@@ -604,12 +576,24 @@ You will not see this information in forms, but it is stored with your actual st
                         this._data['unique'] = data['unique'];
                     break;
                 default:
+                    const dtc = app.getController().getDataTypeController();
+                    dt = dtc.getDataType(this._data['dataType']);
+                    if (dt) {
+                        if (dt.applySkeleton)
+                            dt.applySkeleton(this._data, data);
+                        else if (dt.skeleton) {
+                            var name;
+                            for (var entry of dt.skeleton) {
+                                name = entry['name'];
+                                if (name)
+                                    this._data[name] = data[name];
+                            }
+                        }
+                    }
             }
         }
 
-        if (data.required)
-            this._data.required = data.required;
-        if (this._data['dataType'] !== 'boolean' && data.defaultValue)
+        if (!dt && this._data['dataType'] !== 'boolean' && data.defaultValue)
             this._data.defaultValue = data.defaultValue;
 
         if (data.persistent === false)
@@ -618,6 +602,8 @@ You will not see this information in forms, but it is stored with your actual st
             this._data.readonly = true;
         if (data.hidden === true)
             this._data.hidden = true;
+        if (data.required)
+            this._data.required = data.required;
 
         return Promise.resolve();
     }

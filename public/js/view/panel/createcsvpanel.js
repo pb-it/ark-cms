@@ -62,23 +62,29 @@ class CreateCsvPanel extends Panel {
                             value = "";
 
                             val = data[attribute['name']];
-                            switch (attribute['dataType']) {
-                                case 'string':
-                                case 'text':
-                                case 'url':
-                                case 'enumeration':
-                                    if (val)
-                                        value = "\"" + val.replace(/"/g, '\\\"') + "\"";
-                                    break;
-                                case 'relation':
-                                    if (val) {
-                                        var ids = val.map(function (x) { return x['id'] });
-                                        value = "[" + ids.join(',') + "]";
-                                    }
-                                    break;
-                                default:
-                                    if (val)
-                                        value = data[attribute['name']];
+                            if (val && attribute['dataType']) {
+                                switch (attribute['dataType']) {
+                                    case 'string':
+                                    case 'text':
+                                    case 'url':
+                                    case 'enumeration':
+                                        if (val)
+                                            value = "\"" + val.replace(/"/g, '\\\"') + "\"";
+                                        break;
+                                    case 'relation':
+                                        if (val) {
+                                            var ids = val.map(function (x) { return x['id'] });
+                                            value = "[" + ids.join(',') + "]";
+                                        }
+                                        break;
+                                    default:
+                                        const dtc = app.getController().getDataTypeController();
+                                        var dt = dtc.getDataType(attribute['dataType']);
+                                        if (dt && dt.toCSV)
+                                            value = dt.toCSV(val);
+                                        else
+                                            value = val;
+                                }
                             }
 
                             if (line.length > 0)

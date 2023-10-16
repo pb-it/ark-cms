@@ -121,56 +121,16 @@ class DataView {
                                 break;
                             case "text":
                             case "json":
-                                $value.addClass('text');
+                                $value.addClass('text')
+                                    .addClass('pre');
                                 if (data && data[name]) {
-                                    if (typeof data[name] === 'string' || data[name] instanceof String) {
-                                        value = data[name];
-                                        if (attribute['bSyntaxPrefix']) {
-                                            index = value.indexOf(','); //data:text/plain;charset=utf-8,
-                                            if (index > -1) {
-                                                view = DataView.getSyntax(value.substr(0, index));
-                                                value = value.substr(index + 1);
-                                            }
-                                        } else
-                                            view = attribute['view'];
-                                        if (view) {
-                                            switch (view) {
-                                                case 'html':
-                                                    break;
-                                                case 'markdown':
-                                                    $value.addClass('markdown');
-                                                    value = await DataView.parseMarkdown(value);
-                                                    break;
-                                                case 'javascript':
-                                                    $value.addClass('pre');
-                                                    value = await DataView.highlightCode(value, view);
-                                                    break;
-                                                case 'plain+html':
-                                                    $value.addClass('pre');
-                                                    value = DataView._parseText(value);
-                                                    break;
-                                                case 'csv':
-                                                case 'xml':
-                                                case 'plain': //preformatted / WYSIWYG
-                                                default:
-                                                    $value.addClass('pre');
-                                                    value = encodeText(value);
-                                            }
-                                        } else {
-                                            $value.addClass('pre');
-                                            value = encodeText(value);
-                                        }
-                                    } else {
-                                        $value.addClass('pre');
+                                    if (typeof data[name] === 'string' || data[name] instanceof String)
+                                        value = encodeText(data[name]);
+                                    else
                                         value = encodeText(JSON.stringify(data[name], null, '\t'));
-                                    }
                                 } else
                                     value = "";
                                 $value.html(value);
-                                if (view) {
-                                    if (view === 'markdown')
-                                        await DataView.highlightBlock($value[0]);
-                                }
                                 break;
                             case "time":
                                 if (data && data[name]) {
@@ -285,7 +245,12 @@ class DataView {
                                     $value.html("");
                                 break;
                             default:
-                                $value.html("&lt;" + attribute['dataType'] + "&gt;");
+                                const dtc = app.getController().getDataTypeController();
+                                var dt = dtc.getDataType(attribute['dataType']);
+                                if (dt && dt.renderView)
+                                    await dt.renderView($value, attribute, data[name]);
+                                else
+                                    $value.html("&lt;" + attribute['dataType'] + "&gt;");
                         }
                     }
                     $div.append($name);

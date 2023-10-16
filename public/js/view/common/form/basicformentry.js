@@ -2,14 +2,12 @@ class BasicFormEntry extends FormEntry {
 
     static async loadTimePicker() {
         var buildUrl = "/public/ext/";
-        await loadStyle(buildUrl + "jquery-ui-timepicker-addon.css");
-        await loadScript(buildUrl + "jquery-ui-timepicker-addon.js");
-        return Promise.resolve();
+        var p1 = loadStyle(buildUrl + "jquery-ui-timepicker-addon.css");
+        var p2 = loadScript(buildUrl + "jquery-ui-timepicker-addon.js");
+        return Promise.all([p1, p2]);
     }
 
     _$input;
-    _$syntax;
-    _$formatButton;
 
     constructor(form, attribute) {
         super(form, attribute);
@@ -226,91 +224,7 @@ class BasicFormEntry extends FormEntry {
                     break;
                 case "text":
                 case "json":
-                    if (this._attribute['dataType'] === "text") {
-                        var syntax;
-                        if (this._attribute['bSyntaxPrefix']) {
-                            var index = value.indexOf(','); //data:text/plain;charset=utf-8,
-                            if (index > -1) {
-                                syntax = DataView.getSyntax(value.substr(0, index));
-                                value = value.substr(index + 1);
-                            }
-
-                            this._$syntax = $('<select/>');
-                            var options = ['plain', 'csv', 'xml', 'html', 'plain+html', 'markdown', 'javascript'];
-                            var $option;
-                            for (var i of options) {
-                                $option = $('<option/>').attr('value', i).text(i);
-                                if (syntax && syntax === i)
-                                    $option.prop('selected', true);
-                                this._$syntax.append($option);
-                            };
-                            this._$syntax.on('change', function () {
-                                if (this._$formatButton)
-                                    this._$formatButton.prop('disabled', !app.getController().getFormatter().isSupported(this._$syntax.val()))
-                            }.bind(this));
-                            this._$value.append(this._$syntax);
-                        } else
-                            syntax = this._attribute['view'];
-                        if (this._attribute['bSyntaxPrefix'] || (syntax && syntax !== 'plain')) {
-                            this._$formatButton = $('<button>')
-                                .text('format')
-                                .prop('disabled', !app.getController().getFormatter().isSupported(syntax))
-                                .click(async function (event) {
-                                    event.stopPropagation();
-
-                                    var syntax;
-                                    if (this._$syntax)
-                                        syntax = this._$syntax.val();
-                                    else
-                                        syntax = this._attribute['view'];
-                                    if (syntax) {
-                                        var val = this._$input.val();
-                                        var formatter = app.getController().getFormatter();
-                                        val = await formatter.formatText(val, syntax);
-                                        this._$input.val(val);
-                                    }
-
-                                    return Promise.resolve();
-                                }.bind(this));
-                            this._$value.append(this._$formatButton);
-
-                            var $previewButton = $('<button>')
-                                .text('preview')
-                                .click(async function (event) {
-                                    event.stopPropagation();
-
-                                    var skeleton = [this._attribute];
-
-                                    var data = {};
-                                    data[name] = await this.readValue();
-
-                                    var panel = new Panel();
-                                    panel.setContent(await DataView.renderData(skeleton, data));
-                                    return app.getController().getModalController().openPanelInModal(panel);
-                                }.bind(this));
-                            this._$value.append($previewButton);
-
-                            /*if (this._$syntax.val() === 'markdown') {
-                                var $exportButton = $('<button>')
-                                    .text('Export PDF')
-                                    .click(async function (event) {
-                                        event.stopPropagation();
-
-                                        if (typeof markdownpdf === 'undefined') {
-                                            var buildUrl = "https://cdn.jsdelivr.net/npm/markdown-pdf";
-                                            await loadScript(buildUrl);
-                                        }
-
-                                        markdownpdf().from.string(this.readValue()).to("document.pdf", function () {
-                                            console.log("Done");
-                                        });
-                                    }.bind(this));
-                                this._$value.append($exportButton);
-                            }*/
-
-                            this._$value.append('<br/>');
-                        }
-                    } else {
+                    if (this._attribute['dataType'] === "json") {
                         if (value)
                             value = JSON.stringify(value, null, '\t');
                     }
@@ -360,41 +274,15 @@ class BasicFormEntry extends FormEntry {
                                 input.focus();
                             }
                             return false;
-                        } else if (e.keyCode == 13) { // ENTER
+                        } else if (e.keyCode == 13) // ENTER
                             e.stopPropagation(); //https://www.rockyourcode.com/assertion-failed-input-argument-is-not-an-htmlinputelement/
-                            if (this._$syntax && this._$syntax.val() === 'markdown') {
-                                var input = this._$input[0];
-                                if (input.selectionStart != undefined && input.selectionStart >= '0') {
-                                    var cursorPosition = input.selectionStart;
-                                    var txt = this._$input.val();
-                                    var index = txt.lastIndexOf('\n', cursorPosition - 1);
-                                    var line = txt.substring(index + 1, cursorPosition);
-                                    console.log(line);
-                                    if (line.startsWith('```')) {
-                                        var arr = txt.split('\n');
-                                        var count = 0;
-                                        for (line of arr) {
-                                            if (line.startsWith('```'))
-                                                count++;
-                                        }
-                                        if (count % 2 == 1) {
-                                            e.preventDefault();
-                                            this._$input.val(txt.slice(0, cursorPosition) + '\n\n```' + txt.slice(cursorPosition));
-                                            cursorPosition++;
-                                            input.selectionStart = cursorPosition;
-                                            input.selectionEnd = cursorPosition;
-                                            input.focus();
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }.bind(this));
                     break;
                 default:
-                    this._$input = $('<div/>')
+                    var $dummy = $('<div/>')
                         .addClass('value')
                         .html("&lt;" + this._attribute['dataType'] + "&gt;");
+                    this._$value.append($dummy);
             }
         }
         if (this._$input) {
@@ -411,77 +299,74 @@ class BasicFormEntry extends FormEntry {
 
     async readValue(bValidate = true) {
         var data;
-        if (this._$input && this._attribute['dataType']) {
-            if (this._attribute['dataType'] === "enumeration" && this._attribute['view'] === "radio")
-                data = $("input[type='radio'][name='" + this._id + "']:checked").val();
-            else if (this._attribute['dataType'] === "boolean" && this._$input.prop('type') === 'fieldset')
-                data = this._$input.children().first().prop('checked');
-            else {
-                var value = this._$input.val();
-                if (value) {
-                    switch (this._attribute['dataType']) {
-                        case "boolean":
-                            if (value === 'true')
-                                data = true;
-                            else if (value === 'false')
-                                data = false;
-                            break;
-                        case "integer":
-                            if (!isNaN(value))
-                                data = parseInt(value);
-                            else {
-                                if (bValidate) {
-                                    this._$input.focus();
-                                    throw new Error("Field '" + this._attribute['name'] + "' is not an valid integer");
-                                } else
-                                    data = value;
-                            }
-                            break;
-                        case "decimal":
-                        case "double":
-                            if (!isNaN(value))
-                                data = parseFloat(value);
-                            else {
-                                if (bValidate) {
-                                    this._$input.focus();
-                                    throw new Error("Field '" + this._attribute['name'] + "' is not an valid " + this._attribute['dataType']);
-                                } else
-                                    data = value;
-                            }
-                            break;
-                        case "text":
-                            if (this._$syntax && value) {
-                                data = 'data:text/' + this._$syntax.val() + ';charset=utf-8,' + value;
-                            } else
+        if (this._$input) {
+            if (this._attribute['dataType']) {
+                if (this._attribute['dataType'] === "enumeration" && this._attribute['view'] === "radio")
+                    data = $("input[type='radio'][name='" + this._id + "']:checked").val();
+                else if (this._attribute['dataType'] === "boolean" && this._$input.prop('type') === 'fieldset')
+                    data = this._$input.children().first().prop('checked');
+                else {
+                    var value = this._$input.val();
+                    if (value) {
+                        switch (this._attribute['dataType']) {
+                            case "boolean":
+                                if (value === 'true')
+                                    data = true;
+                                else if (value === 'false')
+                                    data = false;
+                                break;
+                            case "integer":
+                                if (!isNaN(value))
+                                    data = parseInt(value);
+                                else {
+                                    if (bValidate) {
+                                        this._$input.focus();
+                                        throw new Error("Field '" + this._attribute['name'] + "' is not an valid integer");
+                                    } else
+                                        data = value;
+                                }
+                                break;
+                            case "decimal":
+                            case "double":
+                                if (!isNaN(value))
+                                    data = parseFloat(value);
+                                else {
+                                    if (bValidate) {
+                                        this._$input.focus();
+                                        throw new Error("Field '" + this._attribute['name'] + "' is not an valid " + this._attribute['dataType']);
+                                    } else
+                                        data = value;
+                                }
+                                break;
+                            case "json":
+                                if (value)
+                                    data = JSON.parse(value);
+                                break;
+                            default:
                                 data = value;
-                            break;
-                        case "json":
-                            if (value)
-                                data = JSON.parse(value);
-                            break;
-                        default:
-                            data = value;
+                        }
+                    }
+                }
+
+                if (bValidate && this._attribute['required'] && !(this._attribute['readonly'])) {
+                    var bMissing = false;
+                    if (this._attribute['dataType'] === 'boolean')
+                        bMissing = !(data === true || data === false);
+                    else
+                        bMissing = !data
+                    if (bMissing) {
+                        if (this._$input.prop('type') === 'fieldset') {
+                            var input = this._$input.find('input:first');
+                            if (input)
+                                input.focus(); //seems not to work for type checkbox and radio
+                        } else
+                            this._$input.focus();
+                        throw new Error("Field '" + this._attribute['name'] + "' is required");
                     }
                 }
             }
-
-            if (bValidate && this._attribute['required'] && !(this._attribute['readonly'])) {
-                var bMissing = false;
-                if (this._attribute['dataType'] === 'boolean')
-                    bMissing = !(data === true || data === false);
-                else
-                    bMissing = !data
-                if (bMissing) {
-                    if (this._$input.prop('type') === 'fieldset') {
-                        var input = this._$input.find('input:first');
-                        if (input)
-                            input.focus(); //seems not to work for type checkbox and radio
-                    } else
-                        this._$input.focus();
-                    throw new Error("Field '" + this._attribute['name'] + "' is required");
-                }
-            }
-        }
+        } else
+            data = this._value;
         return Promise.resolve(data);
     }
 }

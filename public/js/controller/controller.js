@@ -26,6 +26,7 @@ class Controller {
     _modelController;
     _profileController;
     _routeController;
+    _dataTypeController;
     _extensionController;
     _bookmarkController;
 
@@ -100,6 +101,10 @@ class Controller {
         return this._profileController;
     }
 
+    getDataTypeController() {
+        return this._dataTypeController;
+    }
+
     getExtensionController() {
         return this._extensionController;
     }
@@ -163,6 +168,8 @@ class Controller {
             await this._modelController.init();
 
             this._dataservice = new DataService();
+
+            this._dataTypeController = new DataTypeController();
 
             this._extensionController = new ExtensionController();
             await this._extensionController.init();
