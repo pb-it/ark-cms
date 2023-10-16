@@ -100,8 +100,10 @@ class Filter {
                             filtered_items = Filter.filterObject(filtered_items, data, name);
                         break;
                     default:
+                        var dt;
                         const dtc = app.getController().getDataTypeController();
-                        var dt = dtc.getDataType(field['dataType']);
+                        if (dtc)
+                            dt = dtc.getDataType(field['dataType']);
                         if (dt && dt.filter)
                             filtered_items = dt.filter(filtered_items, data, name);
                 }

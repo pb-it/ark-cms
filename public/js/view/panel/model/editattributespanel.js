@@ -81,8 +81,10 @@ class EditAttributesPanel extends Panel {
             { 'value': 'relation' },
             { 'value': 'file' }
         ];
+        var types;
         const dtc = app.getController().getDataTypeController();
-        var types = dtc.getDataType();
+        if (dtc)
+            types = dtc.getDataType();
         if (types) {
             var tags = Object.keys(types);
             for (var tag of tags)
@@ -383,8 +385,10 @@ class EditAttributesPanel extends Panel {
                     ];
                     break;
                 default:
+                    var dt;
                     const dtc = app.getController().getDataTypeController();
-                    var dt = dtc.getDataType(this._data['dataType']);
+                    if (dtc)
+                        dt = dtc.getDataType(this._data['dataType']);
                     if (dt) {
                         if (dt.getSkeleton)
                             skeleton = dt.getSkeleton(this.getAttributes());

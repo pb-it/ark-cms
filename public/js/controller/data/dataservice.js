@@ -39,8 +39,10 @@ class DataService {
                             });
                         break;
                     default:
+                        var dt;
                         const dtc = app.getController().getDataTypeController();
-                        var dt = dtc.getDataType(attr['dataType']);
+                        if (dtc)
+                            dt = dtc.getDataType(attr['dataType']);
                         if (dt && dt.sort)
                             dt.sort(arr, parts[1]);
                         else {

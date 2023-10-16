@@ -251,8 +251,10 @@ class DataView {
                         $value.html("");
                     break;
                 default:
+                    var dt;
                     const dtc = app.getController().getDataTypeController();
-                    var dt = dtc.getDataType(attribute['dataType']);
+                    if (dtc)
+                        dt = dtc.getDataType(attribute['dataType']);
                     var bRendered = false;
                     if (dt) {
                         if (dt.renderView) {
