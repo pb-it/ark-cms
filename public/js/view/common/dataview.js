@@ -71,195 +71,205 @@ class DataView {
             .addClass('details');
 
         if (skeleton) {
-            var attribute;
-            var name;
-            var label;
-            var view;
-            var value;
-
-            var index;
-
-            var $name;
-            var $value;
             for (var i = 0; i < skeleton.length; i++) {
-                attribute = skeleton[i];
-                if (!attribute['hidden'] || attribute['hidden'] == false) {
-                    name = attribute['name'];
-                    label = attribute['label'];
-                    if (!label)
-                        label = name;
-
-                    $name = $('<div/>').addClass('name').html(label + ":");
-                    $value = $('<div/>').addClass('value');
-
-                    if (attribute['dataType']) {
-                        switch (attribute['dataType']) {
-                            case "boolean":
-                                if (data && (data[name] == 0 || data[name] == 1 || data[name] == false || data[name] == true)) {
-                                    value = data[name];
-                                    if (data[name] == 1 || data[name] == true)
-                                        $value.html("true");
-                                    else
-                                        $value.html("false");
-                                } else
-                                    $value.html("");
-                                break;
-                            case "integer":
-                            case "decimal":
-                            case "double":
-                            case "string":
-                            case "enumeration":
-                            case "list":
-                                if (data && data[name]) {
-                                    if (typeof data[name] === 'string' || data[name] instanceof String)
-                                        value = encodeText(data[name]);
-                                    else
-                                        value = data[name];
-                                } else
-                                    value = "";
-                                $value.html(value);
-                                break;
-                            case "text":
-                            case "json":
-                                $value.addClass('text')
-                                    .addClass('pre');
-                                if (data && data[name]) {
-                                    if (typeof data[name] === 'string' || data[name] instanceof String)
-                                        value = encodeText(data[name]);
-                                    else
-                                        value = encodeText(JSON.stringify(data[name], null, '\t'));
-                                } else
-                                    value = "";
-                                $value.html(value);
-                                break;
-                            case "time":
-                                if (data && data[name]) {
-                                    value = data[name];
-                                } else
-                                    value = "";
-                                $value.html(value);
-                                break;
-                            case "date":
-                                if (data && data[name]) {
-                                    let date = new Date(data[name]);
-
-                                    if (attribute['timeZone'])
-                                        value = date.toLocaleString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
-                                    else
-                                        value = date.toLocaleString(app.getController().getLocale());
-                                } else
-                                    value = "";
-                                $value.html(value);
-                                break;
-                            case "datetime":
-                            case "timestamp":
-                                if (data && data[name]) {
-                                    let date = new Date(data[name]);
-
-                                    if (attribute['timeZone'])
-                                        value = date.toLocaleString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
-                                    else
-                                        value = date.toLocaleString(app.getController().getLocale());
-                                } else
-                                    value = "";
-                                $value.html(value);
-                                break;
-                            case "url":
-                                if (data && data[name]) {
-                                    if (attribute['cdn'])
-                                        value = CrudObject._buildUrl(attribute['cdn'], data[name]);
-                                    else
-                                        value = data[name];
-                                    $value.html("<a href='" + value + "' target='_blank'>" + data[name] + "</a><br>");
-                                }
-                                break;
-                            case "relation":
-                                if (data && data[name]) {
-                                    var $list = await DataView.renderRelation(attribute, data[name]);
-                                    $value.append($list);
-                                }
-                                break;
-                            case "file":
-                                if (data && data[name]) {
-                                    if (attribute['storage'] == 'filesystem') {
-                                        var fileName;
-                                        var x = data[name];
-                                        value = null;
-                                        if (typeof (x) === 'string' || (x) instanceof String)
-                                            fileName = x;
-                                        else {
-                                            if (x['filename'])
-                                                fileName = x['filename'];
-                                            else if (x['url']) {
-                                                fileName = x['url'];
-                                                value = x['url'];
-                                            }
-                                        }
-                                        if (!value) {
-                                            if (attribute['cdn'])
-                                                value = CrudObject._buildUrl(attribute['cdn'], fileName);
-                                            else
-                                                value = fileName;
-                                        }
-                                        $value.html("<a href='" + value + "' target='_blank'>" + fileName + "</a><br>");
-                                    } else if (attribute['storage'] == 'base64') {
-                                        var filename;
-                                        if (attribute['filename_prop'] && data[attribute['filename_prop']])
-                                            filename = data[attribute['filename_prop']];
-                                        else
-                                            filename = 'undefined';
-                                        var $button = $("<button/>")
-                                            .text("download")
-                                            .click(function (event) {
-                                                event.stopPropagation();
-                                                const a = document.createElement('a');
-                                                a.href = data[name];
-                                                a.download = filename;
-                                                a.click();
-                                                URL.revokeObjectURL(a.href);
-                                            });
-                                        $value.append($button);
-                                    } else if (attribute['storage'] == 'blob') {
-                                        var filename;
-                                        if (attribute['filename_prop'] && data[attribute['filename_prop']])
-                                            filename = data[attribute['filename_prop']];
-                                        else
-                                            filename = 'undefined';
-                                        var $button = $("<button/>")
-                                            .text("download")
-                                            .click(function (event) {
-                                                event.stopPropagation();
-                                                const a = document.createElement('a');
-                                                //const file = new Blob(data[name].data, { type: "text/plain" });
-                                                const file = new Blob(data[name].data, { type: data[name].type });
-                                                //const file = new File(data[name], 'hello_world.txt', { type: 'text/plain' });
-                                                a.href = URL.createObjectURL(file);
-                                                a.download = filename;
-                                                a.click();
-                                                URL.revokeObjectURL(a.href);
-                                            });
-                                        $value.append($button);
-                                    } else
-                                        $value.html("");
-                                } else
-                                    $value.html("");
-                                break;
-                            default:
-                                const dtc = app.getController().getDataTypeController();
-                                var dt = dtc.getDataType(attribute['dataType']);
-                                if (dt && dt.renderView)
-                                    await dt.renderView($value, attribute, data[name]);
-                                else
-                                    $value.html("&lt;" + attribute['dataType'] + "&gt;");
-                        }
-                    }
-                    $div.append($name);
-                    $div.append($value);
-                    $div.append('<br>');
-                }
+                await DataView._renderAttribute($div, skeleton[i], data);
             }
         }
         return Promise.resolve($div);
+    }
+
+    static async _renderAttribute($div, attribute, data) {
+        if (!attribute['hidden'] || attribute['hidden'] == false) {
+            $div.append(DataView._renderLabel(attribute));
+            $div.append(await DataView._renderValue(attribute, data));
+            $div.append('<br>');
+        }
+        return Promise.resolve();
+    }
+
+    static _renderLabel(attribute) {
+        var label = attribute['label'];
+        if (!label)
+            label = attribute['name'];
+        return $('<div/>').addClass('name').html(label + ":");
+    }
+
+    static async _renderValue(attribute, data) {
+        var $value = $('<div/>').addClass('value');
+        if (attribute['dataType']) {
+            var name = attribute['name'];
+            var value;
+            switch (attribute['dataType']) {
+                case "boolean":
+                    if (data && (data[name] == 0 || data[name] == 1 || data[name] == false || data[name] == true)) {
+                        value = data[name];
+                        if (data[name] == 1 || data[name] == true)
+                            $value.html("true");
+                        else
+                            $value.html("false");
+                    } else
+                        $value.html("");
+                    break;
+                case "integer":
+                case "decimal":
+                case "double":
+                case "string":
+                case "enumeration":
+                case "list":
+                    if (data && data[name]) {
+                        if (typeof data[name] === 'string' || data[name] instanceof String)
+                            value = encodeText(data[name]);
+                        else
+                            value = data[name];
+                    } else
+                        value = "";
+                    $value.html(value);
+                    break;
+                case "text":
+                case "json":
+                    $value.addClass('text')
+                        .addClass('pre');
+                    if (data && data[name]) {
+                        if (typeof data[name] === 'string' || data[name] instanceof String)
+                            value = encodeText(data[name]);
+                        else
+                            value = encodeText(JSON.stringify(data[name], null, '\t'));
+                    } else
+                        value = "";
+                    $value.html(value);
+                    break;
+                case "time":
+                    if (data && data[name]) {
+                        value = data[name];
+                    } else
+                        value = "";
+                    $value.html(value);
+                    break;
+                case "date":
+                    if (data && data[name]) {
+                        let date = new Date(data[name]);
+
+                        if (attribute['timeZone'])
+                            value = date.toLocaleString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
+                        else
+                            value = date.toLocaleString(app.getController().getLocale());
+                    } else
+                        value = "";
+                    $value.html(value);
+                    break;
+                case "datetime":
+                case "timestamp":
+                    if (data && data[name]) {
+                        let date = new Date(data[name]);
+
+                        if (attribute['timeZone'])
+                            value = date.toLocaleString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
+                        else
+                            value = date.toLocaleString(app.getController().getLocale());
+                    } else
+                        value = "";
+                    $value.html(value);
+                    break;
+                case "url":
+                    if (data && data[name]) {
+                        if (attribute['cdn'])
+                            value = CrudObject._buildUrl(attribute['cdn'], data[name]);
+                        else
+                            value = data[name];
+                        $value.html("<a href='" + value + "' target='_blank'>" + data[name] + "</a><br>");
+                    }
+                    break;
+                case "relation":
+                    if (data && data[name]) {
+                        var $list = await DataView.renderRelation(attribute, data[name]);
+                        $value.append($list);
+                    }
+                    break;
+                case "file":
+                    if (data && data[name]) {
+                        if (attribute['storage'] == 'filesystem') {
+                            var fileName;
+                            var x = data[name];
+                            value = null;
+                            if (typeof (x) === 'string' || (x) instanceof String)
+                                fileName = x;
+                            else {
+                                if (x['filename'])
+                                    fileName = x['filename'];
+                                else if (x['url']) {
+                                    fileName = x['url'];
+                                    value = x['url'];
+                                }
+                            }
+                            if (!value) {
+                                if (attribute['cdn'])
+                                    value = CrudObject._buildUrl(attribute['cdn'], fileName);
+                                else
+                                    value = fileName;
+                            }
+                            $value.html("<a href='" + value + "' target='_blank'>" + fileName + "</a><br>");
+                        } else if (attribute['storage'] == 'base64') {
+                            var filename;
+                            if (attribute['filename_prop'] && data[attribute['filename_prop']])
+                                filename = data[attribute['filename_prop']];
+                            else
+                                filename = 'undefined';
+                            var $button = $("<button/>")
+                                .text("download")
+                                .click(function (event) {
+                                    event.stopPropagation();
+                                    const a = document.createElement('a');
+                                    a.href = data[name];
+                                    a.download = filename;
+                                    a.click();
+                                    URL.revokeObjectURL(a.href);
+                                });
+                            $value.append($button);
+                        } else if (attribute['storage'] == 'blob') {
+                            var filename;
+                            if (attribute['filename_prop'] && data[attribute['filename_prop']])
+                                filename = data[attribute['filename_prop']];
+                            else
+                                filename = 'undefined';
+                            var $button = $("<button/>")
+                                .text("download")
+                                .click(function (event) {
+                                    event.stopPropagation();
+                                    const a = document.createElement('a');
+                                    //const file = new Blob(data[name].data, { type: "text/plain" });
+                                    const file = new Blob(data[name].data, { type: data[name].type });
+                                    //const file = new File(data[name], 'hello_world.txt', { type: 'text/plain' });
+                                    a.href = URL.createObjectURL(file);
+                                    a.download = filename;
+                                    a.click();
+                                    URL.revokeObjectURL(a.href);
+                                });
+                            $value.append($button);
+                        } else
+                            $value.html("");
+                    } else
+                        $value.html("");
+                    break;
+                default:
+                    const dtc = app.getController().getDataTypeController();
+                    var dt = dtc.getDataType(attribute['dataType']);
+                    var bRendered = false;
+                    if (dt) {
+                        if (dt.renderView) {
+                            await dt.renderView($value, attribute, data);
+                            bRendered = true;
+                        } else if (dt['baseDataType']) {
+                            var attr = { ...dt['baseDataType'] };
+                            attr['name'] = attribute['name'];
+                            $value = await DataView._renderValue(attr, data);
+                            bRendered = true;
+                        }
+                    }
+                    if (!bRendered)
+                        $value.html("&lt;" + attribute['dataType'] + "&gt;");
+            }
+        }
+        return Promise.resolve($value);
     }
 
     static async renderRelation(attribute, data) {

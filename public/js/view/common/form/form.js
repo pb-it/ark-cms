@@ -99,9 +99,19 @@ class Form {
                             default:
                                 const dtc = app.getController().getDataTypeController();
                                 var dt = dtc.getDataType(attribute['dataType']);
-                                if (dt && dt['formEntryClass']) {
-                                    var C = dt['formEntryClass'];
-                                    entry = new C(this, attribute);
+                                if (dt) {
+                                    var attr;
+                                    var C;
+                                    if (dt['formEntryClass'])
+                                        C = dt['formEntryClass'];
+                                    else
+                                        C = BasicFormEntry;
+                                    if (dt['baseDataType']) {
+                                        attr = { ...dt['baseDataType'] };
+                                        attr['name'] = attribute['name'];
+                                    } else
+                                        attr = attribute;
+                                    entry = new C(this, attr);
                                 } else
                                     entry = new BasicFormEntry(this, attribute);
                         }

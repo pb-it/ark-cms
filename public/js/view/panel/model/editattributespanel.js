@@ -385,11 +385,15 @@ class EditAttributesPanel extends Panel {
                 default:
                     const dtc = app.getController().getDataTypeController();
                     var dt = dtc.getDataType(this._data['dataType']);
-                    if (dt && dt.skeleton)
-                        skeleton = dt.skeleton;
-                    else
-                        skeleton = [];
+                    if (dt) {
+                        if (dt.getSkeleton)
+                            skeleton = dt.getSkeleton(this.getAttributes());
+                        else if (dt.skeleton)
+                            skeleton = dt.skeleton;
+                    }
             }
+            if (!skeleton)
+                skeleton = [];
             skeleton.push({ 'name': 'persistent', 'dataType': 'boolean', 'required': true, 'defaultValue': true });
             skeleton.push({ 'name': 'readonly', 'dataType': 'boolean', 'required': true, 'defaultValue': false });
             skeleton.push({ 'name': 'hidden', 'dataType': 'boolean' });
@@ -581,12 +585,19 @@ class EditAttributesPanel extends Panel {
                     if (dt) {
                         if (dt.applySkeleton)
                             dt.applySkeleton(this._data, data);
-                        else if (dt.skeleton) {
-                            var name;
-                            for (var entry of dt.skeleton) {
-                                name = entry['name'];
-                                if (name)
-                                    this._data[name] = data[name];
+                        else {
+                            var skeleton;
+                            if (dt.getSkeleton)
+                                skeleton = dt.getSkeleton(this.getAttributes());
+                            else
+                                skeleton = dt.skeleton;
+                            if (skeleton) {
+                                var name;
+                                for (var entry of skeleton) {
+                                    name = entry['name'];
+                                    if (name)
+                                        this._data[name] = data[name];
+                                }
                             }
                         }
                     }
