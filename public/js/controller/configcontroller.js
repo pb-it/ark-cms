@@ -66,9 +66,10 @@ class ConfigController {
                     else
                         await ac.reloadModels();
                     var bReady = await ac.waitApiReady();
-                    if (bReady)
+                    if (bReady) {
+                        alert('Application is going to reload in order to finish import!');
                         app.controller.reloadApplication(); //TODO: quickfix ? overact?
-                    else {
+                    } else {
                         app.controller.setLoadingState(false);
                         if (bRestart)
                             app.controller.showErrorMessage("Backend not reachable after restart. Please inspect your backend manually!");

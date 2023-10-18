@@ -12,31 +12,36 @@ class SelectFormEntry extends FormEntry {
         else
             this._$value = $('<div/>').addClass('value');
 
-        if (this._attribute['readonly']) {
-            this._value = value;
+        try {
+            if (this._attribute['readonly']) {
+                this._value = value;
 
-            var $list = await DataView.renderRelation(this._attribute, value);
-            this._$value.append($list);
-        } else {
-            this._select = new Select(this._id, this._attribute['model'], this._attribute['multiple'] ? -1 : 1, this._form.getCallback());
+                var $list = await DataView.renderRelation(this._attribute, value);
+                this._$value.append($list);
+            } else {
+                this._select = new Select(this._id, this._attribute['model'], this._attribute['multiple'] ? -1 : 1, this._form.getCallback());
 
-            var backlink = this._attribute['via'];
-            if (backlink) {
-                var obj = {};
-                obj[backlink] = this._form.getFormData();
-                this._select.setCreateData(obj);
+                var backlink = this._attribute['via'];
+                if (backlink) {
+                    var obj = {};
+                    obj[backlink] = this._form.getFormData();
+                    this._select.setCreateData(obj);
+                }
+
+                if (value) {
+                    if (!this._attribute['multiple'])
+                        value = [value];
+                } else
+                    value = [];
+
+                this._select.setSelectedValues(value);
+                await this._select.initSelect(); // TODO: Add option for lazy init
+
+                this._$value.append(await this._select.render());
             }
-
-            if (value) {
-                if (!this._attribute['multiple'])
-                    value = [value];
-            } else
-                value = [];
-
-            this._select.setSelectedValues(value);
-            await this._select.initSelect(); // TODO: Add option for lazy init
-
-            this._$value.append(await this._select.render());
+        } catch (error) {
+            app.getController().showError(error);
+            this._$value.html("&lt;ERROR&gt;");
         }
 
         return Promise.resolve(this._$value);

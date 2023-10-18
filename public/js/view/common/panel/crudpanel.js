@@ -264,8 +264,7 @@ class CrudPanel extends CanvasPanel {
             for (var attribute of this._skeleton) {
                 replacement = undefined;
                 if (attribute['hidden']) {
-                    name = attribute['name'];
-                    if (data[name]) {
+                    if (data[attribute['name']]) {
                         replacement = { ...attribute };
                         replacement['hidden'] = false;
                         replacement['readonly'] = true;

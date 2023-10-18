@@ -5,6 +5,7 @@ class FormEntry {
 
     _id;
     _value;
+    _visible;
 
     _$div;
     //_$label;
@@ -21,6 +22,8 @@ class FormEntry {
             this._id = formName + "." + this._attribute.name;
         else
             this._id = this._attribute.name + Date.now();
+
+        this._visible = !this._attribute['hidden'];
     }
 
     getAttribute() {
@@ -40,17 +43,17 @@ class FormEntry {
     }
 
     isVisible() {
-        return !this._attribute['hidden'];
+        return this._visible;
     }
 
     hide() {
-        this._attribute['hidden'] = true;
+        this._visible = false;
         if (this._$div)
             this._$div.empty();
     }
 
     async show() {
-        this._attribute['hidden'] = false;
+        this._visible = true;
         return this.renderEntry(this._value);
     }
 
@@ -62,7 +65,7 @@ class FormEntry {
         else
             this._$div = $('<div/>').addClass('formentry');
 
-        if (this._attribute['hidden'])
+        if (!this._visible)
             this._$div.empty();
         else {
             var $label = this.renderLabel();

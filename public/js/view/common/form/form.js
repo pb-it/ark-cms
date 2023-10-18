@@ -40,14 +40,17 @@ class Form {
 
     getFormEntry(name) {
         var entry;
-        if (this._entries) {
-            for (var e of this._entries) {
-                if (e.getName() === name) {
-                    entry = e;
-                    break;
+        if (name) {
+            if (this._entries) {
+                for (var e of this._entries) {
+                    if (e.getName() === name) {
+                        entry = e;
+                        break;
+                    }
                 }
             }
-        }
+        } else
+            entry = this._entries;
         return entry;
     }
 

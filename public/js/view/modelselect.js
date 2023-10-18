@@ -129,6 +129,7 @@ class ModelSelect {
                     try {
                         var $input = $('<input/>')
                             .prop('type', 'file')
+                            .prop('accept', 'application/json')
                             .on("change", function () {
                                 if (this.files.length == 1) {
                                     const reader = new FileReader();

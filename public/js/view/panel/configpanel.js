@@ -155,7 +155,10 @@ class ConfigPanel extends TabPanel {
                         controller.setLoadingState(false);
                     } catch (error) {
                         controller.setLoadingState(false);
-                        controller.showError(error);
+                        if (error && error.status == 0 && !error.response)
+                            controller.showErrorMessage('Connection failed');
+                        else
+                            controller.showError(error);
                     }
                     return Promise.resolve();
                 }.bind(this));

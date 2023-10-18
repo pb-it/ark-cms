@@ -78,6 +78,7 @@ class ExtensionSelect {
                                         var extensions = app.controller.getExtensionController().getExtensions();
                                         for (var file of this.files) {
                                             if (file.type == 'application/zip') {
+                                                msg = null;
                                                 name = file.name.split('@')[0];
                                                 existing = null;
                                                 for (var x of extensions) {
@@ -101,7 +102,7 @@ class ExtensionSelect {
                                                 }
                                             } else
                                                 msg = 'An extension has to be provided as zip archive! Skipping \'' + name + '\'';
-                                            alert(msg)
+                                            alert(msg);
                                         }
                                         app.controller.setLoadingState(false);
                                     } catch (error) {

@@ -515,8 +515,20 @@ class ContextMenuController {
             return this.openInModal(ActionEnum.read);
         }.bind(panel)));
 
-        entries.push(new ContextMenuEntry("Edit", async function () {
-            return this.openInModal(ActionEnum.update);
+        entries.push(new ContextMenuEntry("Edit", async function (e) {
+            var modal = await this.openInModal(ActionEnum.update);
+            if (e.ctrlKey) {
+                var panel = modal.getPanel();
+                var form = panel.getForm();
+                var entries = form.getFormEntry();
+                if (entries) {
+                    for (var entry of entries) {
+                        if (!entry.isVisible())
+                            await entry.show();
+                    }
+                }
+            }
+            return Promise.resolve();
         }.bind(panel)));
 
         entries.push(new ContextMenuEntry("Delete", async function () {
