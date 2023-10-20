@@ -80,9 +80,9 @@ class AuthController {
 
         panel.setContent($d);
 
-        await app.getController().getModalController().openPanelInModal(panel);
+        await this._controller.getModalController().openPanelInModal(panel);
 
-        $username.focus();
+        this._$username.focus();
 
         return Promise.resolve();
     }

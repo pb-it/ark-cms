@@ -28,6 +28,13 @@ class Select {
         this._iUpperBound = iUpperBound;
 
         this._cb = cb;
+
+        var model = app.getController().getModelController().getModel(this._typeString);
+        var mpcc = model.getModelPanelConfigController();
+        var panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);
+        delete panelConfig['display'];
+        delete panelConfig['float'];
+        this._panelConfig = panelConfig;
     }
 
     getModelName() {
@@ -311,9 +318,8 @@ class Select {
         var $li = $("<li/>").attr({ 'data-id': id })
             .css({ 'display': 'inline-block' });
 
-        var panel = PanelController.createPanel(this._typeString, option.getData());
-        delete panel._config.display;
-        delete panel._config.float;
+        var obj = new CrudObject(this._typeString, option.getData());
+        var panel = PanelController.createPanelForObject(obj, this._panelConfig);
         $li.append(await panel.render());
 
         $li.append($("<button/>")

@@ -280,9 +280,7 @@ class DataView {
         var $li;
         var model = app.controller.getModelController().getModel(modelName);
         var mpcc = model.getModelPanelConfigController();
-        var panelConfig = mpcc.getPanelConfig();
-        if (panelConfig['details'] != DetailsEnum.none)
-            delete panelConfig['details'];
+        var panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);
         var panel;
         if (data) {
             if (attribute['multiple'] && Array.isArray(data)) {
