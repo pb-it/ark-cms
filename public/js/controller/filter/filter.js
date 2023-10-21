@@ -24,31 +24,41 @@ class Filter {
                 filtered_items = jPath(items, path);
             } else {
                 if (typeString) {
+
                     if (state && state['typeString'] && typeString == state['typeString'] &&
                         state['panelConfig'] && state['panelConfig']['searchFields']) {
                         filtered_items = [];
+                        const model = app.getController().getModelController().getModel(typeString);
+                        const mac = model.getModelAttributesController();
+                        var attribute;
                         var obj;
+                        var add;
                         for (var prop of state['panelConfig']['searchFields'].map(function (x) { return x['value'] })) {
+                            attribute = mac.getAttribute(prop);
                             obj = {};
                             obj[prop] = str;
-                            if (filtered_items.length == 0)
-                                filtered_items = Filter.filterString(items, obj, prop, FilterEnum.contains);
-                            else {
-                                var add = Filter.filterString(items, obj, prop, FilterEnum.contains);
-                                //filtered_items = [...new Set(...filtered_items, ...add)];
-                                for (let i = 0; i < add.length; i++) {
-                                    if (filtered_items.indexOf(add[i]) == -1)
-                                        filtered_items.push(add[i])
+                            if (attribute['dataType'] != 'relation') {
+                                add = Filter._filter(items, obj, attribute);
+                                if (filtered_items.length == 0)
+                                    filtered_items = add;
+                                else {
+                                    //filtered_items = [...new Set(...filtered_items, ...add)];
+                                    for (let i = 0; i < add.length; i++) {
+                                        if (filtered_items.indexOf(add[i]) == -1)
+                                            filtered_items.push(add[i])
+                                    }
                                 }
                             }
                         }
                     } else {
-                        var model = app.controller.getModelController().getModel(typeString);
+                        const model = app.controller.getModelController().getModel(typeString);
                         var prop = model.getModelDefaultsController().getDefaultTitleProperty();
-                        if (prop) {
+                        var attribute = model.getModelAttributesController().getAttribute(prop);
+                        if (attribute) {
                             var obj = {};
                             obj[prop] = str;
-                            filtered_items = Filter.filterString(items, obj, prop, FilterEnum.contains);
+                            if (attribute['dataType'] != 'relation')
+                                filtered_items = Filter._filter(items, obj, attribute);
                         } else {
                             var name = Filter.filterString(items, { name: str }, "name", FilterEnum.contains);
                             var title = Filter.filterString(items, { title: str }, "title", FilterEnum.contains);
@@ -64,49 +74,48 @@ class Filter {
 
     static filterObj(items, obj) {
         var filtered_items = items;
-
         var skeleton = obj.getSkeleton();
         var data = obj.getData();
-
-        var field;
-        var name;
-
         for (var i = 0; i < skeleton.length; i++) {
-            field = skeleton[i];
-            name = field.name;
-            if (field['dataType']) {
-                switch (field['dataType']) {
-                    case "boolean":
-                        filtered_items = Filter.filterBoolean(filtered_items, data, name);
-                        break;
-                    case "integer":
-                    case "decimal":
-                    case "double":
-                        filtered_items = Filter.filterNumber(filtered_items, data, name);
-                        break;
-                    case "datetime":
-                    case "string":
-                    case "url":
-                    case "text":
-                        filtered_items = Filter.filterString(filtered_items, data, name, FilterEnum.contains);
-                        break;
-                    case "enumeration":
-                        filtered_items = Filter.filterString(filtered_items, data, name, FilterEnum.equals);
-                        break;
-                    case "relation":
-                        if (field.multiple)
-                            filtered_items = Filter.filterArray(filtered_items, data, name);
-                        else
-                            filtered_items = Filter.filterObject(filtered_items, data, name);
-                        break;
-                    default:
-                        var dt;
-                        const dtc = app.getController().getDataTypeController();
-                        if (dtc)
-                            dt = dtc.getDataType(field['dataType']);
-                        if (dt && dt.filter)
-                            filtered_items = dt.filter(filtered_items, data, name);
-                }
+            filtered_items = Filter._filter(filtered_items, data, skeleton[i]);
+        }
+        return filtered_items;
+    }
+
+    static _filter(items, filter, field) {
+        var filtered_items;
+        if (field['dataType']) {
+            switch (field['dataType']) {
+                case "boolean":
+                    filtered_items = Filter.filterBoolean(items, filter, field['name']);
+                    break;
+                case "integer":
+                case "decimal":
+                case "double":
+                    filtered_items = Filter.filterNumber(items, filter, field['name']);
+                    break;
+                case "datetime":
+                case "string":
+                case "url":
+                case "text":
+                    filtered_items = Filter.filterString(items, filter, field['name'], FilterEnum.contains);
+                    break;
+                case "enumeration":
+                    filtered_items = Filter.filterString(items, filter, field['name'], FilterEnum.equals);
+                    break;
+                case "relation":
+                    if (field['multiple'])
+                        filtered_items = Filter.filterArray(items, filter, field['name']);
+                    else
+                        filtered_items = Filter.filterObject(items, filter, field['name']);
+                    break;
+                default:
+                    var dt;
+                    const dtc = app.getController().getDataTypeController();
+                    if (dtc)
+                        dt = dtc.getDataType(field['dataType']);
+                    if (dt && dt.filter)
+                        filtered_items = dt.filter(items, filter, field['name']);
             }
         }
         return filtered_items;
@@ -336,7 +345,7 @@ class Filter {
     static filterArray(items, config, propertyName) {
         var filtered;
         var arr = config[propertyName];
-        if (arr && arr.length > 0) {
+        if (arr && Array.isArray(arr) && arr.length > 0) {
             filtered = [];
             var item;
             var search;

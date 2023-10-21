@@ -26,6 +26,10 @@ class FormEntry {
         this._visible = !this._attribute['hidden'];
     }
 
+    setAttribute(attribute) {
+        this._attribute = attribute;
+    }
+
     getAttribute() {
         return this._attribute;
     }

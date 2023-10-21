@@ -317,6 +317,8 @@ class DataService {
             case ActionEnum.delete:
                 method = "DELETE";
                 break;
+            default:
+                throw new Error('Unknown action \'' + action + '\'');
         }
 
         var resource;

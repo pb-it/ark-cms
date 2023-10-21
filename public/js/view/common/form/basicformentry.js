@@ -289,8 +289,10 @@ class BasicFormEntry extends FormEntry {
             if (this._attribute['readonly']) //editable
                 this._$input.attr('disabled', true);
 
+            if (this._attribute['clickAction'])
+                this._$input.click(this._attribute['clickAction'].bind(this._$input));
             if (this._attribute['changeAction'])
-                this._$input.change(this._attribute['changeAction']);
+                this._$input.change(this._attribute['changeAction'].bind(this._$input));
 
             this._$value.append(this._$input);
         }

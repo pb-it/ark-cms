@@ -19,23 +19,32 @@ class EditViewPanel extends TabPanel {
 
     static getPanelViewForm(model, data) {
         var options;
+        var searchOptions;
         var mac = model.getModelAttributesController();
         var attributes = mac.getAttributes(true);
-        if (attributes)
+        if (attributes) {
             options = attributes.map(function (x) { return { 'value': x['name'] } });
+            var sAttr = attributes.filter(function (x) { return x['dataType'] != 'relation' });
+            searchOptions = sAttr.map(function (x) { return { 'value': x['name'] } });
+        }
 
         var form = new Form();
 
         var bHidden = true;
-        if (data && data['details'] === EditViewPanel.detailsEnumToString(DetailsEnum.all))
-            bHidden = false;
+        if (data) {
+            if (data['details'] === EditViewPanel.detailsEnumToString(DetailsEnum.all))
+                bHidden = false;
 
-        if (data && !data['detailsAttr'])
-            data['detailsAttr'] = options;
+            if (!data['detailsAttr'])
+                data['detailsAttr'] = options;
 
-        var prop = model.getModelDefaultsController().getDefaultTitleProperty();
-        if (prop)
-            data['searchFields'] = [{ 'value': prop }];
+            if (!data['searchFields']) {
+                var prop = model.getModelDefaultsController().getDefaultTitleProperty();
+                if (prop)
+                    data['searchFields'] = [{ 'value': prop }];
+            }
+        }
+
         var skeleton = [
             {
                 name: ModelDefaultsController.PANEL_TYPE_IDENT,
@@ -103,7 +112,7 @@ class EditViewPanel extends TabPanel {
                 name: "searchFields",
                 label: "*SearchFields",
                 dataType: "list",
-                options: options,
+                options: searchOptions,
                 columns: 5
             }
         ];

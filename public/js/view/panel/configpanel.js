@@ -107,7 +107,21 @@ class ConfigPanel extends TabPanel {
                     label: 'Cache whith IndexedDB',
                     dataType: 'boolean',
                     required: true,
-                    defaultValue: false
+                    defaultValue: false,
+                    clickAction: async function (event) {
+                        var box = this.children().first();
+                        if (box.prop('checked')) {
+                            if (!confirm(`WARNING!
+
+We do not recommend to activate IndexedDB when using an foreign or shared device!
+If you still want to use it make sure to clear the database manually before logging out!
+Otherwise your stored data will be disclosed!
+
+Do you want to continue?`))
+                                event.preventDefault();
+                        }
+                        return Promise.resolve();
+                    }
                 }
             ];
             this._form = new Form(skeleton, this._data);

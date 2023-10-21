@@ -14,7 +14,7 @@ class ListFormEntry extends FormEntry {
             this._$value = $('<div/>').addClass('value');
 
         var selected;
-        if (value)
+        if (value && Array.isArray(value) && value.length > 0)
             selected = value.map(function (x) { return x['value'] })
 
         this._list = new List();

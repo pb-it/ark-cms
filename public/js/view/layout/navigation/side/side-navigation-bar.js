@@ -132,20 +132,6 @@ class SideNavigationBar {
                 };
                 menuItem = new MenuItem(conf);
                 this._topIconBar.addMenuItem(menuItem);
-
-                conf = {
-                    'style': 'iconbar',
-                    'icon': "clipboard",
-                    'tooltip': "Cache",
-                    'click': async function (event, icon) {
-                        this.close();
-
-                        var config = { 'minWidth': '400px' };
-                        return controller.getModalController().openPanelInModal(new CachePanel(config));
-                    }.bind(this)
-                };
-                menuItem = new MenuItem(conf);
-                this._topIconBar.addMenuItem(menuItem);
             }
 
             conf = {
@@ -241,6 +227,22 @@ class SideNavigationBar {
                         this._bottomIconBar.activateItem(icon);
                         await this._sidePanel.showExtensionSelect();
                     }
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            this._bottomIconBar.addMenuItem(menuItem);
+        }
+
+        if (controller.isInDebugMode()) {
+            conf = {
+                'style': 'iconbar',
+                'icon': "clipboard",
+                'tooltip': "Cache",
+                'click': async function (event, icon) {
+                    this.close();
+
+                    var config = { 'minWidth': '400px' };
+                    return controller.getModalController().openPanelInModal(new CachePanel(config));
                 }.bind(this)
             };
             menuItem = new MenuItem(conf);
