@@ -13,19 +13,15 @@ class ListFormEntry extends FormEntry {
         else
             this._$value = $('<div/>').addClass('value');
 
-        var selected;
-        if (value && Array.isArray(value) && value.length > 0)
-            selected = value.map(function (x) { return x['value'] })
-
         this._list = new List();
         if (this._attribute['options']) {
-            if (selected) {
+            if (value && Array.isArray(value) && value.length > 0) {
                 for (var o of this._attribute['options']) {
-                    this._list.addEntry(new SelectableListEntry(o['value'], null, selected.includes(o['value'])));
+                    this._list.addEntry(new SelectableListEntry(o['value'], o['value'], value.includes(o['value'])));
                 }
             } else {
                 for (var o of this._attribute['options']) {
-                    this._list.addEntry(new SelectableListEntry(o['value']));
+                    this._list.addEntry(new SelectableListEntry(o['value'], o['value']));
                 }
             }
         }
@@ -49,7 +45,7 @@ class ListFormEntry extends FormEntry {
             this._list = this._listVis.getList();
             var selectedEntries = this._list.getEntries().filter(function (x) { return x.isSelected() });
             value = selectedEntries.map(function (x) {
-                return { 'value': x.getName() };
+                return x.getData(); // x.getName()
             });
         }
         return Promise.resolve(value);

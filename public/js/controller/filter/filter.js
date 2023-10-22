@@ -33,7 +33,7 @@ class Filter {
                         var attribute;
                         var obj;
                         var add;
-                        for (var prop of state['panelConfig']['searchFields'].map(function (x) { return x['value'] })) {
+                        for (var prop of state['panelConfig']['searchFields']) {
                             attribute = mac.getAttribute(prop);
                             obj = {};
                             obj[prop] = str;

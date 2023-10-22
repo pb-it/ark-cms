@@ -18,11 +18,14 @@ class EditViewPanel extends TabPanel {
     }
 
     static getPanelViewForm(model, data) {
+        var bEdit = model.getId() != null;
+        var attributeNames;
         var options;
         var searchOptions;
         var mac = model.getModelAttributesController();
         var attributes = mac.getAttributes(true);
         if (attributes) {
+            attributeNames = attributes.map(function (x) { return x['name'] });
             options = attributes.map(function (x) { return { 'value': x['name'] } });
             var sAttr = attributes.filter(function (x) { return x['dataType'] != 'relation' });
             searchOptions = sAttr.map(function (x) { return { 'value': x['name'] } });
@@ -36,12 +39,12 @@ class EditViewPanel extends TabPanel {
                 bHidden = false;
 
             if (!data['detailsAttr'])
-                data['detailsAttr'] = options;
+                data['detailsAttr'] = attributeNames;
 
             if (!data['searchFields']) {
                 var prop = model.getModelDefaultsController().getDefaultTitleProperty();
                 if (prop)
-                    data['searchFields'] = [{ 'value': prop }];
+                    data['searchFields'] = [prop];
             }
         }
 
@@ -64,16 +67,15 @@ class EditViewPanel extends TabPanel {
 
                     var attribute = entry.getAttribute();
                     if (fData['details'] === EditViewPanel.detailsEnumToString(DetailsEnum.all)) {
-                        attribute['hidden'] = false;
-                        if (!fData['detailsAttr']) {
-                            fData['detailsAttr'] = attribute['options'];
-                        }
+                        if (!fData['detailsAttr'])
+                            entry.setValue(attribute['options'].map(function (x) { return x['value'] }));
+                        await entry.show();
                     } else
-                        attribute['hidden'] = true;
+                        entry.hide();
 
                     //await entry.renderValue(???);
-                    this.setFormData(fData); //backup already made changes
-                    await this.renderForm();
+                    //this.setFormData(fData); //backup already made changes
+                    //await this.renderForm();
                     return Promise.resolve();
                 }.bind(form)
             },
@@ -99,8 +101,9 @@ class EditViewPanel extends TabPanel {
             {
                 name: "bContextMenu",
                 label: "*ContextMenu",
-                tooltip: "**INFO**: Usually calculated value. Not stored!",
-                dataType: "boolean"
+                tooltip: "**INFO**: Not stored! Gets calculated/reseted on every data/side reload!",
+                dataType: "boolean",
+                hidden: !bEdit
             },
             {
                 name: "paging",
@@ -111,9 +114,11 @@ class EditViewPanel extends TabPanel {
             {
                 name: "searchFields",
                 label: "*SearchFields",
+                tooltip: "**INFO**: Not stored!",
                 dataType: "list",
                 options: searchOptions,
-                columns: 5
+                columns: 5,
+                hidden: !bEdit
             }
         ];
         form.init(skeleton, data);
@@ -209,8 +214,9 @@ class EditViewPanel extends TabPanel {
             }
             var Cp = panelConfig.getPanelClass();
 
-            if (panelConfig['details'])
-                panelConfig['details'] = EditViewPanel.detailsEnumToString(panelConfig['details']);
+            var details = panelConfig['details'];
+            if (details && typeof details === 'number')
+                panelConfig['details'] = EditViewPanel.detailsEnumToString(details);
 
             this._panelViewForm = EditViewPanel.getPanelViewForm(this._model, panelConfig);
             var $form = await this._panelViewForm.renderForm();

@@ -64,25 +64,24 @@ class SideNavigationBar {
         this._bottomIconBar.renderMenu();
 
         var controller = app.getController();
-        var bInfo = false;
-        if (!controller.hasConnection())
-            bInfo = true;
-        else {
+        var bNotification = false;
+        if (controller.hasConnection()) {
             var info = controller.getApiController().getApiInfo();
             if (info) {
                 if (info['state'] !== 'running') // openReloadRequest, ...
-                    bInfo = true;
+                    bNotification = true;
             } else
-                bInfo = true;
+                bNotification = true;
             var vc = controller.getVersionController();
             if (vc) {
                 if (!vc.isCompatible())
-                    bInfo = true;
+                    bNotification = true;
             } else
-                bInfo = true;
-        }
+                bNotification = true;
+        } else
+            bNotification = true;
 
-        if (bInfo)
+        if (bNotification)
             this._confMenuItem.addNotification('!');
 
         this.close();
@@ -211,55 +210,59 @@ class SideNavigationBar {
             }
         }
 
-        var controller = app.getController();
-        var apiController;
-        if (controller)
-            apiController = controller.getApiController();
-        if (apiController && apiController.isAdministrator()) {
-            conf = {
-                'style': 'iconbar',
-                'icon': "puzzle-piece",
-                'tooltip': "Extensions",
-                'click': async function (event, icon) {
-                    var activeIcon = this._bottomIconBar.getActiveItem();
-                    this.close();
-                    if (activeIcon != icon) {
-                        this._bottomIconBar.activateItem(icon);
-                        await this._sidePanel.showExtensionSelect();
-                    }
-                }.bind(this)
-            };
-            menuItem = new MenuItem(conf);
-            this._bottomIconBar.addMenuItem(menuItem);
-        }
+        const controller = app.getController();
+        if (controller && controller.hasConnection()) {
+            var apiController = controller.getApiController();
+            if (apiController && apiController.isAdministrator()) {
+                conf = {
+                    'style': 'iconbar',
+                    'icon': "puzzle-piece",
+                    'tooltip': "Extensions",
+                    'click': async function (event, icon) {
+                        var activeIcon = this._bottomIconBar.getActiveItem();
+                        this.close();
+                        if (activeIcon != icon) {
+                            this._bottomIconBar.activateItem(icon);
+                            await this._sidePanel.showExtensionSelect();
+                        }
+                    }.bind(this)
+                };
+                menuItem = new MenuItem(conf);
+                this._bottomIconBar.addMenuItem(menuItem);
+            }
 
-        if (controller.isInDebugMode()) {
-            conf = {
-                'style': 'iconbar',
-                'icon': "clipboard",
-                'tooltip': "Cache",
-                'click': async function (event, icon) {
-                    this.close();
+            if (controller.isInDebugMode()) {
+                if (controller.getDataService()) {
+                    conf = {
+                        'style': 'iconbar',
+                        'icon': "clipboard",
+                        'tooltip': "Cache",
+                        'click': async function (event, icon) {
+                            this.close();
 
-                    var config = { 'minWidth': '400px' };
-                    return controller.getModalController().openPanelInModal(new CachePanel(config));
-                }.bind(this)
-            };
-            menuItem = new MenuItem(conf);
-            this._bottomIconBar.addMenuItem(menuItem);
+                            var config = { 'minWidth': '400px' };
+                            return app.getController().getModalController().openPanelInModal(new CachePanel(config));
+                        }.bind(this)
+                    };
+                    menuItem = new MenuItem(conf);
+                    this._bottomIconBar.addMenuItem(menuItem);
+                }
 
-            conf = {
-                'style': 'iconbar',
-                'icon': "map",
-                'tooltip': "Routes",
-                'click': async function (event, icon) {
-                    this.close();
+                if (controller.getRouteController()) {
+                    conf = {
+                        'style': 'iconbar',
+                        'icon': "map",
+                        'tooltip': "Sitemap",
+                        'click': async function (event, icon) {
+                            this.close();
 
-                    return app.getController().getModalController().openPanelInModal(new ManageRoutesPanel());
-                }.bind(this)
-            };
-            menuItem = new MenuItem(conf);
-            this._bottomIconBar.addMenuItem(menuItem);
+                            return app.getController().getModalController().openPanelInModal(new ManageRoutesPanel());
+                        }.bind(this)
+                    };
+                    menuItem = new MenuItem(conf);
+                    this._bottomIconBar.addMenuItem(menuItem);
+                }
+            }
         }
 
         conf = {

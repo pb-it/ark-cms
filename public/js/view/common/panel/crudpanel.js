@@ -24,7 +24,7 @@ class CrudPanel extends CanvasPanel {
     async _init() {
         var skeleton = this._obj.getSkeleton(true);
         if (this._config['detailsAttr']) {
-            var attr = this._config['detailsAttr'].map(function (x) { return x['value'] });
+            var attr = this._config['detailsAttr'];
             this._skeleton = skeleton.filter(function (x) {
                 return (attr.indexOf(x['name']) > -1);
             });
