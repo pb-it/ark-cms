@@ -97,6 +97,7 @@ describe('Testsuit', function () {
             var callback = arguments[arguments.length - 1];
 
             localStorage.setItem('debug', JSON.stringify({ bDebug: false }));
+            localStorage.setItem('bConfirmOnApply', 'false');
             var controller = app.getController();
             //controller.reloadApplication(); // will kill this script
             await controller.initController();

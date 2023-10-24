@@ -4,19 +4,22 @@ const API_IDENT = "api";
 
 class ConfigController {
 
-    _config;
+    _controller;
+    _storageController;
 
     _debugConfig;
     _api;
 
     constructor() {
+        this._controller = app.getController();
+        this._storageController = this._controller.getStorageController();
     }
 
     async initConfigController() {
-        var debugConfig = app.controller.getStorageController().loadLocal(DEBUG_IDENT);
+        var debugConfig = this._storageController.loadLocal(DEBUG_IDENT);
         if (debugConfig)
             this._debugConfig = JSON.parse(debugConfig);
-        this._api = app.controller.getStorageController().loadLocal(API_IDENT);
+        this._api = this._storageController.loadLocal(API_IDENT);
 
         if (!this._debugConfig)
             this.setDefaultDebugConfig();
@@ -29,7 +32,8 @@ class ConfigController {
 
     async import(models, profiles, bookmarks, bForce) {
         var bError = false;
-        app.controller.setLoadingState(true);
+        const controller = this._controller;
+        controller.setLoadingState(true);
         try {
             var resp;
             for (var model of models) {
@@ -38,63 +42,65 @@ class ConfigController {
             }
 
             if (profiles)
-                await app.controller.getProfileController().setProfiles(profiles);
+                await controller.getProfileController().setProfiles(profiles);
 
             if (bookmarks)
-                await app.controller.getBookmarkController().setBookmarks(bookmarks);
+                await controller.getBookmarkController().setBookmarks(bookmarks);
 
-            app.controller.setLoadingState(false);
+            controller.setLoadingState(false);
         } catch (error) {
             bError = true;
-            app.controller.setLoadingState(false);
-            app.controller.showError(error);
+            controller.setLoadingState(false);
+            controller.showError(error);
         }
         if (!bError) {
             try {
-                app.controller.setLoadingState(true);
-                var ac = app.controller.getApiController();
+                controller.setLoadingState(true);
+                var ac = controller.getApiController();
                 var info = await ac.fetchApiInfo();
                 if (info) {
                     var bRestart = false;
                     if (info['state'] === 'openRestartRequest') {
-                        app.controller.setLoadingState(false);
-                        bRestart = await app.controller.getModalController().openConfirmModal("Some changes need a restart to take effect. Do you want to restart the backend now?");
-                        app.controller.setLoadingState(true);
+                        controller.setLoadingState(false);
+                        bRestart = await controller.getModalController().openConfirmModal("Some changes need a restart to take effect. Do you want to restart the backend now?");
+                        controller.setLoadingState(true);
                     }
-                    if (bRestart)
+                    if (bRestart) {
                         await ac.restartApi();
-                    else
+                        await sleep(5000);
+                    } else
                         await ac.reloadModels();
                     var bReady = await ac.waitApiReady();
                     if (bReady) {
                         alert('Application is going to reload in order to finish import!');
-                        app.controller.reloadApplication(); //TODO: quickfix ? overact?
+                        controller.reloadApplication(); //TODO: quickfix ? overact?
                     } else {
-                        app.controller.setLoadingState(false);
+                        controller.setLoadingState(false);
                         if (bRestart)
-                            app.controller.showErrorMessage("Backend not reachable after restart. Please inspect your backend manually!");
+                            controller.showErrorMessage("Backend not reachable after restart. Please inspect your backend manually!");
                         else
-                            app.controller.showErrorMessage("Automatic reloading of models failed. Please restart your backend manually!");
+                            controller.showErrorMessage("Automatic reloading of models failed. Please restart your backend manually!");
                     }
                 } else {
-                    app.controller.setLoadingState(false);
-                    app.controller.showError(error, "Automatic reloading of models failed. Please restart your backend manually!");
+                    controller.setLoadingState(false);
+                    controller.showError(error, "Automatic reloading of models failed. Please restart your backend manually!");
                 }
             } catch (error) {
-                app.controller.setLoadingState(false);
-                app.controller.showError(error, "Automatic reloading of models failed. Please restart your backend manually!");
+                controller.setLoadingState(false);
+                controller.showError(error, "Automatic reloading of models failed. Please restart your backend manually!");
             }
-            app.controller.setLoadingState(false);
+            controller.setLoadingState(false);
         }
         return Promise.resolve();
     }
 
     async export(models) {
+        const controller = this._controller;
         if (!models)
-            models = app.controller.getModelController().getModels();
+            models = controller.getModelController().getModels();
 
         var config = {};
-        var ac = app.controller.getApiController();
+        const ac = controller.getApiController();
         var info = ac.getApiInfo();
         config[MODEL_VERSION_IDENT] = info['version'];
 
@@ -103,11 +109,11 @@ class ConfigController {
         });
         config[ModelController.MODELS_IDENT].sort((a, b) => a.name.localeCompare(b.name));
 
-        var profiles = app.controller.getProfileController().getProfileConfig();
+        var profiles = controller.getProfileController().getProfileConfig();
         if (profiles)
             config[ProfileController.CONFIG_PROFILE_IDENT] = profiles;
 
-        var bookmarks = app.controller.getBookmarkController().getBookmarks();
+        var bookmarks = controller.getBookmarkController().getBookmarks();
         if (bookmarks)
             config[BookmarkController.CONFIG_BOKKMARK_IDENT] = bookmarks;
 
@@ -137,9 +143,9 @@ class ConfigController {
     setDebugConfig(conf) {
         this._debugConfig = conf;
         if (conf)
-            app.controller.getStorageController().storeLocal(DEBUG_IDENT, JSON.stringify(conf));
+            this._storageController.storeLocal(DEBUG_IDENT, JSON.stringify(conf));
         else
-            app.controller.getStorageController().storeLocal(DEBUG_IDENT, '');
+            this._storageController.storeLocal(DEBUG_IDENT, '');
     }
 
     getApi() {
@@ -153,20 +159,20 @@ class ConfigController {
     setApi(api) {
         this._api = api;
         if (api)
-            app.controller.getStorageController().storeLocal(API_IDENT, api);
+            this._storageController.storeLocal(API_IDENT, api);
         else
-            app.controller.getStorageController().storeLocal(API_IDENT, '');
+            this._storageController.storeLocal(API_IDENT, '');
     }
 
     confirmOnLeave() {
-        return app.controller.getStorageController().loadLocal('bConfirmOnLeave') === 'true';
+        return this._storageController.loadLocal('bConfirmOnLeave') === 'true';
     }
 
     confirmOnApply() {
-        return app.controller.isInDebugMode() || (app.controller.getStorageController().loadLocal('bConfirmOnApply') === 'true');
+        return this._controller.isInDebugMode() || (this._storageController.loadLocal('bConfirmOnApply') === 'true');
     }
 
     experimentalFeaturesEnabled() {
-        return app.controller.getStorageController().loadLocal('bExperimentalFeatures') === 'true';
+        return this._storageController.loadLocal('bExperimentalFeatures') === 'true';
     }
 }

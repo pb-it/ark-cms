@@ -2,6 +2,8 @@ const webdriver = require('selenium-webdriver');
 
 class TestHelper {
 
+    static delay = ms => new Promise(res => setTimeout(res, ms));
+
     _driver;
 
     constructor(driver) {
@@ -45,6 +47,27 @@ class TestHelper {
         if (elements && elements.length == 1)
             button = elements[0];
         return Promise.resolve(button);
+    }
+
+    async login() {
+        var modal = await this.getTopModal();
+        if (modal) {
+            var input = modal.findElement(webdriver.By.css('input[id="username"]'));
+            input.sendKeys('admin');
+            input = modal.findElement(webdriver.By.css('input[id="password"]'));
+            input.sendKeys('admin');
+            button = await this.getButton(modal, 'Login');
+            button.click();
+
+            await TestHelper.delay(1000);
+
+            modal = await this.getTopModal();
+            if (modal) {
+                button = await this.getButton(modal, 'Skip');
+                button.click();
+            }
+        }
+        return Promise.resolve();
     }
 }
 

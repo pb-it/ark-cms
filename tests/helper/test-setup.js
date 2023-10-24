@@ -48,7 +48,12 @@ class TestSetup {
                         .setChromeOptions(options)
                         .build();
             }
-            //this._driver.manage().timeouts().setScriptTimeout(10000);
+            const TIMEOUT = 300000000;
+            await this._driver.manage().setTimeouts({
+                //implicit: TIMEOUT,
+                //pageLoad: TIMEOUT,
+                script: TIMEOUT
+            })
 
             this._driver.manage().window().maximize();
             this._driver.get(this._config['host']);

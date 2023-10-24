@@ -27,8 +27,10 @@ class SelectableListVis extends ListVis {
         super.renderList();
 
         if (this._config['selectButtons']) {
+            var bDisabled = this._nodes.length == 0;
             var $selectAllButton = $("<button/>")
                 .text("Select All")
+                .prop("disabled", bDisabled)
                 .click(function (event) {
                     event.stopPropagation();
 
@@ -40,6 +42,7 @@ class SelectableListVis extends ListVis {
 
             var $deselectAllButton = $("<button/>")
                 .text("Deselect All")
+                .prop("disabled", bDisabled)
                 .click(function (event) {
                     event.stopPropagation();
 

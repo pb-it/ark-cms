@@ -89,19 +89,19 @@ class ExtensionSelect {
                                                 }
                                                 if (!existing)
                                                     res = await app.controller.getExtensionController().addExtension(file);
-                                                else if (confirm('An extension with name \'' + name + '\' already exists. Do you want to override it?'))
+                                                else if (confirm('An extension with name \'' + name + '\' already exists!\nDo you want to override it?'))
                                                     res = await app.controller.getExtensionController().addExtension(file, existing);
                                                 else
                                                     msg = 'Aborted';
 
                                                 if (!msg) {
                                                     if (res == 'OK')
-                                                        msg = 'Uploaded \'' + name + '\' successfully. Reload website for the changes to take effect!';
+                                                        msg = 'Uploaded \'' + name + '\' successfully.\nReload website for the changes to take effect!';
                                                     else
                                                         msg = 'Something went wrong!';
                                                 }
                                             } else
-                                                msg = 'An extension has to be provided as zip archive! Skipping \'' + name + '\'';
+                                                msg = 'An extension has to be provided as zip archive!\nSkipping \'' + name + '\'';
                                             alert(msg);
                                         }
                                         app.controller.setLoadingState(false);
@@ -179,20 +179,32 @@ class ExtensionSelect {
                 event.stopPropagation();
 
                 if (confirm("Delete extension '" + this._extension + "'?")) {
+                    const controller = app.getController();
                     try {
-
-                        app.controller.setLoadingState(true);
-                        var res = await app.controller.getExtensionController().deleteExtension(this._extension);
-                        app.controller.setLoadingState(false);
+                        controller.setLoadingState(true);
+                        var res = await controller.getExtensionController().deleteExtension(this._extension);
+                        controller.setLoadingState(false);
 
                         if (res == 'OK') {
-                            app.controller.getView().getSideNavigationBar().close();
-                            alert('Deleted extension successfully. Reload website for the changes to take effect!')
+                            var msg = 'Deleted extension successfully!';
+                            var bRestart;
+                            var ac = controller.getApiController();
+                            var info = await ac.fetchApiInfo();
+                            if (info)
+                                bRestart = info['state'] === 'openRestartRequest';
+                            if (bRestart) {
+                                msg += '\nAPI server application needs to be restarted for the changes to take effect!';
+                                controller.getView().initView();
+                            } else {
+                                controller.getView().getSideNavigationBar().close();
+                                msg += '\nReload website for the changes to take effect!';
+                            }
+                            alert(msg)
                         } else
                             alert('Something went wrong!');
                     } catch (error) {
-                        app.controller.setLoadingState(false);
-                        app.controller.showError(error);
+                        controller.setLoadingState(false);
+                        controller.showError(error);
                     }
                 }
 

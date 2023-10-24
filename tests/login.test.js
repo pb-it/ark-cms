@@ -6,8 +6,6 @@ const config = require('./config.js');
 const TestSetup = require('./helper/test-setup.js');
 const TestHelper = require('./helper/test-helper.js');
 
-const delay = ms => new Promise(res => setTimeout(res, ms))
-
 describe('Testsuit', function () {
     it('#test login', async function () {
         this.timeout(10000);
@@ -15,7 +13,7 @@ describe('Testsuit', function () {
         var driver = await new TestSetup(config).getDriver();
         var helper = new TestHelper(driver);
 
-        await delay(1000);
+        await TestHelper.delay(1000);
 
         var modal = await helper.getTopModal();
         if (modal) {
@@ -26,7 +24,7 @@ describe('Testsuit', function () {
             button = await helper.getButton(modal, 'Login');
             button.click();
 
-            await delay(1000);
+            await TestHelper.delay(1000);
 
             modal = await helper.getTopModal();
             if (modal) {

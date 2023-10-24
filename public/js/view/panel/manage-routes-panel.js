@@ -17,7 +17,8 @@ class ManageRoutesPanel extends Panel {
                 regex = route['regex'];
                 if (regex.startsWith('^') && regex.endsWith('$'))
                     regex = regex.substring(1, regex.length - 1);
-                if (regex.indexOf('.') == -1 && regex.indexOf('[') == -1) {
+                if (regex.indexOf('.') == -1 && regex.indexOf('[') == -1 && regex.indexOf('(') == -1 &&
+                    regex.indexOf('?') == -1 && regex.indexOf('*') == -1) {
                     $li.append($('<button/>')
                         .text(regex)
                         .click(async function (event) {

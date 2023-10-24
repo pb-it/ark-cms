@@ -92,7 +92,9 @@ docker run -p 4000:4000 -it <image name> /bin/bash
 
 Create an profile for your browser (firefox: `about:profiles`, chrome: `chrome://version`).
 
-Adapt test configuration `./tests/config.js`
+Edit test configuration `./tests/config.js`
+
+> ⚠️ **_WARNING:_** The test suite will clear the database on the configured API server! Ensure it does not contain any important data! 
 
 ```bash
 # npm install --only=dev
