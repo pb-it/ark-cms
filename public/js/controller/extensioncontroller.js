@@ -7,7 +7,7 @@ class ExtensionController {
 
     async init() {
         //var model = app.controller.getModelController().getModel('_extension'); //readAll???
-        var res = await app.controller.getDataService().fetchData('_extension');
+        var res = await app.getController().getDataService().fetchData('_extension', null, null, null, null, null, null, true);
         this._extensions = [...res];
         for (var ext of this._extensions) {
             if (ext['client-extension']) {

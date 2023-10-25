@@ -19,7 +19,7 @@ class ModelCache {
 
         this._bIncrements = this._model.getDefinition()['options']['increments'];
         var db = app.getController().getDatabase();
-        if (db && this._bIncrements)
+        if (db && !this._model.getName().startsWith('_') && this._bIncrements)
             this._db = db;
     }
 

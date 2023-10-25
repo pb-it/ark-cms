@@ -12,9 +12,9 @@ class ModelController {
 
     async init() {
         this._models = [];
-        //var models = await app.getController().getDataService().fetchData('_model');
-        var apiClient = app.getController().getApiController().getApiClient();
-        var models = await apiClient.requestData("GET", "_model");
+        const controller = app.getController();
+        //var models = await controller.getDataService().fetchData('_model', null, null, null, null, null, null, true); // DataService not yet available
+        var models = await controller.getApiController().getApiClient().requestData('GET', '_model');
         if (models) {
             var model;
             for (var data of models) {
@@ -23,7 +23,7 @@ class ModelController {
                     model.setId(data['id']);
                     await model.initModel();
                 } catch (error) {
-                    app.controller.showError(error, "Initialising model '" + model.getName() + "' failed");
+                    controller.showError(error, "Initialising model '" + model.getName() + "' failed");
                 }
                 this._models.push(model); // still push to enable edit
             }

@@ -60,7 +60,8 @@ class ExtensionSelect {
                 'click': function (event, item) {
                     event.stopPropagation();
 
-                    app.controller.getView().getSideNavigationBar().close();
+                    const controller = app.getController();
+                    controller.getView().getSideNavigationBar().close();
 
                     try {
                         var $input = $('<input/>')
@@ -70,12 +71,12 @@ class ExtensionSelect {
                             .on("change", async function () {
                                 if (this.files.length > 0) {
                                     try {
-                                        app.controller.setLoadingState(true);
+                                        controller.setLoadingState(true);
                                         var name;
                                         var existing;
                                         var res;
                                         var msg;
-                                        var extensions = app.controller.getExtensionController().getExtensions();
+                                        var extensions = controller.getExtensionController().getExtensions();
                                         for (var file of this.files) {
                                             if (file.type == 'application/zip') {
                                                 msg = null;
@@ -88,33 +89,45 @@ class ExtensionSelect {
                                                     }
                                                 }
                                                 if (!existing)
-                                                    res = await app.controller.getExtensionController().addExtension(file);
+                                                    res = await controller.getExtensionController().addExtension(file);
                                                 else if (confirm('An extension with name \'' + name + '\' already exists!\nDo you want to override it?'))
-                                                    res = await app.controller.getExtensionController().addExtension(file, existing);
+                                                    res = await controller.getExtensionController().addExtension(file, existing);
                                                 else
                                                     msg = 'Aborted';
 
                                                 if (!msg) {
-                                                    if (res == 'OK')
-                                                        msg = 'Uploaded \'' + name + '\' successfully.\nReload website for the changes to take effect!';
-                                                    else
+                                                    if (res == 'OK') {
+                                                        msg = 'Uploaded \'' + name + '\' successfully!';
+                                                        var bRestart;
+                                                        var ac = controller.getApiController();
+                                                        var info = await ac.fetchApiInfo();
+                                                        if (info)
+                                                            bRestart = info['state'] === 'openRestartRequest';
+                                                        if (bRestart) {
+                                                            msg += '\nAPI server application needs to be restarted for the changes to take effect!';
+                                                            controller.getView().initView();
+                                                        } else {
+                                                            controller.getView().getSideNavigationBar().close();
+                                                            msg += '\nReload website for the changes to take effect!';
+                                                        }
+                                                    } else
                                                         msg = 'Something went wrong!';
                                                 }
                                             } else
                                                 msg = 'An extension has to be provided as zip archive!\nSkipping \'' + name + '\'';
                                             alert(msg);
                                         }
-                                        app.controller.setLoadingState(false);
+                                        controller.setLoadingState(false);
                                     } catch (error) {
-                                        app.controller.setLoadingState(false);
-                                        app.controller.showError(error);
+                                        controller.setLoadingState(false);
+                                        controller.showError(error);
                                     }
                                 }
                                 return Promise.resolve();
                             });
                         $input.click();
                     } catch (error) {
-                        app.controller.showError(error, "Reading of file failed");
+                        controller.showError(error, "Reading of file failed");
                     }
                 }.bind(this)
             };
@@ -123,7 +136,7 @@ class ExtensionSelect {
 
             var dummyGroup = new SubMenuGroup(); // only to show carret
 
-            var extensions = app.controller.getExtensionController().getExtensions();
+            var extensions = app.getController().getExtensionController().getExtensions();
             this._names = extensions.map(function (x) {
                 return x['name'];
             });
@@ -164,9 +177,9 @@ class ExtensionSelect {
             'name': 'Edit',
             'click': async function (event, item) {
                 event.stopPropagation();
-
+    
                 app.controller.getView().getSideNavigationBar().close();
-
+    
                 //TODO:
             }.bind(this)
         };
@@ -199,7 +212,7 @@ class ExtensionSelect {
                                 controller.getView().getSideNavigationBar().close();
                                 msg += '\nReload website for the changes to take effect!';
                             }
-                            alert(msg)
+                            alert(msg);
                         } else
                             alert('Something went wrong!');
                     } catch (error) {

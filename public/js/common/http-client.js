@@ -1,3 +1,10 @@
+class HttpError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "HttpError";
+    }
+}
+
 class HttpClient {
 
     static urlEncode(data) {
@@ -17,7 +24,7 @@ class HttpClient {
             var xhr;
 
             function error(event) { // or use xhr direct instead of event parameter
-                var err = {};
+                var err = new HttpError();
                 var request;
                 if (event instanceof XMLHttpRequest)
                     request = event;

@@ -200,44 +200,47 @@ class Controller {
             bInitDone = true;
         } catch (error) {
             if (error) {
-                if (error.status == 0) {
-                    if (error.response)
+                if (error instanceof HttpError && error.hasOwnProperty('status')) {
+                    if (error['status'] == 0) {
+                        if (error['response'])
+                            this.showError(error);
+                        else {
+                            var url = this._configController.getApi();
+                            var panel = new Panel();
+
+                            var $d = $('<div/>')
+                                .css({ 'padding': '10' });
+
+                            $d.append("<b>Attempt to connect to API failed!</b><br/><br/>");
+                            $d.append("If you are using this application with an unverified self signed certificate,<br/>");
+                            $d.append("please open your API server URL and confirm that the certificate is accepted by your browser.<br/><br/>");
+                            $d.append("API base URL: <a href='" + url + "' target='_blank'>" + url + "</a><br><br>");
+
+                            var $reload = $('<button>')
+                                .text('Reload')
+                                .css({ 'float': 'right' })
+                                .click(async function (event) {
+                                    event.stopPropagation();
+
+                                    this.reloadApplication();
+                                    return Promise.resolve();
+                                }.bind(this));
+                            $d.append($reload);
+
+                            var $footer = $('<div/>')
+                                .addClass('clear');
+                            $d.append($footer);
+
+                            panel.setContent($d);
+
+                            await this._modalController.openPanelInModal(panel);
+                        }
+                    } else if (error['status'] == 401)
+                        await this._authController.showLoginDialog();
+                    else
                         this.showError(error);
-                    else {
-                        var url = this._configController.getApi();
-                        var panel = new Panel();
-
-                        var $d = $('<div/>')
-                            .css({ 'padding': '10' });
-
-                        $d.append("<b>Attempt to connect to API failed!</b><br/><br/>");
-                        $d.append("If you are using this application with an unverified self signed certificate,<br/>");
-                        $d.append("please open your API server URL and confirm that the certificate is accepted by your browser.<br/><br/>");
-                        $d.append("API base URL: <a href='" + url + "' target='_blank'>" + url + "</a><br><br>");
-
-                        var $reload = $('<button>')
-                            .text('Reload')
-                            .css({ 'float': 'right' })
-                            .click(async function (event) {
-                                event.stopPropagation();
-
-                                this.reloadApplication();
-                                return Promise.resolve();
-                            }.bind(this));
-                        $d.append($reload);
-
-                        var $footer = $('<div/>')
-                            .addClass('clear');
-                        $d.append($footer);
-
-                        panel.setContent($d);
-
-                        await this._modalController.openPanelInModal(panel);
-                    }
-                } else if (error.status == 401)
-                    await this._authController.showLoginDialog();
-                else
-                    this.showErrorMessage('An unexpected error has occurred');
+                } else
+                    this.showError(error);
             } else
                 this.showErrorMessage('An unexpected error has occurred');
         } finally {
