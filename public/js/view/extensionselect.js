@@ -68,6 +68,10 @@ class ExtensionSelect {
                             .prop('type', 'file')
                             .prop('accept', 'application/zip')
                             .prop('multiple', true)
+                            .css({ 'visibility': 'hidden' })
+                            .bind("click", function (e) {
+                                this.remove();
+                            })
                             .on("change", async function () {
                                 if (this.files.length > 0) {
                                     try {
@@ -123,8 +127,10 @@ class ExtensionSelect {
                                         controller.showError(error);
                                     }
                                 }
+                                this.remove();
                                 return Promise.resolve();
                             });
+                        $(document.body).append($input); // append to dom to enable access within testautomation
                         $input.click();
                     } catch (error) {
                         controller.showError(error, "Reading of file failed");

@@ -50,11 +50,10 @@ module.exports = test;`};
             }
             callback(res);
         });
-        assert.equal(response, 0);
+        assert.equal(response, 0, 'API server did not restart in time!');
 
-        driver.navigate().refresh();
-
-        await delay(1000);
+        await driver.navigate().refresh();
+        await delay(100);
 
         await helper.login();
 

@@ -87,7 +87,7 @@ describe('Testsuit', function () {
         elements = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(elements.length, 1);
 
-        driver.navigate().back();
+        await driver.navigate().back();
         await delay(100);
 
         elements = await driver.findElements(webdriver.By.xpath(xpathPanel));

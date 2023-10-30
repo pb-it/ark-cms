@@ -60,9 +60,8 @@ describe('Testsuit', function () {
                 .catch((x) => callback(x));
         });
 
-        driver.navigate().refresh();
-
-        await delay(1000);
+        await driver.navigate().refresh();
+        await delay(100);
 
         var modal = await helper.getTopModal();
         if (modal) {

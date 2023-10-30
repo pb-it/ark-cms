@@ -53,11 +53,14 @@ class TestHelper {
         var modal = await this.getTopModal();
         if (modal) {
             var input = modal.findElement(webdriver.By.css('input[id="username"]'));
-            input.sendKeys('admin');
+            if (input)
+                input.sendKeys('admin');
             input = modal.findElement(webdriver.By.css('input[id="password"]'));
-            input.sendKeys('admin');
-            button = await this.getButton(modal, 'Login');
-            button.click();
+            if (input)
+                input.sendKeys('admin');
+            var button = await this.getButton(modal, 'Login');
+            if (button)
+                button.click();
 
             await TestHelper.delay(1000);
 
