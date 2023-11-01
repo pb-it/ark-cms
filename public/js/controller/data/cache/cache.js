@@ -44,7 +44,7 @@ class Cache {
             start = this._lastUpdate;
         if (start) {
             var apiClient = app.getController().getApiController().getApiClient();
-            var response = await apiClient.request("GET", apiClient.getDataPath() + '_change?timestamp_gte=' + start.toISOString());
+            var response = await apiClient.request("GET", apiClient.getDataPath() + '_change?timestamp_gte=' + start.toISOString() + '&model_neq=_%');
             if (response)
                 changes = JSON.parse(response);
         }

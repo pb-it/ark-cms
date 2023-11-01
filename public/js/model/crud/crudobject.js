@@ -404,8 +404,11 @@ class CrudObject {
 
     constructor(typeString, data) {
         this._typeString = typeString;
-        this._model = app.controller.getModelController().getModel(this._typeString);
-        this.setData(data);
+        var model = app.getController().getModelController().getModel(this._typeString);
+        if (model) {
+            this._model = model;
+            this.setData(data);
+        }
     }
 
     getTypeString() {
@@ -438,7 +441,7 @@ class CrudObject {
             data = {};
 
         var prepare;
-        if (bPrepare)
+        if (bPrepare && this._model)
             prepare = this._model.getPrepareDataAction();
         if (prepare)
             this._data = prepare(data);
