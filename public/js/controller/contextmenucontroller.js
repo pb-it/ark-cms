@@ -57,9 +57,9 @@ class ContextMenuController {
 
     static getContextMenuEntries(panel) {
         var entries = [];
-        var obj = panel.getObject();
-        var model = obj.getModel();
-        var controller = app.getController();
+        const obj = panel.getObject();
+        const model = obj.getModel();
+        const controller = app.getController();
 
         entries.push(new ContextMenuEntry("Reload", async function () {
             controller.setLoadingState(true);
@@ -132,14 +132,30 @@ class ContextMenuController {
             var data = obj.getData();
             if (data.subtype && data.subtype == "playlist") {
                 var createPlaylistEntry = new ContextMenuEntry("Playlist File", async function () {
-                    var objects = this._obj.getAllItems();
-                    if (objects) {
-                        var text = "#EXTM3U\n";
-                        for (var i = 0; i < objects.length; i++) {
-                            text += "#EXTINF:-1," + objects[i].getAttributeValue("title") + "\n";
-                            text += objects[i].getAttributeValue("file") + "\n";
+                    try {
+                        var objects = this._obj.getAllItems();
+                        if (objects) {
+                            var entries = [];
+                            var title;
+                            var file;
+                            for (var obj of objects) {
+                                title = obj.getAttributeValue("title");
+                                if (!title)
+                                    throw new Error('Missing title');
+                                file = obj.getAttributeValue("file");
+                                if (!file)
+                                    throw new Error('Missing file');
+                                entries.push({ 'title': title, 'file': file });
+                            }
+                            var text = "#EXTM3U\n";
+                            for (var i = 0; i < objects.length; i++) {
+                                text += "#EXTINF:-1," + + "\n";
+                                text += + "\n";
+                            }
+                            FileCreator.createPlaylist(entries);
                         }
-                        FileCreator.createFileFromText("playlist.m3u", text);
+                    } catch (error) {
+                        controller.showError(error);
                     }
                     return Promise.resolve();
                 }.bind(panel));

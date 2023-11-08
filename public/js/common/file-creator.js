@@ -47,4 +47,13 @@ class FileCreator {
         const day = `${date.getDate()}`.padStart(2, '0');
         return `${hours}-${minutes}-${seconds}_${day}-${month}-${year}`;
     }
+
+    static createPlaylist(entries) {
+        var text = "#EXTM3U\n";
+        for (var entry of entries) {
+            text += "#EXTINF:-1," + entry['title'] + "\n";
+            text += entry['file'] + "\n";
+        }
+        FileCreator.createFileFromText("playlist.m3u", text);
+    }
 }
