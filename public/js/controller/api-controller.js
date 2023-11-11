@@ -98,8 +98,10 @@ class ApiController {
                 await this.fetchApiInfo();
                 bReady = true;
             } catch (error) {
-                if (error && (error.status == 401 || error.status == 403))
-                    bReady = true;
+                if (error instanceof HttpError && error['response']) {
+                    if (error['response']['status'] == 401 || error['response']['status'] == 403)
+                        bReady = true;
+                }
             }
             i++;
         }

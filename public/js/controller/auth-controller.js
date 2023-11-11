@@ -29,7 +29,7 @@ class AuthController {
                     panel.dispose();
                     this._controller.reloadApplication();
                 } catch (error) {
-                    if (error && error.status == 401) {
+                    if (error instanceof HttpError && error['response'] && error['response']['status'] == 401) {
                         alert('Login failed');
                         this._$password.val('');
                         this._$password.focus();

@@ -1,7 +1,20 @@
 class HttpError extends Error {
-    constructor(message) {
+
+    response;
+
+    constructor(message, response) {
+        if (!message && response) {
+            message = '';
+            if (response.status)
+                message += response.status + ': ';
+            if (response.statusText)
+                message += response.statusText;
+            if (response.url)
+                message += ' - ' + response.url;
+        }
         super(message);
-        this.name = "HttpError";
+        this.name = this.constructor.name;
+        this.response = response;
     }
 }
 
@@ -24,20 +37,22 @@ class HttpClient {
             var xhr;
 
             function error(event) { // or use xhr direct instead of event parameter
-                var err = new HttpError();
                 var request;
                 if (event instanceof XMLHttpRequest)
                     request = event;
                 else if (event['target'] && event['target'] instanceof XMLHttpRequest)
                     request = event['target'];
+                var response;
                 if (request) {
+                    response = { 'url': url };
                     if (request['status'] != undefined)
-                        err['status'] = request['status'];
+                        response['status'] = request['status'];
                     if (request['statusText'] != undefined)
-                        err['statusText'] = request['statusText'];
+                        response['statusText'] = request['statusText'];
                     if (request['response'] != undefined)
-                        err['response'] = request['response'];
+                        response['body'] = request['response'];
                 }
+                var err = new HttpError(null, response);
                 reject(err);
             }
 

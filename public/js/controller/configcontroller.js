@@ -56,8 +56,8 @@ class ConfigController {
         if (!bError) {
             try {
                 controller.setLoadingState(true);
-                var ac = controller.getApiController();
-                var info = await ac.fetchApiInfo();
+                const ac = controller.getApiController();
+                const info = await ac.fetchApiInfo();
                 if (info) {
                     var bRestart = false;
                     if (info['state'] === 'openRestartRequest') {

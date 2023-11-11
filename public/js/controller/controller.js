@@ -200,8 +200,9 @@ class Controller {
             bInitDone = true;
         } catch (error) {
             if (error) {
-                if (error instanceof HttpError && error.hasOwnProperty('status')) {
-                    if (error['status'] == 0) {
+                if (error instanceof HttpError && error['response']) {
+                    var status = error['response']['status'];
+                    if (status == 0) {
                         if (error['response'])
                             this.showError(error);
                         else {
@@ -235,7 +236,7 @@ class Controller {
 
                             await this._modalController.openPanelInModal(panel);
                         }
-                    } else if (error['status'] == 401)
+                    } else if (status == 401)
                         await this._authController.showLoginDialog();
                     else
                         this.showError(error);

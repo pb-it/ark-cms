@@ -18,14 +18,15 @@ describe('Testsuit', function () {
         await delay(1000);
 
         var response = await driver.executeAsyncScript(async () => {
-            var callback = arguments[arguments.length - 1];
+            const callback = arguments[arguments.length - 1];
 
             localStorage.setItem('bExperimentalFeatures', 'false');
             localStorage.setItem('debug', JSON.stringify({ bDebug: false }));
             localStorage.setItem('bConfirmOnApply', 'false');
+            localStorage.setItem('bConfirmOnLeave', 'false');
             localStorage.setItem('bIndexedDB', 'false');
 
-            var data = {
+            const data = {
                 'cmd': `async function test() {
     var res;
     const knex = controller.getKnex();
