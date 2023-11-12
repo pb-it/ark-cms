@@ -203,7 +203,7 @@ class Controller {
                 if (error instanceof HttpError && error['response']) {
                     var status = error['response']['status'];
                     if (status == 0) {
-                        if (error['response'])
+                        if (error['response']['body'])
                             this.showError(error);
                         else {
                             var url = this._configController.getApi();

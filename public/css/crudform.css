@@ -30,12 +30,15 @@ div.details>div.value.text {
     padding: 10px;
 }
 
-#canvas div.details>div.value.text {
+#canvas form.crudform>div.formentry>div.value,
+#canvas div.details>div.value {
     max-width: calc(100% - 170px);
+    overflow: auto;
 }
 
-div.modal div.details>div.value.text {
+div.modal div.details>div.value {
     max-width: calc(100vw - 370px);
+    overflow: auto;
 }
 
 div.details>div.value.text blockquote {
