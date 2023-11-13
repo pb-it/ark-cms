@@ -1,23 +1,42 @@
 class ExtensionController {
 
     _extensions;
+    _info;
 
     constructor() {
     }
 
     async init() {
-        //var model = app.controller.getModelController().getModel('_extension'); //readAll???
-        var res = await app.getController().getDataService().fetchData('_extension', null, null, null, null, null, null, true);
+        const controller = app.getController();
+        //var model = controller.getModelController().getModel('_extension'); //readAll???
+        const res = await controller.getDataService().fetchData('_extension', null, null, null, null, null, null, true);
         this._extensions = [...res];
-        for (var ext of this._extensions) {
-            if (ext['client-extension']) {
-                var module = await loadModule(ext['client-extension']);
-                if (module && module.init)
-                    module.init();
+        if (this._extensions.length > 0) {
+            const ac = controller.getApiController();
+            const info = ac.getApiInfo();
+            if (info['extensions'])
+                this._info = { ...info['extensions'] };
+            else
+                this._info = {};
+            var name;
+            for (var ext of this._extensions) {
+                name = ext['name'];
+                if (this._info[name]) {
+                    if (ext['client-extension']) {
+                        var module = await loadModule(ext['client-extension']);
+                        if (module && module.init)
+                            module.init();
+                    }
+                } else
+                    this._info[name] = {};
             }
         }
         $(window).trigger('changed.extension');
         return Promise.resolve();
+    }
+
+    getExtensionsInfo() {
+        return this._info;
     }
 
     getExtensions() {

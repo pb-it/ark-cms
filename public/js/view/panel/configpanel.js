@@ -27,15 +27,15 @@ class ConfigPanel extends TabPanel {
     }
 
     async _createCommonPanel() {
-        var panel = new Panel({ 'title': 'Common' });
+        const panel = new Panel({ 'title': 'Common' });
         panel._renderContent = async function () {
-            var $div = $('<div/>')
+            const $div = $('<div/>')
                 .css({ 'padding': '10' });
 
             $div.append("LocalStorage:");
 
-            var controller = app.getController();
-            var cc = controller.getConfigController();
+            const controller = app.getController();
+            const cc = controller.getConfigController();
 
             if (!this._data) {
                 var bDebug;
@@ -54,7 +54,7 @@ class ConfigPanel extends TabPanel {
                     'bIndexedDB': controller.getStorageController().loadLocal('bIndexedDB') === 'true',
                 };
             }
-            var skeleton = [
+            const skeleton = [
                 { name: 'version', dataType: 'string', readonly: true },
                 { name: 'api', label: 'API', dataType: 'string' },
                 {
@@ -133,7 +133,7 @@ Do you want to continue?`))
             $div.append('State of API:<br/>');
             var msg;
             var color;
-            var info = controller.getApiController().getApiInfo();
+            const info = controller.getApiController().getApiInfo();
             if (info) { // app.controller.hasConnection()
                 if (controller.getVersionController().isCompatible()) {
                     msg = info['state'];
@@ -177,6 +177,33 @@ Do you want to continue?`))
                     return Promise.resolve();
                 }.bind(this));
             $div.append($check);
+
+            $div.append('<br/><br/>');
+
+            $div.append('Extensions:<br/>');
+            const ec = controller.getExtensionController();
+            const extensions = ec.getExtensionsInfo();
+            var $status;
+            if (extensions && Object.keys(extensions).length > 0) {
+                for (var name in extensions) {
+                    $div.append('&nbsp;&nbsp;&nbsp;' + name + ': ');
+                    if (extensions[name]['version']) {
+                        msg = extensions[name]['version'];
+                        color = 'green';
+                    } else {
+                        msg = '**undefined**';
+                        color = 'red';
+                    }
+                    $status = $('<div/>')
+                        .css({
+                            'display': 'inline-block',
+                            'background-color': color
+                        })
+                        .append(msg);
+                    $div.append($status);
+                    $div.append('<br/>');
+                }
+            }
 
             $div.append('<br/><br/>');
 

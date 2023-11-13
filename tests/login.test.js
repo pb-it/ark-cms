@@ -1,10 +1,9 @@
-const assert = require('assert');
+//const assert = require('assert');
 const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
 const config = require('./config.js');
-const TestSetup = require('./helper/test-setup.js');
-const TestHelper = require('./helper/test-helper.js');
+const { TestSetup, TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
 describe('Testsuit', function () {
     it('#test login', async function () {
