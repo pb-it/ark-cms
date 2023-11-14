@@ -3,16 +3,32 @@ const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
 const config = require('./config.js');
-const { TestSetup, TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
+const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
 describe('Testsuit', function () {
-    it('#test login', async function () {
+
+    let driver;
+
+    before('#setup', async function () {
         this.timeout(10000);
 
-        var driver = await new TestSetup(config).getDriver();
-        var helper = new TestHelper(driver);
+        if (!global.helper) {
+            global.helper = new TestHelper();
+            await helper.setup(config);
+        }
+        driver = helper.getBrowser().getDriver();
 
         await TestHelper.delay(1000);
+
+        return Promise.resolve();
+    });
+
+    /*after('#teardown', async function () {
+        return await driver.quit();
+    });*/
+
+    it('#test login', async function () {
+        this.timeout(10000);
 
         var modal = await helper.getTopModal();
         if (modal) {
