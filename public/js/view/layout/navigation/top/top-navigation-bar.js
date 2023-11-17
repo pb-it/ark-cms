@@ -3,6 +3,7 @@ class TopNavigationBar {
     _$topNavigationBar;
 
     _breadcrumb;
+    _$breadcrumb;
 
     _searchForm;
     _$searchForm;
@@ -14,7 +15,8 @@ class TopNavigationBar {
         this._$topNavigationBar = $('div#topnav');
 
         this._breadcrumb = new Breadcrumb();
-        this._$topNavigationBar.append(this._breadcrumb.initBreadcrumb());
+        this._$breadcrumb = this._breadcrumb.initBreadcrumb();
+        this._$topNavigationBar.append(this._$breadcrumb);
 
         this._$menu = $('<div/>')
             .css({ 'float': 'right' });
@@ -31,17 +33,23 @@ class TopNavigationBar {
     }
 
     renderTopNavigationBar() {
-        var sc = app.controller.getStateController();
-        if (sc) {
-            this._breadcrumb.renderBreadcrumb();
+        const controller = app.getController();
+        if (controller && controller.hasConnection()) {
+            const sc = controller.getStateController();
+            if (sc) {
+                this._breadcrumb.renderBreadcrumb();
 
-            var state = sc.getState();
-            if (state && state.getModel()) {
-                if (this._$searchContainer.children().length == 0)
-                    this._$searchContainer.append(this._$searchForm);
-                this._searchForm.renderSearchForm();
-            } else
-                this._$searchContainer.empty();
+                const state = sc.getState();
+                if (state && state.getModel()) {
+                    if (this._$searchContainer.children().length == 0)
+                        this._$searchContainer.append(this._$searchForm);
+                    this._searchForm.renderSearchForm();
+                } else
+                    this._$searchContainer.empty();
+            }
+        } else {
+            this._$breadcrumb.empty();
+            this._$searchContainer.empty();
         }
 
         this._renderMenu();

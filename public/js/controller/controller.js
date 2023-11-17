@@ -566,13 +566,9 @@ class Controller {
     showError(error, message) {
         var msg;
         if (error) {
-            if (error.status) {
-                msg = "status:" + error.status;
-                if (error.statusText)
-                    msg += " - " + error.statusText;
-                if (error.response)
-                    msg += "\nresposnse: " + error.response;
-            } else if (error.message)
+            if (error instanceof HttpError && error['response'] && error['response']['body'])
+                msg = error['response']['body'];
+            else if (error.message)
                 msg = error.message;
 
             console.log(error);

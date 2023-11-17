@@ -82,7 +82,7 @@ class ExtensionSelect {
                                         var msg;
                                         var extensions = controller.getExtensionController().getExtensions();
                                         for (var file of this.files) {
-                                            if (file.type == 'application/zip') {
+                                            if (file.type === 'application/zip' || file.type === 'application/x-zip-compressed') {
                                                 msg = null;
                                                 name = file.name.split('@')[0];
                                                 existing = null;
@@ -130,7 +130,6 @@ class ExtensionSelect {
                                 this.remove();
                                 return Promise.resolve();
                             });
-                        $(document.body).append($input); // append to dom to enable access within testautomation
                         $input.click();
                     } catch (error) {
                         controller.showError(error, "Reading of file failed");

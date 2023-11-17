@@ -1,11 +1,9 @@
-//const assert = require('assert');
+const assert = require('assert');
 const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
-const config = require('./config.js');
+const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
-
-const delay = ms => new Promise(res => setTimeout(res, ms))
 
 describe('Testsuit', function () {
 
@@ -21,6 +19,13 @@ describe('Testsuit', function () {
         driver = helper.getBrowser().getDriver();
 
         await TestHelper.delay(1000);
+
+        await helper.login();
+
+        await TestHelper.delay(1000);
+
+        var modal = await helper.getTopModal();
+        assert.equal(modal, null);
 
         return Promise.resolve();
     });
@@ -46,19 +51,19 @@ describe('Testsuit', function () {
         button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         button.click();
 
-        await delay(1000);
+        await TestHelper.delay(1000);
 
         xpath = `//*[@id="sidepanel"]/div/div[contains(@class, 'menu')]/div[contains(@class, 'menuitem') and starts-with(text(),"movie")]`;
         button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         button.click();
 
-        await delay(1000);
+        await TestHelper.delay(1000);
 
         xpath = `//*[@id="sidepanel"]/div/div[contains(@class, 'menu')][2]/div[contains(@class, 'menuitem') and .="Create"]`;
         button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         button.click();
 
-        await delay(100);
+        await TestHelper.delay(100);
 
         xpath = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);

@@ -4,11 +4,12 @@ class HttpError extends Error {
 
     constructor(message, response) {
         if (!message && response) {
-            message = '';
-            if (response.status)
-                message += response.status + ': ';
-            if (response.statusText)
-                message += response.statusText;
+            if (response.status) {
+                message = response.status;
+                if (response.statusText)
+                    message += ': ' + response.statusText;
+            } else
+                message = 'ERR_CONNECTION_REFUSED';
             if (response.url)
                 message += ' - ' + response.url;
         }

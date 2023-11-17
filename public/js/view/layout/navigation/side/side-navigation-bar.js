@@ -100,7 +100,7 @@ class SideNavigationBar {
     _initTopIconBar() {
         this._topIconBar.clearMenu();
 
-        var controller = app.getController();
+        const controller = app.getController();
         if (controller.hasConnection()) {
             var conf = {
                 'style': 'iconbar',

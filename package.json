@@ -24,8 +24,9 @@
     "scripts": {
         "start": "node index.js",
         "test": "npm run test:all",
-        "test:login": "./node_modules/.bin/mocha --timeout 10000 tests/login.test.js",
-        "test:all": "mocha --bail tests/all.test.js"
+        "test:all": "mocha --bail tests/all.test.js",
+        "test:login": "mocha --timeout 10000 tests/login.test.js",
+        "test:settings": "mocha --timeout 10000 tests/settings.test.js"
     },
     "dependencies": {
         "body-parser": "^1.20.2",

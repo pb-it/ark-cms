@@ -2,10 +2,8 @@ const assert = require('assert');
 const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
-const config = require('./config.js');
+const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
-
-const delay = ms => new Promise(res => setTimeout(res, ms))
 
 describe('Testsuit', function () {
 
@@ -21,6 +19,13 @@ describe('Testsuit', function () {
         driver = helper.getBrowser().getDriver();
 
         await TestHelper.delay(1000);
+
+        await helper.login();
+
+        await TestHelper.delay(1000);
+
+        var modal = await helper.getTopModal();
+        assert.equal(modal, null);
 
         return Promise.resolve();
     });
@@ -69,7 +74,7 @@ module.exports = test;`};
         assert.equal(response, 0, 'API server did not restart in time!');
 
         await driver.navigate().refresh();
-        await delay(100);
+        await TestHelper.delay(100);
 
         await helper.login();
 

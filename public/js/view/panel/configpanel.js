@@ -182,26 +182,28 @@ Do you want to continue?`))
 
             $div.append('Extensions:<br/>');
             const ec = controller.getExtensionController();
-            const extensions = ec.getExtensionsInfo();
-            var $status;
-            if (extensions && Object.keys(extensions).length > 0) {
-                for (var name in extensions) {
-                    $div.append('&nbsp;&nbsp;&nbsp;' + name + ': ');
-                    if (extensions[name]['version']) {
-                        msg = extensions[name]['version'];
-                        color = 'green';
-                    } else {
-                        msg = '**undefined**';
-                        color = 'red';
+            if (ec) {
+                const extensions = ec.getExtensionsInfo();
+                var $status;
+                if (extensions && Object.keys(extensions).length > 0) {
+                    for (var name in extensions) {
+                        $div.append('&nbsp;&nbsp;&nbsp;' + name + ': ');
+                        if (extensions[name]['version']) {
+                            msg = extensions[name]['version'];
+                            color = 'green';
+                        } else {
+                            msg = '**undefined**';
+                            color = 'red';
+                        }
+                        $status = $('<div/>')
+                            .css({
+                                'display': 'inline-block',
+                                'background-color': color
+                            })
+                            .append(msg);
+                        $div.append($status);
+                        $div.append('<br/>');
                     }
-                    $status = $('<div/>')
-                        .css({
-                            'display': 'inline-block',
-                            'background-color': color
-                        })
-                        .append(msg);
-                    $div.append($status);
-                    $div.append('<br/>');
                 }
             }
 

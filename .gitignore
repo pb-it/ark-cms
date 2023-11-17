@@ -4,3 +4,4 @@ node_modules
 package-lock.json
 
 config/server-config.js
+tests/config/test-config.js

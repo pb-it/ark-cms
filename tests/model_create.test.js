@@ -2,10 +2,8 @@ const assert = require('assert');
 const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
-const config = require('./config.js');
+const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
-
-const delay = ms => new Promise(res => setTimeout(res, ms))
 
 describe('Testsuit', function () {
 
@@ -21,6 +19,13 @@ describe('Testsuit', function () {
         driver = helper.getBrowser().getDriver();
 
         await TestHelper.delay(1000);
+
+        await helper.login();
+
+        await TestHelper.delay(1000);
+
+        var modal = await helper.getTopModal();
+        assert.equal(modal, null);
 
         return Promise.resolve();
     });
@@ -46,7 +51,7 @@ describe('Testsuit', function () {
         button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         button.click();
 
-        await delay(100);
+        await TestHelper.delay(100);
 
         var modal = await helper.getTopModal();
         var form = await helper.getForm(modal);
@@ -55,13 +60,13 @@ describe('Testsuit', function () {
         button = await helper.getButton(modal, 'Apply');
         button.click();
 
-        await delay(100);
+        await TestHelper.delay(100);
 
         var modelModal = await helper.getTopModal();
         button = await helper.getButton(modelModal, 'Add Attribute');
         button.click();
 
-        await delay(100);
+        await TestHelper.delay(100);
 
         modal = await helper.getTopModal();
         form = await helper.getForm(modal);
@@ -70,21 +75,21 @@ describe('Testsuit', function () {
         form.findElement(webdriver.By.css('select#dataType > option[value="string"]')).click();
         modal.findElement(webdriver.By.xpath('//button[text()="Apply"]')).click();
 
-        await delay(100);
+        await TestHelper.delay(100);
 
         modal = await helper.getTopModal();
         modal.findElement(webdriver.By.xpath('//button[text()="Apply"]')).click();
 
-        await delay(100);
+        await TestHelper.delay(100);
 
         modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]')).click();
 
-        await delay(100);
+        await TestHelper.delay(100);
 
         modal = await helper.getTopModal();
         modal.findElement(webdriver.By.xpath('//button[text()="Ignore"]')).click();
 
-        await delay(1000);
+        await TestHelper.delay(1000);
 
         modal = await helper.getTopModal();
         assert.equal(modal, null);

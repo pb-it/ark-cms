@@ -56,7 +56,10 @@ class NotePanel extends CrudPanel {
         if (edit) {
             if (note === undefined || note === null)
                 note = '';
-            this._$note.removeClass('markdown');
+            if (this._syntax === 'markdown')
+                this._$note.removeClass('markdown');
+            else
+                this._$note.removeClass('pre');
             this._$note.addClass('cellEditing');
             //this.$note.html("<p name='note' contenteditable>" + encodeText(originalContent) + "</p>");
             this._$note.html("<textarea name='note'>" + note + "</textarea>"); //cols='40' rows='5'
@@ -75,7 +78,8 @@ class NotePanel extends CrudPanel {
             if (this._syntax === 'markdown') {
                 this._$note.addClass('markdown');
                 await DataView.highlightBlock(this._$note[0]);
-            }
+            } else
+                this._$note.addClass('pre');
         }
         return Promise.resolve();
     }

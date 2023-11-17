@@ -2,7 +2,7 @@ const assert = require('assert');
 const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
-const config = require('./config.js');
+const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
 describe('Testsuit', function () {
@@ -19,6 +19,13 @@ describe('Testsuit', function () {
         driver = helper.getBrowser().getDriver();
 
         await TestHelper.delay(1000);
+
+        await helper.login();
+
+        await TestHelper.delay(1000);
+
+        var modal = await helper.getTopModal();
+        assert.equal(modal, null);
 
         return Promise.resolve();
     });
