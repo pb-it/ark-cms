@@ -10,7 +10,7 @@ const chrome = {
     'profile-directory': 'Profile 1'
 }
 if (process.platform === 'win32')
-    chrome['user-data-dir'] = 'C:/Users/patri/AppData/Local/Google/Chrome/User Data';
+    chrome['user-data-dir'] = 'C:/Users/user/AppData/Local/Google/Chrome/User Data';
 else
     chrome['user-data-dir'] = '/home/user/snap/chromium/common/chromium';
 
