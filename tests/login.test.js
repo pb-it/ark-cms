@@ -17,6 +17,12 @@ describe('Testsuit', function () {
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
+        const app = helper.getApp();
+
+        await TestHelper.delay(1000);
+
+        await app.setApiUrl(helper.getConfig()['api']);
+        await app.reload();
 
         await TestHelper.delay(1000);
 
@@ -24,30 +30,39 @@ describe('Testsuit', function () {
     });
 
     /*after('#teardown', async function () {
-        return await driver.quit();
+        return driver.quit();
     });*/
+
+    afterEach(function () {
+        if (global.allPassed)
+            allPassed = allPassed && (this.currentTest.state === 'passed');
+    });
 
     it('#test login', async function () {
         this.timeout(10000);
 
-        var modal = await helper.getTopModal();
-        assert.equal(modal != null, true, 'Modal not open!');
-        var input = modal.findElement(webdriver.By.css('input[id="username"]'));
-        input.sendKeys('admin');
-        input = modal.findElement(webdriver.By.css('input[id="password"]'));
-        input.sendKeys('admin');
-        button = await helper.getButton(modal, 'Login');
-        button.click();
+        const app = helper.getApp();
+        var modal = await app.getTopModal();
+        assert.notEqual(modal, null, 'Modal not open!');
+        var input = await modal.findElement(webdriver.By.css('input[id="username"]'));
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('admin');
+        input = await modal.findElement(webdriver.By.css('input[id="password"]'));
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('admin');
+        var button = await helper.getButton(modal, 'Login');
+        assert.notEqual(button, null, 'Login button not found!');
+        await button.click();
 
         await TestHelper.delay(1000);
 
-        modal = await helper.getTopModal();
+        modal = await app.getTopModal();
         if (modal) {
             button = await helper.getButton(modal, 'Skip');
-            button.click();
+            if (button)
+                button.click();
         }
 
-        //driver.quit();
         return Promise.resolve();
     });
 });

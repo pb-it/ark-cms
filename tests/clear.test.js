@@ -1,5 +1,5 @@
 const assert = require('assert');
-const webdriver = require('selenium-webdriver');
+//const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
 const config = require('./config/test-config.js');
@@ -17,71 +17,45 @@ describe('Testsuit', function () {
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
+        const app = helper.getApp();
 
         await TestHelper.delay(1000);
 
-        await helper.login();
+        await app.login(config['api'], config['username'], config['password']);
 
         await TestHelper.delay(1000);
 
-        var modal = await helper.getTopModal();
+        const modal = await app.getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
     });
 
     /*after('#teardown', async function () {
-        return await driver.quit();
+        return driver.quit();
     });*/
+
+    afterEach(function () {
+        if (global.allPassed)
+            allPassed = allPassed && (this.currentTest.state === 'passed');
+    });
 
     it('#clear database', async function () {
         this.timeout(60000);
 
-        var response = await driver.executeAsyncScript(async () => {
-            const callback = arguments[arguments.length - 1];
+        const app = helper.getApp();
+        const ac = helper.getApiController();
+        await app.resetLocalStorage();
+        await ac.clearDatabase();
 
-            localStorage.setItem('bExperimentalFeatures', 'false');
-            localStorage.setItem('debug', JSON.stringify({ bDebug: false }));
-            localStorage.setItem('bConfirmOnApply', 'false');
-            localStorage.setItem('bConfirmOnLeave', 'false');
-            localStorage.setItem('bIndexedDB', 'false');
+        await ac.restart();
+        await app.reload();
+        await TestHelper.delay(1000);
+        await app.login(helper.getConfig()['api']);
 
-            const data = {
-                'cmd': `async function test() {
-    var res;
-    const knex = controller.getKnex();
-    var rs = await knex.raw("DROP DATABASE cms;");
-    rs = await knex.raw("CREATE DATABASE cms;");
-    return Promise.resolve('OK');
-};
-                
-module.exports = test;`};
-
-            const ac = app.getController().getApiController();
-            const client = ac.getApiClient();
-            var res = await client.request('POST', '/sys/tools/dev/eval?_format=text', data);
-            if (res == 'OK') {
-                await ac.restartApi();
-                await sleep(5000);
-                var bReady = await ac.waitApiReady();
-                if (bReady)
-                    res = 0;
-                else
-                    res = 1;
-            }
-            callback(res);
-        });
-        assert.equal(response, 0, 'API server did not restart in time!');
-
-        await driver.navigate().refresh();
-        await TestHelper.delay(100);
-
-        await helper.login();
-
-        var modal = await helper.getTopModal();
+        const modal = await app.getTopModal();
         assert.equal(modal, null);
 
-        //driver.quit();
         return Promise.resolve();
     });
 });

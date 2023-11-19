@@ -14,11 +14,15 @@ describe("Root Suite", function () {
         }
         driver = helper.getBrowser().getDriver();
 
+        global.allPassed = true;
+
         return Promise.resolve();
     });
 
     after('#teardown', async function () {
-        return driver.quit();
+        if (allPassed)
+            await driver.quit();
+        return Promise.resolve();
     });
 
     require('./login.test.js');

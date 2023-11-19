@@ -17,34 +17,31 @@ describe('Testsuit', function () {
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
+        const app = helper.getApp();
 
         await TestHelper.delay(1000);
 
-        await helper.login();
+        await app.login(config['api'], config['username'], config['password']);
 
         await TestHelper.delay(1000);
 
-        var modal = await helper.getTopModal();
+        const modal = await app.getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
     });
 
     /*after('#teardown', async function () {
-        return await driver.quit();
+        return driver.quit();
     });*/
+
+    afterEach(function () {
+        if (global.allPassed)
+            allPassed = allPassed && (this.currentTest.state === 'passed');
+    });
 
     it('#open content', async function () {
         this.timeout(10000);
-
-        var modal = await helper.getTopModal();
-        if (modal) {
-            var elements = await modal.findElements(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]'));
-            if (elements && elements.length == 1) {
-                button = await helper.getButton(elements[0], 'Skip');
-                await button.click();
-            }
-        }
 
         var response = await driver.executeAsyncScript(async () => {
             var callback = arguments[arguments.length - 1];
@@ -69,28 +66,18 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        var xpath = `//*[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title="Data"]`;
-        var button;
-        button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 5000);
-        await button.click();
-
+        const app = helper.getApp();
+        const sidemenu = app.getSideMenu();
+        await sidemenu.click('Data');
+        await TestHelper.delay(1000);
+        await sidemenu.click('_registry');
+        await TestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await TestHelper.delay(1000);
+        await sidemenu.click('All');
         await TestHelper.delay(1000);
 
-        xpath = `//*[@id="sidepanel"]/div/div[contains(@class, 'menu')]/div[contains(@class, 'menuitem') and starts-with(text(),"_registry")]`;
-        button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        await button.click();
-
-        xpath = `//*[@id="sidepanel"]/div/div[contains(@class, 'menu')][2]/div[contains(@class, 'menuitem') and starts-with(text(),"Show")]`;
-        button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        await button.click();
-
-        xpath = `//*[@id="sidepanel"]/div/div[contains(@class, 'menu')][3]/div[contains(@class, 'menuitem') and .="All"]`;
-        button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        await button.click();
-
-        await TestHelper.delay(100);
-
-        var xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
+        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var elements = await driver.findElements(webdriver.By.xpath(xpathPanel));
         var count = elements.length;
         assert.equal(count > 1, true);
@@ -98,12 +85,13 @@ describe('Testsuit', function () {
         await driver.actions({ bridge: true }).contextClick(elements[0], webdriver.Button.RIGHT).perform();
 
         xpath = `/html/body/ul[@class="contextmenu"]/li[starts-with(text(),"Open")]`;
-        var item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
+        const item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
+        assert.notEqual(item, null);
         await item.click();
 
         await TestHelper.delay(100);
 
-        var url = await driver.getCurrentUrl();
+        const url = await driver.getCurrentUrl();
         assert.equal(url.endsWith('/data/_registry?key=test'), true);
 
         elements = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -116,11 +104,11 @@ describe('Testsuit', function () {
         assert.equal(elements.length, count);
 
         response = await driver.executeAsyncScript(async () => {
-            var callback = arguments[arguments.length - 1];
+            const callback = arguments[arguments.length - 1];
 
             localStorage.setItem('debug', JSON.stringify({ bDebug: false }));
             localStorage.setItem('bConfirmOnApply', 'false');
-            var controller = app.getController();
+            const controller = app.getController();
             //controller.reloadApplication(); // will kill this script
             await controller.initController();
             controller.getView().initView();
@@ -129,7 +117,6 @@ describe('Testsuit', function () {
             callback();
         });
 
-        //driver.quit();
         return Promise.resolve();
     });
 });

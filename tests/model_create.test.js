@@ -17,86 +17,99 @@ describe('Testsuit', function () {
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
+        const app = helper.getApp();
 
         await TestHelper.delay(1000);
 
-        await helper.login();
+        await app.login(config['api'], config['username'], config['password']);
 
         await TestHelper.delay(1000);
 
-        var modal = await helper.getTopModal();
+        const modal = await app.getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
     });
 
     /*after('#teardown', async function () {
-        return await driver.quit();
+        return driver.quit();
     });*/
+
+    afterEach(function () {
+        if (global.allPassed)
+            allPassed = allPassed && (this.currentTest.state === 'passed');
+    });
 
     it('#create new model', async function () {
         this.timeout(10000);
 
-        var modal = await helper.getTopModal();
-        if (modal) {
-            button = await helper.getButton(modal, 'Skip');
-            button.click();
-        }
+        const app = helper.getApp();
+        const sidemenu = app.getSideMenu();
+        await sidemenu.click('Models');
+        await TestHelper.delay(1000);
+        await sidemenu.click('New');
+        await TestHelper.delay(1000);
 
-        var xpath = `//*[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title="Models"]`;
-        var button;
-        button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        button.click();
-        xpath = `//*[@id="sidepanel"]/div/div[contains(@class, 'menu')]/div[contains(@class, 'menuitem') and .="New"]`;
-        button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        button.click();
-
-        await TestHelper.delay(100);
-
-        var modal = await helper.getTopModal();
-        var form = await helper.getForm(modal);
+        var modal = await app.getTopModal();
+        var form = await modal.findElement(webdriver.By.xpath('//form[@class="crudform"]'));
         var input = await helper.getFormInput(form, 'name');
-        input.sendKeys('movie');
-        button = await helper.getButton(modal, 'Apply');
-        button.click();
-
-        await TestHelper.delay(100);
-
-        var modelModal = await helper.getTopModal();
-        button = await helper.getButton(modelModal, 'Add Attribute');
-        button.click();
-
-        await TestHelper.delay(100);
-
-        modal = await helper.getTopModal();
-        form = await helper.getForm(modal);
-        input = await helper.getFormInput(form, 'name');
-        input.sendKeys('name');
-        form.findElement(webdriver.By.css('select#dataType > option[value="string"]')).click();
-        modal.findElement(webdriver.By.xpath('//button[text()="Apply"]')).click();
-
-        await TestHelper.delay(100);
-
-        modal = await helper.getTopModal();
-        modal.findElement(webdriver.By.xpath('//button[text()="Apply"]')).click();
-
-        await TestHelper.delay(100);
-
-        modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]')).click();
-
-        await TestHelper.delay(100);
-
-        modal = await helper.getTopModal();
-        modal.findElement(webdriver.By.xpath('//button[text()="Ignore"]')).click();
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('movie');
+        button = await modal.findElement(webdriver.By.xpath(`//button[text()="Apply"]`));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
 
         await TestHelper.delay(1000);
 
-        modal = await helper.getTopModal();
+        const modelModal = await app.getTopModal();
+        button = await modelModal.findElement(webdriver.By.xpath(`//button[text()="Add Attribute"]`));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+
+        await TestHelper.delay(100);
+
+        modal = await app.getTopModal();
+        assert.notEqual(modal, null);
+        form = await modal.findElement(webdriver.By.xpath('//form[@class="crudform"]'));
+        input = await helper.getFormInput(form, 'name');
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('name');
+        var elem = await form.findElement(webdriver.By.css('select#dataType > option[value="string"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+
+        await TestHelper.delay(100);
+
+        modal = await app.getTopModal();
+        assert.notEqual(modal, null);
+        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+
+        await TestHelper.delay(100);
+
+        button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+
+        await TestHelper.delay(100);
+
+        modal = await app.getTopModal();
+        assert.notEqual(modal, null);
+        button = await modal.findElement(webdriver.By.xpath('//button[text()="Ignore"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+
+        await TestHelper.delay(1000);
+
+        modal = await app.getTopModal();
         assert.equal(modal, null);
 
         //TODO: check
 
-        //driver.quit();
         return Promise.resolve();
     });
 });

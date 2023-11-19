@@ -11,8 +11,8 @@ describe('Testsuit', function () {
 
     async function checkErrorMessage(bEqual) {
         const xpath = '/html/body/div[@class="modal"]/div[@class="modal-content"]/div[@class="panel"]/div';
-        const panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 5000);
-        assert.equal(panel != null, true);
+        const panel = driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 5000);
+        assert.notEqual(panel, null);
         const text = await panel.getText();
         //console.log(text);
         assert.equal(text.startsWith('Attempt to connect to API failed!'), bEqual, 'Wrong Error Message!');
@@ -27,22 +27,28 @@ describe('Testsuit', function () {
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
+        const app = helper.getApp();
 
         await TestHelper.delay(1000);
 
-        await helper.login();
+        await app.login(config['api'], config['username'], config['password']);
 
         await TestHelper.delay(1000);
 
-        var modal = await helper.getTopModal();
+        const modal = await app.getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
     });
 
     /*after('#teardown', async function () {
-        return await driver.quit();
+        return driver.quit();
     });*/
+
+    afterEach(function () {
+        if (global.allPassed)
+            allPassed = allPassed && (this.currentTest.state === 'passed');
+    });
 
     it('#change API Settings', async function () {
         this.timeout(60000);
@@ -56,41 +62,47 @@ describe('Testsuit', function () {
         });
         assert.equal(response, 'OK', 'Changing Settings Failed!');
 
-        await driver.navigate().refresh();
-        await TestHelper.delay(1000);
+        const app = helper.getApp();
+        await app.reload();
 
+        var modal = await app.getTopModal();
         await checkErrorMessage(true);
-        await helper.closeModal();
+        await modal.closeModal();
 
         xpath = `//*[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title="Configuration"]`;
-        var button;
-        button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
+        var button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
+        assert.notEqual(button, null);
         await button.click();
 
         await TestHelper.delay(1000);
 
-        modal = await helper.getTopModal();
-        assert.equal(modal != null, true);
-        var form = await helper.getForm(modal);
+        modal = await app.getTopModal();
+        assert.notEqual(modal, null);
+        var form = await modal.findElement(webdriver.By.xpath('//form[@class="crudform"]'));
         var input = await helper.getFormInput(form, 'api');
+        assert.notEqual(input, null);
         await input.clear();
-        await input.sendKeys('https://localhost');
+        await input.sendKeys(helper.getConfig()['api']);
 
-        button = await helper.getButton(modal, 'Apply and Reload');
+        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply and Reload"]'));
+        assert.notEqual(button, null);
         await button.click();
 
         await TestHelper.delay(1000);
 
         await checkErrorMessage(false);
 
-        await helper.login();
+        modal = await app.getTopModal(); // close tutorial modal
+        assert.notEqual(modal, null);
+        button = await modal.findElement(webdriver.By.xpath('//button[text()="Skip"]'));
+        assert.notEqual(button, null);
+        await button.click();
 
         await TestHelper.delay(1000);
 
-        var modal = await helper.getTopModal();
+        modal = await app.getTopModal();
         assert.equal(modal, null);
 
-        //driver.quit();
         return Promise.resolve();
     });
 });
