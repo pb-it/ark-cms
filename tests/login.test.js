@@ -21,7 +21,8 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        await app.setApiUrl(helper.getConfig()['api']);
+        if (helper.getConfig()['api'])
+            await app.setApiUrl(helper.getConfig()['api']);
         await app.reload();
 
         await TestHelper.delay(1000);

@@ -65,7 +65,10 @@ describe('Testsuit', function () {
         const app = helper.getApp();
         await app.reload();
 
+        await TestHelper.delay(3000); // reload with failed attempt to connect to API takes longer
+
         var modal = await app.getTopModal();
+        assert.notEqual(modal, null);
         await checkErrorMessage(true);
         await modal.closeModal();
 
@@ -82,7 +85,8 @@ describe('Testsuit', function () {
         var input = await helper.getFormInput(form, 'api');
         assert.notEqual(input, null);
         await input.clear();
-        await input.sendKeys(helper.getConfig()['api']);
+        if (helper.getConfig()['api'])
+            await input.sendKeys(helper.getConfig()['api']);
 
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply and Reload"]'));
         assert.notEqual(button, null);

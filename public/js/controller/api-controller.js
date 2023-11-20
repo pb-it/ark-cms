@@ -1,7 +1,10 @@
 class ApiController {
 
     static getDefaultApiOrigin() {
-        return "https://" + window.location.hostname;
+        var url = "https://" + window.location.hostname;
+        if (window.location.port)
+            url += ':3002';
+        return url;
     }
 
     _api;
@@ -11,20 +14,30 @@ class ApiController {
     _bAdministrator;
 
     constructor(api) {
-        this._api = api;
+        if (api && api.endsWith('/'))
+            this._api = api.substring(0, api.length - 1);
+        else
+            this._api = api;
     }
 
     async initApiController() {
-        this._apiClient = new ApiClient(this._api);
-        var response = await HttpClient.request("GET", this._api + "/sys/info", { 'withCredentials': true });
-        if (response) {
-            var info = JSON.parse(response);
-            if (info['api']) {
-                var version = info['api']['version'];
-                if (version)
-                    this._apiClient.setVersion(version);
+        if (this._api && this._api.startsWith('http')) {
+            this._apiClient = new ApiClient(this._api);
+            var response = await HttpClient.request("GET", this._api + "/sys/info", { 'withCredentials': true });
+            if (response) {
+                try {
+                    const info = JSON.parse(response);
+                    if (info['api']) {
+                        var version = info['api']['version'];
+                        if (version)
+                            this._apiClient.setVersion(version);
+                    }
+                } catch (error) {
+                    throw new Error('Unparseable API response');
+                }
             }
-        }
+        } else
+            throw new Error('Invalid API configured');
         return Promise.resolve();
     }
 
