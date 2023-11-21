@@ -23,7 +23,7 @@ class ApiController {
     async initApiController() {
         if (this._api && this._api.startsWith('http')) {
             this._apiClient = new ApiClient(this._api);
-            var response = await HttpClient.request("GET", this._api + "/sys/info", { 'withCredentials': true });
+            var response = await HttpClient.request("GET", this._api + "/sys/info", { 'timeout': 5000, 'withCredentials': true });
             if (response) {
                 try {
                     const info = JSON.parse(response);

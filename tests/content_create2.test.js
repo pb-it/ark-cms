@@ -43,12 +43,8 @@ describe('Testsuit', function () {
             allPassed = allPassed && (this.currentTest.state === 'passed');
     });
 
-    it('#create content / test cache', async function () {
+    it('#create content with relation - test cache update', async function () {
         this.timeout(10000);
-
-        driver.executeScript(function () {
-            localStorage.setItem('bIndexedDB', 'true');
-        });
 
         const app = helper.getApp();
         const sidemenu = app.getSideMenu();
@@ -61,7 +57,7 @@ describe('Testsuit', function () {
         await sidemenu.click('All');
         await TestHelper.delay(1000);
 
-        const script = fs.readFileSync(path.join(path.resolve(__dirname) + '/scripts/content.js'), "utf-8");
+        const script = fs.readFileSync(path.join(path.resolve(__dirname) + '/scripts/create_star.js'), "utf-8");
         const response = await driver.executeAsyncScript(script);
         var id;
         try {
@@ -86,6 +82,10 @@ describe('Testsuit', function () {
         modal = await app.getTopModal();
         xpath = `//p[text()="John Doe"]`;
         item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
+
+        await modal.closeModal();
+        modal = await app.getTopModal();
+        assert.equal(modal, null);
 
         return Promise.resolve();
     });

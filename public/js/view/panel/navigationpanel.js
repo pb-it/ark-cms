@@ -15,10 +15,15 @@ class NavigationPanel extends Panel {
         var form = new Form(skeleton, data);
         this._$form = await form.renderForm();
         this._$form.on('submit', async function () {
-            this.dispose();
-            var fdata = await form.readForm();
-            await app.getController().navigate(fdata['path']);
-            return true;
+            const controller = app.getController();
+            try {
+                var fdata = await form.readForm();
+                await controller.navigate(fdata['path']);
+                this.dispose();
+            } catch (error) {
+                controller.showError(error);
+            }
+            return Promise.resolve();
         }.bind(this));
         $div.append(this._$form);
 

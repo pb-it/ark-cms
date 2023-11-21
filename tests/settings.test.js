@@ -15,7 +15,7 @@ describe('Testsuit', function () {
         assert.notEqual(panel, null);
         const text = await panel.getText();
         //console.log(text);
-        assert.equal(text.startsWith('Attempt to connect to API failed!'), bEqual, 'Wrong Error Message!');
+        assert.equal(text.startsWith('Attempt to connect to API failed') || text.startsWith('API can\'t be reached'), bEqual, 'Wrong Error Message!');
         return Promise.resolve();
     }
 
@@ -66,9 +66,12 @@ describe('Testsuit', function () {
         await app.reload();
 
         await TestHelper.delay(3000); // reload with failed attempt to connect to API takes longer
-
-        var modal = await app.getTopModal();
-        assert.notEqual(modal, null);
+        modal = await app.getTopModal();
+        if (!modal) {
+            await TestHelper.delay(3000); // even longer when target is not on localhost - timeout currently configured with 5 seconds
+            modal = await app.getTopModal();
+        }
+        assert.notEqual(modal, null, "Modal with connection-error not open");
         await checkErrorMessage(true);
         await modal.closeModal();
 

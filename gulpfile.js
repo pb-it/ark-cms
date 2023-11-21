@@ -10,6 +10,7 @@ gulp.task("test", function () {
         "./tests/create_model.test.js",
         "./tests/create_content.test.js",
         "./model_add_relation.test.js",
-        "./content_create2.test.js"
+        "./content_create2.test.js",
+        "./idb.test.js"
     ]).pipe(mocha());
 });

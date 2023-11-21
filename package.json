@@ -26,7 +26,8 @@
         "test": "npm run test:all",
         "test:all": "mocha --bail tests/all.test.js",
         "test:login": "mocha --timeout 10000 tests/login.test.js",
-        "test:settings": "mocha --timeout 10000 tests/settings.test.js"
+        "test:settings": "mocha --timeout 10000 tests/settings.test.js",
+        "test:idb": "mocha --timeout 10000 tests/idb.test.js"
     },
     "dependencies": {
         "body-parser": "^1.20.2",
@@ -34,7 +35,7 @@
         "express": "^4.18.2"
     },
     "devDependencies": {
-        "@pb-it/ark-cms-selenium-test-helper": "^0.1.4-beta",
+        "@pb-it/ark-cms-selenium-test-helper": "^0.1.5-beta",
         "gulp": "^4.0.2",
         "gulp-mocha": "^10.0.0",
         "mocha": "^10.2.0",

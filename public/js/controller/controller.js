@@ -189,8 +189,9 @@ class Controller {
                     if (changes) {
                         var data = changes['data'];
                         if (data && data.length > 0) {
-                            await this._modalController.openPanelInModal(new UpdateCachePanel(changes));
+                            const modal = await this._modalController.openPanelInModal(new UpdateCachePanel(changes));
                             this.setLoadingState(false);
+                            await modal.waitClosed();
                         }
                     }
                 }
@@ -212,13 +213,30 @@ class Controller {
                             var $d = $('<div/>')
                                 .css({ 'padding': '10' });
 
-                            $d.append("<b>Attempt to connect to API failed!</b><br/><br/>");
-                            $d.append("If you are using this application with an unverified self signed certificate,<br/>");
-                            $d.append("please open your API server URL and confirm that the certificate is accepted by your browser.<br/><br/>");
-                            $d.append("API base URL: <a href='" + url + "' target='_blank'>" + url + "</a><br><br>");
+                            if (error['response']['timeout']) {
+                                $d.append("<h2>API can't be reached</h2>");
+                                $d.append("<a href='" + url + "' target='_blank'>" + url + "</a> took too long to respond.<br><br>");
+                                $d.append("ERR_CONNECTION_TIMED_OUT<br><br>");
+                            } else {
+                                $d.append("<h2>Attempt to connect to API failed</h2>");
+                                $d.append("If you are using this application with an unverified self signed certificate,<br/>");
+                                $d.append("please open your API server URL and confirm that the certificate is accepted by your browser.<br/><br/>");
+                                $d.append("API base URL: <a href='" + url + "' target='_blank'>" + url + "</a><br><br>");
+                            }
+
+                            var $config = $('<button>')
+                                .text('Change')
+                                .css({ 'float': 'left' })
+                                .click(async function (event) {
+                                    event.stopPropagation();
+
+                                    await panel.dispose();
+                                    return this.getModalController().openPanelInModal(new ConfigPanel());
+                                }.bind(this));
+                            $d.append($config);
 
                             var $reload = $('<button>')
-                                .text('Reload')
+                                .text('Retry')
                                 .css({ 'float': 'right' })
                                 .click(async function (event) {
                                     event.stopPropagation();
@@ -394,10 +412,12 @@ class Controller {
     async navigate(url) {
         try {
             var path;
-            if (url.startsWith('/'))
-                path = url;
-            else if (url.startsWith(window.location.origin))
-                path = url.substring(window.location.origin.length);
+            if (url) {
+                if (url.startsWith('/'))
+                    path = url;
+                else if (url.startsWith(window.location.origin))
+                    path = url.substring(window.location.origin.length);
+            }
             if (path) {
                 var state = State.getStateFromPath(path);
                 await this.loadState(state, true);
@@ -410,157 +430,161 @@ class Controller {
     }
 
     async loadState(state, push, replace) {
-        this._data = null;
-        try {
-            this.setLoadingState(true);
+        if (this._stateController) {
+            this._data = null;
+            try {
+                this.setLoadingState(true);
 
-            var oldState = this._stateController.getState();
-            if (oldState && oldState['action'] && oldState['action'] == ActionEnum.create) {
-                var panels = this._view.getCanvas().getPanels();
-                if (panels && panels.length == 1) {
-                    var obj = panels[0].getObject();
-                    var form = panels[0].getForm();
-                    if (obj && form) {
-                        var skeleton = obj.getSkeleton(true);
-                        var data = await form.readForm(true, false);
-                        var res = {};
-                        var property;
-                        var tmp;
-                        for (var field of skeleton) {
-                            property = field['name'];
-                            if (data[property]) {
-                                if (field['dataType'] == 'file' && data[property]['base64']) {
-                                    tmp = { ...data[property] };
-                                    delete tmp['base64'];
-                                    res[property] = tmp;
-                                } else
-                                    res[property] = data[property];
+                var oldState = this._stateController.getState();
+                if (oldState && oldState['action'] && oldState['action'] == ActionEnum.create) {
+                    var panels = this._view.getCanvas().getPanels();
+                    if (panels && panels.length == 1) {
+                        var obj = panels[0].getObject();
+                        var form = panels[0].getForm();
+                        if (obj && form) {
+                            var skeleton = obj.getSkeleton(true);
+                            var data = await form.readForm(true, false);
+                            var res = {};
+                            var property;
+                            var tmp;
+                            for (var field of skeleton) {
+                                property = field['name'];
+                                if (data[property]) {
+                                    if (field['dataType'] == 'file' && data[property]['base64']) {
+                                        tmp = { ...data[property] };
+                                        delete tmp['base64'];
+                                        res[property] = tmp;
+                                    } else
+                                        res[property] = data[property];
+                                }
                             }
+                            oldState['data'] = res;
                         }
-                        oldState['data'] = res;
+                    }
+                    /*var modals = this.getModalController().getModals();
+                    if (modals && modals.length > 0) {
+                        ...
+                    }*/
+                    this._stateController.setState(oldState, false, true);
+                }
+
+                if (this._bFirstLoadAfterInit)
+                    this._bFirstLoadAfterInit = false;
+                else {
+                    this._modalController.closeAll();
+                    try {
+                        await this._apiController.fetchApiInfo(); // needed for notification in side bar
+                        if (!this._bConnection)
+                            this._bConnection = true;
+                    } catch (error) {
+                        if (this._bConnection) {
+                            this._bConnection = false;
+                            this.showError(error, "Connection to API interruppted");
+                        }
                     }
                 }
-                /*var modals = this.getModalController().getModals();
-                if (modals && modals.length > 0) {
-                    ...
-                }*/
-                this._stateController.setState(oldState, false, true);
-            }
 
-            if (this._bFirstLoadAfterInit)
-                this._bFirstLoadAfterInit = false;
-            else {
-                this._modalController.closeAll();
-                try {
-                    await this._apiController.fetchApiInfo(); // needed for notification in side bar
-                    if (!this._bConnection)
-                        this._bConnection = true;
-                } catch (error) {
-                    if (this._bConnection) {
-                        this._bConnection = false;
-                        this.showError(error, "Connection to API interruppted");
-                    }
-                }
-            }
+                this._stateController.setState(state, push, replace);
+                await this.clearSelected();
+                this._view.initView();
 
-            this._stateController.setState(state, push, replace);
-            await this.clearSelected();
-            this._view.initView();
-
-            var bHome = false;
-            if (state) {
-                if (state['customRoute']) {
-                    var res = this._routeController.getMatchingRoute(state['customRoute']);
-                    if (res) {
-                        var route = res['route'];
-                        if (route && route['fn'])
-                            await route['fn'](res['match']);
-                    } else if (state['customRoute'].startsWith('/ext/')) {
-                        var parts = state['customRoute'].split('/');
-                        if (parts.length >= 3 && this._extensionController.getExtension(parts[2])) {
-                            var response = await this._apiController.getApiClient().request("GET", '/api' + state['customRoute']);
-                            var panel;
-                            try {
-                                var data = JSON.parse(response);
-                                panel = new JsonPanel(data);
-                            } catch (error) {
-                                ;
+                var bHome = false;
+                if (state) {
+                    if (state['customRoute']) {
+                        var res = this._routeController.getMatchingRoute(state['customRoute']);
+                        if (res) {
+                            var route = res['route'];
+                            if (route && route['fn'])
+                                await route['fn'](res['match']);
+                        } else if (state['customRoute'].startsWith('/ext/')) {
+                            var parts = state['customRoute'].split('/');
+                            if (parts.length >= 3 && this._extensionController.getExtension(parts[2])) {
+                                var response = await this._apiController.getApiClient().request("GET", '/api' + state['customRoute']);
+                                var panel;
+                                try {
+                                    var data = JSON.parse(response);
+                                    panel = new JsonPanel(data);
+                                } catch (error) {
+                                    ;
+                                }
+                                if (!panel) {
+                                    panel = new Panel();
+                                    var $iframe = $('<iframe>', {
+                                        src: 'about:blank',
+                                        frameborder: 0,
+                                        scrolling: 'no'
+                                    });
+                                    $iframe.on("load", function () {
+                                        this.contents().find('body').append(response);
+                                    }.bind($iframe));
+                                    panel.setContent($iframe);
+                                }
+                                await this._view.getCanvas().showPanels([panel]);
+                            } else
+                                throw new Error("Unknown route '" + state['customRoute'] + "'");
+                        } else if (state['customRoute'].startsWith('/data/')) {
+                            this._data = await this._apiController.getApiClient().requestData("GET", state['customRoute'].substring('/data/'.length));
+                            await this.updateCanvas();
+                        } else if (state['customRoute'].startsWith('/dashboard/')) {
+                            var parts = state['customRoute'].split('/');
+                            if (parts.length == 3) {
+                                var model = this._modelController.getModel(parts[2]);
+                                if (model && model.hasOwnProperty('createDashboard'))
+                                    panels = await model.createDashboard();
                             }
-                            if (!panel) {
-                                panel = new Panel();
-                                var $iframe = $('<iframe>', {
-                                    src: 'about:blank',
-                                    frameborder: 0,
-                                    scrolling: 'no'
-                                });
-                                $iframe.on("load", function () {
-                                    this.contents().find('body').append(response);
-                                }.bind($iframe));
-                                panel.setContent($iframe);
-                            }
-                            await this._view.getCanvas().showPanels([panel]);
+                            if (panels)
+                                await this._view.getCanvas().showPanels(panels);
+                            else
+                                throw new Error("No dashboard defined");
                         } else
                             throw new Error("Unknown route '" + state['customRoute'] + "'");
-                    } else if (state['customRoute'].startsWith('/data/')) {
-                        this._data = await this._apiController.getApiClient().requestData("GET", state['customRoute'].substring('/data/'.length));
-                        await this.updateCanvas();
-                    } else if (state['customRoute'].startsWith('/dashboard/')) {
-                        var parts = state['customRoute'].split('/');
-                        if (parts.length == 3) {
-                            var model = this._modelController.getModel(parts[2]);
-                            if (model && model.hasOwnProperty('createDashboard'))
-                                panels = await model.createDashboard();
-                        }
-                        if (panels)
-                            await this._view.getCanvas().showPanels(panels);
-                        else
-                            throw new Error("No dashboard defined");
+                    } else if (state['typeString']) {
+                        var typeString = state.typeString;
+                        if (this._modelController.isModelDefined(typeString)) {
+                            if (state['data'])
+                                this._data = state['data'];
+                            else if (!state['action'] || state['action'] != ActionEnum.create)
+                                this._data = await this._dataservice.fetchDataByState(state);
+                            await this.updateCanvas();
+                        } else
+                            throw new Error("Unknown model '" + typeString + "'");
                     } else
-                        throw new Error("Unknown route '" + state['customRoute'] + "'");
-                } else if (state['typeString']) {
-                    var typeString = state.typeString;
-                    if (this._modelController.isModelDefined(typeString)) {
-                        if (state['data'])
-                            this._data = state['data'];
-                        else if (!state['action'] || state['action'] != ActionEnum.create)
-                            this._data = await this._dataservice.fetchDataByState(state);
-                        await this.updateCanvas();
-                    } else
-                        throw new Error("Unknown model '" + typeString + "'");
+                        bHome = true;
                 } else
                     bHome = true;
-            } else
-                bHome = true;
 
-            if (bHome) {
-                var homePanels = [];
-                /*var panel = new Panel();
-                panel.setContent(`TODO:<br/>
-                Allow customizing 'Home' page with panels/shortcuts - see following panels for examles`);
-                homePanels.push(panel);
-         
-                panel = new Panel();
-                panel.setContent(`common tasks:<br/>
-                <a href="#" onclick=\"event.stopPropagation();ModelSelect.openCreateModelModal();return false;\">create model</a><br/>...`);
-                homePanels.push(panel);
-         
-                panel = new Panel();
-                panel.setContent(`recently created models/entries:</br>...`);
-                homePanels.push(panel);
-         
-                panel = new Panel();
-                panel.setContent(`recently / most used / favourite states:</br>...`);
-                homePanels.push(panel);*/
+                if (bHome) {
+                    var homePanels = [];
+                    /*var panel = new Panel();
+                    panel.setContent(`TODO:<br/>
+                    Allow customizing 'Home' page with panels/shortcuts - see following panels for examles`);
+                    homePanels.push(panel);
+             
+                    panel = new Panel();
+                    panel.setContent(`common tasks:<br/>
+                    <a href="#" onclick=\"event.stopPropagation();ModelSelect.openCreateModelModal();return false;\">create model</a><br/>...`);
+                    homePanels.push(panel);
+             
+                    panel = new Panel();
+                    panel.setContent(`recently created models/entries:</br>...`);
+                    homePanels.push(panel);
+             
+                    panel = new Panel();
+                    panel.setContent(`recently / most used / favourite states:</br>...`);
+                    homePanels.push(panel);*/
 
-                await this._view.getCanvas().showPanels(homePanels);
+                    await this._view.getCanvas().showPanels(homePanels);
+                }
+            } catch (error) {
+                this.showError(error);
+            } finally {
+                if (state)
+                    state.bIgnoreCache = false;
+                this.setLoadingState(false);
             }
-        } catch (error) {
-            this.showError(error);
-        } finally {
-            if (state)
-                state.bIgnoreCache = false;
-            this.setLoadingState(false);
-        }
+        } else
+            this.showErrorMessage('Application is not properly initialized');
+        return Promise.resolve();
     }
 
     showError(error, message) {

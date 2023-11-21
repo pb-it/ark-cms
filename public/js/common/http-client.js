@@ -37,7 +37,7 @@ class HttpClient {
         return new Promise(function (resolve, reject) {
             var xhr;
 
-            function error(event) { // or use xhr direct instead of event parameter
+            function error(event, bTimeout) { // or use xhr direct instead of event parameter
                 var request;
                 if (event instanceof XMLHttpRequest)
                     request = event;
@@ -46,6 +46,8 @@ class HttpClient {
                 var response;
                 if (request) {
                     response = { 'url': url };
+                    if (bTimeout)
+                        response['timeout'] = true;
                     if (request['status'] != undefined)
                         response['status'] = request['status'];
                     if (request['statusText'] != undefined)
@@ -75,7 +77,7 @@ class HttpClient {
             xhr.onerror = error;
             xhr.ontimeout = function () {
                 //alert("time out");
-                error(this);
+                error(this, true);
             }
 
             xhr.open(method, url); //3rd parameter 'false' would make the request synchronous
