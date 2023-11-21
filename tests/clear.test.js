@@ -48,7 +48,7 @@ describe('Testsuit', function () {
         await app.resetLocalStorage();
         await ac.clearDatabase();
 
-        await ac.restart();
+        await ac.restart(true);
         await app.reload();
         await TestHelper.delay(1000);
         await app.login(helper.getConfig()['api']);

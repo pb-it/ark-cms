@@ -96,23 +96,43 @@ class ApiController {
         return Promise.resolve();
     }
 
-    async restartApi() {
+    async restartApi(bWaitReady) {
+        var res = 1;
         await this._apiClient.request("GET", "/sys/restart");
-        return Promise.resolve();
+        if (bWaitReady) {
+            await sleep(5000);
+            var bReady = await this.waitApiReady(5, 3000);
+            if (!bReady) {
+                await sleep(2000);
+                bReady = await this.waitApiReady(5, 2000);
+                if (!bReady) {
+                    await sleep(1000);
+                    bReady = await this.waitApiReady(5, 1000);
+                }
+            }
+            if (bReady)
+                res = 0;
+        } else
+            res = 0;
+        return Promise.resolve(res);
     }
 
-    async waitApiReady() {
+    async waitApiReady(retries = 10, delay = 3000) {
         var bReady = false;
+        var tmp;
         var i = 1;
-        while (!bReady && i <= 10) {
+        while (!bReady && i <= retries) {
             if (i > 1)
-                await sleep(3000);
+                await sleep(delay);
             try {
-                await this.fetchApiInfo();
-                bReady = true;
+                tmp = await this.fetchApiInfo();
+                console.log(tmp);
+                if (tmp['state'] === 'running')
+                    bReady = true;
             } catch (error) {
                 if (error instanceof HttpError && error['response']) {
-                    if (error['response']['status'] == 401 || error['response']['status'] == 403)
+                    console.log(error);
+                    if (error instanceof HttpError && error['response'] && (error['response']['status'] == 401 || error['response']['status'] == 403))
                         bReady = true;
                 }
             }
