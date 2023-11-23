@@ -11,6 +11,8 @@ gulp.task("test", function () {
         "./tests/create_content.test.js",
         "./model_add_relation.test.js",
         "./content_create2.test.js",
-        "./idb.test.js"
+        "./idb.test.js",
+        "./auth.test.js",
+        "./misc.test.js"
     ]).pipe(mocha());
 });

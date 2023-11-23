@@ -57,7 +57,7 @@ describe('Testsuit', function () {
         await sidemenu.click('All');
         await TestHelper.delay(1000);
 
-        const script = fs.readFileSync(path.join(path.resolve(__dirname) + '/scripts/create_star.js'), "utf-8");
+        const script = fs.readFileSync(path.join(path.resolve(__dirname) + '/data/scripts/create_star.js'), "utf-8");
         const response = await driver.executeAsyncScript(script);
         var id;
         try {

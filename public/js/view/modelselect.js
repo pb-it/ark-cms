@@ -7,7 +7,14 @@ class ModelSelect {
             { name: "name", dataType: "string", required: true, "tooltip": strRestrict },
             { name: "tableName", dataType: "string" },
             { name: "increments", dataType: "boolean", required: true, readonly: true },
-            { name: "timestamps", dataType: "boolean", required: true, readonly: true }
+            { name: "timestamps", dataType: "boolean", required: true, readonly: true },
+            {
+                name: "public",
+                tooltip: "**Info**: Entries of public models are readable without authentication.",
+                dataType: "boolean",
+                required: true,
+                defaultValue: false
+            },
         ];
         var info = app.controller.getApiController().getApiInfo();
         var client = info['db']['client'];

@@ -34,4 +34,6 @@ describe("Root Suite", function () {
     require('./model_add_relation.test.js');
     require('./content_create2.test.js');
     require('./idb.test.js');
+    require('./auth.test.js');
+    require('./misc.test.js');
 });

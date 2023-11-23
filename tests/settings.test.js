@@ -75,10 +75,8 @@ describe('Testsuit', function () {
         await checkErrorMessage(true);
         await modal.closeModal();
 
-        xpath = `//*[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title="Configuration"]`;
-        var button = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        assert.notEqual(button, null);
-        await button.click();
+        const sidemenu = app.getSideMenu();
+        await sidemenu.click('Configuration');
 
         await TestHelper.delay(1000);
 
@@ -91,7 +89,7 @@ describe('Testsuit', function () {
         if (helper.getConfig()['api'])
             await input.sendKeys(helper.getConfig()['api']);
 
-        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply and Reload"]'));
+        var button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply and Reload"]'));
         assert.notEqual(button, null);
         await button.click();
 
