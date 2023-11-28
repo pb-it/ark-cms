@@ -21,7 +21,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        await app.login(config['api'], config['username'], config['password']);
+        await app.prepare(config['api'], config['username'], config['password']);
 
         await TestHelper.delay(1000);
 
@@ -105,26 +105,20 @@ describe('Testsuit', function () {
         modal = await app.getTopModal();
         assert.equal(modal, null);
 
-        driver.executeScript(function () {
-            app.getController().getAuthController().logout();
-        });
-
+        await app.logout();
         await TestHelper.delay(1000);
 
         modal = await app.getTopModal();
         assert.notEqual(modal, null);
 
-        await app.login(null, 'user', 'user');
+        await app.login('user', 'user');
 
         await TestHelper.delay(1000);
 
         modal = await app.getTopModal();
         assert.equal(modal, null);
 
-        driver.executeScript(function () {
-            app.getController().getAuthController().logout();
-        });
-
+        await app.logout();
         await TestHelper.delay(1000);
 
         modal = await app.getTopModal();

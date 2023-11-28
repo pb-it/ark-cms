@@ -410,6 +410,7 @@ class Controller {
     }
 
     async navigate(url) {
+        var bDone = false;
         try {
             var path;
             if (url) {
@@ -417,16 +418,18 @@ class Controller {
                     path = url;
                 else if (url.startsWith(window.location.origin))
                     path = url.substring(window.location.origin.length);
-            }
+            } else
+                path = '/';
             if (path) {
                 var state = State.getStateFromPath(path);
                 await this.loadState(state, true);
+                bDone = true;
             } else
                 this.showErrorMessage('Invalid destination!');
         } catch (error) {
             this.showError(error);
         }
-        return Promise.resolve();
+        return Promise.resolve(bDone);
     }
 
     async loadState(state, push, replace) {

@@ -15,7 +15,7 @@ class AuthController {
         var $d = $('<div/>')
             .css({ 'padding': '10' });
 
-        $d.append("<h3>Login:</h3><br/>");
+        $d.append("<h2>Login</h2><br/>");
 
         var $form = $('<form/>')
             .prop('target', '_blank')

@@ -21,7 +21,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        await app.login(config['api'], config['username'], config['password']);
+        await app.prepare(config['api'], config['username'], config['password']);
 
         await TestHelper.delay(1000);
 
@@ -51,7 +51,8 @@ describe('Testsuit', function () {
         await ac.restart(true);
         await app.reload();
         await TestHelper.delay(1000);
-        await app.login(helper.getConfig()['api']);
+        await app.prepare(helper.getConfig()['api']);
+        await TestHelper.delay(1000);
 
         const modal = await app.getTopModal();
         assert.equal(modal, null);

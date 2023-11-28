@@ -33,7 +33,7 @@ describe('Testsuit', function () {
     let driver;
 
     before('#setup', async function () {
-        this.timeout(10000);
+        this.timeout(20000);
 
         if (!global.helper) {
             global.helper = new TestHelper();
@@ -44,7 +44,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        await app.login(config['api'], config['username'], config['password']);
+        await app.prepare(config['api'], config['username'], config['password']);
 
         await TestHelper.delay(1000);
 
@@ -61,6 +61,37 @@ describe('Testsuit', function () {
     afterEach(function () {
         if (global.allPassed)
             allPassed = allPassed && (this.currentTest.state === 'passed');
+    });
+
+    it('#changelog on update', async function () {
+        this.timeout(60000);
+
+        driver.executeScript(function () {
+            localStorage.setItem('appVersion', '0.1.1');
+        });
+        await TestHelper.delay(1000);
+
+        const app = helper.getApp();
+        await app.logout();
+
+        await TestHelper.delay(1000);
+
+        await app.login();
+
+        await TestHelper.delay(1000);
+
+        var modal = await app.getTopModal();
+        assert.notEqual(modal, null);
+        const button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+        assert.notEqual(button, null);
+        await button.click();
+
+        await TestHelper.delay(1000);
+
+        modal = await app.getTopModal();
+        assert.equal(modal, null);
+
+        return Promise.resolve();
     });
 
     xit('#create db dump', async function () {
@@ -99,6 +130,7 @@ describe('Testsuit', function () {
         await app.reload();
         await TestHelper.delay(1000);
         await app.login();
+        await TestHelper.delay(1000);
 
         const modal = await app.getTopModal();
         assert.equal(modal, null);
@@ -132,13 +164,10 @@ describe('Testsuit', function () {
         var tmp = JSON.parse(text);
         assert.equal(tmp['data'].length, 2);
 
-        driver.executeScript(function () {
-            app.getController().getAuthController().logout();
-        });
-
+        const app = helper.getApp();
+        await app.logout();
         await TestHelper.delay(1000);
 
-        const app = helper.getApp();
         var modal = await app.getTopModal();
         assert.notEqual(modal, null);
 

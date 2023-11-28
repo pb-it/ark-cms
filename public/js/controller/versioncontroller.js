@@ -37,7 +37,7 @@ class VersionController {
         var $d = $('<div/>')
             .css({ 'padding': '10' });
 
-        $d.append("<b>Info:</b><br/>");
+        $d.append("<h2>Info</h2>");
         $d.append("You are now using version '" + version + "' of this application.<br/><br/>");
 
         var $skip = $('<button>')
@@ -70,7 +70,7 @@ class VersionController {
         var $d = $('<div/>')
             .css({ 'padding': '10' });
 
-        $d.append("<b>Info:</b><br/>");
+        $d.append("<h2>Info</h2>");
         $d.append("API and client version numbers missmatch! Consider updating the trailing application!<br/><br/>");
 
         var $ok = $('<button>')
