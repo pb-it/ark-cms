@@ -8,4 +8,6 @@
 
 * Settings: <kbd>Ctrl</kbd> + <kbd>,</kbd>
 
+* Search: <kbd>Ctrl</kbd> + <kbd>k</kbd>
+
 * Debug: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd>

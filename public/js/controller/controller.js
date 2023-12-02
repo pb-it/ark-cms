@@ -189,9 +189,16 @@ class Controller {
                     if (changes) {
                         var data = changes['data'];
                         if (data && data.length > 0) {
-                            const modal = await this._modalController.openPanelInModal(new UpdateCachePanel(changes));
-                            this.setLoadingState(false);
-                            await modal.waitClosed();
+                            if (this._configController.automaticUpdateCache()) {
+                                if (this._database)
+                                    await this._database.updateDatabase(changes);
+                                else
+                                    await this._dataservice.getCache().applyChanges(changes);
+                            } else {
+                                const modal = await this._modalController.openPanelInModal(new UpdateCachePanel(changes));
+                                this.setLoadingState(false);
+                                await modal.waitClosed();
+                            }
                         }
                     }
                 }
@@ -304,6 +311,23 @@ class Controller {
                                     } catch (error) {
                                         this.showError(error);
                                     }
+                                }
+                            }
+                            break;
+                        case 75: // Ctrl + k
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            var modal;
+                            var mc = this.getModalController();
+                            var modals = mc.getModals();
+                            if (!modals || modals.length === 0) {
+                                try {
+                                    const form = this._view.getTopNavigationBar().getSearchForm();
+                                    if (form)
+                                        form.getSearchField().focus();
+                                } catch (error) {
+                                    this.showError(error);
                                 }
                             }
                             break;

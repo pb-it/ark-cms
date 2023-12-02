@@ -32,6 +32,10 @@ class TopNavigationBar {
         this._$topNavigationBar.append(this._$searchContainer);
     }
 
+    getSearchForm() {
+        return this._searchForm;
+    }
+
     renderTopNavigationBar() {
         const controller = app.getController();
         if (controller && controller.hasConnection()) {
@@ -40,7 +44,7 @@ class TopNavigationBar {
                 this._breadcrumb.renderBreadcrumb();
 
                 const state = sc.getState();
-                if (state && state.getModel()) {
+                if (state && state.getModel() && (!state['action'] || state['action'] === ActionEnum.read)) {
                     if (this._$searchContainer.children().length == 0)
                         this._$searchContainer.append(this._$searchForm);
                     this._searchForm.renderSearchForm();

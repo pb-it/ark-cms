@@ -521,7 +521,8 @@ class CrudObject {
             data = this._data;
         data = await this.request(ActionEnum.create, data);
         this.setData(data);
-        await this._updateCache(null, data);
+        if (app.getController().getConfigController().automaticUpdateCache())
+            await this._updateCache(null, data);
         return Promise.resolve(data);
     }
 
@@ -537,7 +538,8 @@ class CrudObject {
             var newData = data;
             data = await this.request(ActionEnum.update, data);
             this.setData(data);
-            await this._updateCache(oldData, newData);
+            if (app.getController().getConfigController().automaticUpdateCache())
+                await this._updateCache(oldData, newData);
         } else {
             for (const [key, value] of Object.entries(data)) {
                 if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length == 0))
@@ -554,33 +556,34 @@ class CrudObject {
         var res = await this.request(ActionEnum.delete);
         //this.setData(null);
         this._bDeleted = true;
-        await this._updateCache(this._data);
+        if (app.getController().getConfigController().automaticUpdateCache())
+            await this._updateCache(this._data);
         return Promise.resolve(res);
     }
 
     async _updateCache(oldData, newData) {
-        var controller = app.getController();
-        var changed = CrudObject.getChangedRelations(this._model, oldData, newData);
+        const controller = app.getController();
+        const changed = CrudObject.getChangedRelations(this._model, oldData, newData);
         if (Object.keys(changed).length > 0) {
-            var ds = controller.getDataService();
-            var promises = [];
+            const ds = controller.getDataService();
+            const promises = [];
             for (const [key, value] of Object.entries(changed)) {
                 promises.push(ds.fetchData(key, value, null, null, null, null, null, true));
             }
             await Promise.all(promises);
         }
 
-        var db = controller.getDatabase();
+        const db = controller.getDatabase();
         if (db) {
-            var oldest = db.getTimestamp();
+            const oldest = db.getTimestamp();
             if (oldest) {
-                var apiController = controller.getApiController();
-                var cache = await controller.getDataService().getCache();
-                var changes = await cache.getChanges(oldest);
+                const apiController = controller.getApiController();
+                const cache = await controller.getDataService().getCache();
+                const changes = await cache.getChanges(oldest);
                 if (changes) {
-                    var data = changes['data'];
+                    const data = changes['data'];
                     if (data && data.length == 1) {
-                        var sessionInfo = apiController.getSessionInfo();
+                        const sessionInfo = apiController.getSessionInfo();
                         if (data[0]['model'] == this._typeString && data[0]['record_id'] == this._data['id'] &&
                             ((!sessionInfo['user'] && !data[0]['user']) || data[0]['user']['id'] == sessionInfo['user']['id']))
                             db.setTimestamp(null, changes['timestamp']);

@@ -44,6 +44,24 @@ describe('Testsuit', function () {
 
         const app = helper.getApp();
         var modal = await app.getTopModal();
+        if (modal) {
+            var head;
+            try {
+                head = await modal.findElement(webdriver.By.xpath('./div[@class="panel"]/div/h2'));
+            } catch (error) {
+                ;
+            }
+            if (head) {
+                const text = await head.getText();
+                if (text === 'Attempt to connect to API failed') {
+                    await this.acceptPrivateCertificate();
+
+                    await this.reload();
+                    await sleep(1000);
+                    modal = await app.getTopModal();
+                }
+            }
+        }
         assert.notEqual(modal, null, 'Modal not open!');
         var input = await modal.findElement(webdriver.By.css('input[id="username"]'));
         assert.notEqual(input, null, 'Input not found!');

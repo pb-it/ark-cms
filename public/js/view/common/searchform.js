@@ -7,6 +7,10 @@ class SearchForm {
     constructor() {
     }
 
+    getSearchField() {
+        return this._$searchField;
+    }
+
     initSearchForm() {
         this._$searchForm = $('<form/>')
             .prop('id', 'searchForm');

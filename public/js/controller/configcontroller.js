@@ -175,4 +175,9 @@ class ConfigController {
     experimentalFeaturesEnabled() {
         return this._storageController.loadLocal('bExperimentalFeatures') === 'true';
     }
+
+    automaticUpdateCache() {
+        const value = this._storageController.loadLocal('bAutomaticUpdateCache');
+        return value === null || value === 'true';
+    }
 }

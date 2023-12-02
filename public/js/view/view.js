@@ -23,6 +23,10 @@ class View {
         return this._sideNavigationBar;
     }
 
+    getTopNavigationBar() {
+        return this._topNavigationBar;
+    }
+
     getCanvas() {
         return this._canvas;
     }

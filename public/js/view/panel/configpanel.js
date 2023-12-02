@@ -44,6 +44,7 @@ class ConfigPanel extends TabPanel {
                     bDebug = dc['bDebug'];
                 else
                     bDebug = false;
+                var bAutomaticUpdateCache = controller.getStorageController().loadLocal('bAutomaticUpdateCache');
                 this._data = {
                     'version': controller.getVersionController().getAppVersion(),
                     'api': controller.getApiController().getApiOrigin(),
@@ -51,6 +52,7 @@ class ConfigPanel extends TabPanel {
                     'bDebug': bDebug,
                     'bConfirmOnApply': bDebug || (controller.getStorageController().loadLocal('bConfirmOnApply') === 'true'),
                     'bConfirmOnLeave': controller.getStorageController().loadLocal('bConfirmOnLeave') === 'true',
+                    'bAutomaticUpdateCache': bAutomaticUpdateCache === null || bAutomaticUpdateCache === 'true',
                     'bIndexedDB': controller.getStorageController().loadLocal('bIndexedDB') === 'true',
                 };
             }
@@ -101,6 +103,14 @@ class ConfigPanel extends TabPanel {
                     dataType: 'boolean',
                     required: true,
                     defaultValue: false
+                },
+                {
+                    name: 'bAutomaticUpdateCache',
+                    label: 'Automatic cache update',
+                    tooltip: '**INFO**: Automatic updates related/affected entries in cache after changes.',
+                    dataType: 'boolean',
+                    required: true,
+                    defaultValue: true
                 },
                 {
                     name: 'bIndexedDB',
@@ -260,6 +270,7 @@ Do you want to continue?`))
                         sc.storeLocal('bExperimentalFeatures', fdata['bExperimentalFeatures']);
                         sc.storeLocal('bConfirmOnLeave', fdata['bConfirmOnLeave']);
                         sc.storeLocal('bConfirmOnApply', fdata['bConfirmOnApply']);
+                        sc.storeLocal('bAutomaticUpdateCache', fdata['bAutomaticUpdateCache']);
                         sc.storeLocal('bIndexedDB', fdata['bIndexedDB']);
 
                         if (bReloadApp) {
