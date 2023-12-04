@@ -583,9 +583,9 @@ class CrudObject {
                 if (changes) {
                     const data = changes['data'];
                     if (data && data.length == 1) {
-                        const sessionInfo = apiController.getSessionInfo();
+                        const user = controller.getAuthController().getUser();
                         if (data[0]['model'] == this._typeString && data[0]['record_id'] == this._data['id'] &&
-                            ((!sessionInfo['user'] && !data[0]['user']) || data[0]['user']['id'] == sessionInfo['user']['id']))
+                            ((!user && !data[0]['user']) || data[0]['user']['id'] == user['id']))
                             db.setTimestamp(null, changes['timestamp']);
                     }
                 }

@@ -39,17 +39,8 @@ class Panel {
             this._$panel.empty();
 
             await this._init();
-
-            try {
-                var content = await this._renderContent();
-                this._$panel.append(content);
-            } catch (error) {
-                if (error.hasOwnProperty('status') && error['status'] == 0)
-                    app.controller.showError(error, "Connection lost");
-                else
-                    app.controller.showError(error, "Rendering panel failed");
-            }
-
+            var content = await this._renderContent();
+            this._$panel.append(content);
             await this._teardown();
 
             this._$panel.show();
@@ -90,6 +81,10 @@ class Panel {
         return Promise.resolve();
     }
 
+    isRendered() {
+        return this._$panel && this._bRendered;
+    }
+
     /**
      * Modal listens on dispose of its content
      */
@@ -99,5 +94,6 @@ class Panel {
             this._$panel.remove();
             this._$panel = null;
         }
+        this._bRendered = false;
     }
 }

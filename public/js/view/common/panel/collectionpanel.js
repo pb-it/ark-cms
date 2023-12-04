@@ -23,33 +23,37 @@ class CollectionPanel extends ContainerPanel {
     async _renderContent() {
         this._panels = [];
 
-        var data = this._obj.getData();
+        const data = this._obj.getData();
         if (data) {
-            try {
-                await this._obj.initContainer();
-                var items = this._obj.getAllItems();
-                if (items && items.length > 0) {
-                    var model = app.controller.getModelController().getModel(this._obj.getCollectionType());
-                    if (model) {
-                        var mpcc = model.getModelPanelConfigController();
-                        var panelConfig = mpcc.getPanelConfig();
-                        var Cp = panelConfig.getPanelClass();
+            const controller = app.getController();
+            if (this._obj instanceof CrudContainer) {
+                try {
+                    await this._obj.initContainer();
+                    const items = this._obj.getAllItems();
+                    if (items && items.length > 0) {
+                        const model = controller.getModelController().getModel(this._obj.getCollectionType());
+                        if (model) {
+                            const mpcc = model.getModelPanelConfigController();
+                            const panelConfig = mpcc.getPanelConfig();
+                            const Cp = panelConfig.getPanelClass();
 
-                        var panel;
-                        var item;
-                        for (var i = 0; i < items.length; i++) {
-                            item = items[i];
-                            panel = new Cp(panelConfig, item);
-                            if (this._bLazy) // app.controller.getView().getCanvas().isLoading()
-                                panel.setLazy(true);
-                            panel.parent = this;
-                            this._panels.push(panel);
+                            var panel;
+                            var item;
+                            for (var i = 0; i < items.length; i++) {
+                                item = items[i];
+                                panel = new Cp(panelConfig, item);
+                                if (this._bLazy) // app.controller.getView().getCanvas().isLoading()
+                                    panel.setLazy(true);
+                                panel.parent = this;
+                                this._panels.push(panel);
+                            }
                         }
                     }
+                } catch (error) {
+                    controller.showError(error);
                 }
-            } catch (error) {
-                app.controller.showError(error);
-            }
+            } else
+                throw new Error('CollectionPanel expected CrudContainer but got \'' + this._obj.constructor.name + '\'');
         }
         return super._renderContent();
     }

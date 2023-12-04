@@ -222,8 +222,8 @@ class SideNavigationBar {
 
         const controller = app.getController();
         if (controller && controller.hasConnection()) {
-            var apiController = controller.getApiController();
-            if (apiController && apiController.isAdministrator()) {
+            const authController = controller.getAuthController();
+            if (authController && authController.isAdministrator()) {
                 conf = {
                     'style': 'iconbar',
                     'icon': "puzzle-piece",

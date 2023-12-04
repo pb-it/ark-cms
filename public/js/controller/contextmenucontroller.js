@@ -94,22 +94,31 @@ class ContextMenuController {
         }*/
 
         var createCopyEntry = new ContextMenuEntry("Copy", async function () {
-            var items = controller.getSelected();
-            if (!items || (items.length == 1 && items[0] == this)) {
-                var data = { ...this._obj.getData() };
+            controller.setLoadingState(true);
+            try {
+                var items = controller.getSelected();
+                if (!items || (items.length == 1 && items[0] == this)) {
+                    var data = { ...this._obj.getData() };
 
-                var skeleton = this._obj.getSkeleton();
-                delete data['id'];
-                delete data['created_at'];
-                delete data['updated_at'];
-                for (var attr of skeleton) {
-                    if (attr['hidden'] || attr['readonly'] || attr['unique'])
-                        delete data[attr['name']];
-                }
+                    var skeleton = this._obj.getSkeleton();
+                    delete data['id'];
+                    delete data['created_at'];
+                    delete data['updated_at'];
+                    for (var attr of skeleton) {
+                        if (attr['hidden'] || attr['readonly'] || attr['unique'])
+                            delete data[attr['name']];
+                    }
 
-                var panel = PanelController.createPanel(this._obj.getTypeString(), data, ActionEnum.create);
+                    var panel = PanelController.createPanel(this._obj.getTypeString(), data, ActionEnum.create);
 
-                await controller.getModalController().openPanelInModal(panel);
+                    await controller.getModalController().openPanelInModal(panel);
+                    controller.setLoadingState(false);
+                } else
+                    throw new Error('Copy only supports one item at a time');
+            } catch (error) {
+                controller.setLoadingState(false);
+                if (error)
+                    controller.showError(error);
             }
             return Promise.resolve();
         }.bind(panel));

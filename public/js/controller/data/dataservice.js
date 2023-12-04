@@ -156,11 +156,15 @@ class DataService {
         var typeUrl;
         var sortlessUrl;
         var bSort = false;
-        var model = app.getController().getModelController().getModel(typeString);
+        const model = app.getController().getModelController().getModel(typeString);
         var cache = this._cache.getModelCache(typeString);
-        if (!cache && model.getDefinition()['options']['increments'])
-            cache = await this._cache.createModelCache(typeString);
-
+        if (!cache) {
+            if (model) {
+                if (model.getDefinition()['options']['increments'])
+                    cache = await this._cache.createModelCache(model);
+            } else
+                throw new Error('Unknown model \'' + typeString + '\'');
+        }
         if (cache && !bIgnoreCache) {
             if (id) {
                 tmp = cache.getEntry(id);
@@ -331,8 +335,13 @@ class DataService {
             var resp = await this._apiClient.requestData(method, resource, data);
             if (resp) {
                 var cache = this._cache.getModelCache(typeString);
-                if (!cache)
-                    cache = await this._cache.createModelCache(typeString);
+                if (!cache) {
+                    const model = app.getController().getModelController().getModel(typeString);
+                    if (model)
+                        cache = await this._cache.createModelCache(model);
+                    else
+                        throw new Error('Unknown model \'' + typeString + '\'');
+                }
                 if (action == ActionEnum.delete) {
                     if (resp == "OK") //delete default 200 response text
                         await cache.delete(id);

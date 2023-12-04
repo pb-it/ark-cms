@@ -5,8 +5,47 @@ class AuthController {
     _$username;
     _$password;
 
+    _user;
+    _bAdministrator;
+
     constructor() {
         this._controller = app.getController();
+    }
+
+    async initAuthController() {
+        this._user = null;
+        this._bAdministrator = false;
+        try {
+            const session = await this._controller.getApiController().fetchSessionInfo();
+            if (session) {
+                if (session['auth']) {
+                    this._user = session['user'];
+                    if (this._user && this._user['roles']) {
+                        for (var role of this._user['roles']) {
+                            if (role == 'administrator') {
+                                this._bAdministrator = true;
+                                break;
+                            }
+                        }
+                    }
+                } else
+                    this._bAdministrator = true;
+            }
+        } catch (error) {
+            if (error instanceof HttpError && error['response'] && error['response']['status'] == 404)
+                this._bAdministrator = true;
+            else
+                throw error;
+        }
+        return Promise.resolve();
+    }
+
+    getUser() {
+        return this._user;
+    }
+
+    isAdministrator() {
+        return this._bAdministrator;
     }
 
     async showLoginDialog() {

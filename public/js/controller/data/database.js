@@ -3,6 +3,22 @@ class Database {
     static VERSION_IDENT = 'IndexedDB_version';
     static META_IDENT = 'IndexedDB_meta';
 
+    static _parseError(event) {
+        var msg;
+        if (event.target.error) {
+            if (event.target.error.name)
+                msg = event.target.error.name
+            else
+                msg = 'IndexedDB error';
+            if (event.target.error.message)
+                msg += ': ' + event.target.error.message;
+        } else if (event.target.errorCode)
+            msg = 'IndexedDB error: ' + event.target.errorCode;
+        else
+            msg = 'IndexedDB error';
+        return new Error(msg);
+    }
+
     static async _open(name, callback) {
         return new Promise(function (resolve, reject) {
             const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
@@ -24,10 +40,7 @@ class Database {
 
             request.onerror = (event) => {
                 clearTimeout(timeout);
-                var msg = 'Database error';
-                if (event.target.errorCode)
-                    msg += ': ' + event.target.errorCode;
-                reject(new Error(msg));
+                reject(Database._parseError(event));
             };
             request.onsuccess = (event) => {
                 clearTimeout(timeout);
@@ -51,10 +64,7 @@ class Database {
             const request = indexedDB.deleteDatabase(name);
             request.onsuccess = resolve;
             request.onerror = (event) => {
-                var msg = 'Database error';
-                if (event.target.errorCode)
-                    msg += ': ' + event.target.errorCode;
-                reject(new Error(msg));
+                reject(Database._parseError(event));
             };
             request.onblocked = (event) => {
                 reject(new Error(`Database error: ${event.type}`));
@@ -193,7 +203,8 @@ class Database {
     }
 
     async deleteDatabase() {
-        this._db.close();
+        if (this._db)
+            this._db.close();
         await Database._deleteDatabase(this._name);
         var sc = app.getController().getStorageController();
         sc.removeItem(Database.VERSION_IDENT);

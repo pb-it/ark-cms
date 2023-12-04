@@ -96,27 +96,44 @@ class ModalController {
 
     async openCrudObjectInModal(action, obj) {
         return new Promise(async function (resolve, reject) {
-            var model = obj.getModel();
-            var mpcc = model.getModelPanelConfigController();
-            var panelConfig = mpcc.getPanelConfig(action, DetailsEnum.all);
+            const controller = app.getController();
+            const bLoading = controller.getLoadingState();
+            var bError;
+            var modal;
+            var panel;
+            try {
+                const model = obj.getModel();
+                const mpcc = model.getModelPanelConfigController();
+                const panelConfig = mpcc.getPanelConfig(action, DetailsEnum.all);
 
-            var panel = PanelController.createPanelForObject(obj, panelConfig);
+                panel = PanelController.createPanelForObject(obj, panelConfig);
 
-            var res;
-            panelConfig.crudCallback = async function (data) {
-                res = data;
-                panel.dispose();
-            };
+                var res;
+                panelConfig.crudCallback = async function (data) {
+                    res = data;
+                    panel.dispose();
+                };
 
-            var modal = app.controller.getModalController().addModal();
-            var $modal = modal.getModalDomElement();
-            $modal.on("remove", function () {
-                if (res)
-                    resolve(res);
-                else
-                    reject();
-            });
-            await modal.openPanel(panel);
+                modal = controller.getModalController().addModal();
+                const $modal = modal.getModalDomElement();
+                $modal.on("remove", function () {
+                    if (!bError) {
+                        controller.setLoadingState(bLoading);
+                        if (res)
+                            resolve(res);
+                        else
+                            reject();
+                    }
+                });
+                await modal.openPanel(panel);
+                controller.setLoadingState(false);
+            } catch (error) {
+                bError = true;
+                if (modal && (!panel || !panel.isRendered()))
+                    modal.close();
+                controller.setLoadingState(false);
+                reject(error);
+            }
             return Promise.resolve();
         });
     }

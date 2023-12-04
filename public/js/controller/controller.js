@@ -143,17 +143,25 @@ class Controller {
         this._configController = new ConfigController();
         await this._configController.initConfigController();
 
+        if (this._storageController.loadLocal('bIndexedDB') === 'true') {
+            this._database = new Database('cache');
+            try {
+                await this._database.initDatabase();
+            } catch (error) {
+                alert(`IndexDB encountered an error while restoring your cached data!
+More details are provided within the browser console.
+The usage of the cache will be paused until the problem got solved.
+You can also try to reset your cache via the 'Cache-Panel'.`);
+            }
+        }
+
         this._versionController = new VersionController();
         this._apiController = new ApiController(this._configController.getApi());
         this._authController = new AuthController();
 
-        if (this._storageController.loadLocal('bIndexedDB') === 'true') {
-            this._database = new Database('cache');
-            await this._database.initDatabase();
-        }
-
         try {
             await this._apiController.initApiController();
+            await this._authController.initAuthController();
             await this._versionController.initVersionController();
 
             this._routeController = new RouteController();
@@ -179,8 +187,6 @@ class Controller {
 
             this._bookmarkController = new BookmarkController();
             await this._bookmarkController.init();
-
-            await this._apiController.fetchSessionInfo();
 
             if (this._database) {
                 var oldest = this._database.getTimestamp();

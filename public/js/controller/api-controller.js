@@ -11,7 +11,6 @@ class ApiController {
     _apiClient;
     _info;
     _session;
-    _bAdministrator;
 
     constructor(api) {
         if (api && api.endsWith('/'))
@@ -66,29 +65,11 @@ class ApiController {
         var response = await this._apiClient.request("GET", "/sys/session?t=" + (new Date()).getTime());
         if (response)
             this._session = JSON.parse(response);
-        this._bAdministrator = false;
-        if (this._session) {
-            if (this._session['auth']) {
-                if (this._session['user'] && this._session['user']['roles']) {
-                    for (var role of this._session['user']['roles']) {
-                        if (role == 'administrator') {
-                            this._bAdministrator = true;
-                            break;
-                        }
-                    }
-                }
-            } else
-                this._bAdministrator = true;
-        }
         return Promise.resolve(this._session);
     }
 
     getSessionInfo() {
         return this._session;
-    }
-
-    isAdministrator() {
-        return this._bAdministrator;
     }
 
     async reloadModels() {
