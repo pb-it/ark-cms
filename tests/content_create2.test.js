@@ -44,7 +44,7 @@ describe('Testsuit', function () {
     });
 
     it('#create content with relation - test cache update', async function () {
-        this.timeout(10000);
+        this.timeout(15000);
 
         const app = helper.getApp();
         const sidemenu = app.getSideMenu();

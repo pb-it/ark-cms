@@ -38,7 +38,7 @@
         "express": "^4.18.2"
     },
     "devDependencies": {
-        "@pb-it/ark-cms-selenium-test-helper": "^0.1.7-beta",
+        "@pb-it/ark-cms-selenium-test-helper": "^0.1.9-beta",
         "gulp": "^4.0.2",
         "gulp-mocha": "^10.0.0",
         "mocha": "^10.2.0",

@@ -53,7 +53,7 @@ class CollectionPanel extends ContainerPanel {
                     controller.showError(error);
                 }
             } else
-                throw new Error('CollectionPanel expected CrudContainer but got \'' + this._obj.constructor.name + '\'');
+                throw new Error('CollectionPanel expected \'CrudContainer\' but got \'' + this._obj.constructor.name + '\'');
         }
         return super._renderContent();
     }

@@ -556,8 +556,21 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                             } else
                                 throw new Error("Unknown route '" + state['customRoute'] + "'");
                         } else if (state['customRoute'].startsWith('/data/')) {
-                            this._data = await this._apiController.getApiClient().requestData("GET", state['customRoute'].substring('/data/'.length));
-                            await this.updateCanvas();
+                            var data = await this._apiController.getApiClient().requestData("GET", state['customRoute'].substring('/data/'.length));
+                            if (state['typeString']) {
+                                this._data = data;
+                                await this.updateCanvas();
+                            } else {
+                                var str;
+                                if (typeof data === 'object')
+                                    str = JSON.stringify(data, null, '\t');
+                                else if (typeof data === 'string' || typeof data === 'number')
+                                    str = data;
+                                else
+                                    str = 'Unexpected response!';
+                                alert(str);
+                            }
+
                         } else if (state['customRoute'].startsWith('/dashboard/')) {
                             var parts = state['customRoute'].split('/');
                             if (parts.length == 3) {

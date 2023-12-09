@@ -76,8 +76,11 @@ class State {
                     } else {
                         if (parts[1] === "new")
                             state.action = ActionEnum.create;
-                        else
+                        else {
+                            if (parts[1] === "count")
+                                state.typeString = null;
                             state.customRoute = path;
+                        }
                     }
                 } else if (parts.length == 3) {
                     if (!isNaN(parts[1])) {
