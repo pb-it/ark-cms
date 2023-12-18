@@ -18,6 +18,9 @@ class RouteController {
         var res;
         var match;
         if (this._routes) {
+            const index = path.indexOf('?');
+            if (index != -1)
+                path = path.substring(0, index);
             for (var route of this._routes) {
                 if (route['regex'] && route['fn']) {
                     match = new RegExp(route['regex'], 'ig').exec(path);

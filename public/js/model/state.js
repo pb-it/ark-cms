@@ -79,7 +79,7 @@ class State {
                         else {
                             if (parts[1] === "count")
                                 state.typeString = null;
-                            state.customRoute = path;
+                            state.customRoute = spath;
                         }
                     }
                 } else if (parts.length == 3) {
@@ -88,11 +88,11 @@ class State {
                         if (parts[2] === "edit")
                             state.action = ActionEnum.update;
                         else
-                            state.customRoute = path;
+                            state.customRoute = spath;
                     } else
-                        state.customRoute = path; //throw new Error("invalid url");
+                        state.customRoute = spath; //throw new Error("invalid url");
                 } else
-                    state.customRoute = path; //throw new Error("invalid url");
+                    state.customRoute = spath; //throw new Error("invalid url");
             }
 
             if (search) {
@@ -128,8 +128,16 @@ class State {
                     }
                 });
             }
-        } else
-            state = new State({ customRoute: path });
+        } else {
+            var customRoute = path;
+            if (search) {
+                if (search.startsWith('?'))
+                    customRoute += search;
+                else
+                    customRoute += `?${search}`;
+            }
+            state = new State({ 'customRoute': customRoute });
+        }
         return state;
     }
 

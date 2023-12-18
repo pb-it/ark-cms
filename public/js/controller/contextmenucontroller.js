@@ -290,12 +290,14 @@ class ContextMenuController {
 
                             if (!backLink) {
                                 var relModel = app.getController().getModelController().getModel(attr.model);
-                                var relAttributes = relModel.getModelAttributesController().getAttributes();
-                                if (relAttributes) {
-                                    for (var relAttr of relAttributes) {
-                                        if (relAttr['dataType'] === "relation" && relAttr['model'] === typeString && relAttr['multiple'] && !relAttr['via']) {
-                                            backLink = relAttr.name;
-                                            break;
+                                if (relModel) {
+                                    var relAttributes = relModel.getModelAttributesController().getAttributes();
+                                    if (relAttributes) {
+                                        for (var relAttr of relAttributes) {
+                                            if (relAttr['dataType'] === "relation" && relAttr['model'] === typeString && relAttr['multiple'] && !relAttr['via']) {
+                                                backLink = relAttr.name;
+                                                break;
+                                            }
                                         }
                                     }
                                 }

@@ -451,7 +451,21 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
             } else
                 path = '/';
             if (path) {
-                var state = State.getStateFromPath(path);
+                var spath;
+                var fragment;
+                var search;
+                var index = path.indexOf("#");
+                if (index >= 0) {
+                    fragment = path.substring(index + 1);
+                    spath = path.substring(0, index);
+                } else
+                    spath = path;
+                index = spath.indexOf("?");
+                if (index >= 0) {
+                    search = spath.substring(index + 1);
+                    spath = spath.substring(0, index);
+                }
+                const state = State.getStateFromPath(spath, search, fragment);
                 await this.loadState(state, true);
                 bDone = true;
             } else
@@ -528,7 +542,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                         if (res) {
                             var route = res['route'];
                             if (route && route['fn'])
-                                await route['fn'](res['match']);
+                                await route['fn'](state['customRoute'], res['match']);
                         } else if (state['customRoute'].startsWith('/ext/')) {
                             var parts = state['customRoute'].split('/');
                             if (parts.length >= 3 && this._extensionController.getExtension(parts[2])) {
