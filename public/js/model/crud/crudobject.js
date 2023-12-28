@@ -72,8 +72,13 @@ class CrudObject {
                 if (!field['hidden'] || bIncludeHidden) {
                     property = field.name;
                     if (newdata[property] === null || newdata[property] === undefined) {
-                        if (olddata && olddata[property] !== null && olddata[property] !== undefined)
-                            relevant[property] = null;
+                        if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
+                            if (field['dataType'] === 'string' || field['dataType'] === 'text' || field['dataType'] === 'json') {
+                                if (olddata[property] !== '')
+                                    relevant[property] = null;
+                            } else
+                                relevant[property] = null;
+                        }
                     } else {
                         if (field['dataType']) {
                             switch (field['dataType']) {

@@ -233,7 +233,20 @@ class Canvas {
                     await this._renderPanel(panel);
                 } catch (error) {
                     //TODO: improve visualization of rendering errors
-                    app.controller.showError(error, "Error while rendering <id:" + panel.getObject().getData()['id'] + ">");
+                    var id;
+                    if (panel instanceof CrudPanel) {
+                        const obj = panel.getObject();
+                        if (obj) {
+                            const data = obj.getData();
+                            if (data)
+                                id = data['id'];
+                        }
+                    }
+                    const controller = app.getController();
+                    if (id)
+                        controller.showError(error, "Error while rendering <id:" + id + ">");
+                    else
+                        controller.showError(error, "Error while rendering '" + panel.constructor.name + "'");
                 }
             }
             this._loaded = loadTo;
