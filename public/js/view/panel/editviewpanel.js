@@ -18,20 +18,20 @@ class EditViewPanel extends TabPanel {
     }
 
     static getPanelViewForm(model, data) {
-        var bEdit = model.getId() != null;
+        const bEdit = model.getId() != null;
         var attributeNames;
         var options;
         var searchOptions;
-        var mac = model.getModelAttributesController();
-        var attributes = mac.getAttributes(true);
+        const mac = model.getModelAttributesController();
+        const attributes = mac.getAttributes(true);
         if (attributes) {
             attributeNames = attributes.map(function (x) { return x['name'] });
             options = attributes.map(function (x) { return { 'value': x['name'] } });
-            var sAttr = attributes.filter(function (x) { return x['dataType'] != 'relation' });
+            const sAttr = attributes.filter(function (x) { return x['dataType'] != 'relation' });
             searchOptions = sAttr.map(function (x) { return { 'value': x['name'] } });
         }
 
-        var form = new Form();
+        const form = new Form();
 
         var bHidden = true;
         if (data) {
@@ -48,12 +48,18 @@ class EditViewPanel extends TabPanel {
             }
         }
 
-        var skeleton = [
+        const panelOptions = [];
+        var tmp = app.getController().getPanelController().getPanelClass();
+        for (var name of Object.keys(tmp)) {
+            panelOptions.push({ 'value': name });
+        }
+
+        const skeleton = [
             {
                 name: ModelDefaultsController.PANEL_TYPE_IDENT,
                 label: 'panelType',
                 dataType: 'enumeration',
-                options: [{ 'value': 'CrudPanel' }, { 'value': 'MediaPanel' }, { 'value': 'CollectionPanel' }, { 'value': 'NotePanel' }, { 'value': 'WikiPanel' }],
+                options: panelOptions,
                 view: 'select'
             },
             {

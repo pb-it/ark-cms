@@ -28,27 +28,9 @@ class MediaPanelConfig extends PanelConfig {
         if (config && config[ModelDefaultsController.PANEL_TYPE_IDENT])
             this.panelType = config[ModelDefaultsController.PANEL_TYPE_IDENT];
 
-        if (this.panelType) {
-            switch (this.panelType) {
-                case "NotePanel":
-                    this._panelClass = NotePanel;
-                    break;
-                case "WikiPanel":
-                    this._panelClass = WikiPanel;
-                    break;
-                case "CollectionPanel":
-                    this._panelClass = CollectionPanel;
-                    break;
-                case "MediaPanel":
-                    this._panelClass = MediaPanel;
-                    break;
-                case "CrudPanel":
-                    this._panelClass = CrudPanel;
-                    break;
-                default:
-                    this._panelClass = CrudPanel;
-            }
-        } else
+        if (this.panelType)
+            this._panelClass = app.getController().getPanelController().getPanelClass(this.panelType);
+        else
             this._panelClass = CrudPanel;
 
         if (act)
@@ -81,14 +63,10 @@ class MediaPanelConfig extends PanelConfig {
                 this.details = config.details;
 
             this.display = config.display;
-            if (this._panelClass && (this._panelClass == MediaPanel || this._panelClass == NotePanel)) {
-                if (config.float)
-                    this.float = config.float;
-                else
-                    this.float = 'left';
-            } else {
+            if (config.float)
                 this.float = config.float;
-            }
+            else if (this._panelClass && this._panelClass == MediaPanel)
+                this.float = 'left';
 
             if (config['paging'])
                 this.paging = config['paging'];

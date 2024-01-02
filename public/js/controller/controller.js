@@ -27,10 +27,10 @@ class Controller {
     _profileController;
     _routeController;
     _dataTypeController;
+    _panelController;
     _extensionController;
     _bookmarkController;
 
-    _panelController;
     _modalController;
 
     _formatter;
@@ -170,15 +170,13 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
             this._stateController = new StateController();
             //this._view.initView(); //TODO: untidy/unlovely that view depends on parsed state
 
-            this._panelController = new PanelController();
-
             this._modelController = new ModelController(this._configController);
             await this._modelController.init();
 
             this._dataservice = new DataService();
 
             this._dataTypeController = new DataTypeController();
-
+            this._panelController = new PanelController();
             this._extensionController = new ExtensionController();
             await this._extensionController.init();
 
