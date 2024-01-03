@@ -143,21 +143,22 @@ class Canvas {
     }
 
     async showObjects(items, typeString, action) {
-        var panels = [];
+        const panels = [];
         if (items && items.length > 0) {
             if (!typeString)
                 typeString = items[0].getTypeString(); //TODO: parse not first but every single item?
 
-            var model = app.controller.getModelController().getModel(typeString);
-            var mpcc = model.getModelPanelConfigController();
+            const controller = app.getController();
+            const model = controller.getModelController().getModel(typeString);
+            const mpcc = model.getModelPanelConfigController();
 
             var panelConfig;
-            var state = app.controller.getStateController().getState();
+            var state = controller.getStateController().getState();
             if (state.panelConfig)
                 panelConfig = state.panelConfig;
             else
                 panelConfig = mpcc.getPanelConfig(action);
-            var Cp = panelConfig.getPanelClass();
+            const Cp = panelConfig.getPanelClass();
 
             if (action == ActionEnum.create || action == ActionEnum.update) {
                 panelConfig.crudCallback = async function (data) {
@@ -166,7 +167,7 @@ class Canvas {
                     if (data)
                         state.id = data.id;
 
-                    app.controller.loadState(state, true);
+                    app.getController().loadState(state, true);
                     return Promise.resolve(true);
                 };
             }
@@ -183,17 +184,24 @@ class Canvas {
             } else
                 this._loadInterval = -1; // none/unlimited
 
-            if (Cp == MediaPanel || Cp == CollectionPanel) {
-                var panel;
-                for (var i = 0; i < items.length; i++) {
-                    panel = new Cp(panelConfig, items[i]);
-                    panel.setLazy(true);
-                    panels.push(panel);
+            if (Cp) {
+                if (Cp == MediaPanel || Cp == CollectionPanel) {
+                    var panel;
+                    for (var i = 0; i < items.length; i++) {
+                        panel = new Cp(panelConfig, items[i]);
+                        panel.setLazy(true);
+                        panels.push(panel);
+                    }
+                } else {
+                    for (var i = 0; i < items.length; i++) {
+                        panels.push(new Cp(panelConfig, items[i]));
+                    }
                 }
             } else {
-                for (var i = 0; i < items.length; i++) {
-                    panels.push(new Cp(panelConfig, items[i]));
-                }
+                var msg = 'Unknown PanelType';
+                if (panelConfig && panelConfig.panelType)
+                    msg += ' \'' + panelConfig.panelType + '\'';
+                throw new Error(msg);
             }
         }
         await this.showPanels(panels);
@@ -211,7 +219,7 @@ class Canvas {
     }
 
     _renderCorner() {
-        var state = app.controller.getStateController().getState();
+        var state = app.getController().getStateController().getState();
         if (state && state.getModel())
             this._$corner.show();
         else

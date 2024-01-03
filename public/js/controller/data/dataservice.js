@@ -190,8 +190,10 @@ class DataService {
         }
 
         if (!res) {
-            if (model.getDefinition()['bConfirmFullFetch'] && !id && !where && (!limit || limit == -1)) {
-                if (!confirm('Continue fetching all \'' + typeString + '\'?'))
+            const bFullFetch = !id && !where && (!limit || limit == -1);
+            const oFullFetch = model.getDefinition()['oFullFetch'];
+            if (bFullFetch) {
+                if (oFullFetch && oFullFetch['bConfirmation'] && !confirm('Continue fetching all \'' + typeString + '\'?'))
                     throw new Error('Aborted');
             }
 
@@ -214,17 +216,63 @@ class DataService {
                 }
                 for (var part of ids)
                     typeUrl.push(DataService._getUrl(typeString, part, where, sort, limit));
-            } else if (!typeUrl) {
-                typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
-                if (sort)
-                    sortlessUrl = DataService._getUrl(typeString, id, where, null, limit);
+            } else {
+                if (typeUrl) {
+                    if (bFullFetch && oFullFetch && oFullFetch['paging']) {
+                        typeUrl = [];
+                        tmp = await this._apiClient.request("GET", this._apiClient.getDataPath() + DataService._getUrl(typeString, null, null, 'id:desc', 1));
+                        if (tmp) {
+                            var o = JSON.parse(tmp);
+                            if (o['data'] && o['data'].length == 1) {
+                                const last = o['data'][0]['id'];
+                                var blockCount = Math.ceil(last / oFullFetch['paging']);
+                                var start = 0;
+                                var end;
+                                var whereBlock;
+                                for (var i = 0; i < blockCount; i++) {
+                                    if (i > 0)
+                                        start = i * oFullFetch['paging'];
+                                    else
+                                        start = 0;
+                                    if (i == blockCount - 1)
+                                        end = -1;
+                                    else
+                                        end = start + oFullFetch['paging'];
+                                    if (start != 0)
+                                        whereBlock = 'id_gt=' + start;
+                                    else
+                                        whereBlock = '';
+                                    if (end != -1) {
+                                        if (whereBlock)
+                                            whereBlock += '&';
+                                        whereBlock += 'id_lte=' + end;
+                                    }
+                                    typeUrl.push(DataService._getUrl(typeString, null, whereBlock, 'id:asc'));
+                                }
+                            }
+                        }
+                        bSort = true;
+                    }
+                } else {
+                    typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
+                    if (sort)
+                        sortlessUrl = DataService._getUrl(typeString, id, where, null, limit);
+                }
             }
 
             var timestamp;
             if (Array.isArray(typeUrl)) {
                 res = [];
+                var response;
+                var o;
                 for (var url of typeUrl) {
-                    res = res.concat(await this._apiClient.requestData("GET", url));
+                    response = await this._apiClient.request("GET", this._apiClient.getDataPath() + url);
+                    if (response) {
+                        o = JSON.parse(response);
+                        if (!timestamp)
+                            timestamp = o['timestamp'];
+                        res = res.concat(o['data']);
+                    }
                 }
             } else {
                 var response = await this._apiClient.request("GET", this._apiClient.getDataPath() + typeUrl);
@@ -236,7 +284,7 @@ class DataService {
             }
 
             if (cache) {
-                if (!id && !where && (!limit || limit == -1)) {
+                if (bFullFetch) {
                     await cache.setCompleteRecordSet(res, sort, timestamp);
                 } else {
                     if (Array.isArray(typeUrl)) {
@@ -269,8 +317,12 @@ class DataService {
             if (search)
                 res = Filter.filterStr(typeString, res, search);
 
-            if (bSort || (id && Array.isArray(id) && sort))
-                res = DataService.sortData(model, sort, [...res]);
+            if (bSort || (id && Array.isArray(id) && sort)) {
+                if (!sort)
+                    sort = model.getModelDefaultsController().getDefaultSort();
+                if (sort)
+                    res = DataService.sortData(model, sort, [...res]);
+            }
 
             if (limit && limit != -1 && res.length > limit)
                 res = res.slice(0, limit);
