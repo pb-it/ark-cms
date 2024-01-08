@@ -10,54 +10,56 @@ class CrudContainer extends CrudObject {
     }
 
     async initContainer(bCheck = true) {
-        this._items = [];
-        if (this._data) {
-            const mdc = this.getModel().getModelDefaultsController();
-            if (!this._collType) {
-                this._collType = mdc.getDefaultCollectionModel();
+        if (!this._items) {
+            this._items = [];
+            if (this._data) {
+                const mdc = this.getModel().getModelDefaultsController();
                 if (!this._collType) {
-                    const modelProp = mdc.getDefaultCollectionModelProperty();
-                    if (modelProp)
-                        this._collType = this._data[modelProp];
+                    this._collType = mdc.getDefaultCollectionModel();
+                    if (!this._collType) {
+                        const modelProp = mdc.getDefaultCollectionModelProperty();
+                        if (modelProp)
+                            this._collType = this._data[modelProp];
+                    }
                 }
-            }
-            const prop = mdc.getDefaultCollectionProperty();
-            if (prop) {
-                const list = this._data[prop];
-                if (list) {
-                    if (this._collType) {
-                        const arr = $.map(list.split(','), Number);
-                        if (bCheck) {
-                            var unordered = await app.getController().getDataService().fetchObjectById(this._collType, arr);
-                            if (unordered) {
-                                var bFound;
-                                var iData;
-                                var failedArr = [];
-                                for (var i of arr) {
-                                    bFound = false;
-                                    for (var item of unordered) {
-                                        iData = item.getData();
-                                        if (iData && iData.id == i) {
-                                            this._items.push(item);
-                                            bFound = true;
-                                            break;
+                const prop = mdc.getDefaultCollectionProperty();
+                if (prop) {
+                    const list = this._data[prop];
+                    if (list) {
+                        if (this._collType) {
+                            const arr = $.map(list.split(','), Number);
+                            if (bCheck) {
+                                var unordered = await app.getController().getDataService().fetchObjectById(this._collType, arr);
+                                if (unordered) {
+                                    var bFound;
+                                    var iData;
+                                    var failedArr = [];
+                                    for (var i of arr) {
+                                        bFound = false;
+                                        for (var item of unordered) {
+                                            iData = item.getData();
+                                            if (iData && iData.id == i) {
+                                                this._items.push(item);
+                                                bFound = true;
+                                                break;
+                                            }
                                         }
+                                        if (!bFound)
+                                            failedArr.push(i);
                                     }
-                                    if (!bFound)
-                                        failedArr.push(i);
-                                }
 
-                                if (failedArr.length > 0)
-                                    throw new Error("Could not resolve following IDs:\n" + failedArr.join(', '));
-                            } else
-                                throw new Error("unexpected error");
-                        } else {
-                            for (var i of arr) {
-                                this._items.push(new CrudObject(this._collType, { 'id': i }));
+                                    if (failedArr.length > 0)
+                                        throw new Error("Could not resolve following IDs:\n" + failedArr.join(', '));
+                                } else
+                                    throw new Error("unexpected error");
+                            } else {
+                                for (var i of arr) {
+                                    this._items.push(new CrudObject(this._collType, { 'id': i }));
+                                }
                             }
-                        }
-                    } else
-                        throw new Error("missing collection type definition");
+                        } else
+                            throw new Error("missing collection type definition");
+                    }
                 }
             }
         }

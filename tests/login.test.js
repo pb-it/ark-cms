@@ -47,17 +47,17 @@ describe('Testsuit', function () {
         if (modal) {
             var head;
             try {
-                head = await modal.findElement(webdriver.By.xpath('./div[@class="panel"]/div/h2'));
+                head = await modal.findElement(webdriver.By.xpath('//div[@class="panel"]/div/h2'));
             } catch (error) {
                 ;
             }
             if (head) {
                 const text = await head.getText();
                 if (text === 'Attempt to connect to API failed') {
-                    await this.acceptPrivateCertificate();
+                    await app.acceptPrivateCertificate();
 
-                    await this.reload();
-                    await sleep(1000);
+                    await app.reload();
+                    await TestHelper.delay(1000);
                     modal = await app.getTopModal();
                 }
             }
