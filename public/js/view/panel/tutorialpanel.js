@@ -13,7 +13,7 @@ class TutorialPanel extends Panel {
             .css({ 'padding': '10' });
         switch (this._page) {
             case 1:
-                $div.append("Welcome!<br/><br/>");
+                $div.append("<h2>Welcome</h2>");
                 $div.append("This tutorial with guide you through the basics.<br/><br/>");
 
                 var $skip = $('<button>')

@@ -90,7 +90,7 @@ class CrudPanel extends CanvasPanel {
                     await this._create();
                 } catch (error) {
                     if (error)
-                        app.controller.showError(error);
+                        app.getController().showError(error);
                 }
 
                 return Promise.resolve();
@@ -119,7 +119,7 @@ class CrudPanel extends CanvasPanel {
                             await this._openDelete();
                         } catch (error) {
                             if (error)
-                                app.controller.showError(error);
+                                app.getController().showError(error);
                         }
 
                         return Promise.resolve();
@@ -135,7 +135,7 @@ class CrudPanel extends CanvasPanel {
                             await this._openEdit();
                         } catch (error) {
                             if (error)
-                                app.controller.showError(error);
+                                app.getController().showError(error);
                         }
 
                         return Promise.resolve();
@@ -182,7 +182,7 @@ class CrudPanel extends CanvasPanel {
                     await this._update();
                 } catch (error) {
                     if (error)
-                        app.controller.showError(error);
+                        app.getController().showError(error);
                 }
 
                 return Promise.resolve();
@@ -205,7 +205,7 @@ class CrudPanel extends CanvasPanel {
                             await this._applyAction(action['fn']);
                         } catch (error) {
                             if (error)
-                                app.controller.showError(error);
+                                app.getController().showError(error);
                         }
 
                         return Promise.resolve();
@@ -225,7 +225,7 @@ class CrudPanel extends CanvasPanel {
                     await this._delete();
                 } catch (error) {
                     if (error)
-                        app.controller.showError(error);
+                        app.getController().showError(error);
                 }
 
                 return Promise.resolve();
@@ -239,18 +239,19 @@ class CrudPanel extends CanvasPanel {
      */
     async _applyAction(fn) {
         if (this._form) {
+            const controller = app.getController();
             try {
-                app.controller.setLoadingState(true);
+                controller.setLoadingState(true);
 
                 var data = await this._readData(false);
                 data = await fn.call(this, data);
                 if (data)
                     await this.setData(data);
             } catch (error) {
-                app.controller.showError(error)
+                controller.showError(error)
             }
             finally {
-                app.controller.setLoadingState(false);
+                controller.setLoadingState(false);
             }
         }
         return Promise.resolve();
@@ -310,15 +311,16 @@ class CrudPanel extends CanvasPanel {
     }
 
     async _openEdit() {
-        app.controller.setLoadingState(true);
+        const controller = app.getController();
+        controller.setLoadingState(true);
         try {
-            var action = ActionEnum.update;
+            const action = ActionEnum.update;
 
             if (this._config.bSelectable) {
                 await this.openInModal(action);
             } else {
-                var model = this._obj.getModel();
-                var panelConfig = new MediaPanelConfig();
+                const model = this._obj.getModel();
+                const panelConfig = new MediaPanelConfig();
                 panelConfig.initPanelConfig(model, ActionEnum.update, this._config);
                 this._config = panelConfig;
 
@@ -328,74 +330,75 @@ class CrudPanel extends CanvasPanel {
             console.log(err);
             alert(err);
         }
-        app.controller.setLoadingState(false);
+        controller.setLoadingState(false);
         return Promise.resolve();
     }
 
     async _openDelete() {
-        app.controller.setLoadingState(true);
+        const controller = app.getController();
+        controller.setLoadingState(true);
         if (this._config.bSelectable) {
             await this.openInModal(ActionEnum.delete);
         } else {
-            var model = this._obj.getModel();
-            var mpcc = model.getModelPanelConfigController();
+            const model = this._obj.getModel();
+            const mpcc = model.getModelPanelConfigController();
             this._config = mpcc.getPanelConfig(ActionEnum.delete);
 
             await this.render();
         }
-        app.controller.setLoadingState(false);
+        controller.setLoadingState(false);
         return Promise.resolve();
     }
 
     async _create() {
         if (this._form) {
+            const controller = app.getController();
             try {
-                app.controller.setLoadingState(true);
+                controller.setLoadingState(true);
 
-                var oldData = {}; // empty object as reference - because object creation may be done with predefined data
-                var newData = await this._readData();
-                var changed = CrudObject.getChanges(this._skeleton, oldData, newData);
+                const oldData = {}; // empty object as reference - because object creation may be done with predefined data
+                const newData = await this._readData();
+                const changed = CrudObject.getChanges(this._skeleton, oldData, newData);
                 if (changed) {
-                    if (app.controller.getConfigController().confirmOnApply()) {
-                        app.controller.setLoadingState(false);
-                        var skeleton = this._obj.getSkeleton(true);
-                        var bConfirm = await app.controller.getModalController().openDiffJsonModal({}, CrudObject.collapse(skeleton, changed));
+                    if (controller.getConfigController().confirmOnApply()) {
+                        controller.setLoadingState(false);
+                        const skeleton = this._obj.getSkeleton(true);
+                        const bConfirm = await controller.getModalController().openDiffJsonModal({}, CrudObject.collapse(skeleton, changed));
                         if (!bConfirm)
                             return Promise.reject();
-                        app.controller.setLoadingState(true);
+                        controller.setLoadingState(true);
                     }
                 } else {
-                    if (!confirm('Create empty entry?'))
+                    if (!confirm('Create empty entry?')) {
+                        controller.setLoadingState(false);
                         return Promise.reject();
+                    }
                 }
-
                 await this._obj.create(changed);
-
                 await sleep(500);
 
-                var data = this._obj.getData();
+                const data = this._obj.getData();
                 if (this._config.crudCallback) {
                     if (await this._config.crudCallback(data))
                         this.dispose();
                 } else {
-                    var state = app.controller.getStateController().getState();
+                    const state = controller.getStateController().getState();
                     if (this._obj.getTypeString() === state.typeString && state.panelConfig)
                         this._config = state.panelConfig;
                     else {
-                        var model = this._obj.getModel();
-                        /*var mpcc = model.getModelPanelConfigController();
+                        const model = this._obj.getModel();
+                        /*const mpcc = model.getModelPanelConfigController();
                         this._config = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.all);*/
-                        var config = new MediaPanelConfig();
+                        const config = new MediaPanelConfig();
                         config.initPanelConfig(model, ActionEnum.read, this._config);
                         this._config = config;
                     }
-
                     await this.render();
                 }
-                app.controller.setLoadingState(false);
+                controller.setLoadingState(false);
             } catch (error) {
-                app.controller.setLoadingState(false);
-                app.controller.showError(error);
+                controller.setLoadingState(false);
+                controller.showError(error);
             }
         }
         return Promise.resolve();
@@ -403,61 +406,60 @@ class CrudPanel extends CanvasPanel {
 
     async _update() {
         if (this._form) {
+            const controller = app.getController();
             try {
-                app.controller.setLoadingState(true);
+                controller.setLoadingState(true);
 
-                var oldData = this._obj.getData();
-                var newData = await this._readData();
-                var changed = CrudObject.getChanges(this._skeleton, oldData, newData);
+                const oldData = this._obj.getData();
+                const newData = await this._readData();
+                const changed = CrudObject.getChanges(this._skeleton, oldData, newData);
                 if (changed) {
-                    if (app.controller.getConfigController().confirmOnApply()) {
-                        app.controller.setLoadingState(false);
-                        var skeleton = this._obj.getSkeleton(true);
-                        var bConfirm = await app.controller.getModalController().openDiffJsonModal(CrudObject.collapse(skeleton, oldData), CrudObject.collapse(skeleton, newData));
+                    if (controller.getConfigController().confirmOnApply()) {
+                        controller.setLoadingState(false);
+                        const skeleton = this._obj.getSkeleton(true);
+                        const bConfirm = await controller.getModalController().openDiffJsonModal(CrudObject.collapse(skeleton, oldData), CrudObject.collapse(skeleton, newData));
                         if (!bConfirm)
                             return Promise.reject();
-                        app.controller.setLoadingState(true);
+                        controller.setLoadingState(true);
                     }
-
                     await this._obj.update(changed);
 
                     if (this._config.crudCallback) {
                         if (await this._config.crudCallback(this.getObject().getData()))
                             this.dispose();
                     } else {
-                        var state = app.controller.getStateController().getState();
+                        const state = controller.getStateController().getState();
                         if (this._obj.getTypeString() === state.typeString && state.panelConfig)
                             this._config = state.panelConfig;
                         else {
-                            var model = this._obj.getModel();
-                            /*var mpcc = model.getModelPanelConfigController();
+                            const model = this._obj.getModel();
+                            /*const mpcc = model.getModelPanelConfigController();
                             this._config = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.all);*/
-                            var config = new MediaPanelConfig();
+                            const config = new MediaPanelConfig();
                             config.initPanelConfig(model, ActionEnum.read, this._config);
                             this._config = config;
                         }
-
                         await this.render();
                     }
-
-                    app.controller.setLoadingState(false);
+                    controller.setLoadingState(false);
                 } else {
-                    app.controller.setLoadingState(false);
-                    var bClose = await app.controller.getModalController().openConfirmModal("No changes detected! Close window?");
+                    controller.setLoadingState(false);
+                    const bClose = await controller.getModalController().openConfirmModal("No changes detected! Close window?");
                     if (bClose)
                         this.dispose();
                 }
             } catch (error) {
-                app.controller.setLoadingState(false);
-                app.controller.showError(error);
+                controller.setLoadingState(false);
+                controller.showError(error);
             }
         }
         return Promise.resolve();
     }
 
     async _delete() {
+        const controller = app.getController();
         try {
-            app.controller.setLoadingState(true);
+            controller.setLoadingState(true);
             await this._obj.delete();
 
             if (this._config.crudCallback) {
@@ -466,17 +468,17 @@ class CrudPanel extends CanvasPanel {
             } else
                 this.dispose();
 
-            return app.controller.reloadState();
+            return controller.reloadState();
         } catch (error) {
-            app.controller.setLoadingState(false);
-            app.controller.showError(error);
+            controller.setLoadingState(false);
+            controller.showError(error);
         }
         return Promise.resolve();
     }
 
     _dblclick() {
-        var model = this._obj.getModel();
-        var action = model.getDoubleClickAction();
+        const model = this._obj.getModel();
+        const action = model.getDoubleClickAction();
         if (action)
             action(this);
         else
@@ -486,10 +488,10 @@ class CrudPanel extends CanvasPanel {
     async _drag(event) {
         await super._drag(event);
         if (this._obj) {
-            var state = new State();
+            const state = new State();
             state.typeString = this._obj.getTypeString();
 
-            var selected = app.getController().getSelectedObjects();
+            const selected = app.getController().getSelectedObjects();
             if (selected) {
                 if (selected.length == 1)
                     state.id = selected[0].getData()['id'];
@@ -498,7 +500,7 @@ class CrudPanel extends CanvasPanel {
             } else
                 state.id = this._obj.getData()['id'];
 
-            var url = window.location.origin + State.getUrlFromState(state);
+            const url = window.location.origin + State.getUrlFromState(state);
             //console.log(url);
             event.originalEvent.dataTransfer.setData("text/plain", url);
             event.originalEvent.dataTransfer.dropEffect = 'copy'; // 'move'
@@ -510,28 +512,28 @@ class CrudPanel extends CanvasPanel {
     async _drop(event) {
         event.preventDefault();
         event.stopPropagation();
-        var dT = event.originalEvent.dataTransfer;
+        const dT = event.originalEvent.dataTransfer;
         if (dT) {
-            var str = dT.getData("text/plain");
+            const str = dT.getData("text/plain");
             //console.log(str);
-            var url = new URL(str);
-            var state = State.getStateFromUrl(url);
+            const url = new URL(str);
+            const state = State.getStateFromUrl(url);
             if (state) {
-                var controller = app.getController();
-                var droptype = state['typeString'];
-                var model = this._obj.getModel();
+                const controller = app.getController();
+                const droptype = state['typeString'];
+                const model = this._obj.getModel();
                 if (this._config.getPanelClass() == MediaPanel) {
-                    var id = state.id;
+                    const id = state.id;
                     if (isNaN(id)) {
                         alert("invalid data!");
                         return Promise.reject();
                     }
-                    var prop = model.getModelDefaultsController().getDefaultThumbnailProperty();
+                    const prop = model.getModelDefaultsController().getDefaultThumbnailProperty();
                     if (prop) {
                         if (droptype === "contents") {
-                            var bConfirmation = await controller.getModalController().openConfirmModal("Change thumbnail?");
+                            const bConfirmation = await controller.getModalController().openConfirmModal("Change thumbnail?");
                             if (bConfirmation) {
-                                var obj = new Object();
+                                const obj = new Object();
                                 obj[prop] = id;
                                 await this._obj.update(obj);
                                 this.render();
@@ -572,24 +574,24 @@ class CrudPanel extends CanvasPanel {
     }
 
     async openInNewTab(action) {
-        var win = window.open(this._obj.getUrl(action), '_blank');
+        const win = window.open(this._obj.getUrl(action), '_blank');
         win.focus();
         return Promise.resolve();
     }
 
     async openInModal(action) {
-        var model = this._obj.getModel();
-        var mpcc = model.getModelPanelConfigController();
-        var panelConfig = mpcc.getPanelConfig(action, DetailsEnum.all);
+        const model = this._obj.getModel();
+        const mpcc = model.getModelPanelConfigController();
+        const panelConfig = mpcc.getPanelConfig(action, DetailsEnum.all);
 
-        var panel = PanelController.createPanelForObject(this._obj, panelConfig);
+        const panel = PanelController.createPanelForObject(this._obj, panelConfig);
 
         panelConfig.crudCallback = async function (data) {
             await this.render();
             return Promise.resolve(true);
         }.bind(this);
 
-        var modal = await app.controller.getModalController().openPanelInModal(panel);
+        const modal = await app.getController().getModalController().openPanelInModal(panel);
         return Promise.resolve(modal);
     }
 }
