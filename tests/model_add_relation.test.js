@@ -80,11 +80,14 @@ describe('Testsuit', function () {
                 ]
             };
 
-            const ac = app.getController().getApiController().getApiClient();
-            ac.requestData('PUT', '_model?v=0.5.0-beta', model)
+            const controller = app.getController();
+            const ac = controller.getApiController().getApiClient();
+            const version = controller.getVersionController().getAppVersion();
+            ac.requestData('PUT', '_model?v=' + version, model)
                 .then((x) => callback(x))
                 .catch((x) => callback(x));
         });
+        assert.equal(response, 9);
 
         await driver.navigate().refresh();
         await TestHelper.delay(100);
