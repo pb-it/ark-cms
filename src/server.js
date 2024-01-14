@@ -28,10 +28,10 @@ class Server {
         app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
         app.get('/robots.txt', function (req, res) {
-            res.sendFile(path.join(__dirname, '../public/robots.txt'));
+            res.sendFile(path.join(__dirname, '../dist/public/robots.txt'));
         });
 
-        app.use('/public', express.static(path.join(__dirname, '../public'), { fallthrough: false }));
+        app.use('/public', express.static(path.join(__dirname, '../dist/public'), { fallthrough: false }));
 
         var systemRouter = express.Router();
         systemRouter.get('/info', function (req, res) {
@@ -125,7 +125,7 @@ class Server {
         app.use('/cms', systemRouter);
 
         app.get('*', function (req, res, next) {
-            res.sendFile(path.join(__dirname, '../public/index.html'));
+            res.sendFile(path.join(__dirname, '../dist/public/index.html'));
         });
 
         /*app.use(function (err, req, res, next) {

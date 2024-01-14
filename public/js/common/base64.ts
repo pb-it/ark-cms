@@ -5,7 +5,7 @@ class Base64 {
      * @param {*} obj File or Blob
      * @returns 
      */
-    static encodeObject(obj) {
+    static encodeObject(obj: File | Blob) {
         return new Promise((resolve) => {
             let fileReader = new FileReader();
             fileReader.onload = (e) => resolve(fileReader.result);
@@ -14,7 +14,7 @@ class Base64 {
         });
     }
 
-    static encodeText(text) {
+    static encodeText(text: string) {
         return 'data:text/plain;base64,' + btoa(unescape(encodeURIComponent(text)));
     }
 
@@ -24,7 +24,7 @@ class Base64 {
      * @param {*} contentType 
      * @returns 
      */
-    static base64toBlob(base64Data, contentType) {
+    static base64toBlob(base64Data: string, contentType: string) {
         contentType = contentType || '';
         var sliceSize = 1024;
         var byteCharacters = atob(base64Data);
@@ -45,12 +45,15 @@ class Base64 {
         return new Blob(byteArrays, { type: contentType });
     }
 
-    static base64toFile(base64Data, filename) {
-        var arr = base64Data.split(',');
-        var mime = arr[0].match(/:(.*?);/)[1]; //regex
-        var bstr = atob(arr[1]);
+    static base64toFile(base64Data: string, filename: string) {
+        var mime;
+        const arr = base64Data.split(',');
+        const match = arr[0].match(/:(.*?);/); //regex
+        if (match)
+            mime = match[1];
+        const bstr = atob(arr[1]);
         var n = bstr.length;
-        var u8arr = new Uint8Array(n);
+        const u8arr = new Uint8Array(n);
 
         while (n--) {
             u8arr[n] = bstr.charCodeAt(n);
@@ -59,7 +62,7 @@ class Base64 {
         return new File([u8arr], filename, { type: mime });
     }
 
-    static removeMime() {
+    static removeMime(img: string) {
         img.replace(/^data:image\/(png|jpg);base64,/, "");
     }
 }

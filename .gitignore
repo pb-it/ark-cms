@@ -3,5 +3,13 @@ _*
 node_modules
 package-lock.json
 
+types
+public/js/common/base64.js
+
 config/server-config.js
 tests/config/test-config.js
+
+!.babelrc
+!.dockerignore
+!.gitattributes
+!.gitignore

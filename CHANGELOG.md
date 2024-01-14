@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [0.5.8-beta](https://github.com/pb-it/wing-cms/releases/tag/0.5.8-beta) (2024-01-14)
+
+### NOTICE
+
+* Added Build Step
+
+
 ## [0.5.7-beta](https://github.com/pb-it/wing-cms/releases/tag/0.5.7-beta) (2024-01-02)
 
 ### NOTICE

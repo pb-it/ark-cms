@@ -1,6 +1,6 @@
 {
     "name": "wing-cms",
-    "version": "0.5.7-beta",
+    "version": "0.5.8-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
@@ -22,6 +22,7 @@
     },
     "main": "index.js",
     "scripts": {
+        "build": "tsc&& babel public -d dist/public --copy-files",
         "start": "node index.js",
         "test": "npm run test:all",
         "test:all": "mocha --bail tests/all.test.js",
@@ -38,10 +39,15 @@
         "express": "^4.18.2"
     },
     "devDependencies": {
-        "@pb-it/ark-cms-selenium-test-helper": "^0.1.9-beta",
+        "@babel/cli": "^7.0.0",
+        "@babel/core": "^7.23.7",
+        "@babel/plugin-transform-class-properties": "^7.23.3",
+        "@pb-it/ark-cms-selenium-test-helper": "^0.1.11-beta",
+        "babel-plugin-conditional-compile": "^0.0.5",
         "gulp": "^4.0.2",
         "gulp-mocha": "^10.0.0",
         "mocha": "^10.2.0",
-        "selenium-webdriver": "^4.15.0"
+        "selenium-webdriver": "^4.15.0",
+        "typescript": "^5.3.3"
     }
 }
