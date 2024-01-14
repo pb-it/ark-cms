@@ -111,7 +111,7 @@ class Controller {
 
             return new Promise((resolve, reject) => {
                 if (updateCmd) {
-                    require("child_process").exec('cd ' + this._appRoot + ' && ' + updateCmd + ' && npm install', function (err, stdout, stderr) {
+                    require("child_process").exec('cd ' + this._appRoot + ' && ' + updateCmd + ' && npm install && npm run clean && npm run build', function (err, stdout, stderr) {
                         if (err)
                             reject(err);
                         else {

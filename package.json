@@ -1,6 +1,6 @@
 {
     "name": "ark-cms",
-    "version": "0.5.8-beta",
+    "version": "0.6.0-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
@@ -22,7 +22,8 @@
     },
     "main": "index.js",
     "scripts": {
-        "build": "tsc&& babel public -d dist/public --copy-files",
+        "clean": "rm -R types && rm -R dist/public",
+        "build": "tsc && babel public -d dist/public --copy-files",
         "start": "node index.js",
         "test": "npm run test:all",
         "test:all": "mocha --bail tests/all.test.js",
