@@ -45,7 +45,7 @@ class VersionController {
             .click(async function (event) {
                 event.stopPropagation();
 
-                window.open('https://github.com/pb-it/wing-cms/blob/main/CHANGELOG.md');
+                window.open('https://github.com/pb-it/ark-cms/blob/main/CHANGELOG.md');
             }.bind(this));
         $d.append($skip);
         var $ok = $('<button>')
@@ -92,7 +92,7 @@ class VersionController {
     static async checkForUpdates(current) {
         try {
             app.controller.setLoadingState(true);
-            var url = 'https://raw.githubusercontent.com/pb-it/wing-cms/main/package.json';
+            var url = 'https://raw.githubusercontent.com/pb-it/ark-cms/main/package.json';
             var response = await HttpClient.request('GET', url);
             var pkg = JSON.parse(response);
             var version = pkg['version'];

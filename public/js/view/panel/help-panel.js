@@ -20,7 +20,7 @@ class HelpPanel extends Panel {
             .click(async function (event) {
                 event.stopPropagation();
 
-                window.open('https://github.com/pb-it/wing-cms/blob/main/docs/help.md');
+                window.open('https://github.com/pb-it/ark-cms/blob/main/docs/help.md');
             }.bind(this));
         $div.append($button);
 

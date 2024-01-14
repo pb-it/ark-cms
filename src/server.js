@@ -55,7 +55,7 @@ class Server {
                         if (newVersion) {
                             var v;
                             if (newVersion === 'latest') {
-                                var url = 'https://raw.githubusercontent.com/pb-it/wing-cms/main/package.json';
+                                var url = 'https://raw.githubusercontent.com/pb-it/ark-cms/main/package.json';
                                 var response = await fetch(url);
                                 var json = await response.json();
                                 v = json['version'];

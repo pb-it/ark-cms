@@ -1,7 +1,7 @@
-# wing-cms
+# ark-cms
 
 [![Node.js version](https://img.shields.io/badge/Node.js->=12-brightgreen.svg)](https://nodejs.org)
-[![License](https://img.shields.io/github/license/pb-it/wing-cms?label=license&style=yellow)](https://github.com/pb-it/wing-cms/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/pb-it/ark-cms?label=license&style=yellow)](https://github.com/pb-it/ark-cms/blob/main/LICENSE)
 
 
 ## Description
@@ -105,7 +105,7 @@ npm run test
 
 ## Documentation
 
-Check our [wiki pages](https://github.com/pb-it/wing-cms/wiki) for examples and a more in-depth documentation.
+Check our [wiki pages](https://github.com/pb-it/ark-cms/wiki) for examples and a more in-depth documentation.
 
 
 ## Changelog

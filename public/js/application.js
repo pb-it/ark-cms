@@ -2,7 +2,7 @@ class Application {
 
     controller;
 
-    _name = 'WING-CMS';
+    _name = 'ARK-CMS';
 
     constructor() {
         this.controller = new Controller(new Model(), new View());

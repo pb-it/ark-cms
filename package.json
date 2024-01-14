@@ -1,5 +1,5 @@
 {
-    "name": "wing-cms",
+    "name": "ark-cms",
     "version": "0.5.8-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
@@ -15,7 +15,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/pb-it/wing-cms"
+        "url": "https://github.com/pb-it/ark-cms"
     },
     "engines": {
         "node": ">=12"

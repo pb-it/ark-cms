@@ -2,13 +2,13 @@
     "comments": false,
     "plugins": [
         "@babel/plugin-transform-class-properties",
-        [
+        /*[
             "conditional-compile",
             {
                 "define": {
                     "TARGET": "development"
                 }
             }
-        ]
+        ]*/
     ]
 }
