@@ -12,6 +12,7 @@ class UpdateCachePanel extends Panel {
         var $div = $('<div/>')
             .css({ 'padding': '10' });
 
+        $div.append("<h2>Cache</h2>");
         $div.append("Your cache is out of date. Do you want to update it now?<br/><br/>");
 
         var $skip = $('<button>')

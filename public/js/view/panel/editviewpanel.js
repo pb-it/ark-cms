@@ -216,7 +216,7 @@ class EditViewPanel extends TabPanel {
                     panelConfig = state.panelConfig;
                 else
                     panelConfig = mpcc.getPanelConfig(state.action);
-                this._panelConfig = panelConfig;
+                this._panelConfig = { ...panelConfig };
             }
             var Cp = panelConfig.getPanelClass();
 
