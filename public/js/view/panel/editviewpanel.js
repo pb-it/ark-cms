@@ -180,7 +180,7 @@ class EditViewPanel extends TabPanel {
         this._$viewPanel = await this._createViewPanel();
         this._panels.push(this._$viewPanel);
 
-        if (app.controller.isInDebugMode()) {
+        if (app.getController().isInDebugMode()) {
             this._$jsonPanel = await this._createJsonPanel();
             this._panels.push(this._$jsonPanel);
         }
@@ -191,7 +191,7 @@ class EditViewPanel extends TabPanel {
             try {
                 this._panelConfig = await this._readPanelConfig();
             } catch (error) {
-                app.controller.showError(error);
+                app.getController().showError(error);
             }
             return Promise.resolve();
         }.bind(this));
@@ -200,32 +200,33 @@ class EditViewPanel extends TabPanel {
     }
 
     async _createViewPanel() {
-        var panel = new Panel({ 'title': 'View' });
+        const panel = new Panel({ 'title': 'View' });
         panel._renderContent = async function () {
             var $div = $('<div/>')
                 .css({ 'padding': '10' });
 
-            var state = app.controller.getStateController().getState();
-            var mpcc = this._model.getModelPanelConfigController();
+            const state = app.getController().getStateController().getState();
+            const mpcc = this._model.getModelPanelConfigController();
 
             var panelConfig;
             if (this._panelConfig)
                 panelConfig = this._panelConfig;
             else {
-                if (state.panelConfig)
-                    panelConfig = state.panelConfig;
-                else
+                if (state.panelConfig) {
+                    panelConfig = new MediaPanelConfig();
+                    panelConfig.initPanelConfig(this._model, state.action, state.panelConfig);
+                } else
                     panelConfig = mpcc.getPanelConfig(state.action);
-                this._panelConfig = { ...panelConfig };
+                this._panelConfig = panelConfig;
             }
-            var Cp = panelConfig.getPanelClass();
+            const Cp = panelConfig.getPanelClass();
 
-            var details = panelConfig['details'];
+            const details = panelConfig['details'];
             if (details && typeof details === 'number')
                 panelConfig['details'] = EditViewPanel.detailsEnumToString(details);
 
             this._panelViewForm = EditViewPanel.getPanelViewForm(this._model, panelConfig);
-            var $form = await this._panelViewForm.renderForm();
+            const $form = await this._panelViewForm.renderForm();
             $div.append($form);
             $div.append('<br/>');
 
@@ -241,18 +242,19 @@ class EditViewPanel extends TabPanel {
                 .click(async function (event) {
                     event.stopPropagation();
 
-                    app.controller.setLoadingState(true);
+                    const controller = app.getController();
+                    controller.setLoadingState(true);
                     try {
                         var data = await this._read();
                         delete data['bContextMenu'];
                         delete data['searchFields'];
 
                         await this._model.getModelDefaultsController().setDefaultPanelConfig(data);
-                        app.controller.setLoadingState(false);
+                        controller.setLoadingState(false);
                         alert('Changed successfully');
                     } catch (error) {
-                        app.controller.setLoadingState(false);
-                        app.controller.showError(error);
+                        controller.setLoadingState(false);
+                        controller.showError(error);
                     }
                     return Promise.resolve();
                 }.bind(this))
@@ -273,19 +275,19 @@ class EditViewPanel extends TabPanel {
     }
 
     async _createJsonPanel() {
-        var panel = new Dialog({ 'title': 'JSON' });
+        const panel = new Dialog({ 'title': 'JSON' });
         panel._renderDialog = async function () {
-            var $div = $('<div/>')
+            const $div = $('<div/>')
                 .css({ 'padding': '10' });
 
-            var skeleton = [
+            const skeleton = [
                 { name: "json", dataType: "json" }
             ];
 
-            var data = { "json": this._data };
+            const data = { "json": this._data };
 
             this._jsonForm = new Form(skeleton, data);
-            var $form = await this._jsonForm.renderForm();
+            const $form = await this._jsonForm.renderForm();
 
             $div.append($form);
             return Promise.resolve($div);
@@ -297,8 +299,8 @@ class EditViewPanel extends TabPanel {
 
     async _readPanelConfig() {
         this._data = await this._read();
-        var state = app.controller.getStateController().getState();
-        var panelConfig = new MediaPanelConfig();
+        const state = app.getController().getStateController().getState();
+        const panelConfig = new MediaPanelConfig();
         panelConfig.initPanelConfig(this._model, state.action, this._data);
         return Promise.resolve(panelConfig);
     }
@@ -307,7 +309,7 @@ class EditViewPanel extends TabPanel {
         var data;
 
         if (this.getOpenTab() == this._$jsonPanel) {
-            var fData = await this._jsonForm.readForm();
+            const fData = await this._jsonForm.readForm();
             data = fData['json'];
         } else {
             if (this._thumbnailViewForm)
@@ -320,10 +322,11 @@ class EditViewPanel extends TabPanel {
     }
 
     async _applyPanelConfig() {
-        var state = app.controller.getStateController().getState();
+        const controller = app.getController();
+        const state = controller.getStateController().getState();
         state.panelConfig = await this._readPanelConfig();
-        //app.controller.updateCanvas();
-        app.controller.loadState(state, true);
+        //controller.updateCanvas();
+        controller.loadState(state, true);
 
         this.dispose();
         return Promise.resolve(true);
