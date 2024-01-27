@@ -359,11 +359,8 @@ class CrudObject {
     }
 
     static _buildUrl(cdn, val) {
-        if (cdn.startsWith('/')) {
-            var api = app.controller.getApiController().getApiOrigin();
-            var url = new URL(api);
-            cdn = "http://" + url.hostname + cdn;
-        }
+        if (cdn.startsWith('/'))
+            cdn = app.getController().getApiController().getApiOrigin() + cdn;
         if (!cdn.endsWith('/'))
             cdn += "/";
         return cdn + val;

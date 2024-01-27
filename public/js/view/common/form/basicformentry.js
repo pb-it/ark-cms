@@ -292,7 +292,7 @@ class BasicFormEntry extends FormEntry {
             if (this._attribute['clickAction'])
                 this._$input.click(this._attribute['clickAction'].bind(this._$input));
             if (this._attribute['changeAction'])
-                this._$input.change(this._attribute['changeAction'].bind(this._$input));
+                this._$input.change(function () { this._attribute['changeAction'](this) }.bind(this));
 
             this._$value.append(this._$input);
         }

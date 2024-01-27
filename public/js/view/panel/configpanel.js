@@ -74,17 +74,17 @@ class ConfigPanel extends TabPanel {
                     dataType: 'boolean',
                     required: true,
                     defaultValue: false,
-                    changeAction: async function () {
-                        var fData = await this._form.readForm();
+                    changeAction: async function (entry) {
+                        var fData = await entry._form.readForm();
 
-                        var entry = this._form.getFormEntry('bConfirmOnApply');
-                        var attribute = entry.getAttribute();
+                        var e = entry._form.getFormEntry('bConfirmOnApply');
+                        var attribute = e.getAttribute();
                         attribute['readonly'] = fData['bDebug'];
                         if (fData['bDebug']) {
                             this._bConfirmOnApply = fData['bConfirmOnApply'];
-                            await entry.renderValue(true);
+                            await e.renderValue(true);
                         } else
-                            await entry.renderValue(this._bConfirmOnApply);
+                            await e.renderValue(this._bConfirmOnApply);
                         //await this._form.renderForm();
                         return Promise.resolve();
                     }.bind(this),

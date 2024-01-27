@@ -67,23 +67,23 @@ class EditViewPanel extends TabPanel {
                 dataType: "enumeration",
                 options: [{ 'value': 'none' }, { 'value': 'title' }, { 'value': 'all' }],
                 view: 'select',
-                changeAction: async function () {
-                    var fData = await this.readForm();
-                    var entry = this.getFormEntry("detailsAttr");
+                changeAction: async function (entry) {
+                    var fData = await entry._form.readForm();
+                    var e = entry._form.getFormEntry("detailsAttr");
 
-                    var attribute = entry.getAttribute();
+                    var attribute = e.getAttribute();
                     if (fData['details'] === EditViewPanel.detailsEnumToString(DetailsEnum.all)) {
                         if (!fData['detailsAttr'])
-                            entry.setValue(attribute['options'].map(function (x) { return x['value'] }));
-                        await entry.show();
+                            e.setValue(attribute['options'].map(function (x) { return x['value'] }));
+                        await e.show();
                     } else
-                        entry.hide();
+                        e.hide();
 
                     //await entry.renderValue(???);
                     //this.setFormData(fData); //backup already made changes
                     //await this.renderForm();
                     return Promise.resolve();
-                }.bind(form)
+                }
             },
             {
                 name: "detailsAttr",
@@ -226,7 +226,7 @@ class EditViewPanel extends TabPanel {
                 panelConfig['details'] = EditViewPanel.detailsEnumToString(details);
 
             this._panelViewForm = EditViewPanel.getPanelViewForm(this._model, panelConfig);
-            const $form = await this._panelViewForm.renderForm();
+            var $form = await this._panelViewForm.renderForm();
             $div.append($form);
             $div.append('<br/>');
 

@@ -36,7 +36,7 @@ class FileFormEntry extends FormEntry {
         if (this._attribute['storage'] == 'filesystem' || this._attribute['filename_prop']) {
             this._$delete = $('<input/>')
                 .attr('type', 'checkbox')
-                .prop('checked', value['delete'])
+                .prop('checked', value && value['delete'])
                 .click(function () {
                     if (this._$delete.prop('checked'))
                         this._$inputFilename.val('');
@@ -89,7 +89,7 @@ class FileFormEntry extends FormEntry {
             }.bind(this));
         this._$value.append(this._$inputFile);
 
-        if (value['base64'] || (this._$inputFile && this._$inputFile[0] && this._$inputFile[0].files && this._$inputFile[0].length > 0)) {
+        if ((value && value['base64']) || (this._$inputFile && this._$inputFile[0] && this._$inputFile[0].files && this._$inputFile[0].length > 0)) {
             this._$value.append("<br/>");
 
             var $remove = $('<button>')
@@ -129,7 +129,7 @@ class FileFormEntry extends FormEntry {
         } else if (this._attribute['storage'] === "base64" || this._attribute['storage'] === "filesystem") {
             if (file)
                 data['base64'] = await Base64.encodeObject(file);
-            else if (this._value['base64'])
+            else if (this._value && this._value['base64'])
                 data['base64'] = this._value['base64'];
             if (this._$delete && this._$delete.prop('checked'))
                 data['delete'] = true;
