@@ -3,6 +3,8 @@ class ModelDefaultsController {
     static DEFAULTS_IDENT = "defaults";
     static SORT_IDENT = "sort";
     static TITLE_IDENT = "title";
+    static MEDIA_TYPE_IDENT = "mediaType";
+    static FILE_IDENT = "file";
     static THUMBNAIL_IDENT = "thumbnail";
     static COLLECTION_MODEL_IDENT = "collectionModel";
     static COLLECTION_MODEL_PROPERTY_IDENT = "collectionModelProperty";
@@ -65,6 +67,22 @@ class ModelDefaultsController {
                 }
             }
         }
+        return res;
+    }
+
+    getDefaultMediaTypeProperty() {
+        var res;
+        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
+        if (defaults)
+            res = defaults[ModelDefaultsController.MEDIA_TYPE_IDENT];
+        return res;
+    }
+
+    getDefaultFileProperty() {
+        var res;
+        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
+        if (defaults)
+            res = defaults[ModelDefaultsController.FILE_IDENT];
         return res;
     }
 

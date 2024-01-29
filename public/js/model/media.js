@@ -1,7 +1,5 @@
 class Media {
 
-    static MEDIA_TYPE_PROPERTY = 'mediaType';
-
     _obj;
     _data;
 
@@ -18,22 +16,22 @@ class Media {
         if (obj) {
             if (this._obj != obj)
                 this._obj = obj;
-            var data = obj.getData();
-            if (this._data != data) {
+            const data = this._obj.getData();
+            if (data && this._data != data) {
                 this._data = data;
                 this._mediaType = null;
                 this._thumbnailUrl = null;
                 this._prop = null;
                 this._value = null;
-                var data = this._obj.getData();
-                if (data) {
-                    this._mediaType = data[Media.MEDIA_TYPE_PROPERTY];
 
-                    var model = this._obj.getModel();
-                    var path = model.getModelDefaultsController().getDefaultThumbnailProperty();
-                    if (path)
-                        this._determineThumbnailMulti(model, data, path);
-                }
+                const model = this._obj.getModel();
+                const propName = model.getModelDefaultsController().getDefaultMediaTypeProperty();
+                if (propName)
+                    this._mediaType = data[propName];
+
+                const path = model.getModelDefaultsController().getDefaultThumbnailProperty();
+                if (path)
+                    this._determineThumbnailMulti(model, data, path);
             }
         }
     }
@@ -58,7 +56,7 @@ class Media {
                 if (data[prop]) {
                     var attr = model.getModelAttributesController().getAttribute(prop);
                     if (attr['dataType'] === "relation") {
-                        var relModel = app.controller.getModelController().getModel(attr.model);
+                        var relModel = app.getController().getModelController().getModel(attr['model']);
                         this._determineThumbnailMulti(relModel, data[prop], parts[1]);
                         if (this._thumbnailUrl) {
                             this._prop = prop;
@@ -71,7 +69,7 @@ class Media {
             if (data[name]) {
                 var attr = model.getModelAttributesController().getAttribute(name);
                 if (attr['dataType'] === "relation") {
-                    var relModel = app.controller.getModelController().getModel(attr.model);
+                    var relModel = app.getController().getModelController().getModel(attr['model']);
                     var relPath = relModel.getModelDefaultsController().getDefaultThumbnailProperty();
                     if (relPath) {
                         this._determineThumbnailMulti(relModel, data[name], relPath);
@@ -85,7 +83,9 @@ class Media {
                         this._thumbnailUrl = CrudObject._buildUrl(attr.cdn, data[name]);
                     else
                         this._thumbnailUrl = data[name];
-                    this._mediaType = data[Media.MEDIA_TYPE_PROPERTY];
+                    const propName = model.getModelDefaultsController().getDefaultMediaTypeProperty();
+                    if (propName)
+                        this._mediaType = data[propName];
                     this._prop = name;
                     this._value = data[name];
                 } else if (attr['dataType'] === "file") {
@@ -98,9 +98,23 @@ class Media {
                         this._thumbnailUrl = data[name]['base64'];
                     else if (data[name]['url'])
                         this._thumbnailUrl = data[name]['url'];
-                    this._mediaType = data[Media.MEDIA_TYPE_PROPERTY];
+                    const propName = model.getModelDefaultsController().getDefaultMediaTypeProperty();
+                    if (propName)
+                        this._mediaType = data[propName];
                     this._prop = name;
                     this._value = data[name];
+                } else {
+                    if (typeof data[name] === 'string' || data[name] instanceof String) {
+                        if (attr['cdn'])
+                            this._thumbnailUrl = CrudObject._buildUrl(attr['cdn'], data[name]);
+                        else if (data[name].startsWith('http') || data[name].startsWith('data'))
+                            this._thumbnailUrl = data[name];
+                        const propName = model.getModelDefaultsController().getDefaultMediaTypeProperty();
+                        if (propName)
+                            this._mediaType = data[propName];
+                        this._prop = name;
+                        this._value = data[name];
+                    }
                 }
             }
         }
@@ -111,10 +125,24 @@ class Media {
     }
 
     getFile() {
-        if (this._obj.getTypeString() === 'contents')
-            return this._obj.getAttributeValue("file");
-        else
-            return this._thumbnailUrl;
+        var res;
+        const model = this._obj.getModel();
+        if (model) {
+            const propName = model.getModelDefaultsController().getDefaultFileProperty();
+            if (propName) {
+                const attr = model.getModelAttributesController().getAttribute(propName);
+                if (attr['dataType'] === 'url' || attr['dataType'] === 'file')
+                    res = this._obj.getAttributeValue(propName);
+                else {
+                    const data = this._obj.getData();
+                    if (attr['cdn'])
+                        res = CrudObject._buildUrl(attr['cdn'], data[propName]);
+                    else
+                        res = data[propName];
+                }
+            }
+        }
+        return res;
     }
 
     getThumbnail() {

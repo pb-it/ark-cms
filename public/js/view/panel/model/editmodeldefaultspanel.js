@@ -64,9 +64,26 @@ class EditModelDefaultsPanel extends Panel {
         await this._appendCollectionForm($div);
         $div.append('</br>');
 
-        skeleton = [{ name: 'thumbnail', dataType: 'string' }];
+        skeleton = [
+            {
+                name: ModelDefaultsController.MEDIA_TYPE_IDENT,
+                dataType: 'string'
+            },
+            {
+                name: ModelDefaultsController.FILE_IDENT,
+                dataType: 'string'
+            },
+            {
+                name: ModelDefaultsController.THUMBNAIL_IDENT,
+                dataType: 'string'
+            }];
+        var mediaType = mdc.getDefaultMediaTypeProperty();
+        var file = mdc.getDefaultFileProperty();
         var thumbnail = mdc.getDefaultThumbnailProperty();
-        data = { 'thumbnail': thumbnail };
+        data = {};
+        data[ModelDefaultsController.MEDIA_TYPE_IDENT] = mediaType;
+        data[ModelDefaultsController.FILE_IDENT] = file;
+        data[ModelDefaultsController.THUMBNAIL_IDENT] = thumbnail;
         this._thumbnailForm = new Form(skeleton, data);
         $form = await this._thumbnailForm.renderForm();
         $div.append($form);

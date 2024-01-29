@@ -528,13 +528,14 @@ class CrudPanel extends CanvasPanel {
                         alert("invalid data!");
                         return Promise.reject();
                     }
-                    const prop = model.getModelDefaultsController().getDefaultThumbnailProperty();
-                    if (prop) {
-                        if (droptype === "contents") {
+                    const propName = model.getModelDefaultsController().getDefaultThumbnailProperty();
+                    if (propName) {
+                        const attr = model.getModelAttributesController().getAttribute(propName);
+                        if (attr['dataType'] === "relation" && attr['model'] === droptype) {
                             const bConfirmation = await controller.getModalController().openConfirmModal("Change thumbnail?");
                             if (bConfirmation) {
                                 const obj = new Object();
-                                obj[prop] = id;
+                                obj[propName] = id;
                                 await this._obj.update(obj);
                                 this.render();
                             }
