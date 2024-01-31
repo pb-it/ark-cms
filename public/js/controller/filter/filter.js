@@ -110,13 +110,13 @@ class Filter {
                         filtered_items = Filter.filterObject(items, filter, field['name']);
                     break;
                 default:
-                    var dt;
                     var funcFilter;
                     const dtc = app.getController().getDataTypeController();
-                    if (dtc)
-                        dt = dtc.getDataType(field['dataType']);
+                    var dt = dtc.getDataType(field['dataType']);
                     if (dt)
                         funcFilter = dt.getFilterFunction();
+                    else
+                        funcFilter = null;
                     if (funcFilter)
                         filtered_items = funcFilter(items, filter, field['name']);
             }

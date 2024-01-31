@@ -78,10 +78,8 @@ class CreateCsvPanel extends Panel {
                                         }
                                         break;
                                     default:
-                                        var dt;
                                         const dtc = app.getController().getDataTypeController();
-                                        if (dtc)
-                                            dt = dtc.getDataType(attribute['dataType']);
+                                        var dt = dtc.getDataType(attribute['dataType']);
                                         if (dt && dt.toCSV)
                                             value = dt.toCSV(val);
                                         else

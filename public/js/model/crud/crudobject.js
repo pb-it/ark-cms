@@ -216,13 +216,13 @@ class CrudObject {
                                         relevant[property] = newValue;
                                     break;
                                 default:
-                                    var dt;
                                     var funcHasChanged;
                                     const dtc = app.getController().getDataTypeController();
-                                    if (dtc)
-                                        dt = dtc.getDataType(field['dataType']);
+                                    var dt = dtc.getDataType(field['dataType']);
                                     if (dt)
                                         funcHasChanged = dt.getHasChangedFunction();
+                                    else
+                                        funcHasChanged = null;
                                     if (funcHasChanged) {
                                         if (funcHasChanged(field, olddata, newdata))
                                             relevant[property] = newdata[property];

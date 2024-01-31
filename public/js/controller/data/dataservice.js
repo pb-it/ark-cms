@@ -39,13 +39,13 @@ class DataService {
                             });
                         break;
                     default:
-                        var dt;
                         var funcSort;
                         const dtc = app.getController().getDataTypeController();
-                        if (dtc)
-                            dt = dtc.getDataType(attr['dataType']);
+                        var dt = dtc.getDataType(attr['dataType']);
                         if (dt)
                             funcSort = dt.getSortFunction();
+                        else
+                            funcSort = null;
                         if (funcSort)
                             funcSort(arr, parts[1]);
                         else {
