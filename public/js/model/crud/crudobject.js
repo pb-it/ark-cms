@@ -225,7 +225,7 @@ class CrudObject {
                                         funcHasChanged = dt.getHasChangedFunction();
                                     if (funcHasChanged) {
                                         if (funcHasChanged(field, olddata, newdata))
-                                            relevant[property] = newValue;
+                                            relevant[property] = newdata[property];
                                     } else {
                                         if (!olddata || (newdata[property] !== olddata[property]))
                                             relevant[property] = newdata[property];
