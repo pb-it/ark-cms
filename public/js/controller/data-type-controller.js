@@ -6,11 +6,14 @@ class DataTypeController {
     }
 
     addDataType(type) {
-        if (!this._store)
-            this._store = {};
-        var tag = type['tag'];
-        if (tag)
-            this._store[tag] = type;
+        if (type instanceof DataType) {
+            if (!this._store)
+                this._store = {};
+            var tag = type.getTag();
+            if (tag)
+                this._store[tag] = type;
+        } else
+            throw new Error("Data Types must be instances of 'DataType' class");
     }
 
     getDataType(tag) {

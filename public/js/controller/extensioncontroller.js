@@ -23,9 +23,14 @@ class ExtensionController {
                 name = ext['name'];
                 if (this._info[name]) {
                     if (ext['client-extension']) {
-                        var module = await loadModule(ext['client-extension']);
-                        if (module && module.init)
-                            module.init();
+                        try {
+                            var module = await loadModule(ext['client-extension']);
+                            if (module && module.init)
+                                await module.init();
+                        } catch (error) {
+                            console.error(error);
+                            controller.showErrorMessage("Loading extension '" + name + "' failed!");
+                        }
                     }
                 } else
                     this._info[name] = {};

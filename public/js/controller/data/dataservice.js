@@ -40,11 +40,14 @@ class DataService {
                         break;
                     default:
                         var dt;
+                        var funcSort;
                         const dtc = app.getController().getDataTypeController();
                         if (dtc)
                             dt = dtc.getDataType(attr['dataType']);
-                        if (dt && dt.sort)
-                            dt.sort(arr, parts[1]);
+                        if (dt)
+                            funcSort = dt.getSortFunction();
+                        if (funcSort)
+                            funcSort(arr, parts[1]);
                         else {
                             if (parts[1] === "asc")
                                 arr.sort(function (a, b) {

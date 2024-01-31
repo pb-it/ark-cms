@@ -1,54 +1,50 @@
 class Media {
 
-    _obj;
-    _data;
-
-    _mediaType;
-    _thumbnailUrl;
-    _prop;
-    _value;
-
-    constructor(obj) {
-        this.parse(obj);
-    }
-
-    parse(obj) {
-        if (obj) {
-            if (this._obj != obj)
-                this._obj = obj;
-            const data = this._obj.getData();
-            if (data && this._data != data) {
-                this._data = data;
-                this._mediaType = null;
-                this._thumbnailUrl = null;
-                this._prop = null;
-                this._value = null;
-
-                const model = this._obj.getModel();
+    static parse(obj) {
+        var media;
+        const model = obj.getModel();
+        const data = obj.getData();
+        const path = model.getModelDefaultsController().getDefaultThumbnailProperty();
+        if (path)
+            media = Media._determineThumbnailMulti(model, data, path);
+        if (media) {
+            const propName = model.getModelDefaultsController().getDefaultFileProperty();
+            if (propName) {
+                const attr = model.getModelAttributesController().getAttribute(propName);
+                if (attr['dataType'] === 'url' || attr['dataType'] === 'file')
+                    media.setFile(obj.getAttributeValue(propName));
+                else {
+                    if (attr['cdn'])
+                        media.setFile(CrudObject._buildUrl(attr['cdn'], data[propName]));
+                    else
+                        media.setFile(data[propName]);
+                }
+            }
+            if (!media.getMediaType()) {
                 const propName = model.getModelDefaultsController().getDefaultMediaTypeProperty();
                 if (propName)
-                    this._mediaType = data[propName];
-
-                const path = model.getModelDefaultsController().getDefaultThumbnailProperty();
-                if (path)
-                    this._determineThumbnailMulti(model, data, path);
+                    media.setMediaType(data[propName]);
             }
         }
+        return media;
     }
 
-    _determineThumbnailMulti(model, data, path) {
+    static _determineThumbnailMulti(model, data, path) {
+        var media;
         if (path.indexOf(';') >= 0) {
             var parts = path.split(';');
             for (var part of parts) {
-                this._determineThumbnailSingle(model, data, part);
-                if (this._thumbnailUrl)
+                media = Media._determineThumbnailSingle(model, data, part);
+                if (media && media.getThumbnail())
                     break;
             }
         } else
-            this._determineThumbnailSingle(model, data, path);
+            media = Media._determineThumbnailSingle(model, data, path);
+        return media;
     }
 
-    _determineThumbnailSingle(model, data, name) {
+    static _determineThumbnailSingle(model, data, name) {
+        var media;
         if (name.indexOf('.') >= 0) {
             var parts = name.split('.');
             if (parts.length == 2) {
@@ -57,11 +53,9 @@ class Media {
                     var attr = model.getModelAttributesController().getAttribute(prop);
                     if (attr['dataType'] === "relation") {
                         var relModel = app.getController().getModelController().getModel(attr['model']);
-                        this._determineThumbnailMulti(relModel, data[prop], parts[1]);
-                        if (this._thumbnailUrl) {
-                            this._prop = prop;
-                            this._value = data[prop];
-                        }
+                        media = Media._determineThumbnailMulti(relModel, data[prop], parts[1]);
+                        if (media && media.getThumbnail())
+                            media.setProperty(name);
                     }
                 }
             }
@@ -72,80 +66,86 @@ class Media {
                     var relModel = app.getController().getModelController().getModel(attr['model']);
                     var relPath = relModel.getModelDefaultsController().getDefaultThumbnailProperty();
                     if (relPath) {
-                        this._determineThumbnailMulti(relModel, data[name], relPath);
-                        if (this._thumbnailUrl) {
-                            this._prop = name;
-                            this._value = data[name];
-                        }
+                        media = Media._determineThumbnailMulti(relModel, data[name], relPath);
+                        if (media && media.getThumbnail())
+                            media.setProperty(name);
                     }
                 } else if (attr['dataType'] === "url") {
-                    if (attr.cdn)
-                        this._thumbnailUrl = CrudObject._buildUrl(attr.cdn, data[name]);
+                    if (attr['cdn'])
+                        media.setThumbnail(CrudObject._buildUrl(attr.cdn, data[name]));
                     else
-                        this._thumbnailUrl = data[name];
+                        media.setThumbnail(data[name]);
+                    media.setProperty(name);
                     const propName = model.getModelDefaultsController().getDefaultMediaTypeProperty();
                     if (propName)
-                        this._mediaType = data[propName];
-                    this._prop = name;
-                    this._value = data[name];
+                        media.setMediaType(data[propName]);
                 } else if (attr['dataType'] === "file") {
-                    if (typeof data[name] === 'string' || data[name] instanceof String) {
-                        if (attr.cdn)
-                            this._thumbnailUrl = CrudObject._buildUrl(attr.cdn, data[name]);
-                        else
-                            this._thumbnailUrl = data[name];
-                    } else if (data[name]['base64'])
-                        this._thumbnailUrl = data[name]['base64'];
-                    else if (data[name]['url'])
-                        this._thumbnailUrl = data[name]['url'];
-                    const propName = model.getModelDefaultsController().getDefaultMediaTypeProperty();
-                    if (propName)
-                        this._mediaType = data[propName];
-                    this._prop = name;
-                    this._value = data[name];
-                } else {
+                    media = new Media();
                     if (typeof data[name] === 'string' || data[name] instanceof String) {
                         if (attr['cdn'])
-                            this._thumbnailUrl = CrudObject._buildUrl(attr['cdn'], data[name]);
+                            media.setThumbnail(CrudObject._buildUrl(attr.cdn, data[name]));
+                        else
+                            media.setThumbnail(data[name]);
+                    } else if (data[name]['base64'])
+                        media.setThumbnail(data[name]['base64']);
+                    else if (data[name]['url'])
+                        media.setThumbnail(data[name]['url']);
+                    media.setProperty(name);
+                    const propName = model.getModelDefaultsController().getDefaultMediaTypeProperty();
+                    if (propName)
+                        media.setMediaType(data[propName]);
+                } else {
+                    if (typeof data[name] === 'string' || data[name] instanceof String) {
+                        media = new Media();
+                        if (attr['cdn'])
+                            media.setThumbnail(CrudObject._buildUrl(attr['cdn'], data[name]));
                         else if (data[name].startsWith('http') || data[name].startsWith('data'))
-                            this._thumbnailUrl = data[name];
+                            media.setThumbnail(data[name]);
+                        media.setProperty(name);
                         const propName = model.getModelDefaultsController().getDefaultMediaTypeProperty();
                         if (propName)
-                            this._mediaType = data[propName];
-                        this._prop = name;
-                        this._value = data[name];
+                            media.setMediaType(data[propName]);
                     }
                 }
-            }
+            } else
+                media = new Media();
         }
+        return media;
+    }
+
+    _mediaType;
+    _file;
+    _thumbnail;
+    _prop;
+
+    constructor() {
+    }
+
+    setMediaType(mediaType) {
+        this._mediaType = mediaType;
     }
 
     getMediaType() {
         return this._mediaType;
     }
 
+    setProperty(prop) {
+        this._prop = prop;
+    }
+
+    setFile(file) {
+        this._file = file;
+    }
+
     getFile() {
-        var res;
-        const model = this._obj.getModel();
-        if (model) {
-            const propName = model.getModelDefaultsController().getDefaultFileProperty();
-            if (propName) {
-                const attr = model.getModelAttributesController().getAttribute(propName);
-                if (attr['dataType'] === 'url' || attr['dataType'] === 'file')
-                    res = this._obj.getAttributeValue(propName);
-                else {
-                    const data = this._obj.getData();
-                    if (attr['cdn'])
-                        res = CrudObject._buildUrl(attr['cdn'], data[propName]);
-                    else
-                        res = data[propName];
-                }
-            }
-        }
-        return res;
+        return this._file;
+    }
+
+    setThumbnail(thumbnail) {
+        this._thumbnail = thumbnail;
     }
 
     getThumbnail() {
-        return this._thumbnailUrl;
+        return this._thumbnail;
     }
 }

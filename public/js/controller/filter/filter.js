@@ -111,11 +111,14 @@ class Filter {
                     break;
                 default:
                     var dt;
+                    var funcFilter;
                     const dtc = app.getController().getDataTypeController();
                     if (dtc)
                         dt = dtc.getDataType(field['dataType']);
-                    if (dt && dt.filter)
-                        filtered_items = dt.filter(items, filter, field['name']);
+                    if (dt)
+                        funcFilter = dt.getFilterFunction();
+                    if (funcFilter)
+                        filtered_items = funcFilter(items, filter, field['name']);
             }
         }
         return filtered_items;

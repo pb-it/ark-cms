@@ -106,13 +106,12 @@ class Form {
                                     dt = dtc.getDataType(attribute['dataType']);
                                 if (dt) {
                                     var attr;
-                                    var C;
-                                    if (dt['formEntryClass'])
-                                        C = dt['formEntryClass'];
-                                    else
+                                    var C = dt.getFormEntryClass();
+                                    if (!C)
                                         C = BasicFormEntry;
-                                    if (dt['baseDataType']) {
-                                        attr = { ...dt['baseDataType'] };
+                                    const bdt = dt.getBaseDataType();
+                                    if (bdt) {
+                                        attr = { ...bdt };
                                         attr['name'] = attribute['name'];
                                     } else
                                         attr = attribute;
@@ -128,27 +127,9 @@ class Form {
         if (this._entries) {
             var value;
             for (var entry of this._entries) {
-                if (this._data) {
-                    if (entry instanceof FileFormEntry) { // entry.getAttribute()['dataType'] == 'file'
-                        var attr = entry.getAttribute();
-                        var data = this._data[entry.getName()];
-                        if (!data || typeof (data) === 'string' || (data) instanceof String) {
-                            value = {};
-                            if (data) {
-                                if (attr['storage'] == 'filesystem')
-                                    value['filename'] = data;
-                                else if (attr['storage'] == 'base64')
-                                    value['base64'] = data;
-                            }
-                            if (attr['filename_prop'])
-                                value['filename'] = this._data[attr['filename_prop']];
-                            if (attr['url_prop'])
-                                value['url'] = this._data[attr['url_prop']];
-                        } else
-                            value = data;
-                    } else
-                        value = this._data[entry.getName()];
-                } else
+                if (this._data)
+                    value = this._data[entry.getName()];
+                else
                     value = null;
                 this._$form.append(await entry.renderEntry(value));
             }

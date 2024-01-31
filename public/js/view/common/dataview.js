@@ -260,11 +260,14 @@ class DataView {
                         if (dt.renderView) {
                             await dt.renderView($value, attribute, data);
                             bRendered = true;
-                        } else if (dt['baseDataType']) {
-                            var attr = { ...dt['baseDataType'] };
-                            attr['name'] = attribute['name'];
-                            $value = await DataView._renderValue(attr, data);
-                            bRendered = true;
+                        } else {
+                            const bdt = dt.getBaseDataType();
+                            if (bdt) {
+                                var attr = { ...bdt };
+                                attr['name'] = attribute['name'];
+                                $value = await DataView._renderValue(attr, data);
+                                bRendered = true;
+                            }
                         }
                     }
                     if (!bRendered)
