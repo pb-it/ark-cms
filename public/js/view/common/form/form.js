@@ -100,8 +100,10 @@ class Form {
                                 entry = new FileFormEntry(this, attribute);
                                 break;
                             default:
+                                var dt;
                                 const dtc = app.getController().getDataTypeController();
-                                var dt = dtc.getDataType(attribute['dataType']);
+                                if (dtc)
+                                    dt = dtc.getDataType(attribute['dataType']);
                                 if (dt) {
                                     var attr;
                                     var C = dt.getFormEntryClass();
