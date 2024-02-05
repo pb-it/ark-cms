@@ -144,24 +144,25 @@ class ContextMenuController {
                     try {
                         var objects = this._obj.getAllItems();
                         if (objects) {
-                            var entries = [];
-                            var title;
+                            const playlistEntries = [];
+                            var media;
                             var file;
+                            var title;
                             for (var obj of objects) {
-                                title = obj.getAttributeValue("title");
-                                if (!title)
-                                    throw new Error('Missing title');
-                                file = obj.getAttributeValue("file");
-                                if (!file)
+                                media = model.getMedia(obj);
+                                if (media)
+                                    file = media.getFile();
+                                else
+                                    file = null;
+                                if (file) {
+                                    title = obj.getAttributeValue('title');
+                                    if (!title)
+                                        title = 'unknown';
+                                    playlistEntries.push({ 'title': title, 'file': file });
+                                } else
                                     throw new Error('Missing file');
-                                entries.push({ 'title': title, 'file': file });
                             }
-                            var text = "#EXTM3U\n";
-                            for (var i = 0; i < objects.length; i++) {
-                                text += "#EXTINF:-1," + + "\n";
-                                text += + "\n";
-                            }
-                            FileCreator.createPlaylist(entries);
+                            FileCreator.createPlaylist(playlistEntries);
                         }
                     } catch (error) {
                         controller.showError(error);

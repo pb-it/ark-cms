@@ -15,10 +15,7 @@ class MediaPanel extends CrudPanel {
 
     async _init() {
         const model = this._obj.getModel();
-        if (model && model.getMedia)
-            this._media = model.getMedia(this._obj);
-        else
-            this._media = Media.parse(this._obj);
+        this._media = model.getMedia(this._obj);
         this._thumbnail = new Thumbnail(this._config, this._media, this._bLazy);
         return super._init();
     }

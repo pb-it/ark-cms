@@ -104,6 +104,10 @@ class XModel {
         return new ModelFilterController(this);
     }
 
+    getMedia(obj) {
+        return Media.parse(obj);
+    }
+
     isCollection() {
         if (this.getModelDefaultsController().getDefaultCollectionModel())
             return true;
