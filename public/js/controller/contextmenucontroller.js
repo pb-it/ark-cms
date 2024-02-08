@@ -1,78 +1,93 @@
 class ContextMenuController {
 
     static renderMenu(xPos, yPos, panel) {
-        var contextMenu = new ContextMenu(ContextMenuController.getContextMenuEntries(panel));
-        var entries = contextMenu.getEntries();
-        var parentPanel = panel.parent;
-        if (parentPanel && parentPanel.getClass() == CollectionPanel) {
-            entries.push(new ContextMenuEntry("Remove", function () {
-                this.parent.deleteItem(this._obj.getData());
-            }.bind(panel)));
-
-            var parentObject = parentPanel.getObject()
-            var parentModel = parentObject.getModel();
-            var thumbnailProperty = parentModel.getModelDefaultsController().getDefaultThumbnailProperty();
-            if (thumbnailProperty) {
-                if (thumbnailProperty.indexOf(';') == -1) {
-                    var attribute = parentModel.getModelAttributesController().getAttribute(thumbnailProperty);
-                    if (attribute && attribute['dataType'] === 'relation' && attribute['model'] === panel.getObject().getModel().getName()) {
-                        entries.push(new ContextMenuEntry("Set as Thumbnail", async function () {
-                            var obj = new Object();
-                            obj[thumbnailProperty] = panel.getObject().getData()['id'];
-                            await parentObject.update(obj);
-                            //this.render();
-                            return Promise.resolve();
-                        }.bind(panel)));
-                    }
-                }
-            }
-        }
-
-        var obj = panel.getObject();
-        var model = obj.getModel();
-        var thumbnailProperty = model.getModelDefaultsController().getDefaultThumbnailProperty();
-        if (thumbnailProperty) {
-            var thumbGroup = [];
-            if (thumbnailProperty.indexOf(';') == -1) {
-                var attribute = model.getModelAttributesController().getAttribute(thumbnailProperty);
-                if (attribute && obj.getData()[attribute['name']]) {
-                    thumbGroup.push(new ContextMenuEntry("Remove", async function () {
-                        if (confirm("Remove thumbnail?")) {
-                            var data = {};
-                            data[attribute['name']] = null;
-                            var obj = this.getObject();
-                            await obj.update(data);
-                            this.render();
-                        }
-                        return Promise.resolve();
-                    }.bind(panel)));
-                }
-            }
-            entries.push(new ContextMenuEntry("Thumbnail >", null, thumbGroup));
-        }
-
-        contextMenu.setEntries(ContextMenuController.appendCrudContextMenuEntries(panel, entries));
+        const contextMenu = new ContextMenu(panel);
+        const obj = panel.getObject();
+        const model = obj.getModel();
+        const entries = model.getContextMenuEntries();
+        contextMenu.setEntries(entries);
         contextMenu.renderMenu(xPos, yPos);
     }
 
-    static getContextMenuEntries(panel) {
-        var entries = [];
-        const obj = panel.getObject();
-        const model = obj.getModel();
+    static getContextMenuEntries(model) {
+        const entries = [];
         const controller = app.getController();
 
-        entries.push(new ContextMenuEntry("Reload", async function () {
-            controller.setLoadingState(true);
-            var objs = controller.getSelectedObjects();
-            if (!objs)
-                objs = [this._obj];
-            var typeString = objs[0].getTypeString();
-            var ids = objs.map(function (x) { return x.getData()['id'] });
-            await controller.getDataService().fetchData(typeString, ids, null, null, null, null, null, true);
+        entries.push(new ContextMenuEntry("Reload", async function (event, target) {
+            try {
+                controller.setLoadingState(true);
+                var objs = controller.getSelectedObjects();
+                if (!objs)
+                    objs = [target._obj];
+                var typeString = objs[0].getTypeString();
+                var ids = objs.map(function (x) { return x.getData()['id'] });
+                await controller.getDataService().fetchData(typeString, ids, null, null, null, null, null, true);
 
-            var state = controller.getStateController().getState();
-            controller.loadState(state);
-        }.bind(panel)));
+                var state = controller.getStateController().getState();
+                controller.loadState(state);
+            } catch (error) {
+                controller.setLoadingState(false);
+                controller.showError(error);
+            }
+            return Promise.resolve();
+        }));
+
+        const removeEntry = new ContextMenuEntry("Remove", function (event, target) {
+            target.parent.deleteItem(target._obj.getData());
+        });
+        removeEntry.setVisibilityFunction(function (target) {
+            const parentPanel = target.parent;
+            return parentPanel && parentPanel.getClass() == CollectionPanel;
+        });
+        entries.push(removeEntry);
+
+        const setThumbEntry = new ContextMenuEntry("Set as Thumbnail", async function (event, target) {
+            var obj = new Object();
+            obj[thumbnailProperty] = target.getObject().getData()['id'];
+            await parentObject.update(obj);
+            //target.render();
+            return Promise.resolve();
+        });
+        setThumbEntry.setVisibilityFunction(function (target) {
+            var bVis = false;
+            var parentPanel = target.parent;
+            if (parentPanel && parentPanel.getClass() == CollectionPanel) {
+                var parentObject = parentPanel.getObject()
+                var parentModel = parentObject.getModel();
+                var thumbnailProperty = parentModel.getModelDefaultsController().getDefaultThumbnailProperty();
+                if (thumbnailProperty) {
+                    if (thumbnailProperty.indexOf(';') == -1) {
+                        var attribute = parentModel.getModelAttributesController().getAttribute(thumbnailProperty);
+                        bVis = attribute && attribute['dataType'] === 'relation' && attribute['model'] === target.getObject().getModel().getName();
+                    }
+                }
+            }
+            return bVis;
+        });
+        entries.push(setThumbEntry);
+
+        const thumbnailProperty = model.getModelDefaultsController().getDefaultThumbnailProperty();
+        if (thumbnailProperty) {
+            const thumbGroup = [];
+            if (thumbnailProperty.indexOf(';') == -1) {
+                const removeThumbEntry = new ContextMenuEntry("Remove", async function (event, target) {
+                    if (confirm("Remove thumbnail?")) {
+                        var data = {};
+                        data[attribute['name']] = null;
+                        var obj = target.getObject();
+                        await obj.update(data);
+                        target.render();
+                    }
+                    return Promise.resolve();
+                });
+                removeThumbEntry.setVisibilityFunction(function (target) {
+                    const attribute = model.getModelAttributesController().getAttribute(thumbnailProperty);
+                    return attribute && target.getObject().getData()[attribute['name']];
+                });
+                thumbGroup.push(removeThumbEntry);
+            }
+            entries.push(new ContextMenuEntry("Thumbnail >", null, thumbGroup));
+        }
 
         entries.push(new ContextMenuEntry("Copy", async function () {
             try {
@@ -81,26 +96,26 @@ class ContextMenuController {
                 controller.showError(error);
             }
             return Promise.resolve();
-        }.bind(panel)));
+        }));
 
-        var createGroup = [];
-        var showGroup = [];
-        var addGroup = [];
-        var setGroup = [];
+        const createGroup = [];
+        const showGroup = [];
+        const addGroup = [];
+        const setGroup = [];
 
-        ContextMenuController.addEntriesForAllAttributes(panel, showGroup, setGroup, addGroup);
+        ContextMenuController.addEntriesForAllAttributes(model, showGroup, setGroup, addGroup);
         /*if (controller.isInDebugMode()) {
             //showGroup.add(...); //TODO: Add entry for model '_changes'
         }*/
 
-        var createCopyEntry = new ContextMenuEntry("Copy", async function () {
+        const createCopyEntry = new ContextMenuEntry("Copy", async function (event, target) {
             controller.setLoadingState(true);
             try {
                 var items = controller.getSelected();
-                if (!items || (items.length == 1 && items[0] == this)) {
-                    var data = { ...this._obj.getData() };
+                if (!items || (items.length == 1 && items[0] == target)) {
+                    var data = { ...target._obj.getData() };
 
-                    var skeleton = this._obj.getSkeleton();
+                    var skeleton = target._obj.getSkeleton();
                     delete data['id'];
                     delete data['created_at'];
                     delete data['updated_at'];
@@ -109,7 +124,7 @@ class ContextMenuController {
                             delete data[attr['name']];
                     }
 
-                    var panel = PanelController.createPanel(this._obj.getTypeString(), data, ActionEnum.create);
+                    var panel = PanelController.createPanel(target._obj.getTypeString(), data, ActionEnum.create);
 
                     await controller.getModalController().openPanelInModal(panel);
                     controller.setLoadingState(false);
@@ -121,58 +136,60 @@ class ContextMenuController {
                     controller.showError(error);
             }
             return Promise.resolve();
-        }.bind(panel));
+        });
         createGroup.push(createCopyEntry);
 
-        var createCsvEntry = new ContextMenuEntry("CSV", async function () {
+        const createCsvEntry = new ContextMenuEntry("CSV", async function (event, target) {
             var items;
             if (model.isCollection())
-                items = this._obj.getAllItems();
+                items = target._obj.getAllItems();
             else {
                 items = controller.getSelectedObjects();
                 if (!items)
-                    items = [this._obj];
+                    items = [target._obj];
             }
             return controller.getModalController().openPanelInModal(new CreateCsvPanel(model, items));
-        }.bind(panel));
+        });
         createGroup.push(createCsvEntry);
 
         if (model.isCollection()) {
-            var data = obj.getData();
-            if (data.subtype && data.subtype == "playlist") {
-                var createPlaylistEntry = new ContextMenuEntry("Playlist File", async function () {
-                    try {
-                        var objects = this._obj.getAllItems();
-                        if (objects) {
-                            const playlistEntries = [];
-                            var media;
-                            var file;
-                            var title;
-                            for (var obj of objects) {
-                                media = model.getMedia(obj);
-                                if (media)
-                                    file = media.getFile();
-                                else
-                                    file = null;
-                                if (file) {
-                                    title = obj.getAttributeValue('title');
-                                    if (!title)
-                                        title = 'unknown';
-                                    playlistEntries.push({ 'title': title, 'file': file });
-                                } else
-                                    throw new Error('Missing file');
-                            }
-                            FileCreator.createPlaylist(playlistEntries);
+            const createPlaylistEntry = new ContextMenuEntry("Playlist File", async function (event, target) {
+                try {
+                    var objects = target._obj.getAllItems();
+                    if (objects) {
+                        const playlistEntries = [];
+                        var media;
+                        var file;
+                        var title;
+                        for (var obj of objects) {
+                            media = model.getMedia(obj);
+                            if (media)
+                                file = media.getFile();
+                            else
+                                file = null;
+                            if (file) {
+                                title = obj.getAttributeValue('title');
+                                if (!title)
+                                    title = 'unknown';
+                                playlistEntries.push({ 'title': title, 'file': file });
+                            } else
+                                throw new Error('Missing file');
                         }
-                    } catch (error) {
-                        controller.showError(error);
+                        FileCreator.createPlaylist(playlistEntries);
                     }
-                    return Promise.resolve();
-                }.bind(panel));
-                createGroup.push(createPlaylistEntry);
-            }
+                } catch (error) {
+                    controller.showError(error);
+                }
+                return Promise.resolve();
+            });
+            createPlaylistEntry.setVisibilityFunction(function (target) {
+                const obj = target.getObject();
+                const data = obj.getData();
+                return data.subtype && data.subtype == "playlist";
+            });
+            createGroup.push(createPlaylistEntry);
 
-            entries.push(new ContextMenuEntry("Paste", async function (e) {
+            entries.push(new ContextMenuEntry("Paste", async function (event, target) {
                 try {
                     var text;
                     if (window.location.protocol == 'https:' || window.location.hostname == 'localhost') {
@@ -196,7 +213,7 @@ class ContextMenuController {
                             var state = State.getStateFromUrl(url);
                             if (state) {
                                 var droptype = state['typeString'];
-                                if (droptype === this._obj.getCollectionType()) {
+                                if (droptype === target._obj.getCollectionType()) {
                                     try {
                                         controller.setLoadingState(true);
                                         var items;
@@ -208,10 +225,10 @@ class ContextMenuController {
                                                     for (var x of data) {
                                                         items.push(new CrudObject(droptype, x));
                                                     }
-                                                    await this.addItems(items);
+                                                    await target.addItems(items);
                                                 }
                                             } else
-                                                await this.addItems(new CrudObject(droptype, data));
+                                                await target.addItems(new CrudObject(droptype, data));
                                         }
                                         controller.setLoadingState(false);
                                     } catch (error) {
@@ -226,21 +243,17 @@ class ContextMenuController {
                     controller.showError(error);
                 }
                 return Promise.resolve();
-            }.bind(panel)));
+            }));
 
-            entries.push(new ContextMenuEntry("Save", async function () {
+            entries.push(new ContextMenuEntry("Save", async function (event, target) {
                 try {
-                    await this._obj.save();
+                    await target._obj.save();
                 } catch (error) {
                     controller.showError(error);
                 }
                 return Promise.resolve();
-            }.bind(panel)));
+            }));
         }
-
-        var contextMenuExtensions = model.getContextMenuExtensionAction();
-        if (contextMenuExtensions)
-            entries.push(...contextMenuExtensions(panel));
 
         if (createGroup.length > 0)
             entries.push(new ContextMenuEntry("Create >", null, createGroup));
@@ -251,206 +264,11 @@ class ContextMenuController {
         if (addGroup.length > 0)
             entries.push(new ContextMenuEntry("Add >", null, addGroup));
 
-        return entries;
-    }
-
-    static addEntriesForAllAttributes(panel, showGroup, setGroup, addGroup) {
-        var obj = panel.getObject();
-        var typeString = obj.getTypeString();
-        var model = obj.getModel();
-        var attributes = model.getModelAttributesController().getAttributes();
-        if (attributes) {
-            var sorted = [...attributes].sort((a, b) => a.name.localeCompare(b.name));
-
-            var objs;
-            var selected = app.getController().getSelectedObjects();
-            if (selected && selected.length > 0)
-                objs = selected;
-            else
-                objs = [panel.getObject()];
-
-            var entry;
-            var state;
-
-            var backLink;
-            var data;
-            var relData
-            var params;
-            var bAddSetEntry;
-            for (let attr of sorted) {
-                bAddSetEntry = true;
-                switch (attr['dataType']) {
-                    case "relation":
-                        if (attr['model']) {
-                            backLink = null;
-
-                            if (attr['multiple']) {
-                                if (attr['via'])
-                                    backLink = attr['via'];
-                            }
-
-                            if (!backLink) {
-                                var relModel = app.getController().getModelController().getModel(attr.model);
-                                if (relModel) {
-                                    var relAttributes = relModel.getModelAttributesController().getAttributes();
-                                    if (relAttributes) {
-                                        for (var relAttr of relAttributes) {
-                                            if (relAttr['dataType'] === "relation" && relAttr['model'] === typeString && relAttr['multiple'] && !relAttr['via']) {
-                                                backLink = relAttr.name;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            params = [];
-                            if (backLink) {
-                                if (attr['via'] && objs.length == 1)
-                                    params.push(backLink + "=" + objs[0].getData()['id']);
-                                else {
-                                    var ids = objs.map(function (x) { return x.getData()['id'] });
-                                    params.push(backLink + "_any=" + ids.join(','));
-                                }
-                            } else {
-                                var map = new Map();
-                                for (var i = 0; i < objs.length; i++) {
-                                    data = objs[i].getData();
-                                    if (data) {
-                                        relData = data[attr.name];
-                                        if (relData) {
-                                            if (Array.isArray(relData)) {
-                                                for (var item of relData) {
-                                                    if (item['id']) {
-                                                        if (!map.has(item['id']))
-                                                            map.set(item['id'], item);
-                                                    }
-                                                }
-                                            } else {
-                                                if (relData['id']) {
-                                                    if (!map.has(relData['id']))
-                                                        map.set(relData['id'], relData);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                var ids = Array.from(map.keys());
-                                if (ids.length > 0)
-                                    params.push("id_in=" + ids.join(','));
-                            }
-
-                            if (params.length > 0) {
-                                state = new State();
-                                var str = typeString + ":" + objs.map(function (x) { return x.getTitle() }).join(' || ');
-                                if (str.length < 70)
-                                    state.name = str;
-                                else
-                                    state.name = str.substring(0, 70) + '...';
-                                state.typeString = attr.model;
-                                state.setQuery(params);
-
-                                entry = new ContextMenuEntry(attr['name'], async function () {
-                                    var controller = app.getController();
-                                    var current = controller.getStateController().getState();
-                                    var name = attr['name'];
-                                    var scope;
-                                    if (current['query']) {
-                                        for (var part of current['query']) {
-                                            if (part.startsWith(name + '_any')) {
-                                                scope = part;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if (scope && controller.getConfigController().experimentalFeaturesEnabled() && confirm('Keep current filter on \'' + name + '\'?')) {
-                                        this.where = `id_in=${scope.substring(scope.indexOf('=') + 1)}&${this.where}`;
-                                    }
-                                    await controller.loadState(this, true);
-                                }.bind(state));
-                                showGroup.push(entry);
-                            }
-
-                            if (attr['multiple'] && !attr['readonly']) {
-                                if (!attr['via'] || objs.length == 1) {
-                                    var data = {};
-                                    if (backLink) {
-                                        if (attr['via'])
-                                            data[backLink] = objs[0].getId();
-                                        else
-                                            data[backLink] = objs.map(x => x.getId());
-                                    }
-                                    if (attr['hidden'] && backLink) {
-                                        entry = new ContextMenuEntry(attr['name'], function () {
-                                            var panel = PanelController.createPanel(attr['model'], this, ActionEnum.create);
-                                            return app.getController().getModalController().openPanelInModal(panel);
-                                        }.bind(data));
-                                        addGroup.push(entry);
-                                    } else {
-                                        var addPanel = new AddRelatedItemPanel(objs, attr, data, async function () {
-                                            var obj = this.getObject();
-                                            if (obj.getId())
-                                                await obj.read();
-                                            await this.render();
-                                            return Promise.resolve();
-                                        }.bind(panel));
-
-                                        entry = new ContextMenuEntry(attr.name, async function () {
-                                            return app.getController().getModalController().openPanelInModal(this);
-                                        }.bind(addPanel));
-                                        addGroup.push(entry);
-                                    }
-                                }
-                                bAddSetEntry = false;
-                            }
-                        }
-                        break;
-                    default:
-                }
-                if (bAddSetEntry && !attr['readonly']) {
-                    entry = new ContextMenuEntry(attr['name'], function () {
-                        var skeleton;
-                        if (attr['hidden']) {
-                            var copy = { ...attr };
-                            delete copy['hidden'];
-                            skeleton = [copy];
-                        } else
-                            skeleton = [attr];
-                        var panel = new FormPanel(null, skeleton);
-                        panel.setApplyAction(async function (p) {
-                            var controller = app.getController();
-                            controller.setLoadingState(true);
-                            try {
-                                var data = await p.getForm().readForm(false);
-
-                                for (var obj of objs) {
-                                    if (obj.getId())
-                                        await obj.update(data);
-                                    else
-                                        obj.getData()[attr['name']] = data[attr['name']];
-                                }
-
-                                controller.setLoadingState(false);
-                            } catch (error) {
-                                controller.setLoadingState(false);
-                                controller.showError(error);
-                            }
-                            return Promise.resolve(true);
-                        });
-                        return app.getController().getModalController().openPanelInModal(panel);
-                    }.bind(panel));
-                    setGroup.push(entry);
-                }
-            }
-        }
-    }
-
-    static appendCrudContextMenuEntries(panel, entries) {
-        var openGroup = [];
-        var openInNewTabEntry = new ContextMenuEntry("Open in new Tab", function () {
+        const openGroup = [];
+        const openInNewTabEntry = new ContextMenuEntry("Open in new Tab", function (event, target) {
             var items = app.getController().getSelected();
-            if (!items || (items.length == 1 && items[0] == this)) {
-                this.openInNewTab(ActionEnum.read);
+            if (!items || (items.length == 1 && items[0] == target)) {
+                target.openInNewTab(ActionEnum.read);
             } else {
                 var objs = items.map(function (panel) {
                     return panel.getObject();
@@ -460,18 +278,19 @@ class ContextMenuController {
                 win.focus();
             }
             return Promise.resolve();
-        }.bind(panel));
+        });
         openGroup.push(openInNewTabEntry);
 
-        if (panel.getClass() == MediaPanel) {
-            var openThumbnailEntry = new ContextMenuEntry("Open Thumbnail", async function () {
-                return this.openThumbnail();
-            }.bind(panel));
-            openGroup.push(openThumbnailEntry);
-        }
+        const openThumbnailEntry = new ContextMenuEntry("Open Thumbnail", async function (event, target) {
+            return target.openThumbnail();
+        });
+        openThumbnailEntry.setVisibilityFunction(function (target) {
+            return target.getClass() == MediaPanel;
+        });
+        openGroup.push(openThumbnailEntry);
 
-        entries.push(new ContextMenuEntry("Open >", async function () {
-            var controller = app.getController();
+        entries.push(new ContextMenuEntry("Open >", async function (event, target) {
+            const controller = app.getController();
             try {
                 var items = controller.getSelected();
                 var typeString;
@@ -479,12 +298,12 @@ class ContextMenuController {
                 var def;
                 var id;
                 var where;
-                if (!items || (items.length == 1 && items[0] == this)) {
-                    typeString = this._obj.getTypeString();
-                    model = this._obj.getModel();
+                if (!items || (items.length == 1 && items[0] == target)) {
+                    typeString = target._obj.getTypeString();
+                    model = target._obj.getModel();
                     def = model.getDefinition();
                     if (def['options']['increments'])
-                        id = this._obj.getData()['id'];
+                        id = target._obj.getData()['id'];
                     else {
                         var attributes = model.getModelAttributesController().getAttributes();
                         var prime = [];
@@ -494,7 +313,7 @@ class ContextMenuController {
                         }
                         if (prime.length == 1) {
                             var key = prime[0];
-                            where = key + "=" + this._obj.getData()[key];
+                            where = key + "=" + target._obj.getData()[key];
                         } else
                             throw new Error('Failed to determine primary key!');
                     }
@@ -537,15 +356,15 @@ class ContextMenuController {
                 controller.showError(error);
             }
             return Promise.resolve();
-        }.bind(panel), openGroup));
+        }, openGroup));
 
-        entries.push(new ContextMenuEntry("Details", async function () {
-            return this.openInModal(ActionEnum.read);
-        }.bind(panel)));
+        entries.push(new ContextMenuEntry("Details", async function (event, target) {
+            return target.openInModal(ActionEnum.read);
+        }));
 
-        entries.push(new ContextMenuEntry("Edit", async function (e) {
-            var modal = await this.openInModal(ActionEnum.update);
-            if (e.ctrlKey) {
+        entries.push(new ContextMenuEntry("Edit", async function (event, target) {
+            const modal = await target.openInModal(ActionEnum.update);
+            if (event.ctrlKey) {
                 var panel = modal.getPanel();
                 var form = panel.getForm();
                 var entries = form.getFormEntry();
@@ -557,15 +376,15 @@ class ContextMenuController {
                 }
             }
             return Promise.resolve();
-        }.bind(panel)));
+        }));
 
-        entries.push(new ContextMenuEntry("Delete", async function () {
-            var controller = app.getController();
+        entries.push(new ContextMenuEntry("Delete", async function (event, target) {
+            const controller = app.getController();
             var selected = controller.getSelected();
-            if (!selected || selected.length == 0 || (selected.length == 1 && selected[0] == this)) {
-                var parentPanel = this.parent;
+            if (!selected || selected.length == 0 || (selected.length == 1 && selected[0] == target)) {
+                var parentPanel = target.parent;
                 if (parentPanel && parentPanel.getClass() == CollectionPanel) {
-                    var obj = this.getObject();
+                    var obj = target.getObject();
                     var oData = obj.getData();
 
                     var model = obj.getModel();
@@ -583,14 +402,13 @@ class ContextMenuController {
                     };
                     var modal = await controller.getModalController().openPanelInModal(panel);
                 } else
-                    this.openInModal(ActionEnum.delete)
+                    target.openInModal(ActionEnum.delete)
             } else {
                 var bConfirmation = await controller.getModalController().openConfirmModal("Delete all selected items?");
                 if (bConfirmation) {
                     controller.setLoadingState(true);
-
                     try {
-                        var parentPanel = this.parent;
+                        var parentPanel = target.parent;
                         if (parentPanel && parentPanel.getClass() == CollectionPanel) {
                             var cObj = parentPanel.getObject();
                             var obj;
@@ -606,28 +424,230 @@ class ContextMenuController {
                                 await selected[i].getObject().delete();
                             }
                         }
-
                         controller.setLoadingState(false);
                     } catch (error) {
                         controller.setLoadingState(false);
                         controller.showError(error);
                     }
-
                     controller.reloadState();
                 }
             }
             return Promise.resolve();
-        }.bind(panel)));
+        }));
 
         if (app.getController().isInDebugMode()) {
-            var debugGroup = [];
-            var jsonEntry = new ContextMenuEntry("JSON", function () {
-                return app.getController().getModalController().openPanelInModal(new JsonPanel(this.getObject().getData()));
-            }.bind(panel));
+            const debugGroup = [];
+            const jsonEntry = new ContextMenuEntry("JSON", function (event, target) {
+                return app.getController().getModalController().openPanelInModal(new JsonPanel(target.getObject().getData()));
+            });
             debugGroup.push(jsonEntry);
 
             entries.push(new ContextMenuEntry("Debug >", null, debugGroup));
         }
+
         return entries;
+    }
+
+    static addEntriesForAllAttributes(model, showGroup, setGroup, addGroup) {
+        var attributes = model.getModelAttributesController().getAttributes();
+        if (attributes) {
+            var sorted = [...attributes].sort((a, b) => a.name.localeCompare(b.name));
+            var entry;
+            var bAddSetEntry;
+            for (let attr of sorted) {
+                bAddSetEntry = true;
+                switch (attr['dataType']) {
+                    case "relation":
+                        if (attr['model']) {
+                            entry = new ContextMenuEntry(attr['name'], async function (event, target) {
+                                var objs;
+                                var selected = app.getController().getSelectedObjects();
+                                if (selected && selected.length > 0)
+                                    objs = selected;
+                                else
+                                    objs = [target.getObject()];
+
+                                var state = ContextMenuController._getState(model, attr, objs);
+
+                                const controller = app.getController();
+                                if (controller.getConfigController().experimentalFeaturesEnabled()) {
+                                    var current = controller.getStateController().getState();
+                                    var name = this['name'];
+                                    var scope;
+                                    if (current['query']) {
+                                        for (var part of current['query']) {
+                                            if (part.startsWith(name + '_any')) {
+                                                scope = part;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if (scope && confirm('Keep current filter on \'' + name + '\'?'))
+                                        state.where = `id_in=${scope.substring(scope.indexOf('=') + 1)}&${state.where}`;
+                                }
+                                await controller.loadState(state, true);
+                            });
+                            showGroup.push(entry);
+
+                            if (attr['multiple'] && !attr['readonly']) {
+                                entry = new ContextMenuEntry(attr['name'], function (event, target) {
+                                    var objs;
+                                    var selected = app.getController().getSelectedObjects();
+                                    if (selected && selected.length > 0)
+                                        objs = selected;
+                                    else
+                                        objs = [target.getObject()];
+
+                                    const panel = ContextMenuController._getAddPanel(model, attr, objs, target);
+                                    PanelController.createPanel(attr['model'], attr, ActionEnum.create);
+                                    return app.getController().getModalController().openPanelInModal(panel);
+                                });
+                                addGroup.push(entry);
+                                bAddSetEntry = false;
+                            }
+                        }
+                        break;
+                    default:
+                }
+                if (bAddSetEntry && !attr['readonly']) {
+                    entry = new ContextMenuEntry(attr['name'], function (event, target) {
+                        const controller = app.getController();
+                        var skeleton;
+                        if (attr['hidden']) {
+                            var copy = { ...attr };
+                            delete copy['hidden'];
+                            skeleton = [copy];
+                        } else
+                            skeleton = [attr];
+                        var panel = new FormPanel(null, skeleton);
+                        panel.setApplyAction(async function (p) {
+                            controller.setLoadingState(true);
+                            try {
+                                var data = await p.getForm().readForm(false);
+
+                                for (var obj of objs) {
+                                    if (obj.getId())
+                                        await obj.update(data);
+                                    else
+                                        obj.getData()[attr['name']] = data[attr['name']];
+                                }
+
+                                controller.setLoadingState(false);
+                            } catch (error) {
+                                controller.setLoadingState(false);
+                                controller.showError(error);
+                            }
+                            return Promise.resolve(true);
+                        });
+                        return controller.getModalController().openPanelInModal(panel);
+                    });
+                    setGroup.push(entry);
+                }
+            }
+        }
+    }
+
+    static _getBackLink(model, attr) {
+        var backLink = null;
+        if (attr['multiple']) {
+            if (attr['via'])
+                backLink = attr['via'];
+        }
+        if (!backLink) {
+            var relModel = app.getController().getModelController().getModel(attr['model']);
+            if (relModel) {
+                var relAttributes = relModel.getModelAttributesController().getAttributes();
+                if (relAttributes) {
+                    for (var relAttr of relAttributes) {
+                        if (relAttr['dataType'] === "relation" && relAttr['model'] === model.getName() && relAttr['multiple'] && !relAttr['via']) {
+                            backLink = relAttr['name'];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return backLink;
+    }
+
+    static _getState(model, attr, objs) {
+        var state;
+        const params = [];
+        const backLink = ContextMenuController._getBackLink(model, attr);
+        if (backLink) {
+            if (attr['via'] && objs.length == 1)
+                params.push(backLink + "=" + objs[0].getData()['id']);
+            else {
+                var ids = objs.map(function (x) { return x.getData()['id'] });
+                params.push(backLink + "_any=" + ids.join(','));
+            }
+        } else {
+            const map = new Map();
+            var data;
+            var relData;
+            for (var i = 0; i < objs.length; i++) {
+                data = objs[i].getData();
+                if (data) {
+                    relData = data[attr['name']];
+                    if (relData) {
+                        if (Array.isArray(relData)) {
+                            for (var item of relData) {
+                                if (item['id']) {
+                                    if (!map.has(item['id']))
+                                        map.set(item['id'], item);
+                                }
+                            }
+                        } else {
+                            if (relData['id']) {
+                                if (!map.has(relData['id']))
+                                    map.set(relData['id'], relData);
+                            }
+                        }
+                    }
+                }
+            }
+            var ids = Array.from(map.keys());
+            if (ids.length > 0)
+                params.push("id_in=" + ids.join(','));
+        }
+
+        if (params.length > 0) {
+            state = new State();
+            var str = model.getName() + ":" + objs.map(function (x) { return x.getTitle() }).join(' || ');
+            if (str.length < 70)
+                state.name = str;
+            else
+                state.name = str.substring(0, 70) + '...';
+            state.typeString = attr['model'];
+            state.setQuery(params);
+        }
+        return state;
+    }
+
+    static _getAddPanel(model, attr, objs, target) {
+        var panel;
+        if (attr['multiple'] && !attr['readonly']) {
+            if (!attr['via'] || objs.length == 1) {
+                const data = {};
+                const backLink = ContextMenuController._getBackLink(model, attr);
+                if (backLink) {
+                    if (attr['via'])
+                        data[backLink] = objs[0].getId();
+                    else
+                        data[backLink] = objs.map(x => x.getId());
+                }
+                if (attr['hidden'] && backLink)
+                    panel = PanelController.createPanel(attr['model'], data, ActionEnum.create);
+                else
+                    panel = new AddRelatedItemPanel(objs, attr, data, async function () {
+                        var obj = this.getObject();
+                        if (obj.getId())
+                            await obj.read();
+                        await this.render();
+                        return Promise.resolve();
+                    }.bind(target));
+            }
+        }
+        return panel;
     }
 }

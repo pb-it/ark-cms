@@ -121,45 +121,39 @@ class TreeNodeVis {
                     event.preventDefault();
                     event.stopPropagation();
 
-                    var entries = [];
+                    const entries = [];
                     if (type && type === "folder") {
-                        entries.push(new ContextMenuEntry("Rename", async function () {
-                            var skeleton = [{
+                        entries.push(new ContextMenuEntry("Rename", async function (event, target) {
+                            const skeleton = [{
                                 "name": "name",
                                 "dataType": "string"
                             }];
-                            var panel = new FormPanel(null, skeleton, { 'name': this._treeNode.getTreeNodeName() });
+                            const panel = new FormPanel(null, skeleton, { 'name': target._treeNode.getTreeNodeName() });
                             panel.setApplyAction(async function () {
                                 var data = await panel.getForm().readForm();
-                                this._treeNode.setTreeNodeName(data.name);
+                                this._treeNode.setTreeNodeName(data['name']);
                                 panel.dispose();
                                 this.render();
                                 return Promise.resolve();
-                            }.bind(this));
-                            return app.controller.getModalController().openPanelInModal(panel);
-                        }.bind(this)));
+                            }.bind(target));
+                            return app.getController().getModalController().openPanelInModal(panel);
+                        }));
                     }
                     if (actions && actions['editAction']) {
-                        entries.push(new ContextMenuEntry("Edit", async function () {
-                            var newConf = await actions['editAction'](this._treeNode.getTreeNodeConf());
-                            this._treeNode.setTreeNodeConf(newConf);
-
+                        entries.push(new ContextMenuEntry("Edit", async function (event, target) {
+                            const newConf = await actions['editAction'](target._treeNode.getTreeNodeConf());
+                            target._treeNode.setTreeNodeConf(newConf);
                             return Promise.resolve();
-                        }.bind(this)));
+                        }));
                     }
-                    entries.push(new ContextMenuEntry("Delete", async function () {
-                        /*try {
-                            await this._obj.save();
-                        } catch (error) {
-                            app.controller.showError(error);
-                        }*/
-
-                        this._treeNode.deleteTreeNode();
-                        this._treeVis.render();
+                    entries.push(new ContextMenuEntry("Delete", async function (event, target) {
+                        target._treeNode.deleteTreeNode();
+                        target._treeVis.render();
                         return Promise.resolve();
-                    }.bind(this)));
+                    }));
 
-                    var contextMenu = new ContextMenu(entries);
+                    const contextMenu = new ContextMenu(this);
+                    contextMenu.setEntries(entries);
                     contextMenu.renderMenu(event.pageX, event.pageY);
 
                     return Promise.resolve();

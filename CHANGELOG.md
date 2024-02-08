@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [0.6.3-beta](https://github.com/pb-it/ark-cms/releases/tag/0.6.3-beta) (2024-02-8)
+
+### BREAKING CHANGES
+
+* Refactored Context Menu
+
+
 ## [0.6.2-beta](https://github.com/pb-it/ark-cms/releases/tag/0.6.2-beta) (2024-01-31)
 
 ### BREAKING CHANGES

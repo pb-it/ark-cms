@@ -18,10 +18,10 @@ class XModel {
 
     _module;
 
-    _prepareDataAction;
     _doubleClickAction;
+    _contextMenuEntries;
+    _prepareDataAction;
     _crudDialogActions;
-    _contextMenuExtensionAction;
 
     constructor(data, version) {
         this._data = data;
@@ -29,6 +29,7 @@ class XModel {
     }
 
     async initModel() {
+        this._contextMenuEntries = ContextMenuController.getContextMenuEntries(this); //TODO:
         this._crudDialogActions = [];
 
         if (this._data['extensions']) {
@@ -104,10 +105,6 @@ class XModel {
         return new ModelFilterController(this);
     }
 
-    getMedia(obj) {
-        return Media.parse(obj);
-    }
-
     isCollection() {
         if (this.getModelDefaultsController().getDefaultCollectionModel())
             return true;
@@ -115,6 +112,14 @@ class XModel {
             return true;
         else
             return false;
+    }
+
+    getContextMenuEntries() {
+        return this._contextMenuEntries;
+    }
+
+    getMedia(obj) {
+        return Media.parse(obj);
     }
 
     getPrepareDataAction() {
@@ -127,9 +132,5 @@ class XModel {
 
     getCrudDialogActions() {
         return this._crudDialogActions;
-    }
-
-    getContextMenuExtensionAction() {
-        return this._contextMenuExtensionAction;
     }
 }

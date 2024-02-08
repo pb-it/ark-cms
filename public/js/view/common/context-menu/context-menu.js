@@ -1,10 +1,16 @@
 class ContextMenu {
 
+    _target;
     _entries;
+
     _$menu;
 
-    constructor(entries) {
-        this._entries = entries;
+    constructor(target) {
+        this._target = target;
+    }
+
+    getTarget() {
+        return this._target;
     }
 
     setEntries(entries) {
@@ -39,24 +45,24 @@ class ContextMenu {
     }
 
     _renderEntry(parent, entry) {
-        var $li = $("<li>", { text: entry.name });
-        parent.append($li);
-        $li.click(debounce(function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (entry.cb) {
-                this._remove();
-                entry.cb(e);
+        if (entry.isVisible(this._target)) {
+            var $li = $("<li>", { text: entry.getName() });
+            parent.append($li);
+            $li.click(debounce(function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (entry.click(e, this._target))
+                    this._remove();
+            }.bind(this), 250, true));
+            if (entry.entries) {
+                var $d = $("<div/>")
+                var $menu = $("<ul>").addClass('contextmenu');
+                for (var e of entry.entries) {
+                    this._renderEntry($menu, e);
+                }
+                $d.append($menu);
+                $li.append($d);
             }
-        }.bind(this), 250, true));
-        if (entry.entries) {
-            var $d = $("<div/>")
-            var $menu = $("<ul>").addClass('contextmenu');
-            for (var e of entry.entries) {
-                this._renderEntry($menu, e);
-            }
-            $d.append($menu);
-            $li.append($d);
         }
     }
 

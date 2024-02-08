@@ -10,6 +10,7 @@ try {
         id = movies[0]['id'];
         const star = {
             'name': 'John Doe',
+            'gender': 'male',
             'movies': [id]
         }
         //await loadScript('/public/js/model/crud/crudobject.js');

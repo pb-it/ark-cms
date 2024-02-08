@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const assert = require('assert');
 const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
@@ -40,57 +43,22 @@ describe('Testsuit', function () {
             allPassed = allPassed && (this.currentTest.state === 'passed');
     });
 
-    it('#add relation to model', async function () {
+    it('#add second model', async function () {
         this.timeout(10000);
 
-        var response = await driver.executeAsyncScript(() => {
-            var callback = arguments[arguments.length - 1];
-            var model = {
-                "name": "star",
-                "options": {
-                    "increments": true,
-                    "timestamps": true
-                },
-                "attributes": [
-                    {
-                        "name": "name",
-                        "dataType": "string"
-                    },
-                    {
-                        "name": "gender",
-                        "dataType": "enumeration",
-                        "options": [
-                            {
-                                "value": "male"
-                            },
-                            {
-                                "value": "female"
-                            },
-                            {
-                                "value": "other"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "movies",
-                        "dataType": "relation",
-                        "model": "movie",
-                        "multiple": true
-                    }
-                ]
-            };
-
-            const controller = app.getController();
-            const ac = controller.getApiController().getApiClient();
-            const version = controller.getVersionController().getAppVersion();
-            ac.requestData('PUT', '_model?v=' + version, model)
-                .then((x) => callback(x))
-                .catch((x) => callback(x));
-        });
-        assert.equal(response, 9);
+        const str = fs.readFileSync(path.join(__dirname, './data/models/star.json'), 'utf8');
+        const model = JSON.parse(str);
+        const id = await helper.getModelController().addModel(model);
+        assert.equal(id, 9);
 
         await driver.navigate().refresh();
-        await TestHelper.delay(100);
+        await TestHelper.delay(1000);
+
+        return Promise.resolve();
+    });
+
+    it('#add relation to model', async function () {
+        this.timeout(10000);
 
         const app = helper.getApp();
         const sidemenu = app.getSideMenu();

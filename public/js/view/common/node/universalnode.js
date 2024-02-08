@@ -48,12 +48,13 @@ class UniversalNode {
                 event.stopPropagation();
 
                 var entries = [];
-                entries.push(new ContextMenuEntry("Delete", async function () {
-                    this._parent.removeNode(this);
+                entries.push(new ContextMenuEntry("Delete", async function (event, target) {
+                    target._parent.removeNode(target);
                     return Promise.resolve();
-                }.bind(this)));
+                }));
 
-                var contextMenu = new ContextMenu(entries);
+                const contextMenu = new ContextMenu(this);
+                contextMenu.setEntries(entries);
                 contextMenu.renderMenu(event.pageX, event.pageY);
 
                 return Promise.resolve();
