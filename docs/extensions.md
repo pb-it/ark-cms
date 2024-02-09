@@ -62,9 +62,9 @@ this._crudDialogActions.push(action);
 Example:
 
 ```js
-this._contextMenuExtensionAction = function(panel) {
-    var entries = [];
-	... // add custom entries here
-	return entries;
-}
+const entries = model.getContextMenuEntries();
+entries.push(new ContextMenuEntry('Test', async function (event, target) {
+    console.log('Test');
+    return Promise.resolve();
+}));
 ```

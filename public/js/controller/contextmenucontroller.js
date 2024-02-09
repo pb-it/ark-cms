@@ -72,9 +72,10 @@ class ContextMenuController {
             if (thumbnailProperty.indexOf(';') == -1) {
                 const removeThumbEntry = new ContextMenuEntry("Remove", async function (event, target) {
                     if (confirm("Remove thumbnail?")) {
-                        var data = {};
+                        const data = {};
+                        const attribute = model.getModelAttributesController().getAttribute(thumbnailProperty);
                         data[attribute['name']] = null;
-                        var obj = target.getObject();
+                        const obj = target.getObject();
                         await obj.update(data);
                         target.render();
                     }
