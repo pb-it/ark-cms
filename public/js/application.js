@@ -6,15 +6,6 @@ class Application {
 
     constructor() {
         this.controller = new Controller(new Model(), new View());
-
-        window.addEventListener('load', async () => {
-            try {
-                //await loadScript('/public/js/test.js');
-            } catch (error) {
-                alert(error);
-            }
-            return Promise.resolve();
-        });
     }
 
     getName() {

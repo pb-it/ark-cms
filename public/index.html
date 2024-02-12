@@ -11,15 +11,6 @@
         function missingDependecy(dep) {
             alert("Error while loading '" + dep['src'] + "'");
         }
-
-        window.addEventListener('load', async () => {
-            try {
-                //await loadScript('/public/js/test.js');
-            } catch (error) {
-                alert(error);
-            }
-            return Promise.resolve();
-        });
     </script>
 
     <!--<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>

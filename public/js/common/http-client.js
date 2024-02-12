@@ -30,9 +30,16 @@ class HttpClient {
     }
 
     static async request(method, url, options, data) {
-        var logger = app.getController().getLogger();
-        var msg = method + " " + url;
-        logger.addLogEntry(new LogEntry(msg, SeverityEnum.INFO, 'HttpClient'));
+        var logger;
+        if (typeof hljs !== 'undefined' && app.hasOwnProperty('getController') && typeof app['getController'] == 'function') {
+            const controller = app.getController();
+            if (controller && controller.hasOwnProperty('getLogger') && typeof controller['getLogger'] == 'function')
+                logger = controller.getLogger();
+        }
+        if (logger) {
+            const msg = method + " " + url;
+            logger.addLogEntry(new LogEntry(msg, SeverityEnum.INFO, 'HttpClient'));
+        }
 
         return new Promise(function (resolve, reject) {
             var xhr;
