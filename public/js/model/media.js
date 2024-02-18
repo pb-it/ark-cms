@@ -24,6 +24,15 @@ class Media {
                 const propName = model.getModelDefaultsController().getDefaultMediaTypeProperty();
                 if (propName)
                     media.setMediaType(data[propName]);
+                else {
+                    var file = media.getFile();
+                    if (file) {
+                        if (isImage(file))
+                            media.setMediaType('image');
+                        else if (isVideo(file))
+                            media.setMediaType('video');
+                    }
+                }
             }
         }
         return media;

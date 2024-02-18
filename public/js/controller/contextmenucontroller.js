@@ -41,6 +41,29 @@ class ContextMenuController {
         });
         entries.push(removeEntry);
 
+        const fileProperty = model.getModelDefaultsController().getDefaultFileProperty();
+        if (fileProperty) {
+            if (fileProperty.indexOf(';') == -1) {
+                const playEntry = new ContextMenuEntry("Play", async function (event, target) {
+                    target.getThumbnail().playVideo();
+                    return Promise.resolve();
+                });
+                playEntry.setVisibilityFunction(function (target) {
+                    var file;
+                    if (target.getClass() == MediaPanel) {
+                        const thumb = target.getThumbnail();
+                        if (thumb)
+                            file = thumb.getMedia().getFile();
+                    }
+                    /*const attribute = model.getModelAttributesController().getAttribute(fileProperty);
+                    if (attribute)
+                        file = target.getObject().getData()[attribute['name']];*/
+                    return file && isVideo(file);
+                });
+                entries.push(playEntry);
+            }
+        }
+
         const setThumbEntry = new ContextMenuEntry("Set as Thumbnail", async function (event, target) {
             var obj = new Object();
             obj[thumbnailProperty] = target.getObject().getData()['id'];
@@ -153,43 +176,67 @@ class ContextMenuController {
         });
         createGroup.push(createCsvEntry);
 
-        if (model.isCollection()) {
-            const createPlaylistEntry = new ContextMenuEntry("Playlist File", async function (event, target) {
-                try {
-                    var objects = target._obj.getAllItems();
-                    if (objects) {
-                        const playlistEntries = [];
-                        var media;
-                        var file;
-                        var title;
-                        for (var obj of objects) {
-                            media = model.getMedia(obj);
-                            if (media)
-                                file = media.getFile();
-                            else
-                                file = null;
-                            if (file) {
-                                title = obj.getAttributeValue('title');
-                                if (!title)
-                                    title = 'unknown';
-                                playlistEntries.push({ 'title': title, 'file': file });
-                            } else
-                                throw new Error('Missing file');
-                        }
-                        FileCreator.createPlaylist(playlistEntries);
-                    }
-                } catch (error) {
-                    controller.showError(error);
-                }
-                return Promise.resolve();
-            });
-            createPlaylistEntry.setVisibilityFunction(function (target) {
+        const createPlaylistEntry = new ContextMenuEntry("Playlist File", async function (event, target) {
+            try {
                 const obj = target.getObject();
+                const model = obj.getModel();
+                var objects;
+                if (model.isCollection())
+                    objects = obj.getAllItems();
+                else {
+                    const selected = app.getController().getSelectedObjects();
+                    if (selected && selected.length > 0)
+                        objects = selected;
+                    else
+                        objects = [obj];
+                }
+                if (objects) {
+                    const playlistEntries = [];
+                    var media;
+                    var file;
+                    var title;
+                    for (var object of objects) {
+                        media = model.getMedia(object);
+                        if (media)
+                            file = media.getFile();
+                        else
+                            file = null;
+                        if (file) {
+                            title = object.getAttributeValue('title');
+                            if (!title)
+                                title = 'unknown';
+                            playlistEntries.push({ 'title': title, 'file': file });
+                        } else
+                            throw new Error('Missing file');
+                    }
+                    FileCreator.createPlaylist(playlistEntries);
+                }
+            } catch (error) {
+                controller.showError(error);
+            }
+            return Promise.resolve();
+        });
+        createPlaylistEntry.setVisibilityFunction(function (target) {
+            var bVisible;
+            const obj = target.getObject();
+            const model = obj.getModel();
+            if (model.isCollection()) {
                 const data = obj.getData();
-                return data.subtype && data.subtype == "playlist";
-            });
-            createGroup.push(createPlaylistEntry);
+                bVisible = data.subtype && data.subtype == "playlist";
+            } else {
+                var file;
+                if (target.getClass() == MediaPanel) {
+                    const thumb = target.getThumbnail();
+                    if (thumb)
+                        file = thumb.getMedia().getFile();
+                }
+                bVisible = file && isVideo(file);
+            }
+            return bVisible;
+        });
+        createGroup.push(createPlaylistEntry);
 
+        if (model.isCollection()) {
             entries.push(new ContextMenuEntry("Paste", async function (event, target) {
                 try {
                     var text;

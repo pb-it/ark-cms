@@ -36,6 +36,7 @@ describe("Root Suite", function () {
     require('./contextmenu.test.js');
     require('./view.test.js');
     require('./idb.test.js');
+    require('./file.test.js');
     require('./auth.test.js');
     require('./misc.test.js');
 });

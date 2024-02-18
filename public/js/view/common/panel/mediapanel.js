@@ -144,7 +144,6 @@ class MediaPanel extends CrudPanel {
         app.controller.setLoadingState(true);
 
         var thumbnail = new Thumbnail({}, this._media);
-        thumbnail.setFile(this._thumbnail.getFile());
         var $thumbnail = await thumbnail.renderThumbnail();
 
         var modal = app.controller.getModalController().addModal();

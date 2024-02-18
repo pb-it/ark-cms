@@ -178,12 +178,8 @@ class Thumbnail {
         return Promise.resolve(this._$thumbnail);
     }
 
-    setFile(file) {
-        this._file = file;
-    }
-
-    getFile() {
-        return this._file;
+    getMedia() {
+        return this._media;
     }
 
     playVideo() {

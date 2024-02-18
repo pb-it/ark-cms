@@ -17,6 +17,9 @@ async function openApi(path) {
     const app = helper.getApp();
     const api = await app.getApiUrl();
     await driver.get(api + path);
+    await TestHelper.delay(1000);
+
+    //TODO: basic auth popup handling
 
     const xpath = `/html/body`;
     const body = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
