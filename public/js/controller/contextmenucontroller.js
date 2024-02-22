@@ -573,6 +573,12 @@ class ContextMenuController {
                             try {
                                 var data = await p.getForm().readForm(false);
 
+                                var objs;
+                                var selected = controller.getSelectedObjects();
+                                if (selected && selected.length > 0)
+                                    objs = selected;
+                                else
+                                    objs = [target.getObject()];
                                 for (var obj of objs) {
                                     if (obj.getId())
                                         await obj.update(data);

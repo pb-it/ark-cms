@@ -23,7 +23,7 @@ class MediaPanel extends CrudPanel {
     async _renderContent() {
         var $div = $('<div/>');
         this._fileSelect = undefined;
-        if ((this._config.action == ActionEnum.create || this._config.action == ActionEnum.update) && !this._media.getThumbnail())
+        if ((this._config.action == ActionEnum.create || this._config.action == ActionEnum.update) && (!this._media || !this._media.getThumbnail()))
             $div.append(this._renderFileSelect());
         else
             $div.append(await this._thumbnail.renderThumbnail());
@@ -141,15 +141,16 @@ class MediaPanel extends CrudPanel {
     }
 
     async openThumbnail() {
-        app.controller.setLoadingState(true);
+        const controller = app.getController();
+        controller.setLoadingState(true);
 
-        var thumbnail = new Thumbnail({}, this._media);
-        var $thumbnail = await thumbnail.renderThumbnail();
+        const thumbnail = new Thumbnail({}, this._media);
+        const $thumbnail = await thumbnail.renderThumbnail();
 
-        var modal = app.controller.getModalController().addModal();
+        const modal = controller.getModalController().addModal();
         modal.open($thumbnail);
 
-        app.controller.setLoadingState(false);
+        controller.setLoadingState(false);
         return Promise.resolve();
     }
 

@@ -237,7 +237,7 @@ class StateSelect {
                     };
                     var controller = app.getController();
                     var rc = controller.getRouteController();
-                    var path = '/' + modelName;
+                    let path = '/' + modelName;
                     var res = rc.getMatchingRoute(path);
                     if (res) {
                         var route = res['route'];

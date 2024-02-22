@@ -26,8 +26,7 @@
         "clean": "node scripts/clean.js",
         "build": "tsc && babel public -d dist/public --copy-files",
         "start": "node index.js",
-        "test": "npm run test:all",
-        "test:all": "mocha --bail tests/all.test.js",
+        "test": "mocha --bail tests/root.test.js",
         "test:clear": "mocha --bail tests/clear.test.js",
         "test:login": "mocha --timeout 10000 tests/login.test.js",
         "test:settings": "mocha --timeout 10000 tests/settings.test.js",
@@ -36,6 +35,7 @@
         "test:idb": "mocha --timeout 10000 tests/idb.test.js",
         "test:auth": "mocha --timeout 10000 tests/auth.test.js",
         "test:file": "mocha --timeout 10000 tests/file.test.js",
+        "test:navigation": "mocha --timeout 10000 tests/navigation.test.js",
         "test:misc": "mocha --timeout 10000 tests/misc.test.js"
     },
     "dependencies": {

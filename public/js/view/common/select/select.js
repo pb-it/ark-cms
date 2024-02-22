@@ -29,12 +29,17 @@ class Select {
 
         this._cb = cb;
 
-        var model = app.getController().getModelController().getModel(this._typeString);
-        var mpcc = model.getModelPanelConfigController();
-        var panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);
-        delete panelConfig['display'];
-        delete panelConfig['float'];
-        this._panelConfig = panelConfig;
+        const model = app.getController().getModelController().getModel(this._typeString);
+        if (model) {
+            const mpcc = model.getModelPanelConfigController();
+            const panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);
+            if (panelConfig) {
+                delete panelConfig['display'];
+                delete panelConfig['float'];
+                this._panelConfig = panelConfig;
+            }
+        } else
+            throw new Error('Model \'' + this._typeString + '\' not found');
     }
 
     getModelName() {
