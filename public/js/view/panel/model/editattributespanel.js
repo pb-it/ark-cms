@@ -312,15 +312,23 @@ class EditAttributesPanel extends Panel {
                     break;
                 case 'file':
                     var options = [];
+                    var optionsUrl = [];
                     var attributes = this.getAttributes();
-                    var strAttr;
+                    var attr;
                     if (attributes) {
-                        strAttr = attributes.filter(function (x) { return x['dataType'] === "string" });
-                        if (strAttr) {
-                            options = strAttr.map(function (x) {
+                        attr = attributes.filter(function (x) { return x['dataType'] === "string" });
+                        if (attr) {
+                            options = attr.map(function (x) {
                                 return { 'value': x['name'] };
                             });
                             options = options.sort((a, b) => a['value'].localeCompare(b['value']));
+                        }
+                        attr = attributes.filter(function (x) { return x['dataType'] === "string" || x['dataType'] === "url" });
+                        if (attr) {
+                            optionsUrl = attr.map(function (x) {
+                                return { 'value': x['name'] };
+                            });
+                            optionsUrl = optionsUrl.sort((a, b) => a['value'].localeCompare(b['value']));
                         }
                     }
                     var cdn;
@@ -376,7 +384,7 @@ class EditAttributesPanel extends Panel {
                             'label': 'URL attribute',
                             'tooltip': '**Info**: Attribute for storing the URL information given for downloading the file.',
                             'dataType': 'enumeration',
-                            'options': options,
+                            'options': optionsUrl,
                             'view': 'select'
                         }
                         //{ 'name': 'unique', 'dataType': 'boolean', 'defaultValue': true, 'readonly': false }
