@@ -176,7 +176,7 @@ class EditAttributesPanel extends Panel {
                         );
                     }
                     if (this._data['dataType'] === 'url')
-                        skeleton.push({ 'name': 'cdn', 'label': 'CDN', 'tooltip': 'If all resources/entries share the same CDN you can define it here and omit it in the input field.', 'dataType': 'string' });
+                        skeleton.push({ 'name': 'cdn', 'label': 'CDN', 'tooltip': '**Info**: If all resources/entries share the same CDN you can define it here and omit it in the input field.', 'dataType': 'string' });
                     if (this._data['dataType'] === 'string' || this._data['dataType'] === 'url') {
                         skeleton.push(
                             { 'name': 'unique', 'tooltip': '**Info**: Unique attributes may be limited in length by your database system!', 'dataType': 'boolean' }
@@ -192,7 +192,7 @@ class EditAttributesPanel extends Panel {
                     break;
                 case 'json':
                     skeleton = [
-                        { 'name': 'length', 'dataType': 'string', 'tooltip': 'constraints depend on database and character encoding' },
+                        { 'name': 'length', 'dataType': 'string', 'tooltip': '**Info**: Constraints depend on database and character encoding' },
                         { 'name': 'size', 'dataType': 'string' },
                         { 'name': 'defaultValue', 'dataType': 'string' }
                     ];
@@ -209,9 +209,9 @@ class EditAttributesPanel extends Panel {
                         },
                         {
                             'name': 'options',
-                            'dataType': 'string',
+                            'dataType': 'text',
                             'required': true,
-                            'tooltip': 'separate options with semicolon(;) and without whitespaces'
+                            'tooltip': '**Info**: Enter each available option in a separate line'
                         },
                         { 'name': 'defaultValue', 'dataType': 'string' },
                         { 'name': 'bUseString', 'label': 'Use basic string datatype.', 'dataType': 'boolean', 'view': 'labelRight', 'required': true, 'defaultValue': false }
@@ -505,7 +505,7 @@ class EditAttributesPanel extends Panel {
                     break;
                 case 'enumeration':
                     this._data['view'] = data['view'];
-                    this._data['options'] = data['options'].split(';').map(function (x) { return { 'value': x } });
+                    this._data['options'] = data['options'].split('\n').map(function (x) { return { 'value': x.trim() } });
                     this._data['bUseString'] = data['bUseString'];
                     break;
                 case 'text':

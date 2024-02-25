@@ -121,40 +121,48 @@ class TreeNodeVis {
                     event.preventDefault();
                     event.stopPropagation();
 
-                    const entries = [];
-                    if (type && type === "folder") {
-                        entries.push(new ContextMenuEntry("Rename", async function (event, target) {
-                            const skeleton = [{
-                                "name": "name",
-                                "dataType": "string"
-                            }];
-                            const panel = new FormPanel(null, skeleton, { 'name': target._treeNode.getTreeNodeName() });
-                            panel.setApplyAction(async function () {
-                                var data = await panel.getForm().readForm();
-                                this._treeNode.setTreeNodeName(data['name']);
-                                panel.dispose();
-                                this.render();
+                    const controller = app.getController();
+                    try {
+                        controller.setLoadingState(true, false);
+                        const entries = [];
+                        if (type && type === "folder") {
+                            entries.push(new ContextMenuEntry("Rename", async function (event, target) {
+                                const skeleton = [{
+                                    "name": "name",
+                                    "dataType": "string"
+                                }];
+                                const panel = new FormPanel(null, skeleton, { 'name': target._treeNode.getTreeNodeName() });
+                                panel.setApplyAction(async function () {
+                                    var data = await panel.getForm().readForm();
+                                    this._treeNode.setTreeNodeName(data['name']);
+                                    panel.dispose();
+                                    this.render();
+                                    return Promise.resolve();
+                                }.bind(target));
+                                return app.getController().getModalController().openPanelInModal(panel);
+                            }));
+                        }
+                        if (actions && actions['editAction']) {
+                            entries.push(new ContextMenuEntry("Edit", async function (event, target) {
+                                const newConf = await actions['editAction'](target._treeNode.getTreeNodeConf());
+                                target._treeNode.setTreeNodeConf(newConf);
                                 return Promise.resolve();
-                            }.bind(target));
-                            return app.getController().getModalController().openPanelInModal(panel);
-                        }));
-                    }
-                    if (actions && actions['editAction']) {
-                        entries.push(new ContextMenuEntry("Edit", async function (event, target) {
-                            const newConf = await actions['editAction'](target._treeNode.getTreeNodeConf());
-                            target._treeNode.setTreeNodeConf(newConf);
+                            }));
+                        }
+                        entries.push(new ContextMenuEntry("Delete", async function (event, target) {
+                            target._treeNode.deleteTreeNode();
+                            target._treeVis.render();
                             return Promise.resolve();
                         }));
-                    }
-                    entries.push(new ContextMenuEntry("Delete", async function (event, target) {
-                        target._treeNode.deleteTreeNode();
-                        target._treeVis.render();
-                        return Promise.resolve();
-                    }));
 
-                    const contextMenu = new ContextMenu(this);
-                    contextMenu.setEntries(entries);
-                    contextMenu.renderMenu(event.pageX, event.pageY);
+                        const contextMenu = new ContextMenu(this);
+                        contextMenu.setEntries(entries);
+                        await contextMenu.renderContextMenu(event.pageX, event.pageY);
+                        controller.setLoadingState(false);
+                    } catch (error) {
+                        controller.setLoadingState(false);
+                        controller.showError(error);
+                    }
 
                     return Promise.resolve();
                 }.bind(this));

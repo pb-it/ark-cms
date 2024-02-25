@@ -1,7 +1,10 @@
 class ContextMenuEntry {
 
     _name;
+    _icon;
+    _shortcut;
     _funcVisible;
+    _funcEnabled;
     _funcClick;
     entries;
 
@@ -13,6 +16,22 @@ class ContextMenuEntry {
 
     getName() {
         return this._name;
+    }
+
+    setIcon(icon) {
+        this._icon = icon;
+    }
+
+    getIcon() {
+        return this._icon;
+    }
+
+    setShortcut(shortcut) {
+        this._shortcut = shortcut;
+    }
+
+    getShortcut() {
+        return this._shortcut;
     }
 
     click(event, target) {
@@ -27,10 +46,21 @@ class ContextMenuEntry {
         this._funcVisible = funcVisible;
     }
 
-    isVisible(target) {
+    async isVisible(target) {
         if (this._funcVisible)
             return this._funcVisible(target);
         else
-            return true;
+            return Promise.resolve(true);
+    }
+
+    setEnabledFunction(funcEnabled) {
+        this._funcEnabled = funcEnabled;
+    }
+
+    async isEnabled(target) {
+        if (this._funcEnabled)
+            return this._funcEnabled(target);
+        else
+            return Promise.resolve(true);
     }
 }

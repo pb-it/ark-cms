@@ -33,7 +33,7 @@ ul.contextmenu li:last-child {
     border-bottom-right-radius: 4px;
 }
 
-ul.contextmenu div {
+ul.contextmenu div.contextmenu {
     position: relative;
     left: 12px;
     top: -24px;

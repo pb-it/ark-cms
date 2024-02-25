@@ -47,15 +47,23 @@ class UniversalNode {
                 event.preventDefault();
                 event.stopPropagation();
 
-                var entries = [];
-                entries.push(new ContextMenuEntry("Delete", async function (event, target) {
-                    target._parent.removeNode(target);
-                    return Promise.resolve();
-                }));
+                const controller = app.getController();
+                try {
+                    controller.setLoadingState(true, false);
+                    const entries = [];
+                    entries.push(new ContextMenuEntry("Delete", async function (event, target) {
+                        target._parent.removeNode(target);
+                        return Promise.resolve();
+                    }));
 
-                const contextMenu = new ContextMenu(this);
-                contextMenu.setEntries(entries);
-                contextMenu.renderMenu(event.pageX, event.pageY);
+                    const contextMenu = new ContextMenu(this);
+                    contextMenu.setEntries(entries);
+                    await contextMenu.renderContextMenu(event.pageX, event.pageY);
+                    controller.setLoadingState(false);
+                } catch (error) {
+                    controller.setLoadingState(false);
+                    controller.showError(error);
+                }
 
                 return Promise.resolve();
             }.bind(this));

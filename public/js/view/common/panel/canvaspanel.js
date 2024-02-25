@@ -88,9 +88,20 @@ class CanvasPanel extends Panel {
         this._$panel.on("contextmenu.panel", async function (event) {
             event.preventDefault();
             event.stopPropagation(); // stop propagation to container
-            if (!this._bSelected)
-                await app.getController().select(event.ctrlKey, event.shiftKey, this);
-            ContextMenuController.renderMenu(event.pageX, event.pageY, this);
+
+            const controller = app.getController();
+            try {
+                controller.setLoadingState(true, false);
+                if (!this._bSelected)
+                    await app.getController().select(event.ctrlKey, event.shiftKey, this);
+                await ContextMenuController.renderContextMenu(event.pageX, event.pageY, this);
+                controller.setLoadingState(false);
+            } catch (error) {
+                controller.setLoadingState(false);
+                controller.showError(error);
+            }
+
+            return Promise.resolve();
         }.bind(this));
     }
 

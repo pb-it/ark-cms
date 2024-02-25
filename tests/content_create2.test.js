@@ -74,7 +74,7 @@ describe('Testsuit', function () {
         const panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         driver.actions({ bridge: true }).contextClick(panel, webdriver.Button.RIGHT).perform();
 
-        xpath = `/html/body/ul[@class="contextmenu"]/li[text()="Details"]`;
+        xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Details"]`;
         var item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();

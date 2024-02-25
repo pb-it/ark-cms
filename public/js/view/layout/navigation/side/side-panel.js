@@ -51,34 +51,42 @@ class SidePanel {
             event.preventDefault();
             event.stopPropagation();
 
-            const entries = [];
-            entries.push(new ContextMenuEntry('Edit', async function (event, target) {
-                var data;
-                var bExists;
-                const controller = app.getController();
-                var tmp = await controller.getDataService().fetchData('_registry', null, 'key=profiles');
-                if (tmp) {
-                    if (tmp.length == 0)
-                        data = { 'key': 'profiles', 'value': '{"available":[]}' };
-                    else if (tmp.length == 1) {
-                        bExists = true;
-                        data = tmp[0];
+            const controller = app.getController();
+            try {
+                controller.setLoadingState(true, false);
+                const entries = [];
+                entries.push(new ContextMenuEntry('Edit', async function (event, target) {
+                    var data;
+                    var bExists;
+                    const controller = app.getController();
+                    var tmp = await controller.getDataService().fetchData('_registry', null, 'key=profiles');
+                    if (tmp) {
+                        if (tmp.length == 0)
+                            data = { 'key': 'profiles', 'value': '{"available":[]}' };
+                        else if (tmp.length == 1) {
+                            bExists = true;
+                            data = tmp[0];
+                        }
                     }
-                }
-                if (data) {
-                    const obj = new CrudObject('_registry', data);
-                    const model = obj.getModel();
-                    const mpcc = model.getModelPanelConfigController();
-                    const panelConfig = mpcc.getPanelConfig(ActionEnum.delete);
-                    const panel = PanelController.createPanelForObject(obj, panelConfig);
-                    const modal = await panel.openInModal(bExists ? ActionEnum.update : ActionEnum.create);
-                }
-                return Promise.resolve(true);
-            }));
+                    if (data) {
+                        const obj = new CrudObject('_registry', data);
+                        const model = obj.getModel();
+                        const mpcc = model.getModelPanelConfigController();
+                        const panelConfig = mpcc.getPanelConfig(ActionEnum.delete);
+                        const panel = PanelController.createPanelForObject(obj, panelConfig);
+                        const modal = await panel.openInModal(bExists ? ActionEnum.update : ActionEnum.create);
+                    }
+                    return Promise.resolve(true);
+                }));
 
-            const contextMenu = new ContextMenu(this);
-            contextMenu.setEntries(entries);
-            contextMenu.renderMenu(event.pageX, event.pageY);
+                const contextMenu = new ContextMenu(this);
+                contextMenu.setEntries(entries);
+                await contextMenu.renderContextMenu(event.pageX, event.pageY);
+                controller.setLoadingState(false);
+            } catch (error) {
+                controller.setLoadingState(false);
+                controller.showError(error);
+            }
 
             return Promise.resolve();
         }.bind(this));

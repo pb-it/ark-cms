@@ -233,17 +233,17 @@ describe('Testsuit - File', function () {
 
         driver.actions({ bridge: true }).contextClick(panels[0], webdriver.Button.RIGHT).perform();
         await TestHelper.delay(1000);
-        var xpath = `/html/body/ul[@class="contextmenu"]/li[text()="Play"]`;
+        var xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Play"]`;
         var item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
 
-        xpath = `/html/body/ul[@class="contextmenu"]/li[starts-with(text(),"Create")]`;
+        xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Create"]`;
         item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();
         await TestHelper.delay(1000);
 
-        xpath = `/html/body/ul[@class="contextmenu"]/li[starts-with(text(),"Create")]/div/ul[@class="contextmenu"]/li[text()="Playlist File"]`;
+        xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Create"]/following-sibling::div/ul[@class="contextmenu"]/li/div[1][text()="Playlist File"]`;
         item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();

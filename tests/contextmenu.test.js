@@ -66,7 +66,7 @@ describe('Testsuit', function () {
         assert.equal(text, 'John Doe');
 
         driver.actions({ bridge: true }).contextClick(panels[0], webdriver.Button.RIGHT).perform();
-        xpath = `/html/body/ul[@class="contextmenu"]/li[text()="Details"]`;
+        xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Details"]`;
         var item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();
@@ -80,12 +80,12 @@ describe('Testsuit', function () {
         assert.equal(modal, null);
 
         driver.actions({ bridge: true }).contextClick(panels[0], webdriver.Button.RIGHT).perform();
-        xpath = `/html/body/ul[@class="contextmenu"]/li[starts-with(text(),"Show")]`;
+        xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Show"]`;
         item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();
         await TestHelper.delay(1000);
-        xpath = `/html/body/ul[@class="contextmenu"]/li[starts-with(text(),"Show")]/div/ul[@class="contextmenu"]/li[text()="movies"]`;
+        xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Show"]/following-sibling::div/ul[@class="contextmenu"]/li/div[1][text()="movies"]`;
         item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();
@@ -121,13 +121,13 @@ describe('Testsuit', function () {
         assert.equal(panels.length, 1);
 
         driver.actions({ bridge: true }).contextClick(panels[0], webdriver.Button.RIGHT).perform();
-        var xpath = `/html/body/ul[@class="contextmenu"]/li[starts-with(text(),"Set")]`;
+        var xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Set"]`;
         var item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();
         await TestHelper.delay(1000);
 
-        xpath = `/html/body/ul[@class="contextmenu"]/li[starts-with(text(),"Set")]/div/ul[@class="contextmenu"]/li[text()="gender"]`;
+        xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Set"]/following-sibling::div/ul[@class="contextmenu"]/li/div[1][text()="gender"]`;
         item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();
@@ -152,13 +152,13 @@ describe('Testsuit', function () {
         assert.equal(panels.length, 1);
 
         driver.actions({ bridge: true }).contextClick(panels[0], webdriver.Button.RIGHT).perform();
-        xpath = `/html/body/ul[@class="contextmenu"]/li[starts-with(text(),"Add")]`;
+        xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Add"]`;
         item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();
         await TestHelper.delay(1000);
 
-        xpath = `/html/body/ul[@class="contextmenu"]/li[starts-with(text(),"Add")]/div/ul[@class="contextmenu"]/li[text()="movies"]`;
+        xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Add"]/following-sibling::div/ul[@class="contextmenu"]/li/div[1][text()="movies"]`;
         item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();

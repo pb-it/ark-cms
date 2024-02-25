@@ -84,7 +84,7 @@ describe('Testsuit', function () {
 
         await driver.actions({ bridge: true }).contextClick(elements[0], webdriver.Button.RIGHT).perform();
 
-        xpath = `/html/body/ul[@class="contextmenu"]/li[starts-with(text(),"Open")]`;
+        xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Open"]`;
         const item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null);
         await item.click();

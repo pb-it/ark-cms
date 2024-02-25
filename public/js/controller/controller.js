@@ -648,12 +648,8 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
     showError(error, message) {
         var msg;
         if (error) {
-            if (error instanceof HttpError && error['response'] && error['response']['body'])
-                msg = error['response']['body'];
-            else if (error.message)
-                msg = error.message;
-
-            console.log(error);
+            msg = error['message'];
+            console.error(error);
         }
         if (!msg) {
             if (message)
@@ -757,12 +753,13 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
         return this._bLoading;
     }
 
-    setLoadingState(b) {
+    setLoadingState(bLoading, bOpenOverlay = true) {
         var changed = false;
-        if (this._bLoading != b) {
-            if (b) {
+        if (this._bLoading != bLoading) {
+            if (bLoading) {
+                if (bOpenOverlay)
+                    Overlay.open();
                 document.body.style.cursor = 'wait';
-                Overlay.open();
                 this._bLoading = true;
             } else {
                 Overlay.close();
