@@ -67,15 +67,17 @@ class FormEntry {
         if (this._$div)
             this._$div.empty();
         else
-            this._$div = $('<div/>').addClass('formentry');
+            this._$div = $('<div/>')
+                .addClass('formentry');
 
         if (!this._visible)
             this._$div.empty();
         else {
-            var $label = this.renderLabel();
+            const $label = this.renderLabel();
             if ($label)
                 this._$div.append($label);
-            this._$div.append(await this.renderValue(this._value));
+            const $value = await this.renderValue(this._value);
+            this._$div.append($value);
         }
         return Promise.resolve(this._$div);
     }

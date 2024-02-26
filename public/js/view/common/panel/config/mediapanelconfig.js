@@ -28,10 +28,9 @@ class MediaPanelConfig extends PanelConfig {
         if (config && config[ModelDefaultsController.PANEL_TYPE_IDENT])
             this.panelType = config[ModelDefaultsController.PANEL_TYPE_IDENT];
 
-        if (this.panelType)
-            this._panelClass = app.getController().getPanelController().getPanelClass(this.panelType);
-        else
-            this._panelClass = CrudPanel;
+        if (!this.panelType)
+            this.panelType = 'CrudPanel';
+        this._panelClass = app.getController().getPanelController().getPanelClass(this.panelType);
 
         if (act)
             this.action = act;

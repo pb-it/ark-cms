@@ -66,7 +66,7 @@ class Form {
         return this._callback;
     }
 
-    async renderForm() {
+    async renderForm(bInline = true) {
         //<form action="javascript:void(0);" id="filter" enctype="multipart/form-data" method="post"></form>
 
         if (this._$form)
@@ -78,6 +78,8 @@ class Form {
                     event.preventDefault();
                     return false;
                 });
+            if (bInline)
+                this._$form.addClass('inline');
         }
 
         /*if (this._data && this._data.id)

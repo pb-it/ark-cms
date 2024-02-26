@@ -3,7 +3,11 @@ div.details {
     margin: 3px;
 }
 
-form.crudform>div.formentry>label,
+form.crudform:not(.inline)>div.formentry {
+    padding: 5px 0px;
+}
+
+form.crudform.inline>div.formentry>label,
 div.details>div.name {
     display: inline-block;
     text-align: right;
@@ -13,11 +17,11 @@ div.details>div.name {
     margin-bottom: 3px;
 }
 
-form.crudform>div.formentry>fieldset,
-form.crudform>div.formentry>input,
-form.crudform>div.formentry>textarea,
-form.crudform>div.formentry>div.select,
-form.crudform>div.formentry>div.value,
+form.crudform.inline>div.formentry>fieldset,
+form.crudform.inline>div.formentry>input,
+form.crudform.inline>div.formentry>textarea,
+form.crudform.inline>div.formentry>div.select,
+form.crudform.inline>div.formentry>div.value,
 div.details>div.value {
     display: inline-block;
     vertical-align: top;
@@ -30,7 +34,7 @@ div.details>div.value.text {
     padding: 10px;
 }
 
-#canvas form.crudform>div.formentry>div.value,
+#canvas form.crudform.inline>div.formentry>div.value,
 #canvas div.details>div.value {
     min-width: 200px;
     max-width: calc(100% - 170px);

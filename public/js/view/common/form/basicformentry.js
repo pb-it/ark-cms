@@ -355,7 +355,7 @@ class BasicFormEntry extends FormEntry {
                     if (this._attribute['dataType'] === 'boolean')
                         bMissing = !(data === true || data === false);
                     else
-                        bMissing = !data
+                        bMissing = !data;
                     if (bMissing) {
                         if (this._$input.prop('type') === 'fieldset') {
                             var input = this._$input.find('input:first');
