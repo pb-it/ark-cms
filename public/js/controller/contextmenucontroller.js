@@ -150,19 +150,18 @@ class ContextMenuController {
                         controller.showErrorMessage('Paste operation failed!');
                     if (text) {
                         if (text.startsWith('http')) {
-                            var url = new URL(text);
-                            var state = State.getStateFromUrl(url);
+                            const url = new URL(text);
+                            const state = State.getStateFromUrl(url);
                             if (state) {
                                 var droptype = state['typeString'];
                                 if (droptype === target._obj.getCollectionType()) {
                                     try {
                                         controller.setLoadingState(true);
-                                        var items;
-                                        var data = await controller.getDataService().fetchDataByState(state);
+                                        const data = await controller.getDataService().fetchDataByState(state);
                                         if (data) {
                                             if (Array.isArray(data)) {
                                                 if (data.length > 0) {
-                                                    var items = [];
+                                                    const items = [];
                                                     for (var x of data) {
                                                         items.push(new CrudObject(droptype, x));
                                                     }
@@ -514,9 +513,12 @@ class ContextMenuController {
             const jsonEntry = new ContextMenuEntry("JSON", function (event, target) {
                 return app.getController().getModalController().openPanelInModal(new JsonPanel(target.getObject().getData()));
             });
+            jsonEntry.setIcon(new Icon('code'));
             debugGroup.push(jsonEntry);
 
-            entries.push(new ContextMenuEntry("Debug", null, debugGroup));
+            const debugGroupEntry = new ContextMenuEntry("Debug", null, debugGroup);
+            debugGroupEntry.setIcon(new Icon('bug'));
+            entries.push(debugGroupEntry);
         }
 
         return entries;

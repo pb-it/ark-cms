@@ -55,6 +55,7 @@ describe('Testsuit', function () {
         const xpath = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         const panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         const form = await helper.getForm(panel);
+        assert.notEqual(form, null);
         const input = await helper.getFormInput(form, 'name');
         assert.notEqual(input, null);
         await input.sendKeys('TestMovie');

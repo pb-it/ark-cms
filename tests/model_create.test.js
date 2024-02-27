@@ -51,7 +51,7 @@ describe('Testsuit', function () {
         await TestHelper.delay(1000);
 
         var modal = await app.getTopModal();
-        var form = await modal.findElement(webdriver.By.xpath('//form[@class="crudform"]'));
+        var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
         var input = await helper.getFormInput(form, 'name');
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('movie');
@@ -70,7 +70,7 @@ describe('Testsuit', function () {
 
         modal = await app.getTopModal();
         assert.notEqual(modal, null);
-        form = await modal.findElement(webdriver.By.xpath('//form[@class="crudform"]'));
+        form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
         input = await helper.getFormInput(form, 'name');
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('name');

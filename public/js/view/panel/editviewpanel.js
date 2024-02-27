@@ -105,6 +105,13 @@ class EditViewPanel extends TabPanel {
                 view: 'select'
             },
             {
+                name: "bSelectable",
+                label: "*Selectable",
+                tooltip: "**INFO**: Not stored! Gets calculated/reseted on every data/side reload!",
+                dataType: "boolean",
+                hidden: !bEdit
+            },
+            {
                 name: "bContextMenu",
                 label: "*ContextMenu",
                 tooltip: "**INFO**: Not stored! Gets calculated/reseted on every data/side reload!",
@@ -246,6 +253,7 @@ class EditViewPanel extends TabPanel {
                     controller.setLoadingState(true);
                     try {
                         var data = await this._read();
+                        delete data['bSelectable'];
                         delete data['bContextMenu'];
                         delete data['searchFields'];
 

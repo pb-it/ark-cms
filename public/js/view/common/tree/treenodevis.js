@@ -94,7 +94,9 @@ class TreeNodeVis {
                     });
 
                     $divTreeNode.on("dragstart.treenode", function (event) {
-                        event.originalEvent.dataTransfer.setData("text/plain", JSON.stringify(this._treeNode.getTreeNodeConf()));
+                        const dT = event.originalEvent.dataTransfer;
+                        if (dT)
+                            dT.setData("text/plain", JSON.stringify(this._treeNode.getTreeNodeConf()));
                     }.bind(this));
                 }
 
@@ -143,11 +145,13 @@ class TreeNodeVis {
                             }));
                         }
                         if (actions && actions['editAction']) {
-                            entries.push(new ContextMenuEntry("Edit", async function (event, target) {
+                            const editEntry = new ContextMenuEntry("Edit", async function (event, target) {
                                 const newConf = await actions['editAction'](target._treeNode.getTreeNodeConf());
                                 target._treeNode.setTreeNodeConf(newConf);
                                 return Promise.resolve();
-                            }));
+                            });
+                            editEntry.setIcon(new Icon('pen-to-square'));
+                            entries.push(editEntry);
                         }
                         entries.push(new ContextMenuEntry("Delete", async function (event, target) {
                             target._treeNode.deleteTreeNode();

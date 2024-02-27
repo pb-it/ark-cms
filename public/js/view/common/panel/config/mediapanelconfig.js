@@ -103,12 +103,6 @@ class MediaPanelConfig extends PanelConfig {
             this.width = 320;
             this.height = 240;
         }
-
-        if ((this._panelClass == CrudPanel || this._panelClass == MediaPanel || this._panelClass == CollectionPanel) && (!this.action || this.action == ActionEnum.read) && this.details != DetailsEnum.all) {
-            if (this._panelClass != CollectionPanel)
-                this.bSelectable = true;
-            this.bContextMenu = true;
-        }
     }
 
     getPanelClass() {

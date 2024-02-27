@@ -5,9 +5,12 @@ class CanvasPanel extends Panel {
 
     _title;
 
+    _bSelectable;
     _bSelected = false;
     _clicks = 0;
     _timer;
+
+    _bContextMenu;
 
     _bLazy = false;
 
@@ -28,7 +31,9 @@ class CanvasPanel extends Panel {
             this._$panel.removeAttr('title');
         }
 
-        if (this._config.bSelectable) {
+        if (this._config.hasOwnProperty('bSelectable') && this._config['bSelectable'] != undefined)
+            this._bSelectable = this._config['bSelectable'];
+        if (this._bSelectable) {
             this._$panel.addClass('selectable');
             if (this._bSelected)
                 this._$panel.addClass('selected');
@@ -39,14 +44,33 @@ class CanvasPanel extends Panel {
             this._$panel.removeClass('selectable');
         }
 
+        if (this._config.hasOwnProperty('bContextMenu') && this._config['bContextMenu'] != undefined)
+            this._bContextMenu = this._config['bContextMenu'];
+
         if (!this._bRendered) {
-            if (this._config.bSelectable) {
+            if (this._bSelectable) {
                 this._initClickEvents();
                 this._initDrag();
                 this._initDrop();
+            } else {
+                $(document).on('keydown.panel', function (event) {
+                    if (event.keyCode == 17) { // e.ctrlKey
+                        const e = event || window.event;
+                        const target = e.target || e.srcElement;
+                        if (target === $('body')[0])
+                            this._initDrag();
+                    }
+                }.bind(this));
+                $(document).on('keyup.panel', function (event) {
+                    if (event.keyCode == 17) {
+                        const e = event || window.event;
+                        const target = e.target || e.srcElement;
+                        if (target === $('body')[0])
+                            this._initDrag(false);
+                    }
+                }.bind(this));
             }
-            if (this._config.bContextMenu)
-                this._initContextMenu();
+            this._initContextMenu();
         }
         return Promise.resolve();
     }
@@ -86,30 +110,42 @@ class CanvasPanel extends Panel {
 
     _initContextMenu() {
         this._$panel.on("contextmenu.panel", async function (event) {
-            event.preventDefault();
-            event.stopPropagation(); // stop propagation to container
+            if (this._bContextMenu || event.ctrlKey) {
+                event.preventDefault();
+                event.stopPropagation(); // stop propagation to container
 
-            const controller = app.getController();
-            try {
-                controller.setLoadingState(true, false);
-                if (!this._bSelected)
-                    await app.getController().select(event.ctrlKey, event.shiftKey, this);
-                await ContextMenuController.renderContextMenu(event.pageX, event.pageY, this);
-                controller.setLoadingState(false);
-            } catch (error) {
-                controller.setLoadingState(false);
-                controller.showError(error);
+                const controller = app.getController();
+                try {
+                    controller.setLoadingState(true, false);
+                    if (!this._bSelected)
+                        await app.getController().select(event.ctrlKey, event.shiftKey, this);
+                    await ContextMenuController.renderContextMenu(event.pageX, event.pageY, this);
+                    controller.setLoadingState(false);
+                } catch (error) {
+                    controller.setLoadingState(false);
+                    controller.showError(error);
+                }
             }
-
             return Promise.resolve();
         }.bind(this));
     }
 
-    _initDrag() {
-        this._$panel.attr({
-            "draggable": "true"
-        });
-        this._$panel.on("dragstart.panel", this._drag.bind(this));
+    _initDrag(bDraggable = true) {
+        /*this._$panel.draggable({
+            disabled: !bDraggable
+        });*/
+
+        if (bDraggable) {
+            this._$panel.attr({
+                'draggable': 'true'
+            });
+            this._$panel.on('dragstart.panel', this._drag.bind(this));
+            this._$panel.on('dragend.panel', this._initDrag.bind(this, false));
+        } else {
+            this._$panel.removeAttr('draggable');
+            this._$panel.off('dragstart.panel');
+            this._$panel.off('dragend.panel');
+        }
     }
 
     async _drag(event) {
@@ -144,7 +180,7 @@ class CanvasPanel extends Panel {
     }
 
     async select(bSelect) {
-        if (this._config.bSelectable) {
+        if (this._bSelectable) {
             if (this._bSelected != bSelect) {
                 this._bSelected = bSelect;
                 if (this._bRendered) {

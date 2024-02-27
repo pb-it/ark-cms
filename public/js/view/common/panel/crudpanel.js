@@ -22,9 +22,9 @@ class CrudPanel extends CanvasPanel {
     }
 
     async _init() {
-        var skeleton = this._obj.getSkeleton(true);
+        const skeleton = this._obj.getSkeleton(true);
         if (this._config['detailsAttr']) {
-            var attr = this._config['detailsAttr'];
+            const attr = this._config['detailsAttr'];
             this._skeleton = skeleton.filter(function (x) {
                 return (attr.indexOf(x['name']) > -1);
             });
@@ -33,6 +33,14 @@ class CrudPanel extends CanvasPanel {
 
         if (this._config.details == DetailsEnum.none || this._config.details == DetailsEnum.title)
             this._title = this._obj.getTitle();
+
+        const action = this._config['action'];
+        if ((!action || action == ActionEnum.read) && this._config['details'] != DetailsEnum.all) {
+            if (this._bSelectable === undefined)
+                this._bSelectable = true;
+            if (this._bContextMenu === undefined)
+                this._bContextMenu = true;
+        }
 
         await super._init();
 
@@ -487,24 +495,27 @@ class CrudPanel extends CanvasPanel {
 
     async _drag(event) {
         await super._drag(event);
-        if (this._obj) {
-            const state = new State();
-            state.typeString = this._obj.getTypeString();
+        const dT = event.originalEvent.dataTransfer;
+        if (dT) {
+            if (this._obj) {
+                const state = new State();
+                state.typeString = this._obj.getTypeString();
 
-            const selected = app.getController().getSelectedObjects();
-            if (selected) {
-                if (selected.length == 1)
-                    state.id = selected[0].getData()['id'];
-                else if (selected.length > 0)
-                    state.id = selected.map(function (x) { return x.getData()['id'] });
-            } else
-                state.id = this._obj.getData()['id'];
+                const selected = app.getController().getSelectedObjects();
+                if (selected) {
+                    if (selected.length == 1)
+                        state.id = selected[0].getData()['id'];
+                    else if (selected.length > 0)
+                        state.id = selected.map(function (x) { return x.getData()['id'] });
+                } else
+                    state.id = this._obj.getData()['id'];
 
-            const url = window.location.origin + State.getUrlFromState(state);
-            //console.log(url);
-            event.originalEvent.dataTransfer.setData("text/plain", url);
-            event.originalEvent.dataTransfer.dropEffect = 'copy'; // 'move'
+                const url = window.location.origin + State.getUrlFromState(state);
+                //console.log(url);
+                dT.setData("text/plain", url);
+                dT.dropEffect = 'copy'; // 'move'
 
+            }
         }
         return Promise.resolve();
     }

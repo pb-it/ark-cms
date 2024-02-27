@@ -82,7 +82,7 @@ describe('Testsuit', function () {
 
         modal = await app.getTopModal();
         assert.notEqual(modal, null);
-        var form = await modal.findElement(webdriver.By.xpath('//form[@class="crudform"]'));
+        var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
         var input = await helper.getFormInput(form, 'api');
         assert.notEqual(input, null);
         await input.clear();

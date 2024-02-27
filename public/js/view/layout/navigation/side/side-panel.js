@@ -55,7 +55,7 @@ class SidePanel {
             try {
                 controller.setLoadingState(true, false);
                 const entries = [];
-                entries.push(new ContextMenuEntry('Edit', async function (event, target) {
+                const editEntry = new ContextMenuEntry('Edit', async function (event, target) {
                     var data;
                     var bExists;
                     const controller = app.getController();
@@ -77,7 +77,9 @@ class SidePanel {
                         const modal = await panel.openInModal(bExists ? ActionEnum.update : ActionEnum.create);
                     }
                     return Promise.resolve(true);
-                }));
+                });
+                editEntry.setIcon(new Icon('pen-to-square'));
+                entries.push(editEntry);
 
                 const contextMenu = new ContextMenu(this);
                 contextMenu.setEntries(entries);

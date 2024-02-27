@@ -480,6 +480,9 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
             try {
                 this.setLoadingState(true);
 
+                $(document).unbind('keydown.panel');
+                $(document).unbind('keyup.panel');
+
                 var oldState = this._stateController.getState();
                 if (oldState && oldState['action'] && oldState['action'] == ActionEnum.create) {
                     var panels = this._view.getCanvas().getPanels();

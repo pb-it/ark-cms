@@ -30,6 +30,7 @@
         "test:clear": "mocha --bail tests/clear.test.js",
         "test:login": "mocha --timeout 10000 tests/login.test.js",
         "test:settings": "mocha --timeout 10000 tests/settings.test.js",
+        "test:panel": "mocha --timeout 10000 tests/panel.test.js",
         "test:contextmenu": "mocha --timeout 10000 tests/contextmenu.test.js",
         "test:view": "mocha --timeout 10000 tests/view.test.js",
         "test:idb": "mocha --timeout 10000 tests/idb.test.js",
@@ -47,12 +48,12 @@
         "@babel/cli": "^7.23.9",
         "@babel/core": "^7.23.9",
         "@babel/plugin-transform-class-properties": "^7.23.3",
-        "@pb-it/ark-cms-selenium-test-helper": "^0.1.12-beta",
+        "@pb-it/ark-cms-selenium-test-helper": "^0.1.14-beta",
         "babel-plugin-conditional-compile": "^0.0.5",
         "gulp": "^4.0.2",
         "gulp-mocha": "^10.0.0",
-        "mocha": "^10.2.0",
-        "selenium-webdriver": "^4.17.0",
+        "mocha": "^10.3.0",
+        "selenium-webdriver": "^4.18.1",
         "typescript": "^5.3.3"
     }
 }

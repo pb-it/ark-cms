@@ -17,6 +17,9 @@ class CollectionPanel extends ContainerPanel {
         if (!this._bRendered && this._config.action != ActionEnum.create && this._config.details != DetailsEnum.all) {
             this._initDrop();
         }
+
+        this._bSelectable = false;
+
         return super._init();
     }
 

@@ -74,7 +74,7 @@ describe('Testsuit', function () {
         var modal = await app.getTopModal();
         assert.notEqual(modal, null);
 
-        //const form = await modal.findElement(webdriver.By.xpath('//form[@class="crudform"]'));
+        //const form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
         const form = await helper.getForm(modal);
         const option = await form.findElement(webdriver.By.css('select#details > option[value="all"]'));
         assert.notEqual(option, null, 'Option not found!');

@@ -78,7 +78,7 @@ describe('Testsuit', function () {
 
         var modal = await app.getTopModal();
         assert.notEqual(modal, null);
-        var form = await modal.findElement(webdriver.By.xpath('//form[@class="crudform"]'));
+        var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
         const input = await helper.getFormInput(form, 'name');
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('stars');
@@ -90,7 +90,7 @@ describe('Testsuit', function () {
         await TestHelper.delay(100);
 
         modal = await app.getTopModal();
-        form = await modal.findElement(webdriver.By.xpath('//form[@class="crudform"]'));
+        form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
         var elem = await form.findElement(webdriver.By.css('select#model > option[value="star"]'));
         assert.notEqual(elem, null, 'Option not found!');
         await elem.click();

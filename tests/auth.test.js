@@ -28,19 +28,7 @@ describe('Testsuit', function () {
         const modal = await app.getTopModal();
         assert.equal(modal, null);
 
-        const response = await driver.executeAsyncScript(async () => {
-            const callback = arguments[arguments.length - 1];
-
-            localStorage.setItem('debug', JSON.stringify({ bDebug: true }));
-            const controller = app.getController();
-            //controller.reloadApplication(); // will kill this script
-            await controller.initController();
-            controller.getView().initView();
-            //await controller.reloadState();
-
-            callback('OK');
-        });
-        assert.equal(response, 'OK');
+        await app.setDebugMode(true);
 
         return Promise.resolve();
     });
