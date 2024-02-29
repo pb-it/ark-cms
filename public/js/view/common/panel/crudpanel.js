@@ -308,9 +308,9 @@ class CrudPanel extends CanvasPanel {
     async _hasChanged() {
         var changes;
         if (this._config.action == ActionEnum.create || this._config.action == ActionEnum.update) {
-            var oldData = this._obj.getData();
-            var newData = await this._readData(false);
-            changes = CrudObject.getChanges(this._skeleton, oldData, newData);
+            const oldData = this._obj.getData();
+            const newData = await this._readData(false);
+            changes = await CrudObject.getChanges(this._skeleton, oldData, newData);
         }
         if (changes)
             return Promise.resolve(Object.keys(changes).length > 0);
@@ -366,7 +366,7 @@ class CrudPanel extends CanvasPanel {
 
                 const oldData = {}; // empty object as reference - because object creation may be done with predefined data
                 const newData = await this._readData();
-                const changed = CrudObject.getChanges(this._skeleton, oldData, newData);
+                const changed = await CrudObject.getChanges(this._skeleton, oldData, newData);
                 if (changed) {
                     if (controller.getConfigController().confirmOnApply()) {
                         controller.setLoadingState(false);
@@ -420,7 +420,7 @@ class CrudPanel extends CanvasPanel {
 
                 const oldData = this._obj.getData();
                 const newData = await this._readData();
-                const changed = CrudObject.getChanges(this._skeleton, oldData, newData);
+                const changed = await CrudObject.getChanges(this._skeleton, oldData, newData);
                 if (changed) {
                     if (controller.getConfigController().confirmOnApply()) {
                         controller.setLoadingState(false);

@@ -211,7 +211,7 @@ class BasicFormEntry extends FormEntry {
                         if (options) {
                             for (var o of options) {
                                 v = o['value'];
-                                $option = $('<option/>', { value: v }).text(v);
+                                $option = $('<option/>', { value: v }).text(o['label'] ? o['label'] : v);
                                 $option.prop('disabled', o['disabled'])
                                 if (value === v)
                                     $option.prop('selected', true);

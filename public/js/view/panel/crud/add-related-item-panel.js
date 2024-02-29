@@ -130,11 +130,11 @@ class AddRelatedItemPanel extends Panel {
         return Promise.resolve($div);
     }
 
-    _hasChanged() {
+    async _hasChanged() {
         var add = this._addSelect.getSelectedIds();
         var remove;
         if (this._removeSelect)
             remove = this._removeSelect.getSelectedIds();
-        return add.length > 0 || (remove && remove.length > 0);
+        return Promise.resolve(add.length > 0 || (remove && remove.length > 0));
     }
 }

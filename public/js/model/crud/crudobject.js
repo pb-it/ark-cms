@@ -63,7 +63,7 @@ class CrudObject {
      * @param {*} newdata - in contrast to full objects of olddata the releations only consist of the ids
      * @returns 
      */
-    static getChanges(skeleton, olddata, newdata, bIncludeHidden) {
+    static async getChanges(skeleton, olddata, newdata, bIncludeHidden) {
         var relevant;
         if (skeleton && newdata) {
             relevant = {};
@@ -224,7 +224,7 @@ class CrudObject {
                                     else
                                         funcHasChanged = null;
                                     if (funcHasChanged) {
-                                        if (funcHasChanged(field, olddata, newdata))
+                                        if (await funcHasChanged(field, olddata, newdata))
                                             relevant[property] = newdata[property];
                                     } else {
                                         if (!olddata || (newdata[property] !== olddata[property]))
@@ -238,7 +238,7 @@ class CrudObject {
             if (Object.keys(relevant).length == 0)
                 relevant = null;
         }
-        return relevant;
+        return Promise.resolve(relevant);
     }
 
     static getChangedRelations(model, oldData, newData) {

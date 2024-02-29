@@ -648,7 +648,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
         return Promise.resolve();
     }
 
-    showError(error, message) {
+    async showError(error, message) {
         var msg;
         if (error) {
             msg = error['message'];
@@ -660,7 +660,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
             else
                 msg = "An error has occurred";
         }
-        this._modalController.openErrorModal(error, msg);
+        return this._modalController.openErrorModal(error, msg);
     }
 
     showErrorMessage(msg) {
