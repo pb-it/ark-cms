@@ -55,20 +55,23 @@ class ContextMenu {
                 style['color'] = 'gray';
             }
             const $entry = $('<div/>').css(style);
-            var icon = entry.getIcon();
+            const icon = entry.getIcon();
             var $icon;
             if (icon)
                 $icon = icon.renderIcon();
             else
-                $icon = $('<i/>').css({ 'display': 'inline-block', 'width': '16px' });
-            $icon.css({ 'padding-right': '8px' });
+                $icon = $('<i/>').css({ 'width': '16px' });
+            $icon.css({ 'display': 'inline-block', 'padding-right': '8px' });
             $entry.append($icon);
+            //$entry.append($('<span/>', { text: entry.getName() }).css({ 'float': 'left' }));
             $entry.append(entry.getName());
-            if (entry.entries) {
-                icon = new Icon('angle-right');
-                var $angle = icon.renderIcon();
-                $angle.css({ 'float': 'right', 'padding-left': '8px' });
-                $entry.append($angle);
+            if (entry.entries)
+                $icon = new Icon('angle-right').renderIcon();
+            else
+                $icon = null; //$icon = $('<i/>').css({ 'width': '8px' });
+            if ($icon) {
+                $icon.css({ 'float': 'right', 'padding-left': '8px' });
+                $entry.append($icon);
             }
             const shortcut = entry.getShortcut();
             if (shortcut)

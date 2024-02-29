@@ -140,7 +140,8 @@ class CanvasPanel extends Panel {
                 'draggable': 'true'
             });
             this._$panel.on('dragstart.panel', this._drag.bind(this));
-            this._$panel.on('dragend.panel', this._initDrag.bind(this, false));
+            if (!this._bContextMenu)
+                this._$panel.on('dragend.panel', this._initDrag.bind(this, false));
         } else {
             this._$panel.removeAttr('draggable');
             this._$panel.off('dragstart.panel');

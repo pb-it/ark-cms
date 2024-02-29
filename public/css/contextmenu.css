@@ -38,7 +38,7 @@ ul.contextmenu div.contextmenu {
     left: 12px;
     top: -24px;
     display: inline-block;
-
+    width: 100%;
 }
 
 ul.contextmenu ul {
