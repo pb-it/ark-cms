@@ -49,7 +49,6 @@ describe('Testsuit - File', function () {
         const str = fs.readFileSync(path.join(__dirname, './data/models/file.json'), 'utf8');
         const model = JSON.parse(str);
         const id = await helper.getModelController().addModel(model);
-        console.log(id);
 
         const app = helper.getApp();
         await app.reload();
@@ -112,20 +111,7 @@ describe('Testsuit - File', function () {
         button = await helper.getButton(panel, 'Create');
         assert.notEqual(button, null);
         await button.click();
-
-        const overlay = await driver.wait(webdriver.until.elementLocated({ 'xpath': '//div[@id="overlay"]' }), 1000);
-        var display = await overlay.getCssValue('display');
-        if (display == 'none')
-            await TestHelper.delay(1000);
-
-        var i = 0;
-        while (display == 'block' && i < 10) {
-            await TestHelper.delay(1000);
-            display = await overlay.getCssValue('display');
-            i++;
-        }
-
-        await TestHelper.delay(1000);
+        await app.waitLoadingFinished(10);
 
         const modal = await app.getTopModal();
         assert.equal(modal, null);
@@ -137,8 +123,16 @@ describe('Testsuit - File', function () {
         const api = await app.getApiUrl();
         const file = api + '/cdn/Testbild.png';
         const xpathThumb = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]/div/div[@class="thumbnail"]/img`;
-        const thumb = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathThumb }), 1000);
-        const img = await thumb.getAttribute('src');
+        var thumb = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathThumb }), 1000);
+        var img = await thumb.getAttribute('src');
+        var i = 0;
+        const loadingIcon = config['host'] + '/public/images/loading_icon.gif';
+        while (img === loadingIcon && i < 10) {
+            await TestHelper.delay(1000);
+            thumb = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathThumb }), 1000);
+            img = await thumb.getAttribute('src');
+            i++;
+        }
         assert.equal(img, file);
 
         return Promise.resolve();
@@ -251,7 +245,6 @@ describe('Testsuit - File', function () {
 
         const downloads = await helper.getBrowser().getDownloads();
         const playlist = downloads[0];
-        console.log(playlist);
         assert.notEqual(playlist, undefined, 'Download failed');
         var i = 0;
         while (!fs.existsSync(playlist) && i < 5) {

@@ -347,16 +347,12 @@ class EditAttributesPanel extends Panel {
                             'view': 'select',
                             'required': true,
                             changeAction: async function (entry) {
-                                var fData = await entry._form.readForm(false, false);
-                                var cdn = entry._form.getFormEntry('cdn');
-                                var fn = entry._form.getFormEntry('filename_prop');
-                                if (fData['storage'] == 'filesystem') {
+                                const fData = await entry._form.readForm(false, false);
+                                const cdn = entry._form.getFormEntry('cdn');
+                                if (fData['storage'] == 'filesystem')
                                     await cdn.show();
-                                    fn.hide();
-                                } else {
+                                else
                                     cdn.hide();
-                                    await fn.show();
-                                }
                                 return Promise.resolve();
                             },
                         },
