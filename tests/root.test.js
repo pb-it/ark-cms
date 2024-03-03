@@ -35,6 +35,8 @@ describe("Root Suite", function () {
     require('./content_create2.test.js');
     require('./panel.test.js');
     require('./contextmenu.test.js');
+    require('./search.test.js');
+    require('./filter.test.js');
     require('./view.test.js');
     require('./idb.test.js');
     require('./file.test.js');

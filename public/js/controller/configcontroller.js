@@ -180,4 +180,8 @@ class ConfigController {
         const value = this._storageController.loadLocal('bAutomaticUpdateCache');
         return value === null || value === 'true';
     }
+
+    automaticUpdateIndexedDB() {
+        return this._storageController.loadLocal('bAutomaticUpdateIndexedDB') === 'true';
+    }
 }

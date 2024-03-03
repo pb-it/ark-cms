@@ -193,7 +193,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                     if (changes) {
                         var data = changes['data'];
                         if (data && data.length > 0) {
-                            if (this._configController.automaticUpdateCache()) {
+                            if (this._configController.automaticUpdateIndexedDB()) {
                                 if (this._database)
                                     await this._database.updateDatabase(changes);
                                 else

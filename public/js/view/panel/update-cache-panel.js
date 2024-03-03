@@ -9,13 +9,20 @@ class UpdateCachePanel extends Panel {
     }
 
     async _renderContent() {
-        var $div = $('<div/>')
+        const $div = $('<div/>')
             .css({ 'padding': '10' });
 
-        $div.append("<h2>Cache</h2>");
-        $div.append("Your cache is out of date. Do you want to update it now?<br/><br/>");
+        $div.append('<h2>Cache</h2>');
+        $div.append('Your cache is out of date. Do you want to update it now?<br/><br/>');
 
-        var $skip = $('<button>')
+        const $remember = $('<input/>')
+            .attr('type', 'checkbox');
+        const $label = $('<label/>');
+        $label.append($remember);
+        $label.append('Remember decision for all future visits(only applies for choice \'Update\')<br/><br/>');
+        $div.append($label);
+
+        const $skip = $('<button>')
             .text('Skip')
             .click(async function (event) {
                 event.stopPropagation();
@@ -23,16 +30,18 @@ class UpdateCachePanel extends Panel {
                 this.dispose();
             }.bind(this));
         $div.append($skip);
-        var $update = $('<button>')
+        const $update = $('<button>')
             .text('Update')
             .css({ 'float': 'right' })
             .click(async function (event) {
                 event.stopPropagation();
 
-                var controller = app.getController();
+                const controller = app.getController();
                 try {
                     controller.setLoadingState(true);
-                    var db = controller.getDatabase();
+                    if ($remember.is(':checked'))
+                        controller.getStorageController().storeLocal('bAutomaticUpdateIndexedDB', true);
+                    const db = controller.getDatabase();
                     if (db)
                         await db.updateDatabase(this._changes);
                     else

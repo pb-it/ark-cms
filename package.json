@@ -30,6 +30,8 @@
         "test:clear": "mocha --bail tests/clear.test.js",
         "test:login": "mocha --timeout 10000 tests/login.test.js",
         "test:settings": "mocha --timeout 10000 tests/settings.test.js",
+        "test:search": "mocha --timeout 10000 tests/search.test.js",
+        "test:filter": "mocha --timeout 10000 tests/filter.test.js",
         "test:panel": "mocha --timeout 10000 tests/panel.test.js",
         "test:contextmenu": "mocha --timeout 10000 tests/contextmenu.test.js",
         "test:view": "mocha --timeout 10000 tests/view.test.js",

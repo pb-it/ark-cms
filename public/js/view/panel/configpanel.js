@@ -39,12 +39,12 @@ class ConfigPanel extends TabPanel {
 
             if (!this._data) {
                 var bDebug;
-                var dc = cc.getDebugConfig();
+                const dc = cc.getDebugConfig();
                 if (dc.hasOwnProperty('bDebug'))
                     bDebug = dc['bDebug'];
                 else
                     bDebug = false;
-                var bAutomaticUpdateCache = controller.getStorageController().loadLocal('bAutomaticUpdateCache');
+                const bAutomaticUpdateCache = controller.getStorageController().loadLocal('bAutomaticUpdateCache');
                 this._data = {
                     'version': controller.getVersionController().getAppVersion(),
                     'api': controller.getApiController().getApiOrigin(),
@@ -54,6 +54,7 @@ class ConfigPanel extends TabPanel {
                     'bConfirmOnLeave': controller.getStorageController().loadLocal('bConfirmOnLeave') === 'true',
                     'bAutomaticUpdateCache': bAutomaticUpdateCache === null || bAutomaticUpdateCache === 'true',
                     'bIndexedDB': controller.getStorageController().loadLocal('bIndexedDB') === 'true',
+                    'bAutomaticUpdateIndexedDB': controller.getStorageController().loadLocal('bAutomaticUpdateIndexedDB') === 'true'
                 };
             }
             const skeleton = [
@@ -87,7 +88,7 @@ class ConfigPanel extends TabPanel {
                             await e.renderValue(this._bConfirmOnApply);
                         //await this._form.renderForm();
                         return Promise.resolve();
-                    }.bind(this),
+                    }.bind(this)
                 },
                 {
                     name: 'bConfirmOnApply',
@@ -107,7 +108,7 @@ class ConfigPanel extends TabPanel {
                 {
                     name: 'bAutomaticUpdateCache',
                     label: 'Automatic cache update',
-                    tooltip: '**INFO**: Automatic updates related/affected entries in cache after changes.',
+                    tooltip: '**INFO**: Automatic update/reloading of related entries after changes.',
                     dataType: 'boolean',
                     required: true,
                     defaultValue: true
@@ -131,8 +132,25 @@ Do you want to continue?`))
                                 event.preventDefault();
                         }
                         return Promise.resolve();
-                    }
-                }
+                    },
+                    changeAction: async function (entry) {
+                        const fData = await entry._form.readForm();
+                        const e = entry._form.getFormEntry('bAutomaticUpdateIndexedDB');
+                        const attribute = e.getAttribute();
+                        attribute['readonly'] = !fData['bIndexedDB'];
+                        await e.renderValue(fData['bAutomaticUpdateIndexedDB']);
+                        return Promise.resolve();
+                    }.bind(this)
+                },
+                {
+                    name: 'bAutomaticUpdateIndexedDB',
+                    label: 'Automatic IndexedDB update',
+                    tooltip: '**INFO**: Automatic update of IndexedDB on page/application load.',
+                    dataType: 'boolean',
+                    required: true,
+                    defaultValue: false,
+                    readonly: !this._data['bIndexedDB']
+                },
             ];
             this._form = new Form(skeleton, this._data);
             var $form = await this._form.renderForm();
@@ -220,7 +238,7 @@ Do you want to continue?`))
             $div.append('<br/><br/>');
 
             var $clear = $('<button>')
-                .text('Clear')
+                .text('Restore Default Settings')
                 .click(function (event) {
                     event.stopPropagation();
 
@@ -272,6 +290,7 @@ Do you want to continue?`))
                         sc.storeLocal('bConfirmOnApply', fdata['bConfirmOnApply']);
                         sc.storeLocal('bAutomaticUpdateCache', fdata['bAutomaticUpdateCache']);
                         sc.storeLocal('bIndexedDB', fdata['bIndexedDB']);
+                        sc.storeLocal('bAutomaticUpdateIndexedDB', fdata['bAutomaticUpdateIndexedDB']);
 
                         if (bReloadApp) {
                             var db = controller.getDatabase();

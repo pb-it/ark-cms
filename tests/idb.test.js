@@ -43,7 +43,7 @@ describe('Testsuit', function () {
                     await db.deleteDatabase();
 
                 localStorage.setItem('bIndexedDB', 'true');
-                localStorage.setItem('bAutomaticUpdateCache', 'false');
+                localStorage.setItem('bAutomaticUpdateIndexedDB', 'false');
 
                 //controller.reloadApplication();
                 res = 'OK';

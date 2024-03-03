@@ -182,7 +182,7 @@ describe('Testsuit', function () {
         console.log(text);
         assert.notEqual(text, 'Unauthorized');
         tmp = JSON.parse(text);
-        assert.equal(tmp['data'].length, 1);
+        assert.equal(tmp['data'].length, 5);
 
         return Promise.resolve();
     });

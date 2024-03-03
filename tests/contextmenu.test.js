@@ -187,4 +187,54 @@ describe('Testsuit', function () {
 
         return Promise.resolve();
     });
+
+    it('#test contextmenu delete', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const sidemenu = app.getSideMenu();
+        await sidemenu.click('Data');
+        await TestHelper.delay(1000);
+        await sidemenu.click('movie');
+        await TestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await TestHelper.delay(1000);
+        await sidemenu.click('All');
+        await TestHelper.delay(1000);
+
+        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
+        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        assert.equal(panels.length, 1);
+
+        driver.actions({ bridge: true }).contextClick(panels[0], webdriver.Button.RIGHT).perform();
+        var xpath = `/html/body/ul[@class="contextmenu"]/li/div[1][text()="Delete"]`;
+        var item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
+        assert.notEqual(item, null, 'ContextMenu Entry not found');
+        await item.click();
+        await TestHelper.delay(1000);
+
+        var modal = await app.getTopModal();
+        assert.notEqual(modal, null);
+        //var button = await helper.getButton(modal, 'Confirm');
+        var elements = await modal.findElements(webdriver.By.xpath(`//input[@type="submit" and @name="confirm"]`));
+        assert.equal(elements.length, 1);
+        var button = elements[0];
+        assert.notEqual(button, null);
+        await button.click();
+        await TestHelper.delay(1000);
+
+        modal = await app.getTopModal();
+        assert.equal(modal, null);
+
+        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        assert.equal(panels.length, 0);
+
+        await app.reload();
+        await TestHelper.delay(1000);
+
+        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        assert.equal(panels.length, 0);
+
+        return Promise.resolve();
+    });
 });

@@ -10,7 +10,7 @@ describe('Testsuit', function () {
     let driver;
 
     before('#setup', async function () {
-        this.timeout(10000);
+        this.timeout(30000);
 
         if (!global.helper) {
             global.helper = new TestHelper();
@@ -40,14 +40,14 @@ describe('Testsuit', function () {
             allPassed = allPassed && (this.currentTest.state === 'passed');
     });
 
-    it('#test details panel', async function () {
+    it('#test filter', async function () {
         this.timeout(30000);
 
         const app = helper.getApp();
         const sidemenu = app.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
-        await sidemenu.click('star');
+        await sidemenu.click('movie');
         await TestHelper.delay(1000);
         await sidemenu.click('Show');
         await TestHelper.delay(1000);
@@ -56,42 +56,60 @@ describe('Testsuit', function () {
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
-        assert.equal(panels.length, 1);
+        assert.equal(panels.length, 5);
 
-        var elements = await panels[0].findElements(webdriver.By.xpath('div/p'));
-        assert.equal(elements.length, 1);
-
-        var text = await elements[0].getText();
-        assert.equal(text, 'John Doe');
-
-        var contextmenu = await app.openContextMenu(panels[0]);
-        await TestHelper.delay(1000);
-        await contextmenu.click('Details');
+        const xpathFilter = `//*[@id="topnav"]/div/div/div/i[contains(@class, 'fa-filter')]`;
+        var view = await driver.findElements(webdriver.By.xpath(xpathFilter));
+        assert.equal(view.length, 1);
+        await view[0].click();
         await TestHelper.delay(1000);
 
         var modal = await app.getTopModal();
         assert.notEqual(modal, null);
-        //var panel = await modal.findElement(webdriver.By.xpath('//div[contains(@class, "panel")]'));
-        var panel = await modal.findElement(webdriver.By.xpath('//div[@class="panel"]')); // classlist must not contain 'selectable'
-        assert.notEqual(panel, null);
-        var bDraggable = await panel.getAttribute('draggable');
-        assert.equal(bDraggable, 'false');
 
+        var button = await helper.getButton(modal, 'New');
+        assert.notEqual(button, null);
+        await button.click();
+        await TestHelper.delay(1000);
+
+        modal = await app.getTopModal();
+        assert.notEqual(modal, null);
+        const form = await helper.getForm(modal);
+        assert.notEqual(form, null);
+        //var input = await helper.getFormInput(form, 'query');
+        var elements = await form.findElements(webdriver.By.xpath(`./div[@class="formentry"]/div[@class="value"]/textarea[@name="query"]`));
+        assert.equal(elements.length, 1);
+        var input = elements[0];
+        assert.notEqual(input, null);
+        await input.sendKeys('$.[?(@.studio.id==1)]');
+        await TestHelper.delay(1000);
+        button = await helper.getButton(modal, 'Filter');
+        assert.notEqual(button, null);
+        await button.click();
+        await TestHelper.delay(1000);
+
+        modal = await app.getTopModal();
+        assert.notEqual(modal, null);
         await modal.closeModal();
+        await TestHelper.delay(1000);
+
         modal = await app.getTopModal();
         assert.equal(modal, null);
+
+        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        assert.equal(panels.length, 3);
 
         return Promise.resolve();
     });
 
-    it('#test edit panel', async function () {
+    it('#test filter in searchbar', async function () {
         this.timeout(30000);
 
         const app = helper.getApp();
         const sidemenu = app.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
-        await sidemenu.click('star');
+        await sidemenu.click('movie');
         await TestHelper.delay(1000);
         await sidemenu.click('Show');
         await TestHelper.delay(1000);
@@ -100,40 +118,30 @@ describe('Testsuit', function () {
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
-        assert.equal(panels.length, 1);
+        assert.equal(panels.length, 5);
 
+        var input = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/input[@id="searchField"]'));
+        assert.equal(input.length, 1);
+        await input[0].sendKeys('$.[?(@.studio.id==3)]');
+
+        var button = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/button[@id="searchButton"]'));
+        assert.equal(button.length, 1);
+        await button[0].click();
+        await TestHelper.delay(1000);
+
+        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        assert.equal(panels.length, 1);
         var elements = await panels[0].findElements(webdriver.By.xpath('div/p'));
         assert.equal(elements.length, 1);
-
         var text = await elements[0].getText();
-        assert.equal(text, 'John Doe');
+        assert.equal(text, 'Pirates of the Caribbean');
 
-        var contextmenu = await app.openContextMenu(panels[0]);
+        await input[0].clear();
         await TestHelper.delay(1000);
-        await contextmenu.click('Edit');
-        await TestHelper.delay(1000);
-
-        var modal = await app.getTopModal();
-        assert.notEqual(modal, null);
-        //var panel = await modal.findElement(webdriver.By.xpath('//div[contains(@class, "panel")]'));
-        var panel = await modal.findElement(webdriver.By.xpath('//div[@class="panel"]')); // classlist must not contain 'selectable'
-        assert.notEqual(panel, null);
-        var form = await helper.getForm(panel);
-        assert.notEqual(form, null);
-        var input = await helper.getFormInput(form, 'name');
-        assert.notEqual(input, null);
-        var value = await input.getAttribute('value');
-        assert.equal(value, 'John Doe');
-        var bReadonly = await input.getAttribute('readonly');
-        assert.equal(bReadonly, null);
-        var scrollHeight = parseInt(await input.getAttribute('scrollHeight'));
-        var offsetHeight = parseInt(await input.getAttribute('offsetHeight'));
-        assert.ok(scrollHeight < offsetHeight); // scrollHeight > offsetHeight => 'Scrollable'
-
-        await modal.closeModal();
-        modal = await app.getTopModal();
-        assert.equal(modal, null);
+        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        assert.equal(panels.length, 5);
 
         return Promise.resolve();
     });
 });
+
