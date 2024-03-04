@@ -29,11 +29,7 @@ class EditModelDefaultsPanel extends Panel {
         } else
             stringAttrNames = [];
 
-        var mpcc = this._model.getModelPanelConfigController();
-        var panelConfig = mpcc.getPanelConfig();
-
-        if (panelConfig['details'])
-            panelConfig['details'] = EditViewPanel.detailsEnumToString(panelConfig['details']);
+        var panelConfig = { ...mdc.getDefaultPanelConfig() };
 
         this._panelViewForm = EditViewPanel.getPanelViewForm(this._model, panelConfig);
         var $form = await this._panelViewForm.renderForm();

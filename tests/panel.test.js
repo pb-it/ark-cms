@@ -7,6 +7,38 @@ const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
 describe('Testsuit', function () {
 
+    async function checkForm(form) {
+        var input = await helper.getFormInput(form, 'id');
+        assert.notEqual(input, null);
+        var id = await input.getAttribute('value');
+        assert.equal(id, '1');
+        var bDisabled = await input.getAttribute('disabled');
+        assert.equal(bDisabled, 'true');
+        var bReadonly = await input.getAttribute('readonly');
+        assert.equal(bReadonly, null);
+
+        input = await helper.getFormInput(form, 'name');
+        assert.notEqual(input, null);
+        var value = await input.getAttribute('value');
+        assert.equal(value, 'John Doe');
+        bDisabled = await input.getAttribute('disabled');
+        assert.equal(bDisabled, null);
+        bReadonly = await input.getAttribute('readonly');
+        assert.equal(bReadonly, null);
+        //var div = await form.findElement(webdriver.By.xpath('./div[@class="formentry"]/div[@class="value"]/input[@name="name"]/parent::*'));
+        var div = await input.findElement(webdriver.By.xpath('./..'));
+        var scrollHeight = parseInt(await div.getAttribute('scrollHeight'));
+        var clientHeight = parseInt(await div.getAttribute('clientHeight')); // offsetHeight
+        //console.log(scrollHeight + ' - ' + clientHeight);
+        assert.ok(scrollHeight <= clientHeight); // scrollHeight > clientHeight => 'Scrollable'
+        var scrollWidth = parseInt(await div.getAttribute('scrollWidth'));
+        var clientWidth = parseInt(await div.getAttribute('clientWidth'));
+        //console.log(scrollWidth + ' - ' + clientWidth);
+        assert.ok(scrollWidth <= clientWidth);
+
+        return Promise.resolve();
+    }
+
     let driver;
 
     before('#setup', async function () {
@@ -58,9 +90,8 @@ describe('Testsuit', function () {
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
 
-        var elements = await panels[0].findElements(webdriver.By.xpath('div/p'));
+        var elements = await panels[0].findElements(webdriver.By.xpath('div/div/p'));
         assert.equal(elements.length, 1);
-
         var text = await elements[0].getText();
         assert.equal(text, 'John Doe');
 
@@ -102,7 +133,7 @@ describe('Testsuit', function () {
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
 
-        var elements = await panels[0].findElements(webdriver.By.xpath('div/p'));
+        var elements = await panels[0].findElements(webdriver.By.xpath('div/div/p'));
         assert.equal(elements.length, 1);
 
         var text = await elements[0].getText();
@@ -119,20 +150,51 @@ describe('Testsuit', function () {
         var panel = await modal.findElement(webdriver.By.xpath('//div[@class="panel"]')); // classlist must not contain 'selectable'
         assert.notEqual(panel, null);
         var form = await helper.getForm(panel);
+
         assert.notEqual(form, null);
-        var input = await helper.getFormInput(form, 'name');
-        assert.notEqual(input, null);
-        var value = await input.getAttribute('value');
-        assert.equal(value, 'John Doe');
-        var bReadonly = await input.getAttribute('readonly');
-        assert.equal(bReadonly, null);
-        var scrollHeight = parseInt(await input.getAttribute('scrollHeight'));
-        var offsetHeight = parseInt(await input.getAttribute('offsetHeight'));
-        assert.ok(scrollHeight < offsetHeight); // scrollHeight > offsetHeight => 'Scrollable'
+        await checkForm(form);
 
         await modal.closeModal();
         modal = await app.getTopModal();
         assert.equal(modal, null);
+
+        await app.navigate('/data/star/1/edit');
+        await TestHelper.delay(1000);
+        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        assert.equal(panels.length, 1);
+        form = await helper.getForm(panels[0]);
+        //await checkForm(form); //TODO: correct style to remove scrollbar when floating is set
+
+        const xpathView = `//*[@id="topnav"]/div/div/div/i[contains(@class, 'fa-th')]`;
+        var view = await driver.findElements(webdriver.By.xpath(xpathView));
+        assert.equal(view.length, 1);
+        await view[0].click();
+        await TestHelper.delay(1000);
+
+        modal = await app.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.findElement(webdriver.By.xpath('.//div[@class="panel"]'));
+        form = await panel.findElement(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
+        //form = await modal.findElement(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
+        //form = await helper.getForm(panel);
+        /*driver.executeScript(function () {
+            arguments[0].style.backgroundColor = 'lightblue';
+        }, form);*/
+        const option = await form.findElement(webdriver.By.css('select#float > option[value="left"]'));
+        assert.notEqual(option, null, 'Option not found!');
+        await option.click();
+        var button = await helper.getButton(modal, 'Apply');
+        assert.notEqual(button, null);
+        await button.click();
+        await TestHelper.delay(1000);
+
+        modal = await app.getTopModal();
+        assert.equal(modal, null);
+
+        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        assert.equal(panels.length, 1);
+        form = await helper.getForm(panels[0]);
+        //await checkForm(form); //TODO: correct style to remove scrollbar when floating is set
 
         return Promise.resolve();
     });

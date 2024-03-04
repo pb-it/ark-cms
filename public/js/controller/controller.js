@@ -134,6 +134,13 @@ class Controller {
         this._bConnection = false;
         this.setLoadingState(true);
 
+        $(document).bind('click', async function (e) {
+            if (e.target == document.body) {
+                e.preventDefault();
+                await this.clearSelected();
+            }
+            return Promise.resolve();
+        }.bind(this));
         this.setupShortcuts();
 
         this._modalController = new ModalController(); //VersionController may open a modal
@@ -480,41 +487,44 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
             try {
                 this.setLoadingState(true);
 
+                if (push || replace) {
+                    var oldState = this._stateController.getState();
+                    if (oldState && oldState['action'] && oldState['action'] == ActionEnum.create) {
+                        var panels = this._view.getCanvas().getPanels();
+                        if (panels && panels.length == 1) {
+                            var obj = panels[0].getObject();
+                            var form = panels[0].getForm();
+                            if (obj && form) {
+                                var skeleton = obj.getSkeleton(true);
+                                var data = await form.readForm(true, false);
+                                var res = {};
+                                var property;
+                                var tmp;
+                                for (var field of skeleton) {
+                                    property = field['name'];
+                                    if (data[property]) {
+                                        if (field['dataType'] == 'file' && data[property]['base64']) {
+                                            tmp = { ...data[property] };
+                                            delete tmp['base64'];
+                                            res[property] = tmp;
+                                        } else
+                                            res[property] = data[property];
+                                    }
+                                }
+                                oldState['data'] = res;
+                            }
+                        }
+                        /*var modals = this.getModalController().getModals();
+                        if (modals && modals.length > 0) {
+                            ...
+                        }*/
+                        this._stateController.setState(oldState, false, true);
+                    }
+                }
+                this._stateController.setState(state, push, replace);
+
                 $(document).unbind('keydown.panel');
                 $(document).unbind('keyup.panel');
-
-                var oldState = this._stateController.getState();
-                if (oldState && oldState['action'] && oldState['action'] == ActionEnum.create) {
-                    var panels = this._view.getCanvas().getPanels();
-                    if (panels && panels.length == 1) {
-                        var obj = panels[0].getObject();
-                        var form = panels[0].getForm();
-                        if (obj && form) {
-                            var skeleton = obj.getSkeleton(true);
-                            var data = await form.readForm(true, false);
-                            var res = {};
-                            var property;
-                            var tmp;
-                            for (var field of skeleton) {
-                                property = field['name'];
-                                if (data[property]) {
-                                    if (field['dataType'] == 'file' && data[property]['base64']) {
-                                        tmp = { ...data[property] };
-                                        delete tmp['base64'];
-                                        res[property] = tmp;
-                                    } else
-                                        res[property] = data[property];
-                                }
-                            }
-                            oldState['data'] = res;
-                        }
-                    }
-                    /*var modals = this.getModalController().getModals();
-                    if (modals && modals.length > 0) {
-                        ...
-                    }*/
-                    this._stateController.setState(oldState, false, true);
-                }
 
                 if (this._bFirstLoadAfterInit)
                     this._bFirstLoadAfterInit = false;
@@ -531,8 +541,6 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                         }
                     }
                 }
-
-                this._stateController.setState(state, push, replace);
                 await this.clearSelected();
                 this._view.initView();
 

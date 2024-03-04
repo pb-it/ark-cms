@@ -59,7 +59,7 @@ describe('Testsuit', function () {
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
 
-        var elements = await panels[0].findElements(webdriver.By.xpath('div/p'));
+        var elements = await panels[0].findElements(webdriver.By.xpath('div/div/p'));
         assert.equal(elements.length, 1);
 
         var text = await elements[0].getText();
@@ -166,7 +166,7 @@ describe('Testsuit', function () {
 
         modal = await app.getTopModal();
         assert.notEqual(modal, null);
-        var panel = await modal.findElement(webdriver.By.xpath('//div[@class="panel"]'));
+        var panel = await modal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]'));
 
         var input = await panel.findElement(webdriver.By.xpath('//div[@class="select"][1]/input[starts-with(@list,"movies")]'));
         assert.notEqual(input, null);

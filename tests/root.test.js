@@ -31,10 +31,11 @@ describe("Root Suite", function () {
     require('./content_open.test.js');
     require('./model_create.test.js');
     require('./content_create.test.js');
-    require('./model_add_relation.test.js');
+    require('./model_edit.test.js');
     require('./content_create2.test.js');
     require('./panel.test.js');
     require('./contextmenu.test.js');
+    require('./navigation.test.js');
     require('./search.test.js');
     require('./filter.test.js');
     require('./view.test.js');

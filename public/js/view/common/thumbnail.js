@@ -101,11 +101,14 @@ class Thumbnail {
 
     async renderThumbnail(bForce) {
         this._$thumbnail.empty();
-        if (!this._file)
-            this._file = this._media.getThumbnail();
-        var $thumbnail;
 
-        var mediaType = this._media.getMediaType();
+        var $thumb;
+        var mediaType;
+        if (this._media) {
+            if (!this._file)
+                this._file = this._media.getThumbnail();
+            mediaType = this._media.getMediaType();
+        }
         if (this._file) {
             if (bForce && this._file.startsWith("http")) {
                 //await fetch(this._file, { cache: 'reload', mode: 'no-cors' });
@@ -120,19 +123,19 @@ class Thumbnail {
                 switch (mediaType) {
                     case 'image':
                         if (isImage(this._file))
-                            $thumbnail = Thumbnail.renderThumbnailImage(this._file, this._config, this._bLazy);
+                            $thumb = Thumbnail.renderThumbnailImage(this._file, this._config, this._bLazy);
                         break;
                     case 'clip':
                         if (isVideo(this._file))
-                            $thumbnail = Thumbnail.renderThumbnailClip(this._file, this._config, this._bLazy);
+                            $thumb = Thumbnail.renderThumbnailClip(this._file, this._config, this._bLazy);
                         break;
                     case 'video':
                         if (isImage(this._file))
-                            $thumbnail = Thumbnail.renderThumbnailImage(this._file, this._config, this._bLazy);
+                            $thumb = Thumbnail.renderThumbnailImage(this._file, this._config, this._bLazy);
                         break;
                     case 'file':
                         if (this._file.endsWith('.pdf'))
-                            $thumbnail = Thumbnail.renderThumbnailImage(window.location.origin + "/public/images/application_pdf.png", this._config, this._bLazy);
+                            $thumb = Thumbnail.renderThumbnailImage(window.location.origin + "/public/images/application_pdf.png", this._config, this._bLazy);
                         break;
                     default:
                         //TODO: improve visualization of rendering errors
@@ -148,15 +151,15 @@ class Thumbnail {
                     file = this._file['base64'];
                 if (file.startsWith("http")) {
                     if (isImage(file))
-                        $thumbnail = Thumbnail.renderThumbnailImage(file, this._config, this._bLazy);
+                        $thumb = Thumbnail.renderThumbnailImage(file, this._config, this._bLazy);
                 } else if (file.startsWith("data")) {
                     if (file.startsWith("data:image/"))
-                        $thumbnail = Thumbnail.renderThumbnailImage(file, this._config, this._bLazy);
+                        $thumb = Thumbnail.renderThumbnailImage(file, this._config, this._bLazy);
                 }
             }
         }
-        if ($thumbnail)
-            this._$thumbnail.append($thumbnail);
+        if ($thumb)
+            this._$thumbnail.append($thumb);
         else
             this._$thumbnail.append(Thumbnail.renderThumbnailImage(window.location.origin + "/public/images/missing_image.png", this._config, this._bLazy));
 

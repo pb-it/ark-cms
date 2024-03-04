@@ -99,8 +99,17 @@ class TabPanel extends Panel {
 
     async _renderTabContent() {
         this._$tabContent.empty();
-        if (this._openTab)
-            this._$tabContent.append(await this._openTab.render());
+        if (this._openTab) {
+            const controller = app.getController();
+            controller.setLoadingState(true);
+            try {
+                this._$tabContent.append(await this._openTab.render());
+                controller.setLoadingState(false);
+            } catch (error) {
+                controller.setLoadingState(false);
+                controller.showError(error);
+            }
+        }
         return Promise.resolve();
     }
 }

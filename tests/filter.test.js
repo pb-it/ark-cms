@@ -74,7 +74,10 @@ describe('Testsuit', function () {
 
         modal = await app.getTopModal();
         assert.notEqual(modal, null);
-        const form = await helper.getForm(modal);
+        const form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
+        /*var panel = await modal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]'));
+        assert.notEqual(panel, null);
+        const form = await helper.getForm(panel);*/
         assert.notEqual(form, null);
         //var input = await helper.getFormInput(form, 'query');
         var elements = await form.findElements(webdriver.By.xpath(`./div[@class="formentry"]/div[@class="value"]/textarea[@name="query"]`));

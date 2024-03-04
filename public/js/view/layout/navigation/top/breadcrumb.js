@@ -119,7 +119,7 @@ class Breadcrumb {
                     var state = new State();
                     state.typeString = app.controller.getStateController().getState().typeString;
                     state.action = ActionEnum.create;
-                    app.controller.loadState(state, true);
+                    return app.getController().loadState(state, true);
                 }.bind(this)
             };
             var $d = new MenuItem(conf).renderMenuItem();

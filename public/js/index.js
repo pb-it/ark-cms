@@ -10,21 +10,6 @@ function featureDetection() {
     return bSupported;
 }
 
-function goodbye(e) {
-    var controller = app.getController();
-    var cc = controller.getConfigController();
-    if (controller.hasConnection() && cc && cc.confirmOnLeave()) {
-        if (!e)
-            e = window.event;
-        e.cancelBubble = true;
-        e.returnValue = 'Are you sure you want to leave?';
-        if (e.stopPropagation) {
-            e.stopPropagation();
-            e.preventDefault();
-        }
-    }
-}
-
 async function loadScript(url) {
     return new Promise(function (resolve, reject) {
         var script = document.createElement('script');
@@ -80,11 +65,6 @@ async function loadModule(code) {
     }
     return Promise.resolve(module);
 }
-
-window.onload = function () {
-};
-
-window.onbeforeunload = goodbye;
 
 $(document).ready(async function () {
     if (featureDetection()) {

@@ -9,6 +9,7 @@ try {
     if (movies && movies.length > 0) {
         id = movies[0]['id'];
         const star = {
+            'id': 1,
             'name': 'John Doe',
             'gender': 'male',
             'movies': [id]

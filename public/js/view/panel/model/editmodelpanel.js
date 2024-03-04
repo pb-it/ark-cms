@@ -100,6 +100,8 @@ class EditModelPanel extends TabPanel {
                 var defaults = shrink(await this._$defaultsPanel.getData());
                 if (defaults)
                     definition['defaults'] = defaults;
+                else if (definition['defaults'])
+                    delete definition['defaults'];
             } else if (tab == this._$extensionsPanel) {
                 if (this._extensionForm) {
                     var fData = await this._extensionForm.readForm();

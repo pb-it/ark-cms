@@ -346,10 +346,10 @@ class StateSelect {
 
         conf = {
             'name': 'All',
-            'click': function (event, item) {
+            'click': async function (event, item) {
                 var state = new State();
                 state.typeString = this._model;
-                app.controller.loadState(state, true);
+                return app.getController().loadState(state, true);
             }.bind(this)
         };
         menuItem = new MenuItem(conf);

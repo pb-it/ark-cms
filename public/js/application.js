@@ -47,9 +47,35 @@ class Application {
     }
 }
 
-window.onpopstate = async function (e) {
+function goodbye(e) {
+    const controller = app.getController();
+    const cc = controller.getConfigController();
+    if (controller.hasConnection() && cc && cc.confirmOnLeave()) {
+        if (!e)
+            e = window.event;
+        e.cancelBubble = true;
+        e.returnValue = 'Are you sure you want to leave?';
+        if (e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+}
+
+window.onload = function () {
+};
+
+window.onbeforeunload = goodbye;
+
+$(window).on('beforeunload', function (e) {
+    //e.preventDefault();
+    //$(window).trigger(...);
+    console.log('beforeunload');
+});
+
+$(window).on('popstate ', async function (e) {
     var bError = false;
-    var controller = app.getController();
+    const controller = app.getController();
     if (!controller.hasConnection()) {
         if (!await controller.initController())
             bError = true;
@@ -60,18 +86,10 @@ window.onpopstate = async function (e) {
         controller.getView().initView();
     } else {
         var state;
-        if (e.state)
-            state = new State(e.state);
+        if (e.originalEvent.state)
+            state = new State(e.originalEvent.state);
         else
             state = State.getStateFromUrl();
         controller.loadState(state);
     }
-};
-
-$(document).bind("click", async function (e) {
-    if (e.target == document.body) {
-        e.preventDefault();
-        await app.controller.clearSelected();
-    }
-    return Promise.resolve();
-}.bind(this));
+});

@@ -30,6 +30,8 @@
         "test:clear": "mocha --bail tests/clear.test.js",
         "test:login": "mocha --timeout 10000 tests/login.test.js",
         "test:settings": "mocha --timeout 10000 tests/settings.test.js",
+        "test:model:create": "mocha --timeout 10000 tests/model_create.test.js",
+        "test:model:edit": "mocha --timeout 10000 tests/model_edit.test.js",
         "test:search": "mocha --timeout 10000 tests/search.test.js",
         "test:filter": "mocha --timeout 10000 tests/filter.test.js",
         "test:panel": "mocha --timeout 10000 tests/panel.test.js",
@@ -44,11 +46,11 @@
     "dependencies": {
         "body-parser": "^1.20.2",
         "cors": "^2.8.5",
-        "express": "^4.18.2"
+        "express": "^4.18.3"
     },
     "devDependencies": {
         "@babel/cli": "^7.23.9",
-        "@babel/core": "^7.23.9",
+        "@babel/core": "^7.24.0",
         "@babel/plugin-transform-class-properties": "^7.23.3",
         "@pb-it/ark-cms-selenium-test-helper": "^0.1.14-beta",
         "babel-plugin-conditional-compile": "^0.0.5",
