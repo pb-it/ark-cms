@@ -28,7 +28,7 @@ describe('Testsuit - File', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
@@ -46,11 +46,11 @@ describe('Testsuit - File', function () {
     it('#test add model', async function () {
         this.timeout(60000);
 
+        const app = helper.getApp();
         const str = fs.readFileSync(path.join(__dirname, './data/models/file.json'), 'utf8');
         const model = JSON.parse(str);
-        const id = await helper.getModelController().addModel(model);
+        const id = await app.getModelController().addModel(model);
 
-        const app = helper.getApp();
         await app.reload();
         await TestHelper.delay(1000);
         await app.login();
@@ -70,7 +70,8 @@ describe('Testsuit - File', function () {
         }
 
         const app = helper.getApp();
-        await app.create('file', data);
+        const ds = app.getDataService();
+        await ds.create('file', data);
 
         return Promise.resolve();
     });
@@ -79,7 +80,8 @@ describe('Testsuit - File', function () {
         this.timeout(60000);
 
         const app = helper.getApp();
-        const sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         var menu = await sidemenu.getEntry('other');
@@ -94,8 +96,8 @@ describe('Testsuit - File', function () {
 
         const xpath = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         const panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        const form = await helper.getForm(panel);
-        var input = await helper.getFormInput(form, 'title');
+        const form = await window.getForm(panel);
+        var input = await window.getFormInput(form, 'title');
         assert.notEqual(input, null);
         await input.sendKeys('Testbild');
         await TestHelper.delay(100);
@@ -108,12 +110,12 @@ describe('Testsuit - File', function () {
         await input.sendKeys('https://upload.wikimedia.org/wikipedia/commons/1/12/Testbild.png');
         await TestHelper.delay(100);
 
-        button = await helper.getButton(panel, 'Create');
+        button = await window.getButton(panel, 'Create');
         assert.notEqual(button, null);
         await button.click();
         await app.waitLoadingFinished(10);
 
-        const modal = await app.getTopModal();
+        const modal = await window.getTopModal();
         assert.equal(modal, null);
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
@@ -142,7 +144,8 @@ describe('Testsuit - File', function () {
         this.timeout(60000);
 
         const app = helper.getApp();
-        const sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         var menu = await sidemenu.getEntry('other');
@@ -157,8 +160,8 @@ describe('Testsuit - File', function () {
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathPanel }), 1000);
-        const form = await helper.getForm(panel);
-        var input = await helper.getFormInput(form, 'title');
+        const form = await window.getForm(panel);
+        var input = await window.getFormInput(form, 'title');
         assert.notEqual(input, null);
         await input.sendKeys('Big Buck Bunny (BBB)');
         await TestHelper.delay(100);
@@ -175,7 +178,7 @@ describe('Testsuit - File', function () {
         await input.sendKeys('https://peach.blender.org/wp-content/uploads/title_anouncement.jpg');
         await TestHelper.delay(100);
 
-        button = await helper.getButton(panel, 'Create');
+        button = await window.getButton(panel, 'Create');
         assert.notEqual(button, null);
         await button.click();
 
@@ -193,7 +196,7 @@ describe('Testsuit - File', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await window.getTopModal();
         assert.equal(modal, null);
 
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));

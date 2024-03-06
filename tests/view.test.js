@@ -36,7 +36,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
@@ -83,7 +83,8 @@ describe('Testsuit', function () {
 
         const app = helper.getApp();
         //await app.navigate('/data/star');
-        var sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('star');
@@ -107,7 +108,7 @@ describe('Testsuit', function () {
         assert.equal(view.length, 1);
         await view[0].click();
         await TestHelper.delay(1000);
-        var modal = await app.getTopModal();
+        var modal = await window.getTopModal();
         assert.notEqual(modal, null);
 
         //const form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
@@ -119,22 +120,22 @@ describe('Testsuit', function () {
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
         await TestHelper.delay(1000);
-        var input = await helper.getFormInput(forms[1], 'width');
+        var input = await window.getFormInput(forms[1], 'width');
         assert.notEqual(input, null, 'Input not found!');
         await input.clear();
         await input.sendKeys('200');
         await TestHelper.delay(1000);
-        input = await helper.getFormInput(forms[1], 'height');
+        input = await window.getFormInput(forms[1], 'height');
         assert.notEqual(input, null, 'Input not found!');
         await input.clear();
         await input.sendKeys('200');
         await TestHelper.delay(1000);
-        var button = await helper.getButton(modal, 'Apply');
+        var button = await window.getButton(modal, 'Apply');
         assert.notEqual(button, null);
         await button.click();
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -145,10 +146,10 @@ describe('Testsuit', function () {
         assert.equal(view.length, 1);
         await view[0].click();
         await TestHelper.delay(1000);
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.notEqual(modal, null);
 
-        button = await helper.getButton(modal, 'Set as default');
+        button = await window.getButton(modal, 'Set as default');
         assert.notEqual(button, null);
         await button.click();
         await driver.wait(webdriver.until.alertIsPresent());
@@ -158,7 +159,7 @@ describe('Testsuit', function () {
         await alert.accept();
 
         await modal.closeModal();
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         await app.reload();
@@ -176,7 +177,8 @@ describe('Testsuit', function () {
 
         const app = helper.getApp();
         //await app.navigate('/data/star');
-        var sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('star');
@@ -200,7 +202,7 @@ describe('Testsuit', function () {
         assert.equal(view.length, 1);
         await view[0].click();
         await TestHelper.delay(1000);
-        var modal = await app.getTopModal();
+        var modal = await window.getTopModal();
         assert.notEqual(modal, null);
 
         //const form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
@@ -216,12 +218,12 @@ describe('Testsuit', function () {
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
         await TestHelper.delay(1000);
-        var button = await helper.getButton(modal, 'Apply');
+        var button = await window.getButton(modal, 'Apply');
         assert.notEqual(button, null);
         await button.click();
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -235,12 +237,12 @@ describe('Testsuit', function () {
         assert.equal(view.length, 1);
         await view[0].click();
         await TestHelper.delay(1000);
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.notEqual(modal, null);
         await modal.closeModal();
         await TestHelper.delay(1000);
 
-        /*sidemenu = app.getSideMenu();
+        /*sidemenu = window.getSideMenu();
         await sidemenu.click('Reload');
         await TestHelper.delay(1000);*/
 

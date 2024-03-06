@@ -25,7 +25,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
         await app.navigate('/');
@@ -106,8 +106,9 @@ describe('Testsuit', function () {
         assert.equal(Array.isArray(response) && response.length == 1 && response[0]['name'] === 'John Doe', true, 'Updating cache failed!');
 
         const app = helper.getApp();
+        const window = app.getWindow();
         //await app.navigate('/data/star');
-        var sidemenu = app.getSideMenu();
+        var sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('star');
@@ -117,7 +118,7 @@ describe('Testsuit', function () {
         await sidemenu.click('All');
         await TestHelper.delay(1000);
 
-        const tools = await helper.getApiController().getTools();
+        const tools = await app.getApiController().getTools();
         const cmd = `async function test() {
     const star = {
         'name': 'Jane Doe'
@@ -139,7 +140,7 @@ module.exports = test;`
 
         await TestHelper.delay(1000);
 
-        var modal = await app.getTopModal();
+        var modal = await window.getTopModal();
         assert.notEqual(modal, null, 'Missing Update-Modal');
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Update"]'));
         assert.notEqual(button, null, 'Update button not found');
@@ -153,10 +154,10 @@ module.exports = test;`
 
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
-        /*sidemenu = app.getSideMenu();
+        /*sidemenu = window.getSideMenu();
         await sidemenu.click('Reload');
         await TestHelper.delay(1000);*/
 

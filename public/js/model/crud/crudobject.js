@@ -405,11 +405,12 @@ class CrudObject {
 
     constructor(typeString, data) {
         this._typeString = typeString;
-        var model = app.getController().getModelController().getModel(this._typeString);
+        const model = app.getController().getModelController().getModel(this._typeString);
         if (model) {
             this._model = model;
             this.setData(data);
-        }
+        } else
+            throw new Error('Unknown model \'' + this._typeString + '\'');
     }
 
     getTypeString() {

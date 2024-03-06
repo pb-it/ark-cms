@@ -8,7 +8,9 @@ const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 describe('Testsuit', function () {
 
     async function checkForm(form) {
-        var input = await helper.getFormInput(form, 'id');
+        const app = helper.getApp();
+        const window = app.getWindow();
+        var input = await window.getFormInput(form, 'id');
         assert.notEqual(input, null);
         var id = await input.getAttribute('value');
         assert.equal(id, '1');
@@ -17,7 +19,7 @@ describe('Testsuit', function () {
         var bReadonly = await input.getAttribute('readonly');
         assert.equal(bReadonly, null);
 
-        input = await helper.getFormInput(form, 'name');
+        input = await window.getFormInput(form, 'name');
         assert.notEqual(input, null);
         var value = await input.getAttribute('value');
         assert.equal(value, 'John Doe');
@@ -57,7 +59,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
@@ -76,7 +78,8 @@ describe('Testsuit', function () {
         this.timeout(30000);
 
         const app = helper.getApp();
-        const sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('star');
@@ -95,12 +98,12 @@ describe('Testsuit', function () {
         var text = await elements[0].getText();
         assert.equal(text, 'John Doe');
 
-        var contextmenu = await app.openContextMenu(panels[0]);
+        var contextmenu = await window.openContextMenu(panels[0]);
         await TestHelper.delay(1000);
         await contextmenu.click('Details');
         await TestHelper.delay(1000);
 
-        var modal = await app.getTopModal();
+        var modal = await window.getTopModal();
         assert.notEqual(modal, null);
         //var panel = await modal.findElement(webdriver.By.xpath('//div[contains(@class, "panel")]'));
         var panel = await modal.findElement(webdriver.By.xpath('//div[@class="panel"]')); // classlist must not contain 'selectable'
@@ -109,7 +112,7 @@ describe('Testsuit', function () {
         assert.equal(bDraggable, 'false');
 
         await modal.closeModal();
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
@@ -119,7 +122,8 @@ describe('Testsuit', function () {
         this.timeout(30000);
 
         const app = helper.getApp();
-        const sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('star');
@@ -139,30 +143,30 @@ describe('Testsuit', function () {
         var text = await elements[0].getText();
         assert.equal(text, 'John Doe');
 
-        var contextmenu = await app.openContextMenu(panels[0]);
+        var contextmenu = await window.openContextMenu(panels[0]);
         await TestHelper.delay(1000);
         await contextmenu.click('Edit');
         await TestHelper.delay(1000);
 
-        var modal = await app.getTopModal();
+        var modal = await window.getTopModal();
         assert.notEqual(modal, null);
         //var panel = await modal.findElement(webdriver.By.xpath('//div[contains(@class, "panel")]'));
         var panel = await modal.findElement(webdriver.By.xpath('//div[@class="panel"]')); // classlist must not contain 'selectable'
         assert.notEqual(panel, null);
-        var form = await helper.getForm(panel);
+        var form = await window.getForm(panel);
 
         assert.notEqual(form, null);
         await checkForm(form);
 
         await modal.closeModal();
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         await app.navigate('/data/star/1/edit');
         await TestHelper.delay(1000);
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
-        form = await helper.getForm(panels[0]);
+        form = await window.getForm(panels[0]);
         //await checkForm(form); //TODO: correct style to remove scrollbar when floating is set
 
         const xpathView = `//*[@id="topnav"]/div/div/div/i[contains(@class, 'fa-th')]`;
@@ -171,29 +175,29 @@ describe('Testsuit', function () {
         await view[0].click();
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.notEqual(modal, null);
         panel = await modal.findElement(webdriver.By.xpath('.//div[@class="panel"]'));
         form = await panel.findElement(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
         //form = await modal.findElement(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
-        //form = await helper.getForm(panel);
+        //form = await window.getForm(panel);
         /*driver.executeScript(function () {
             arguments[0].style.backgroundColor = 'lightblue';
         }, form);*/
         const option = await form.findElement(webdriver.By.css('select#float > option[value="left"]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
-        var button = await helper.getButton(modal, 'Apply');
+        var button = await window.getButton(modal, 'Apply');
         assert.notEqual(button, null);
         await button.click();
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
-        form = await helper.getForm(panels[0]);
+        form = await window.getForm(panels[0]);
         //await checkForm(form); //TODO: correct style to remove scrollbar when floating is set
 
         return Promise.resolve();

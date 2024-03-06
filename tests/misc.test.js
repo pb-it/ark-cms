@@ -51,7 +51,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
@@ -83,7 +83,8 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        var modal = await app.getTopModal();
+        const window = app.getWindow();
+        var modal = await window.getTopModal();
         assert.notEqual(modal, null);
         const button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
         assert.notEqual(button, null);
@@ -91,7 +92,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
@@ -100,7 +101,8 @@ describe('Testsuit', function () {
     xit('#create db dump', async function () {
         this.timeout(60000);
 
-        const ac = helper.getApiController();
+        const app = helper.getApp();
+        const ac = app.getApiController();
         const tools = ac.getTools();
         await tools.downloadBackup();
 
@@ -122,7 +124,7 @@ describe('Testsuit', function () {
         this.timeout(60000);
 
         const app = helper.getApp();
-        const ac = helper.getApiController();
+        const ac = app.getApiController();
         const tools = ac.getTools();
 
         await tools.restoreBackup(path.join(__dirname, './data/sql/start_01.sql'));
@@ -135,7 +137,8 @@ describe('Testsuit', function () {
         await app.login();
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const window = app.getWindow();
+        const modal = await window.getTopModal();
         assert.equal(modal, null);
 
         //TODO: verify data
@@ -171,7 +174,8 @@ describe('Testsuit', function () {
         await app.logout();
         await TestHelper.delay(1000);
 
-        var modal = await app.getTopModal();
+        const window = app.getWindow();
+        var modal = await window.getTopModal();
         assert.notEqual(modal, null);
 
         text = await openApi(path);

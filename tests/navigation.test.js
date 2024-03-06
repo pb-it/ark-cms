@@ -28,7 +28,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
@@ -50,31 +50,32 @@ describe('Testsuit', function () {
 
         var str = fs.readFileSync(path.join(__dirname, './data/models/studio.json'), 'utf8');
         var model = JSON.parse(str);
-        await helper.getModelController().addModel(model);
+        await app.getModelController().addModel(model);
 
         str = fs.readFileSync(path.join(__dirname, './data/models/star.json'), 'utf8');
         model = JSON.parse(str);
-        await helper.getModelController().addModel(model);
+        await app.getModelController().addModel(model);
 
         str = fs.readFileSync(path.join(__dirname, './data/models/movie.json'), 'utf8');
         model = JSON.parse(str);
-        await helper.getModelController().addModel(model);
+        await app.getModelController().addModel(model);
 
         await app.reload();
         await TestHelper.delay(1000);
 
+        const ds = app.getDataService();
         str = fs.readFileSync(path.join(__dirname, './data/crud/studios.json'), 'utf8');
         var data = JSON.parse(str);
         var res;
         for (var entry of data) {
-            res = await app.create('studio', entry);
+            res = await ds.create('studio', entry);
             assert.notEqual(Object.keys(res).length, 0);
         }
 
         str = fs.readFileSync(path.join(__dirname, './data/crud/movies.json'), 'utf8');
         data = JSON.parse(str);
         for (var entry of data) {
-            res = await app.create('movie', entry);
+            res = await ds.create('movie', entry);
             assert.notEqual(Object.keys(res).length, 0);
         }
 
@@ -157,7 +158,8 @@ describe('Testsuit', function () {
         });
         assert.equal(response, 'OK');
 
-        var sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('test');
@@ -174,14 +176,15 @@ describe('Testsuit', function () {
         const url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/test1');
 
-        res = await app.delete('_registry', 'profiles');
+        const ds = app.getDataService();
+        res = await ds.delete('_registry', 'profiles');
         assert.notEqual(Object.keys(res).length, 0);
 
         await app.navigate('/');
         await app.reload();
         await TestHelper.delay(1000);
 
-        sidemenu = app.getSideMenu();
+        sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         var menu = await sidemenu.getEntry('test');
@@ -205,7 +208,8 @@ describe('Testsuit', function () {
         this.timeout(30000);
 
         const app = helper.getApp();
-        var sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('movie');
@@ -222,8 +226,8 @@ describe('Testsuit', function () {
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 5);
 
-        const xpathView = `//*[@id="topnav"]/div/div/div/i[contains(@class, 'fa-plus')]`;
-        var view = await driver.findElements(webdriver.By.xpath(xpathView));
+        const xpathAdd = `//*[@id="topnav"]/div/div/div/i[contains(@class, 'fa-plus')]`;
+        var view = await driver.findElements(webdriver.By.xpath(xpathAdd));
         assert.equal(view.length, 1);
         await view[0].click();
         await TestHelper.delay(1000);
@@ -233,9 +237,9 @@ describe('Testsuit', function () {
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
-        var form = await helper.getForm(panels[0]);
+        var form = await window.getForm(panels[0]);
         assert.notEqual(form, null);
-        var input = await helper.getFormInput(form, 'name');
+        var input = await window.getFormInput(form, 'name');
         assert.notEqual(input, null);
         await input.sendKeys('Test');
         await TestHelper.delay(1000);
@@ -253,9 +257,9 @@ describe('Testsuit', function () {
         assert.equal(url, config['host'] + '/data/movie/new');
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
-        form = await helper.getForm(panels[0]);
+        form = await window.getForm(panels[0]);
         assert.notEqual(form, null);
-        input = await helper.getFormInput(form, 'name');
+        input = await window.getFormInput(form, 'name');
         var value = await input.getAttribute('value');
         //assert.equal(value, 'John Test'); //TODO: fails
         assert.equal(value, '');
@@ -263,7 +267,7 @@ describe('Testsuit', function () {
         await TestHelper.delay(1000);
 
         //app.navigate('/data/movie');
-        sidemenu = app.getSideMenu();
+        sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('star');
@@ -281,9 +285,9 @@ describe('Testsuit', function () {
         assert.equal(url, config['host'] + '/data/movie/new');
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
-        form = await helper.getForm(panels[0]);
+        form = await window.getForm(panels[0]);
         assert.notEqual(form, null);
-        input = await helper.getFormInput(form, 'name');
+        input = await window.getFormInput(form, 'name');
         var value = await input.getAttribute('value');
         assert.equal(value, 'Test');
 

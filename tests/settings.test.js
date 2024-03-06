@@ -35,7 +35,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
@@ -66,24 +66,25 @@ describe('Testsuit', function () {
         await app.reload();
 
         await TestHelper.delay(3000); // reload with failed attempt to connect to API takes longer
-        modal = await app.getTopModal();
+        const window = app.getWindow();
+        modal = await window.getTopModal();
         if (!modal) {
             await TestHelper.delay(3000); // even longer when target is not on localhost - timeout currently configured with 5 seconds
-            modal = await app.getTopModal();
+            modal = await window.getTopModal();
         }
         assert.notEqual(modal, null, "Modal with connection-error not open");
         await checkErrorMessage(true);
         await modal.closeModal();
 
-        const sidemenu = app.getSideMenu();
+        const sidemenu = window.getSideMenu();
         await sidemenu.click('Configuration');
 
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.notEqual(modal, null);
         var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
-        var input = await helper.getFormInput(form, 'api');
+        var input = await window.getFormInput(form, 'api');
         assert.notEqual(input, null);
         await input.clear();
         if (helper.getConfig()['api'])
@@ -97,7 +98,7 @@ describe('Testsuit', function () {
 
         await checkErrorMessage(false);
 
-        modal = await app.getTopModal(); // close tutorial modal
+        modal = await window.getTopModal(); // close tutorial modal
         assert.notEqual(modal, null);
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Skip"]'));
         assert.notEqual(button, null);
@@ -105,7 +106,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();

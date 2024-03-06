@@ -25,7 +25,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
@@ -44,7 +44,8 @@ describe('Testsuit', function () {
         this.timeout(10000);
 
         const app = helper.getApp();
-        const sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('movie');
@@ -54,12 +55,12 @@ describe('Testsuit', function () {
 
         const xpath = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         const panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        const form = await helper.getForm(panel);
+        const form = await window.getForm(panel);
         assert.notEqual(form, null);
-        const input = await helper.getFormInput(form, 'name');
+        const input = await window.getFormInput(form, 'name');
         assert.notEqual(input, null);
         await input.sendKeys('TestMovie');
-        const button = await helper.getButton(panel, 'Create');
+        const button = await window.getButton(panel, 'Create');
         assert.notEqual(button, null);
         await button.click();
 

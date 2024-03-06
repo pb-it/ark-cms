@@ -46,7 +46,7 @@ npm install
 
 ### Configuration
 
-Server configuration is defined in ./config/server.js.
+Server configuration is defined in `./config/server-config.js`.
 
 By default the application uses port 4000.
 

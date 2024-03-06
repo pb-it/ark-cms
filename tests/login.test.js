@@ -43,7 +43,8 @@ describe('Testsuit', function () {
         this.timeout(10000);
 
         const app = helper.getApp();
-        var modal = await app.getTopModal();
+        const window = app.getWindow();
+        var modal = await window.getTopModal();
         if (modal) {
             var head;
             try {
@@ -58,7 +59,7 @@ describe('Testsuit', function () {
 
                     await app.reload();
                     await TestHelper.delay(1000);
-                    modal = await app.getTopModal();
+                    modal = await window.getTopModal();
                 }
             }
         }
@@ -69,15 +70,15 @@ describe('Testsuit', function () {
         input = await modal.findElement(webdriver.By.css('input[id="password"]'));
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('admin');
-        var button = await helper.getButton(modal, 'Login');
+        var button = await window.getButton(modal, 'Login');
         assert.notEqual(button, null, 'Login button not found!');
         await button.click();
 
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         if (modal) {
-            button = await helper.getButton(modal, 'Skip');
+            button = await window.getButton(modal, 'Skip');
             if (button)
                 button.click();
         }

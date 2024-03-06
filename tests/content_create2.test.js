@@ -28,7 +28,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
@@ -47,7 +47,8 @@ describe('Testsuit', function () {
         this.timeout(15000);
 
         const app = helper.getApp();
-        const sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('movie');
@@ -79,12 +80,12 @@ describe('Testsuit', function () {
         assert.notEqual(item, null, 'ContextMenu Entry not found');
         await item.click();
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         xpath = `//p[text()="John Doe"]`;
         item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
 
         await modal.closeModal();
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();

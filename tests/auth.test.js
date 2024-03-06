@@ -25,7 +25,7 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        const modal = await app.getTopModal();
+        const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
         await app.setDebugMode(true);
@@ -46,7 +46,8 @@ describe('Testsuit', function () {
         this.timeout(60000);
 
         const app = helper.getApp();
-        const sidemenu = app.getSideMenu();
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await TestHelper.delay(1000);
         await sidemenu.click('_user');
@@ -56,17 +57,17 @@ describe('Testsuit', function () {
 
         const xpath = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         const panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        const form = await helper.getForm(panel);
-        var input = await helper.getFormInput(form, 'email');
+        const form = await window.getForm(panel);
+        var input = await window.getFormInput(form, 'email');
         assert.notEqual(input, null);
         await input.sendKeys('-');
-        input = await helper.getFormInput(form, 'username');
+        input = await window.getFormInput(form, 'username');
         assert.notEqual(input, null);
         await input.sendKeys('user');
-        input = await helper.getFormInput(form, 'password');
+        input = await window.getFormInput(form, 'password');
         assert.notEqual(input, null);
         await input.sendKeys('user');
-        //input = await helper.getFormInput(form, 'roles');
+        //input = await window.getFormInput(form, 'roles');
         //const option = await form.findElement(webdriver.By.css('select#roles... > option[value="user"]'));
         const option = await form.findElement(webdriver.By.xpath('//div[@class="select"]/datalist[starts-with(@id,"roles")]/option[text()="user"]'));
         assert.notEqual(option, null);
@@ -76,13 +77,13 @@ describe('Testsuit', function () {
         await input.sendKeys(value);
         await input.sendKeys(webdriver.Key.ENTER);
         await TestHelper.delay(100);
-        button = await helper.getButton(panel, 'Create');
+        button = await window.getButton(panel, 'Create');
         assert.notEqual(button, null);
         await button.click();
 
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.notEqual(modal, null);
         button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
         assert.notEqual(button, null, 'Button not found!');
@@ -90,33 +91,33 @@ describe('Testsuit', function () {
 
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         await app.logout();
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.notEqual(modal, null);
 
         await app.login('user', 'user');
 
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         await app.logout();
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.notEqual(modal, null);
 
         await app.login();
 
         await TestHelper.delay(1000);
 
-        modal = await app.getTopModal();
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();
