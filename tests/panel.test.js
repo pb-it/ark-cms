@@ -167,7 +167,7 @@ describe('Testsuit', function () {
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
         form = await window.getForm(panels[0]);
-        //await checkForm(form); //TODO: correct style to remove scrollbar when floating is set
+        await checkForm(form);
 
         const xpathView = `//*[@id="topnav"]/div/div/div/i[contains(@class, 'fa-th')]`;
         var view = await driver.findElements(webdriver.By.xpath(xpathView));
@@ -198,7 +198,11 @@ describe('Testsuit', function () {
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
         form = await window.getForm(panels[0]);
-        //await checkForm(form); //TODO: correct style to remove scrollbar when floating is set
+        await checkForm(form);
+
+        const title = await panels[0].getAttribute('title');
+        console.log(title);
+        assert.equal(title, '');
 
         return Promise.resolve();
     });

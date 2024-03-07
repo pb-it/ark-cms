@@ -36,7 +36,7 @@ div.details>div.value.text {
 
 #canvas form.crudform.inline>div.formentry>div.value,
 #canvas div.details>div.value {
-    min-width: 200px;
+    min-width: 830px;
     max-width: calc(100% - 170px);
     overflow: auto;
 }

@@ -12,6 +12,7 @@
     "exclude": [
         "**/*.js",
         "dist",
+        "types",
         "node_modules"
     ]
 }

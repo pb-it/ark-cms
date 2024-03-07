@@ -24,7 +24,8 @@
     "main": "index.js",
     "scripts": {
         "clean": "node scripts/clean.js",
-        "build": "tsc && babel public -d dist/public --copy-files",
+        "build": "tsc && node scripts/build.js",
+        "build:babel": "tsc && babel public -d dist/public --copy-files",
         "start": "node index.js",
         "test": "mocha --bail tests/root.test.js",
         "test:clear": "mocha --bail tests/clear.test.js",

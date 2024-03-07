@@ -31,11 +31,10 @@ class CrudPanel extends CanvasPanel {
         } else
             this._skeleton = skeleton;
 
-        if (this._config.details == DetailsEnum.none || this._config.details == DetailsEnum.title)
-            this._title = this._obj.getTitle();
-
         const action = this._config['action'];
         if ((!action || action == ActionEnum.read) && this._config['details'] != DetailsEnum.all) {
+            this._title = this._obj.getTitle();
+
             if (this._bSelectable === undefined)
                 this._bSelectable = true;
             if (this._bContextMenu === undefined)
