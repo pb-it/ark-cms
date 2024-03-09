@@ -204,7 +204,60 @@ describe('Testsuit', function () {
         return Promise.resolve();
     });
 
-    it('#test add', async function () {
+    /**
+     * check for outdated/multiple listeners on side menu
+     */
+    it('#test context menu in side panel', async function () {
+        this.timeout(10000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await TestHelper.delay(1000);
+
+        var sidepanel = await driver.findElement(webdriver.By.xpath('/html/body/div[@id="sidenav"]/div[@id="sidepanel"]'));
+        assert.notEqual(sidepanel, null);
+        var contextMenu = await window.openContextMenu(sidepanel);
+        await TestHelper.delay(1000);
+
+        const body = await driver.findElement(webdriver.By.xpath('/html/body'));
+        assert.notEqual(body, null);
+        await body.click();
+        await TestHelper.delay(1000);
+        rect = await sidepanel.getRect();
+        assert.equal(rect['width'], 0);
+        const xpathContextMenu = `/html/body/ul[@class="contextmenu"]`;
+        var elements = await driver.findElements(webdriver.By.xpath(xpathContextMenu));
+        assert.equal(elements.length, 0);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await TestHelper.delay(1000);
+
+        sidepanel = await driver.findElement(webdriver.By.xpath('/html/body/div[@id="sidenav"]/div[@id="sidepanel"]'));
+        assert.notEqual(sidepanel, null);
+        contextMenu = await window.openContextMenu(sidepanel);
+        await TestHelper.delay(1000);
+
+        elements = await driver.findElements(webdriver.By.xpath(xpathContextMenu));
+        assert.equal(elements.length, 1);
+        await contextMenu.click('Edit');
+        await TestHelper.delay(1000);
+
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        elements = await driver.findElements(webdriver.By.xpath(xpathContextMenu));
+        assert.equal(elements.length, 0);
+        await modal.closeModal();
+        await TestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        return Promise.resolve();
+    });
+
+    it('#test create through top navigation', async function () {
         this.timeout(30000);
 
         const app = helper.getApp();

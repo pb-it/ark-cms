@@ -47,6 +47,7 @@ class SidePanel {
         this._$div.append(this._$content);
         this._$div[0].style.width = 'auto';
 
+        this._$content.off('contextmenu');
         this._$content.on('contextmenu', async function (event) {
             event.preventDefault();
             event.stopPropagation();
@@ -76,7 +77,7 @@ class SidePanel {
                         const panel = PanelController.createPanelForObject(obj, panelConfig);
                         const modal = await panel.openInModal(bExists ? ActionEnum.update : ActionEnum.create);
                     }
-                    return Promise.resolve(true);
+                    return Promise.resolve();
                 });
                 editEntry.setIcon(new Icon('pen-to-square'));
                 entries.push(editEntry);
