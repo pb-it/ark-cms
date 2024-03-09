@@ -305,7 +305,8 @@ class Breadcrumb {
 
             menuItem.addSubMenuGroup(subMenuGroup);
             var $div = menuItem.renderMenuItem();
-            $div.css({ 'margin': '0 1 0 1' });
+            $div.addClass('filter')
+                .css({ 'margin': '0 1 0 1' });
 
             this._$breadcrumb.append($div);
         }

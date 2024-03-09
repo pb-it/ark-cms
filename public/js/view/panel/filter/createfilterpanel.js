@@ -197,24 +197,24 @@ class CreateFilterPanel extends Panel {
     }
 
     _applyFilter(filter) {
-        var state = app.controller.getStateController().getState();
-
+        const controller = app.getController();
+        var state = controller.getStateController().getState();
         if (state.filters) {
             var bReplaced = false;
-            for (var i = 0; i < state.filters.length; i++) {
-                if (state.filters[i].name === filter.name) {
-                    state.filters[i] = filter;
-                    bReplaced = true;
-                    break;
+            if (filter.name) {
+                for (var i = 0; i < state.filters.length; i++) {
+                    if (state.filters[i].name === filter.name) {
+                        state.filters[i] = filter;
+                        bReplaced = true;
+                        break;
+                    }
                 }
             }
             if (!bReplaced)
                 state.filters.push(filter);
         } else
             state.filters = [filter];
-
-        app.controller.loadState(state, true);
-
+        controller.loadState(state, true);
         this.dispose();
     }
 }

@@ -33,12 +33,19 @@ class MenuItem {
             if (this._conf.tooltip)
                 $div.prop('title', this._conf.tooltip);
 
-            if (this._conf.icon)
-                $div.append(new Icon(this._conf.icon).renderIcon());
+            var $icon;
+            if (this._conf.icon) {
+                $icon = new Icon(this._conf.icon).renderIcon();
+                $div.append($icon);
+            }
 
             if (this._conf.name) {
-                if (this._conf.icon)
-                    $div.append(SPACE + SPACE);
+                if ($icon)
+                    $icon.css({
+                        'min-width': '16px',
+                        'margin-right': '8px',
+                        'text-align': 'center'
+                    });
 
                 $div.append(this._conf.name);
                 if (this._subMenuGroup) {
