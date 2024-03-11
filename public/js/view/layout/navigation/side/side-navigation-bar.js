@@ -17,6 +17,7 @@ class SideNavigationBar {
 
     constructor() {
         this._$sideNav = $('div#sidenav');
+        this._$sideNav.empty();
 
         this._topIconBarExtensions = [];
         this._bottomIconBarExtensions = [];

@@ -262,9 +262,12 @@ Do you want to continue?`))
                 .click(async function (event) {
                     event.stopPropagation();
 
+                    const controller = app.getController();
                     try {
                         var bReloadApp = false;
-                        var fdata = await this._form.readForm();
+                        const fdata = await this._form.readForm(true, true, true);
+                        const cc = controller.getConfigController();
+                        const sc = controller.getStorageController();
 
                         if (fdata['bConfirmOnApply']) {
                             if (!await controller.getModalController().openDiffJsonModal(this._data, fdata))
@@ -279,12 +282,16 @@ Do you want to continue?`))
                             cc.setApi(fdata['api']);
                             bReloadApp = true;
                         }
+                        if (this._data['bIndexedDB'] !== fdata['bIndexedDB'])
+                            bReloadApp = true;
 
-                        var conf = cc.getDebugConfig();
-                        conf['bDebug'] = fdata['bDebug']
-                        cc.setDebugConfig(conf);
+                        if (this._data['bDebug'] !== fdata['bDebug']) {
+                            const conf = cc.getDebugConfig();
+                            conf['bDebug'] = fdata['bDebug']
+                            cc.setDebugConfig(conf);
+                            bReloadApp = true;
+                        }
 
-                        var sc = controller.getStorageController();
                         sc.storeLocal('bExperimentalFeatures', fdata['bExperimentalFeatures']);
                         sc.storeLocal('bConfirmOnLeave', fdata['bConfirmOnLeave']);
                         sc.storeLocal('bConfirmOnApply', fdata['bConfirmOnApply']);
@@ -293,14 +300,13 @@ Do you want to continue?`))
                         sc.storeLocal('bAutomaticUpdateIndexedDB', fdata['bAutomaticUpdateIndexedDB']);
 
                         if (bReloadApp) {
-                            var db = controller.getDatabase();
+                            const db = controller.getDatabase();
                             if (db)
                                 await db.deleteDatabase();
-                            controller.reloadApplication();
-                        } else {
+                            controller.reloadApplication(true);
+                        } else
                             controller.reloadState();
-                            this.dispose();
-                        }
+                        this.dispose();
                     } catch (error) {
                         controller.showError(error);
                     }
@@ -332,7 +338,7 @@ Do you want to continue?`))
 
     async _hasChanged() {
         var org = this._data;
-        var current = await this._form.readForm();
+        var current = await this._form.readForm(true, true, true);
         return Promise.resolve(!isEqualJson(org, current));
     }
 }

@@ -18,18 +18,18 @@ class Filter {
     static filterStr(typeString, items, str) {
         var filtered_items;
         if (items) {
-            var state = app.controller.getStateController().getState();
-            var path = Filter.replaceType(state.typeString, str)
+            const controller = app.getController();
+            const state = controller.getStateController().getState();
+            const path = Filter.replaceType(state['typeString'], str);
             if (path) {
                 filtered_items = jPath(items, path);
             } else {
                 if (typeString) {
-
+                    const model = controller.getModelController().getModel(typeString);
+                    const mac = model.getModelAttributesController();
                     if (state && state['typeString'] && typeString == state['typeString'] &&
                         state['panelConfig'] && state['panelConfig']['searchFields']) {
                         filtered_items = [];
-                        const model = app.getController().getModelController().getModel(typeString);
-                        const mac = model.getModelAttributesController();
                         var attribute;
                         var obj;
                         var add;
@@ -51,14 +51,23 @@ class Filter {
                             }
                         }
                     } else {
-                        const model = app.controller.getModelController().getModel(typeString);
-                        var prop = model.getModelDefaultsController().getDefaultTitleProperty();
-                        var attribute = model.getModelAttributesController().getAttribute(prop);
+                        const prop = model.getModelDefaultsController().getDefaultTitleProperty();
+                        const attribute = mac.getAttribute(prop);
                         if (attribute) {
-                            var obj = {};
-                            obj[prop] = str;
-                            if (attribute['dataType'] != 'relation')
+                            if (attribute['dataType'] != 'relation') {
+                                if (!attribute['persistant']) {
+                                    const prepare = model.getPrepareDataAction();
+                                    if (prepare) {
+                                        for (var item of items) {
+                                            if (!item[prop])
+                                                prepare(item);
+                                        }
+                                    }
+                                }
+                                const obj = {};
+                                obj[prop] = str;
                                 filtered_items = Filter._filter(items, obj, attribute);
+                            }
                         } else {
                             var name = Filter.filterString(items, { name: str }, "name", FilterEnum.contains);
                             var title = Filter.filterString(items, { title: str }, "title", FilterEnum.contains);

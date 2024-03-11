@@ -1,5 +1,5 @@
 const config = require('./config/test-config.js');
-const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
+const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
 describe("Root Suite", function () {
 
@@ -9,7 +9,7 @@ describe("Root Suite", function () {
         this.timeout(10000);
 
         if (!global.helper) {
-            global.helper = new TestHelper();
+            global.helper = new ExtendedTestHelper();
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
@@ -33,10 +33,12 @@ describe("Root Suite", function () {
     require('./content_create.test.js');
     require('./model_edit.test.js');
     require('./content_create2.test.js');
+    require('./delete.test.js');
     require('./panel.test.js');
     require('./contextmenu.test.js');
     require('./navigation.test.js');
     require('./search.test.js');
+    require('./sort.test.js');
     require('./filter.test.js');
     require('./view.test.js');
     require('./idb.test.js');

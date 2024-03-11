@@ -94,6 +94,21 @@ class BasicFormEntry extends FormEntry {
                         .attr('id', this._id)
                         .val(value);
                     break;
+                case "time":
+                    if (this._attribute.size)
+                        size = this._attribute.size;
+                    else
+                        size = "25";
+
+                    this._$input = $('<input/>')
+                        .attr('size', size)
+                        .attr('name', name)
+                        .attr('id', this._id)
+                        .val(value);
+                    if (typeof $.timepicker === 'undefined')
+                        await BasicFormEntry.loadTimePicker();
+                    this._$input.timepicker();
+                    break;
                 case "date":
                     if (this._attribute.size)
                         size = this._attribute.size;
@@ -101,9 +116,11 @@ class BasicFormEntry extends FormEntry {
                         size = "25";
 
                     if (value) {
-                        var index = value.indexOf('T');
-                        if (index >= 0)
-                            value = value.substring(0, index);
+                        var date = new Date(value);
+                        if (this._attribute['timeZone'])
+                            value = date.toLocaleDateString(app.getController().getLocale(), { timeZone: this._attribute['timeZone'] });
+                        else
+                            value = date.toLocaleDateString(app.getController().getLocale());
                     }
 
                     this._$input = $('<input/>')
@@ -123,6 +140,16 @@ class BasicFormEntry extends FormEntry {
                     else
                         size = "25";
 
+                    if (value) {
+                        if (name != 'created_at' && name != 'updated_at') {
+                            var date = new Date(value);
+                            if (this._attribute['timeZone'])
+                                value = date.toLocaleString(app.getController().getLocale(), { timeZone: this._attribute['timeZone'] });
+                            else
+                                value = date.toLocaleString(app.getController().getLocale());
+                        }
+                    }
+
                     this._$input = $('<input/>')
                         .attr('size', size)
                         .attr('name', name)
@@ -134,21 +161,6 @@ class BasicFormEntry extends FormEntry {
                         dateFormat: 'yy-mm-dd',
                         timeFormat: 'HH:mm:ss'
                     });
-                    break;
-                case "time":
-                    if (this._attribute.size)
-                        size = this._attribute.size;
-                    else
-                        size = "25";
-
-                    this._$input = $('<input/>')
-                        .attr('size', size)
-                        .attr('name', name)
-                        .attr('id', this._id)
-                        .val(value);
-                    if (typeof $.timepicker === 'undefined')
-                        await BasicFormEntry.loadTimePicker();
-                    this._$input.timepicker();
                     break;
                 case "string":
                 case "url":
@@ -343,6 +355,12 @@ class BasicFormEntry extends FormEntry {
                             case "json":
                                 if (value)
                                     data = JSON.parse(value);
+                                break;
+                            case "date":
+                            case "datetime":
+                            case "timestamp":
+                                var date = new Date(value);
+                                data = date.toISOString();
                                 break;
                             default:
                                 data = value;

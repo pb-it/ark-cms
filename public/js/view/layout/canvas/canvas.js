@@ -162,12 +162,26 @@ class Canvas {
 
             if (action == ActionEnum.create || action == ActionEnum.update) {
                 panelConfig.crudCallback = async function (data) {
-                    var state = new State();
-                    state.typeString = typeString;
-                    if (data)
-                        state.id = data.id;
-
-                    app.getController().loadState(state, true);
+                    const state = new State();
+                    state['typeString'] = typeString;
+                    const model = controller.getModelController().getModel(typeString);
+                    const def = model.getDefinition();
+                    if (def['options']['increments'])
+                        state['id'] = data['id'];
+                    else {
+                        const attributes = model.getModelAttributesController().getAttributes();
+                        const prime = [];
+                        for (var attr of attributes) {
+                            if (attr['primary'])
+                                prime.push(attr['name']);
+                        }
+                        if (prime.length == 1) {
+                            const key = prime[0];
+                            state['where'] = key + "=" + data[key];
+                        } else
+                            throw new Error('Failed to determine primary key!');
+                    }
+                    controller.loadState(state, true);
                     return Promise.resolve(true);
                 };
             }

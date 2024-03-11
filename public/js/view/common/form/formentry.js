@@ -50,6 +50,10 @@ class FormEntry {
         return this._visible;
     }
 
+    isEditable() {
+        return !this._attribute['readonly'];
+    }
+
     hide() {
         this._visible = false;
         if (this._$div)

@@ -13,6 +13,7 @@ class TopNavigationBar {
 
     constructor() {
         this._$topNavigationBar = $('div#topnav');
+        this._$topNavigationBar.empty();
 
         this._breadcrumb = new Breadcrumb();
         this._$breadcrumb = this._breadcrumb.initBreadcrumb();

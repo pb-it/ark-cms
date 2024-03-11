@@ -63,13 +63,13 @@ class CrudObject {
      * @param {*} newdata - in contrast to full objects of olddata the releations only consist of the ids
      * @returns 
      */
-    static async getChanges(skeleton, olddata, newdata, bIncludeHidden) {
+    static async getChanges(skeleton, olddata, newdata, bIncludeHidden, bIncludeReadonly) {
         var relevant;
         if (skeleton && newdata) {
             relevant = {};
             var property;
             for (var field of skeleton) {
-                if (!field['hidden'] || bIncludeHidden) {
+                if ((!field['hidden'] || bIncludeHidden) && (!field['readonly'] || bIncludeReadonly)) {
                     property = field.name;
                     if (newdata[property] === null || newdata[property] === undefined) {
                         if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
@@ -109,19 +109,17 @@ class CrudObject {
                                     } else
                                         relevant[property] = newdata[property];
                                     break;
-                                case "date":
+                                /*case "date":
+                                case "datetime":
+                                case "timestamp":
                                     if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
-                                        if (newdata[property].indexOf('T') >= 0) {
-                                            if (olddata[property] !== newdata[property])
-                                                relevant[property] = newdata[property];
-                                        } else {
-                                            var index = olddata[property].indexOf('T');
-                                            if (olddata[property].substring(0, index) !== newdata[property])
+                                        if (olddata[property] !== newdata[property]) {
+                                            if (new Date(olddata[property]).getTime() !== new Date(newdata[property]).getTime())
                                                 relevant[property] = newdata[property];
                                         }
                                     } else
                                         relevant[property] = newdata[property];
-                                    break;
+                                    break;*/
                                 case "json":
                                     if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
                                         if (!isEqualJson(olddata[property], newdata[property]))

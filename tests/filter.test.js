@@ -3,7 +3,7 @@ const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
 const config = require('./config/test-config.js');
-const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
+const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
 describe('Testsuit', function () {
 
@@ -13,17 +13,17 @@ describe('Testsuit', function () {
         this.timeout(30000);
 
         if (!global.helper) {
-            global.helper = new TestHelper();
+            global.helper = new ExtendedTestHelper();
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
@@ -43,39 +43,9 @@ describe('Testsuit', function () {
     xit('#test prepare', async function () {
         this.timeout(30000);
 
+        await helper.setupScenario(1);
+
         const app = helper.getApp();
-
-        var str = fs.readFileSync(path.join(__dirname, './data/models/studio.json'), 'utf8');
-        var model = JSON.parse(str);
-        await app.getModelController().addModel(model);
-
-        str = fs.readFileSync(path.join(__dirname, './data/models/star.json'), 'utf8');
-        model = JSON.parse(str);
-        await app.getModelController().addModel(model);
-
-        str = fs.readFileSync(path.join(__dirname, './data/models/movie.json'), 'utf8');
-        model = JSON.parse(str);
-        await app.getModelController().addModel(model);
-
-        await app.reload();
-        await TestHelper.delay(1000);
-
-        const ds = app.getDataService();
-        str = fs.readFileSync(path.join(__dirname, './data/crud/studios.json'), 'utf8');
-        var data = JSON.parse(str);
-        var res;
-        for (var entry of data) {
-            res = await ds.create('studio', entry);
-            assert.notEqual(Object.keys(res).length, 0);
-        }
-
-        str = fs.readFileSync(path.join(__dirname, './data/crud/movies.json'), 'utf8');
-        data = JSON.parse(str);
-        for (var entry of data) {
-            res = await ds.create('movie', entry);
-            assert.notEqual(Object.keys(res).length, 0);
-        }
-
         await app.navigate('/data/studio');
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -95,18 +65,18 @@ describe('Testsuit', function () {
         const window = app.getWindow();
         const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         var menu = await sidemenu.getEntry('other');
         if (menu) {
             await sidemenu.click('other');
-            await TestHelper.delay(1000);
+            await ExtendedTestHelper.delay(1000);
         }
         await sidemenu.click('movie');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Show');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -118,7 +88,7 @@ describe('Testsuit', function () {
         var button = await window.getButton(modal, 'New');
         assert.notEqual(button, null);
         await button.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -129,16 +99,16 @@ describe('Testsuit', function () {
         var input = await form.getFormInput('query');
         assert.notEqual(input, null);
         await input.sendKeys('$.[?(@.studio.id==1)]');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         button = await window.getButton(modal, 'Filter');
         assert.notEqual(button, null);
         await button.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
         await modal.closeModal();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
@@ -151,7 +121,7 @@ describe('Testsuit', function () {
         button = await window.getButton(modal, 'New');
         assert.notEqual(button, null);
         await button.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -162,16 +132,16 @@ describe('Testsuit', function () {
         var input = await form.getFormInput('query');
         assert.notEqual(input, null);
         await input.sendKeys('$.[?(@.name=~/(man|pirate|potter)/i)]');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         button = await window.getButton(modal, 'Filter');
         assert.notEqual(button, null);
         await button.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
         await modal.closeModal();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
@@ -188,11 +158,11 @@ describe('Testsuit', function () {
         menu = await driver.findElements(webdriver.By.xpath(xpathMenu));
         assert.equal(menu.length, 2);
         await menu[0].click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         var submenu = await menu[0].findElement(webdriver.By.xpath(`./div[contains(@class, 'submenugroup')]/div[contains(@class, 'menuitem') and text()="Edit"]`));
         assert.notEqual(submenu, null);
         await submenu.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -206,7 +176,7 @@ describe('Testsuit', function () {
         button = await window.getButton(modal, 'Save');
         assert.notEqual(button, null);
         await button.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await driver.wait(webdriver.until.alertIsPresent());
         const alert = await driver.switchTo().alert();
         text = await alert.getText();
@@ -214,12 +184,12 @@ describe('Testsuit', function () {
         await alert.accept();
 
         await modal.closeModal();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
         await app.navigate('/data/movie');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         canvas = await window.getCanvas();
         assert.notEqual(canvas, null);
         panels = await canvas.getPanels();
@@ -231,11 +201,11 @@ describe('Testsuit', function () {
         button = await window.getButton(modal, 'Marvel Studios');
         assert.notEqual(button, null);
         await button.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         button = await window.getButton(modal, 'Apply');
         assert.notEqual(button, null);
         await button.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         canvas = await window.getCanvas();
         assert.notEqual(canvas, null);
@@ -254,18 +224,18 @@ describe('Testsuit', function () {
         const window = app.getWindow();
         const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         var menu = await sidemenu.getEntry('other');
         if (menu) {
             await sidemenu.click('other');
-            await TestHelper.delay(1000);
+            await ExtendedTestHelper.delay(1000);
         }
         await sidemenu.click('movie');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Show');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -278,7 +248,7 @@ describe('Testsuit', function () {
         var button = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/button[@id="searchButton"]'));
         assert.equal(button.length, 1);
         await button[0].click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
@@ -288,11 +258,10 @@ describe('Testsuit', function () {
         assert.equal(text, 'Pirates of the Caribbean');
 
         await input[0].clear();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 5);
 
         return Promise.resolve();
     });
 });
-

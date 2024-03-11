@@ -12,6 +12,14 @@ class DataService {
                 var attr = mac.getAttribute(prop);
 
                 switch (attr['dataType']) {
+                    case 'time':
+                        if (parts[1] === "asc")
+                            arr.sort(function (a, b) { return new Date('1970-01-01T' + a[prop]) - new Date('1970-01-01T' + b[prop]); });
+                        else if (parts[1] === "desc")
+                            arr.sort(function (a, b) { return new Date('1970-01-01T' + b[prop]) - new Date('1970-01-01T' + a[prop]); });
+                        break;
+                    case 'date':
+                    case 'datetime':
                     case 'timestamp':
                         if (parts[1] === "asc")
                             arr.sort(function (a, b) { return new Date(a[prop]) - new Date(b[prop]); });
@@ -184,10 +192,8 @@ class DataService {
                 }
                 if (!res && !where) { //TODO: apply where - consider '_null='
                     res = await cache.getCompleteRecordSet();
-                    if (res) {
-                        if (sort)
-                            bSort = true;
-                    }
+                    if (res)
+                        bSort = true;
                 }
             }
         }
@@ -392,18 +398,21 @@ class DataService {
                 var cache = this._cache.getModelCache(typeString);
                 if (!cache) {
                     const model = app.getController().getModelController().getModel(typeString);
-                    if (model)
-                        cache = await this._cache.createModelCache(model);
-                    else
+                    if (model) {
+                        if (model.getDefinition()['options']['increments'])
+                            cache = await this._cache.createModelCache(model);
+                    } else
                         throw new Error('Unknown model \'' + typeString + '\'');
                 }
-                if (action == ActionEnum.delete) {
-                    if (resp == "OK") //delete default 200 response text
-                        await cache.delete(id);
-                    else
-                        throw new Error("deleting record failed");
-                } else
-                    await cache.cacheData(resource, resp);
+                if (cache) {
+                    if (action == ActionEnum.delete) {
+                        if (resp == "OK") //delete default 200 response text
+                            await cache.delete(id);
+                        else
+                            throw new Error("deleting record failed");
+                    } else
+                        await cache.cacheData(resource, resp);
+                }
                 res = resp;
             } else
                 throw new Error("request returned empty respose");

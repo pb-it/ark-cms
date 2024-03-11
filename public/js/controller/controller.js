@@ -126,7 +126,7 @@ class Controller {
     }
 
     getLocale() {
-        return "de-DE";
+        return navigator.language; // "de-DE"
     }
 
     async initController() {
@@ -155,6 +155,7 @@ class Controller {
             try {
                 await this._database.initDatabase();
             } catch (error) {
+                console.error(error);
                 alert(`IndexDB encountered an error while restoring your cached data!
 More details are provided within the browser console.
 The usage of the cache will be paused until the problem got solved.
@@ -782,9 +783,15 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
         return changed;
     }
 
-    reloadApplication() {
-        this.setLoadingState(true);
-        location.reload();
+    async reloadApplication(bSoft) {
+        if (bSoft) {
+            app = new Application();
+            await app.run();
+        } else {
+            this.setLoadingState(true);
+            location.reload();
+        }
+        return Promise.resolve();
     }
 
     async reloadState(bIgnoreCache) {

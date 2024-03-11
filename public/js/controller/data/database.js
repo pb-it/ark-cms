@@ -19,12 +19,55 @@ class Database {
         return new Error(msg);
     }
 
+    static async _databaseExists(name) {
+        return new Promise(async function (resolve, reject) {
+            if (navigator.userAgent.includes('Chrome')) {
+                var exists = false;
+                const databases = await window.indexedDB.databases();
+                if (databases)
+                    exists = databases.map(db => db.name).includes(name);
+                resolve(exists);
+            } else {
+                const request = indexedDB.open(name);
+                var exists = true;
+                var timeout = setTimeout(function () {
+                    timeout = null;
+                    if (confirm('Request timeout!\n\nThe database might be blocked by another tab.\nClosing the tab or resetting its connection might resolve the problem.\n\nIf the problem remains and you have already loaded data you can continue progress, but futher changes will not be cached in database until successfull reconnect.\nContinue without database connection?')) {
+                        reject(new Error(`Database error: blocked`));
+                    }
+                }, 1000);
+                request.onerror = (event) => {
+                    clearTimeout(timeout);
+                    const bAborted = (event.target.error.name == 'AbortError' && event.target.error.code == 20);
+                    if (bAborted && !exists)
+                        resolve(exists);
+                    else
+                        reject(Database._parseError(event));
+                };
+                request.onsuccess = function (event) {
+                    clearTimeout(timeout);
+                    const db = event.target.result;
+                    if (db) {
+                        db.close();
+                        if (!exists)
+                            indexedDB.deleteDatabase(name);
+                    }
+                    resolve(exists);
+                }
+                request.onupgradeneeded = function (event) {
+                    event.target.transaction.abort();
+                    exists = false;
+                }
+            }
+        });
+    }
+
     static async _open(name, callback) {
         return new Promise(function (resolve, reject) {
             const indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
-            var sc = app.getController().getStorageController();
+            const sc = app.getController().getStorageController();
             var version;
-            var str = sc.loadLocal(Database.VERSION_IDENT);
+            const str = sc.loadLocal(Database.VERSION_IDENT);
             if (str)
                 version = parseInt(str);
             if (version && callback)
@@ -47,12 +90,10 @@ class Database {
                 resolve(event.target.result);
             };
             request.onupgradeneeded = (event) => {
-                clearTimeout(timeout);
-                var db = event.target.result;
+                const db = event.target.result;
                 if (callback)
                     callback(db);
                 app.getController().getStorageController().storeLocal(Database.VERSION_IDENT, event.newVersion);
-                resolve(db);
             };
         });
     }
@@ -184,6 +225,12 @@ class Database {
     }
 
     async initDatabase(callback) {
+        const sc = app.getController().getStorageController();
+        var version = sc.loadLocal(Database.VERSION_IDENT);
+        if (!version) {
+            if (await Database._databaseExists(this._name))
+                await this.deleteDatabase();
+        }
         if (this._db) {
             this._db.close();
             this._db = null;

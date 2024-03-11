@@ -119,8 +119,7 @@ class State {
                         }
                         else if (part.startsWith("_search="))
                             state.search = decodeURIComponent(part.substring("_search=".length));
-                    }
-                    else {
+                    } else {
                         if (state.where)
                             state.where = `${state.where}&${part}`;
                         else

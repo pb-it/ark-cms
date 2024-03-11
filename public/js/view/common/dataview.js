@@ -91,7 +91,10 @@ class DataView {
         var label = attribute['label'];
         if (!label)
             label = attribute['name'];
-        return $('<div/>').addClass('name').html(label + ":");
+        const $div = $('<div/>').addClass('name').html(label + ":");
+        if (attribute['tooltip'])
+            $div.attr('title', attribute['tooltip']);
+        return $div;
     }
 
     static async _renderValue(attribute, data) {
@@ -150,9 +153,9 @@ class DataView {
                         let date = new Date(data[name]);
 
                         if (attribute['timeZone'])
-                            value = date.toLocaleString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
+                            value = date.toLocaleDateString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
                         else
-                            value = date.toLocaleString(app.getController().getLocale());
+                            value = date.toLocaleDateString(app.getController().getLocale());
                     } else
                         value = "";
                     $value.html(value);
@@ -160,12 +163,14 @@ class DataView {
                 case "datetime":
                 case "timestamp":
                     if (data && data[name]) {
-                        let date = new Date(data[name]);
-
-                        if (attribute['timeZone'])
-                            value = date.toLocaleString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
-                        else
-                            value = date.toLocaleString(app.getController().getLocale());
+                        if (name != 'created_at' && name != 'updated_at') {
+                            let date = new Date(data[name]);
+                            if (attribute['timeZone'])
+                                value = date.toLocaleString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
+                            else
+                                value = date.toLocaleString(app.getController().getLocale());
+                        } else
+                            value = data[name];
                     } else
                         value = "";
                     $value.html(value);
