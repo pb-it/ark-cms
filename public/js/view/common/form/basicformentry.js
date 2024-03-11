@@ -116,11 +116,11 @@ class BasicFormEntry extends FormEntry {
                         size = "25";
 
                     if (value) {
-                        var date = new Date(value);
-                        if (this._attribute['timeZone'])
-                            value = date.toLocaleDateString(app.getController().getLocale(), { timeZone: this._attribute['timeZone'] });
-                        else
-                            value = date.toLocaleDateString(app.getController().getLocale());
+                        if (value.indexOf('T') != -1) {
+                            var date = new Date(value);
+                            date.setTime(date.getTime() - date.getTimezoneOffset() * 60000);
+                            value = date.toISOString().split('T')[0];
+                        }
                     }
 
                     this._$input = $('<input/>')
@@ -142,11 +142,11 @@ class BasicFormEntry extends FormEntry {
 
                     if (value) {
                         if (name != 'created_at' && name != 'updated_at') {
-                            var date = new Date(value);
-                            if (this._attribute['timeZone'])
-                                value = date.toLocaleString(app.getController().getLocale(), { timeZone: this._attribute['timeZone'] });
-                            else
-                                value = date.toLocaleString(app.getController().getLocale());
+                            if (value.indexOf('T') != -1) {
+                                var date = new Date(value);
+                                date.setTime(date.getTime() - date.getTimezoneOffset() * 60000);
+                                value = date.toISOString().replace('T', ' ').split('.')[0];
+                            }
                         }
                     }
 
@@ -356,7 +356,10 @@ class BasicFormEntry extends FormEntry {
                                 if (value)
                                     data = JSON.parse(value);
                                 break;
-                            case "date":
+                            /*case "date":
+                                var date = new Date(value);
+                                data = date.toISOString().split('T')[0];
+                                break;*/
                             case "datetime":
                             case "timestamp":
                                 var date = new Date(value);
