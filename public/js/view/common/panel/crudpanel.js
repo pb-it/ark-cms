@@ -304,15 +304,24 @@ class CrudPanel extends CanvasPanel {
         return Promise.resolve(data);
     }
 
-    async _hasChanged() {
-        var changes;
-        if (this._config.action == ActionEnum.create || this._config.action == ActionEnum.update) {
-            const oldData = this._obj.getData();
-            const newData = await this._readData(false);
-            changes = await CrudObject.getChanges(this._skeleton, oldData, newData);
+    async getChanges(bValidate) {
+        var changed;
+        var oldData;
+        /*if (this._config.action == ActionEnum.create)
+            oldData = {}; // empty object as reference - because object creation may be done with predefined data*/
+        if (this._config.action == ActionEnum.create || this._config.action == ActionEnum.update)
+            oldData = this._obj.getData();
+        if (oldData) {
+            const newData = await this._readData(bValidate);
+            changed = await CrudObject.getChanges(this._skeleton, oldData, newData);
         }
-        if (changes)
-            return Promise.resolve(Object.keys(changes).length > 0);
+        return Promise.resolve(changed);
+    }
+
+    async _hasChanged() {
+        const changed = await this.getChanges(false);
+        if (changed)
+            return Promise.resolve(Object.keys(changed).length > 0);
         else
             return Promise.resolve(false);
     }
@@ -362,10 +371,7 @@ class CrudPanel extends CanvasPanel {
             const controller = app.getController();
             try {
                 controller.setLoadingState(true);
-
-                const oldData = {}; // empty object as reference - because object creation may be done with predefined data
-                const newData = await this._readData();
-                const changed = await CrudObject.getChanges(this._skeleton, oldData, newData);
+                const changed = await this.getChanges();
                 if (changed) {
                     if (controller.getConfigController().confirmOnApply()) {
                         controller.setLoadingState(false);
@@ -416,14 +422,13 @@ class CrudPanel extends CanvasPanel {
             const controller = app.getController();
             try {
                 controller.setLoadingState(true);
-
-                const oldData = this._obj.getData();
-                const newData = await this._readData();
-                const changed = await CrudObject.getChanges(this._skeleton, oldData, newData);
+                const changed = await this.getChanges();
                 if (changed) {
                     if (controller.getConfigController().confirmOnApply()) {
                         controller.setLoadingState(false);
                         const skeleton = this._obj.getSkeleton(true);
+                        const oldData = this._obj.getData();
+                        const newData = await this._readData();
                         const bConfirm = await controller.getModalController().openDiffJsonModal(CrudObject.collapse(skeleton, oldData), CrudObject.collapse(skeleton, newData));
                         if (!bConfirm)
                             return Promise.reject();

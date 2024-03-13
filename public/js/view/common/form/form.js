@@ -139,7 +139,7 @@ class Form {
         return Promise.resolve(this._$form);
     }
 
-    async readForm(bSkipNullValues = true, bValidate = true, bIncludeReadonly = true) {
+    async readForm(bSkipNullValues = true, bValidate = true, bIncludeHidden = true, bIncludeReadonly = true) {
         var data;
         if (this._entries) {
             data = {};
@@ -147,7 +147,7 @@ class Form {
             var name;
             var val;
             for (var entry of this._entries) {
-                if (entry.isVisible() && (entry.isEditable() || bIncludeReadonly)) {
+                if ((entry.isVisible() || bIncludeHidden) && (entry.isEditable() || bIncludeReadonly)) {
                     name = entry.getName();
                     val = await entry.readValue(bValidate);
                     if (!(val === null || val === undefined || val === '') || !bSkipNullValues)

@@ -49,10 +49,8 @@ class SelectFormEntry extends FormEntry {
 
     async readValue() {
         var data;
-        if (this._attribute['readonly']) {
-            data = this._value;
-        } else if (this._select) {
-            var selected = this._select.getSelectedIds();
+        if (this._select) { // !this._attribute['readonly']
+            const selected = this._select.getSelectedIds();
             if (selected) {
                 if (this._attribute['multiple'])
                     data = selected;
@@ -61,7 +59,8 @@ class SelectFormEntry extends FormEntry {
                         data = selected[0];
                 }
             }
-        }
+        } else
+            data = this._value;
         return Promise.resolve(data);
     }
 }

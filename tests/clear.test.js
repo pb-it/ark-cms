@@ -68,7 +68,7 @@ describe('Testsuit', function () {
 
         if (config['cdn']) {
             for (const file of fs.readdirSync(config['cdn'])) {
-                fs.unlinkSync(path.join(config['cdn'], file));
+                fs.rmSync(path.join(config['cdn'], file), { recursive: true, force: true });
             }
         } else
             this.skip();

@@ -1,0 +1,23 @@
+{
+    "name": "form",
+    "options": {
+        "increments": true,
+        "timestamps": true
+    },
+    "attributes": [
+        {
+            "name": "string",
+            "dataType": "string"
+        },
+        {
+            "name": "readonly",
+            "dataType": "text",
+            "readonly": true
+        },
+        {
+            "name": "hidden",
+            "dataType": "text",
+            "hidden": true
+        }
+    ]
+}
