@@ -63,7 +63,7 @@ class CrudObject {
      * @param {*} newdata - in contrast to full objects of olddata the releations only consist of the ids
      * @returns 
      */
-    static async getChanges(skeleton, olddata, newdata, bIncludeHidden, bIncludeReadonly) {
+    static async getChanges(skeleton, olddata, newdata, bIncludeHidden = true, bIncludeReadonly = true) {
         var relevant;
         if (skeleton && newdata) {
             relevant = {};

@@ -50,10 +50,10 @@ class StateSelect {
     }
 
     async _updateStateSelect(profile, model, action, show) {
-
-        var pc = app.controller.getProfileController();
-        var avail = pc.getProfiles();
-
+        var avail;
+        const pc = app.controller.getProfileController();
+        if (pc)
+            avail = pc.getProfiles();
         if (avail) {
             this._renderProfileSelect(profile);
 
