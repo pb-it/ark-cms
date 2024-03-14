@@ -16,8 +16,13 @@ class ProfileController {
         var entry = await this._apiClient.requestData("GET", "_registry?key=profiles");
         if (entry && entry.length == 1) {
             var value = entry[0]['value'];
-            if (value)
-                this._config = JSON.parse(value);
+            if (value) {
+                try {
+                    this._config = JSON.parse(value);
+                } catch (error) {
+                    app.getController().showErrorMessage('Failed to parse profiles');
+                }
+            }
         }
         if (this._config && this._config[ProfileController.CONFIG_PROFILE_AVAILABLE_IDENT])
             this._profiles = this._config[ProfileController.CONFIG_PROFILE_AVAILABLE_IDENT];
@@ -26,7 +31,7 @@ class ProfileController {
 
     async setProfiles(profiles) {
         this._profiles = profiles;
-        return this._apiClient.requestData("PUT", "_registry", { 'key': 'profiles', 'value': JSON.stringify(this._profiles) });
+        return this._apiClient.requestData("PUT", "_registry", null, { 'key': 'profiles', 'value': JSON.stringify(this._profiles) });
     }
 
     getProfileConfig() {

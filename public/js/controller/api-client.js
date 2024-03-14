@@ -18,13 +18,21 @@ class ApiClient {
         return this._dataPath;
     }
 
-    async request(method, resource, data) {
-        return HttpClient.request(method, this._baseUrl + resource, { 'withCredentials': true }, data);
+    async request(method, resource, options, data) {
+        if (!options)
+            options = { 'withCredentials': true };
+        else
+            options['withCredentials'] = true;
+        return HttpClient.request(method, this._baseUrl + resource, options, data);
     }
 
-    async requestData(method, resource, data) {
+    async requestData(method, resource, options, data) {
         var res;
-        var response = await HttpClient.request(method, this._baseUrl + this._dataPath + resource, { 'withCredentials': true }, data);
+        if (!options)
+            options = { 'withCredentials': true };
+        else
+            options['withCredentials'] = true;
+        const response = await HttpClient.request(method, this._baseUrl + this._dataPath + resource, options, data);
         if (response) {
             if (method == 'GET')
                 res = JSON.parse(response)['data'];

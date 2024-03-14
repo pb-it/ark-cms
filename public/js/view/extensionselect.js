@@ -81,10 +81,17 @@ class ExtensionSelect {
                                         var res;
                                         var msg;
                                         var extensions = controller.getExtensionController().getExtensions();
+                                        var tmp;
                                         for (var file of this.files) {
                                             if (file.type === 'application/zip' || file.type === 'application/x-zip-compressed') {
                                                 msg = null;
-                                                name = file.name.split('@')[0];
+                                                tmp = file.name.indexOf('@');
+                                                if (tmp != -1)
+                                                    name = file.name.substring(0, tmp);
+                                                else if (file.name.endsWith('.zip'))
+                                                    name = file.name.substring(0, file.name.length - 4);
+                                                else
+                                                    throw new Error('Filename does not comply specification');
                                                 existing = null;
                                                 for (var x of extensions) {
                                                     if (x['name'] == name) {

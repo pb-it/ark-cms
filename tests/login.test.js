@@ -18,13 +18,11 @@ describe('Testsuit', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await TestHelper.delay(1000);
 
         if (helper.getConfig()['api'])
             await app.setApiUrl(helper.getConfig()['api']);
         await app.reload();
-
         await TestHelper.delay(1000);
 
         return Promise.resolve();

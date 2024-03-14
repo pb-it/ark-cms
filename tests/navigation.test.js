@@ -123,7 +123,7 @@ describe('Testsuit', function () {
                 });
             }
             const ac = app.getController().getApiController().getApiClient();
-            await ac.requestData('PUT', '_registry', { 'key': 'profiles', 'value': JSON.stringify(profiles) });
+            await ac.requestData('PUT', '_registry', null, { 'key': 'profiles', 'value': JSON.stringify(profiles) });
 
             callback('OK');
         });

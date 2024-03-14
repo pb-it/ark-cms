@@ -102,15 +102,22 @@ class HttpClient {
             if (data) {
                 if (typeof data === 'object') {
                     if (data instanceof FormData) {
+                        //xhr.setRequestHeader('Content-type', 'multipart/form-data');
                         body = data;
                     } else {
-                        xhr.setRequestHeader("Content-type", "application/json");
+                        xhr.setRequestHeader('Content-type', 'application/json');
                         body = JSON.stringify(data, function (k, v) { return v === undefined ? null : v; });
                     }
-                } else {
-                    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-                    body = data; //urlEncode(data);
-                }
+                } else if (typeof data === 'string' || data instanceof String) {
+                    var type;
+                    if (options && options['headers'])
+                        type = options['headers']['Content-type']
+                    if (!type)
+                        type = 'text/plain';
+                    xhr.setRequestHeader('Content-type', type);
+                    body = data;
+                } else
+                    throw new Error('Type of data not supported');
             }
 
             //xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');

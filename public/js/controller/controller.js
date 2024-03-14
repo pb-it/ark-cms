@@ -787,6 +787,8 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
         if (bSoft) {
             app = new Application();
             await app.run();
+            /*await controller.initController();
+            controller.getView().initView();*/
         } else {
             this.setLoadingState(true);
             location.reload();

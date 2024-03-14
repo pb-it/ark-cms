@@ -9,7 +9,7 @@ class XModel {
         var resource = "_model?v=" + encodeURIComponent(version);
         if (bForce)
             resource += "&forceMigration=true";
-        return app.getController().getApiController().getApiClient().requestData("PUT", resource, data);
+        return app.getController().getApiController().getApiClient().requestData("PUT", resource, null, data);
     }
 
     _data;

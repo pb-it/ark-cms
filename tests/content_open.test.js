@@ -18,11 +18,9 @@ describe('Testsuit', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await TestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await TestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
@@ -60,7 +58,7 @@ describe('Testsuit', function () {
                 };
 
                 var ac = app.getController().getApiController().getApiClient();
-                await ac.requestData('PUT', '_registry', data);
+                await ac.requestData('PUT', '_registry', null, data);
                 res = 'OK';
             } catch (error) {
                 alert('Error');

@@ -64,10 +64,12 @@ class AuthController {
 
                 var data = { 'user': this._$username.val(), 'pass': this._$password.val() };
                 try {
-                    await this._controller.getApiController().getApiClient().request('POST', "/sys/auth/login", HttpClient.urlEncode(data));
+                    this._controller.setLoadingState(true);
+                    await this._controller.getApiController().getApiClient().request('POST', "/sys/auth/login", { 'headers': { 'Content-type': 'application/x-www-form-urlencoded' } }, HttpClient.urlEncode(data));
                     panel.dispose();
                     this._controller.reloadApplication();
                 } catch (error) {
+                    this._controller.setLoadingState(false);
                     if (error instanceof HttpError && error['response'] && error['response']['status'] == 401) {
                         alert('Login failed');
                         this._$password.val('');

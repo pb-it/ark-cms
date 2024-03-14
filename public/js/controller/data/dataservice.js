@@ -393,7 +393,7 @@ class DataService {
             resource = typeString;
 
         if (method && resource) {
-            var resp = await this._apiClient.requestData(method, resource, data);
+            var resp = await this._apiClient.requestData(method, resource, null, data);
             if (resp) {
                 var cache = this._cache.getModelCache(typeString);
                 if (!cache) {

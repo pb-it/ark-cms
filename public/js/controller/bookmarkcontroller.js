@@ -75,7 +75,7 @@ class BookmarkController {
 
     async setBookmarks(bookmarks) {
         this._bookmarks = bookmarks;
-        return this._apiClient.requestData("PUT", "_registry", { 'key': 'bookmarks', 'value': JSON.stringify(this._bookmarks) });
+        return this._apiClient.requestData("PUT", "_registry", null, { 'key': 'bookmarks', 'value': JSON.stringify(this._bookmarks) });
     }
 
     async addBookmark(state) {
