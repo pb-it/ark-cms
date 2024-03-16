@@ -801,7 +801,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
             var state = this.getStateController().getState();
             if (bIgnoreCache)
                 state.bIgnoreCache = true;
-            return this.loadState(state);
+            return this.loadState(state, false, true);
         } else
             return Promise.reject();
     }

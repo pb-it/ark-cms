@@ -120,6 +120,7 @@ class ModelCache {
         this._completeRecordSet = sorted;
 
         if (this._bIncrements) {
+            this._dataCache = [];
             for (var d of data) {
                 this._dataCache[d['id']] = d;
             }

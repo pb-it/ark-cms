@@ -17,10 +17,18 @@ class ExtendedTestHelper extends TestHelper {
         return this.getApp().getModelController().addModel(model);
     }
 
-    async setupData(model, file) {
+    async setupData(model, file, bExlusive) {
         const str = fs.readFileSync(file, 'utf8');
         const data = JSON.parse(str);
         const ds = this.getApp().getDataService();
+        if (bExlusive) {
+            var tmp = await ds.read(model);
+            if (tmp.length > 0) {
+                for (var entry of tmp) {
+                    await ds.delete(model, entry['id']);
+                }
+            }
+        }
         var res;
         for (var entry of data) {
             res = await ds.create(model, entry);
@@ -29,7 +37,7 @@ class ExtendedTestHelper extends TestHelper {
         return Promise.resolve();
     }
 
-    async setupScenario(scenario) {
+    async setupScenario(scenario, bOverride) {
         switch (scenario) {
             case 1:
                 const app = this.getApp();
@@ -37,15 +45,15 @@ class ExtendedTestHelper extends TestHelper {
                 const models = await ds.read('_model');
 
                 var bReload;
-                if (models.filter(function (x) { return x['name'] === 'studio' }).length == 0) {
+                if (bOverride || models.filter(function (x) { return x['name'] === 'studio' }).length == 0) {
                     await this.setupModel(path.join(__dirname, '../data/models/studio.json'));
                     bReload = true;
                 }
-                if (models.filter(function (x) { return x['name'] === 'star' }).length == 0) {
+                if (bOverride || models.filter(function (x) { return x['name'] === 'star' }).length == 0) {
                     await this.setupModel(path.join(__dirname, '../data/models/star.json'));
                     bReload = true;
                 }
-                if (models.filter(function (x) { return x['name'] === 'movie' }).length == 0) {
+                if (bOverride || models.filter(function (x) { return x['name'] === 'movie' }).length == 0) {
                     await this.setupModel(path.join(__dirname, '../data/models/movie.json'));
                     bReload = true;
                 }
@@ -55,11 +63,11 @@ class ExtendedTestHelper extends TestHelper {
                 }
 
                 const studios = await ds.read('studio');
-                if (studios.length == 0)
-                    await this.setupData('studio', path.join(__dirname, '../data/crud/studios.json'));
+                if (bOverride || studios.length == 0)
+                    await this.setupData('studio', path.join(__dirname, '../data/crud/studios.json'), true);
                 const movies = await ds.read('movie');
-                if (movies.length == 0)
-                    await this.setupData('movie', path.join(__dirname, '../data/crud/movies.json'));
+                if (bOverride || movies.length == 0)
+                    await this.setupData('movie', path.join(__dirname, '../data/crud/movies.json'), true);
                 const stars = await ds.read('star');
                 if (stars.length == 0) {
                     const star = {

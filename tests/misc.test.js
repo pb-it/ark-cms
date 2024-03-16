@@ -6,7 +6,7 @@ const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
 const config = require('./config/test-config.js');
-const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
+const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
 async function openApi(path) {
     const driver = helper.getBrowser().getDriver();
@@ -17,7 +17,7 @@ async function openApi(path) {
     const app = helper.getApp();
     const api = await app.getApiUrl();
     await driver.get(api + path);
-    await TestHelper.delay(1000);
+    await ExtendedTestHelper.delay(1000);
 
     //TODO: basic auth popup handling
 
@@ -39,17 +39,17 @@ describe('Testsuit', function () {
         this.timeout(20000);
 
         if (!global.helper) {
-            global.helper = new TestHelper();
+            global.helper = new ExtendedTestHelper();
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
@@ -72,16 +72,16 @@ describe('Testsuit', function () {
         driver.executeScript(function () {
             localStorage.setItem('appVersion', '0.1.1');
         });
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const app = helper.getApp();
         await app.logout();
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         await app.login();
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const window = app.getWindow();
         var modal = await window.getTopModal();
@@ -90,7 +90,7 @@ describe('Testsuit', function () {
         assert.notEqual(button, null);
         await button.click();
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -112,7 +112,7 @@ describe('Testsuit', function () {
         assert.notEqual(file, undefined, 'Download failed');
         var i = 0;
         while (!fs.existsSync(file) && i < 5) {
-            await TestHelper.delay(1000);
+            await ExtendedTestHelper.delay(1000);
             i++;
         }
         assert.equal(fs.existsSync(file), true, 'Download failed');
@@ -129,13 +129,13 @@ describe('Testsuit', function () {
 
         await tools.restoreBackup(path.join(__dirname, './data/sql/start_01.sql'));
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         await ac.restart(true);
         await app.reload();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await app.login();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const window = app.getWindow();
         const modal = await window.getTopModal();
@@ -156,7 +156,7 @@ describe('Testsuit', function () {
             const model = controller.getModelController().getModel('movie');
             const def = model.getDefinition();
             def['public'] = true;
-            await model.setDefinition(def);
+            await model.setDefinition(def, true);
             //await app.controller.getApiController().reloadModels();
 
             callback('OK');
@@ -172,7 +172,7 @@ describe('Testsuit', function () {
 
         const app = helper.getApp();
         await app.logout();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const window = app.getWindow();
         var modal = await window.getTopModal();

@@ -3,7 +3,7 @@ const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
 const config = require('./config/test-config.js');
-const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
+const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
 describe('Testsuit', function () {
 
@@ -13,17 +13,15 @@ describe('Testsuit', function () {
         this.timeout(10000);
 
         if (!global.helper) {
-            global.helper = new TestHelper();
+            global.helper = new ExtendedTestHelper();
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
@@ -47,9 +45,9 @@ describe('Testsuit', function () {
         const window = app.getWindow();
         const sidemenu = window.getSideMenu();
         await sidemenu.click('Models');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('New');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         var modal = await window.getTopModal();
         var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
@@ -60,14 +58,14 @@ describe('Testsuit', function () {
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const modelModal = await window.getTopModal();
         button = await modelModal.findElement(webdriver.By.xpath(`//button[text()="Add Attribute"]`));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
 
-        await TestHelper.delay(100);
+        await ExtendedTestHelper.delay(100);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -82,7 +80,7 @@ describe('Testsuit', function () {
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
 
-        await TestHelper.delay(100);
+        await ExtendedTestHelper.delay(100);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -90,13 +88,13 @@ describe('Testsuit', function () {
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
 
-        await TestHelper.delay(100);
+        await ExtendedTestHelper.delay(100);
 
         button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
 
-        await TestHelper.delay(100);
+        await ExtendedTestHelper.delay(100);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -104,7 +102,7 @@ describe('Testsuit', function () {
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.equal(modal, null);

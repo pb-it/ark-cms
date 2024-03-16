@@ -10,12 +10,18 @@ const VcsEnum = require('./common/vcs-enum.js');
 class Server {
 
     _controller;
+    _publicDir;
     _app;
 
     constructor(controller) {
         this._controller = controller;
-        var config = this._controller.getServerConfig();
+        console.log
+        if (process.env.NODE_ENV === 'production')
+            this._publicDir = '../dist/public';
+        else
+            this._publicDir = '../public';
         var port;
+        const config = this._controller.getServerConfig();
         if (config)
             port = config['port'];
         this._app = this.initApp(port);
@@ -28,10 +34,10 @@ class Server {
         app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
         app.get('/robots.txt', function (req, res) {
-            res.sendFile(path.join(__dirname, '../dist/public/robots.txt'));
-        });
+            res.sendFile(path.join(__dirname, this._publicDir + '/robots.txt'));
+        }.bind(this));
 
-        app.use('/public', express.static(path.join(__dirname, '../dist/public'), { fallthrough: false }));
+        app.use('/public', express.static(path.join(__dirname, this._publicDir), { fallthrough: false }));
 
         var systemRouter = express.Router();
         systemRouter.get('/info', function (req, res) {
@@ -125,8 +131,8 @@ class Server {
         app.use('/cms', systemRouter);
 
         app.get('*', function (req, res, next) {
-            res.sendFile(path.join(__dirname, '../dist/public/index.html'));
-        });
+            res.sendFile(path.join(__dirname, this._publicDir + '/index.html'));
+        }.bind(this));
 
         /*app.use(function (err, req, res, next) {
             var msg;

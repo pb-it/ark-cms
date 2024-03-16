@@ -131,7 +131,13 @@ class ExtensionSelect {
                                         controller.setLoadingState(false);
                                     } catch (error) {
                                         controller.setLoadingState(false);
-                                        controller.showError(error);
+                                        if (error instanceof HttpError && error['response']) {
+                                            if (error['response']['status'] == 422 && error['response']['body'])
+                                                controller.showErrorMessage(error['response']['body']);
+                                            else
+                                                controller.showErrorMessage(error['message']);
+                                        } else
+                                            controller.showError(error);
                                     }
                                 }
                                 this.remove();

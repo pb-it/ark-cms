@@ -1,6 +1,6 @@
 {
     "name": "ark-cms",
-    "version": "0.6.3-beta",
+    "version": "0.6.4-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
@@ -24,9 +24,11 @@
     "main": "index.js",
     "scripts": {
         "clean": "node scripts/clean.js",
-        "build": "tsc && node scripts/build.js",
+        "compile": "tsc",
+        "build": "npm run compile && node scripts/build.js",
         "build:babel": "tsc && babel public -d dist/public --copy-files",
         "start": "node index.js",
+        "start:prod": "export NODE_ENV=production&& node index.js",
         "test": "mocha --bail tests/root.test.js",
         "test:clear": "mocha --bail tests/clear.test.js",
         "test:login": "mocha --timeout 10000 tests/login.test.js",
@@ -36,7 +38,7 @@
         "test:search": "mocha --timeout 10000 tests/search.test.js",
         "test:filter": "mocha --timeout 10000 tests/filter.test.js",
         "test:panel": "mocha --timeout 10000 tests/panel.test.js",
-        "test:contextmenu": "mocha --timeout 10000 tests/contextmenu.test.js",
+        "test:contextmenu": "mocha --bail --timeout 10000 tests/contextmenu.test.js",
         "test:view": "mocha --timeout 10000 tests/view.test.js",
         "test:idb": "mocha --timeout 10000 tests/idb.test.js",
         "test:auth": "mocha --timeout 10000 tests/auth.test.js",
@@ -53,7 +55,7 @@
         "@babel/cli": "^7.23.9",
         "@babel/core": "^7.24.0",
         "@babel/plugin-transform-class-properties": "^7.23.3",
-        "@pb-it/ark-cms-selenium-test-helper": "0.1.18-beta",
+        "@pb-it/ark-cms-selenium-test-helper": "0.1.19-beta",
         "babel-plugin-conditional-compile": "^0.0.5",
         "gulp": "^4.0.2",
         "gulp-mocha": "^10.0.0",

@@ -6,7 +6,7 @@ const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
 const config = require('./config/test-config.js');
-const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
+const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
 describe('Testsuit', function () {
 
@@ -16,17 +16,15 @@ describe('Testsuit', function () {
         this.timeout(10000);
 
         if (!global.helper) {
-            global.helper = new TestHelper();
+            global.helper = new ExtendedTestHelper();
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
@@ -46,39 +44,9 @@ describe('Testsuit', function () {
     it('#test prepare', async function () {
         this.timeout(30000);
 
+        await helper.setupScenario(1, true);
+
         const app = helper.getApp();
-
-        var str = fs.readFileSync(path.join(__dirname, './data/models/studio.json'), 'utf8');
-        var model = JSON.parse(str);
-        await app.getModelController().addModel(model);
-
-        str = fs.readFileSync(path.join(__dirname, './data/models/star.json'), 'utf8');
-        model = JSON.parse(str);
-        await app.getModelController().addModel(model);
-
-        str = fs.readFileSync(path.join(__dirname, './data/models/movie.json'), 'utf8');
-        model = JSON.parse(str);
-        await app.getModelController().addModel(model);
-
-        await app.reload();
-        await TestHelper.delay(1000);
-
-        const ds = app.getDataService();
-        str = fs.readFileSync(path.join(__dirname, './data/crud/studios.json'), 'utf8');
-        var data = JSON.parse(str);
-        var res;
-        for (var entry of data) {
-            res = await ds.create('studio', entry);
-            assert.notEqual(Object.keys(res).length, 0);
-        }
-
-        str = fs.readFileSync(path.join(__dirname, './data/crud/movies.json'), 'utf8');
-        data = JSON.parse(str);
-        for (var entry of data) {
-            res = await ds.create('movie', entry);
-            assert.notEqual(Object.keys(res).length, 0);
-        }
-
         await app.navigate('/data/studio');
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -131,7 +99,7 @@ describe('Testsuit', function () {
 
         const app = helper.getApp();
         await app.reload();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         response = await driver.executeAsyncScript(async () => {
             const callback = arguments[arguments.length - 1];
@@ -161,11 +129,11 @@ describe('Testsuit', function () {
         const window = app.getWindow();
         var sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('test');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('test1');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         await driver.wait(webdriver.until.alertIsPresent());
         const alert = await driver.switchTo().alert();
@@ -182,11 +150,11 @@ describe('Testsuit', function () {
 
         await app.navigate('/');
         await app.reload();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         var menu = await sidemenu.getEntry('test');
         assert.equal(menu, null);
 
@@ -197,7 +165,7 @@ describe('Testsuit', function () {
         const body = await driver.findElement(webdriver.By.xpath('/html/body'));
         assert.notEqual(body, null);
         await body.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         rect = await sidepanel.getRect();
         assert.equal(rect['width'], 0);
 
@@ -214,17 +182,17 @@ describe('Testsuit', function () {
         const window = app.getWindow();
         var sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         var sidepanel = await driver.findElement(webdriver.By.xpath('/html/body/div[@id="sidenav"]/div[@id="sidepanel"]'));
         assert.notEqual(sidepanel, null);
         var contextMenu = await window.openContextMenu(sidepanel);
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const body = await driver.findElement(webdriver.By.xpath('/html/body'));
         assert.notEqual(body, null);
         await body.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         rect = await sidepanel.getRect();
         assert.equal(rect['width'], 0);
         const xpathContextMenu = `/html/body/ul[@class="contextmenu"]`;
@@ -233,24 +201,24 @@ describe('Testsuit', function () {
 
         sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         sidepanel = await driver.findElement(webdriver.By.xpath('/html/body/div[@id="sidenav"]/div[@id="sidepanel"]'));
         assert.notEqual(sidepanel, null);
         contextMenu = await window.openContextMenu(sidepanel);
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         elements = await driver.findElements(webdriver.By.xpath(xpathContextMenu));
         assert.equal(elements.length, 1);
         await contextMenu.click('Edit');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
         elements = await driver.findElements(webdriver.By.xpath(xpathContextMenu));
         assert.equal(elements.length, 0);
         await modal.closeModal();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
@@ -264,13 +232,13 @@ describe('Testsuit', function () {
         const window = app.getWindow();
         var sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('movie');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Show');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         var url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/movie');
@@ -283,7 +251,7 @@ describe('Testsuit', function () {
         var view = await driver.findElements(webdriver.By.xpath(xpathAdd));
         assert.equal(view.length, 1);
         await view[0].click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/movie/new');
@@ -295,17 +263,17 @@ describe('Testsuit', function () {
         var input = await window.getFormInput(form, 'name');
         assert.notEqual(input, null);
         await input.sendKeys('Test');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         await driver.navigate().back();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/movie');
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 5);
 
         await driver.navigate().forward();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/movie/new');
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -317,23 +285,23 @@ describe('Testsuit', function () {
         //assert.equal(value, 'John Test'); //TODO: fails
         assert.equal(value, '');
         await input.sendKeys('Test');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         //app.navigate('/data/movie');
         sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('star');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Show');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/star');
 
         await driver.navigate().back();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/movie/new');
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));

@@ -3,7 +3,7 @@ const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
 const config = require('./config/test-config.js');
-const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
+const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
 describe('Testsuit', function () {
 
@@ -13,15 +13,15 @@ describe('Testsuit', function () {
         this.timeout(30000);
 
         if (!global.helper) {
-            global.helper = new TestHelper();
+            global.helper = new ExtendedTestHelper();
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
@@ -69,7 +69,7 @@ describe('Testsuit', function () {
             }
         });
         assert.equal(response, 'OK', "Creating entry failed");
-        await TestHelper.delay(1000);*/
+        await ExtendedTestHelper.delay(1000);*/
 
         const app = helper.getApp();
         await app.setDebugMode(true);
@@ -77,13 +77,13 @@ describe('Testsuit', function () {
         const window = app.getWindow();
         const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('_registry');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Show');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var elements = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -96,7 +96,7 @@ describe('Testsuit', function () {
         assert.notEqual(item, null);
         await item.click();
 
-        await TestHelper.delay(100);
+        await ExtendedTestHelper.delay(100);
 
         const url = await driver.getCurrentUrl();
         assert.equal(url.endsWith('/data/_registry?key=version'), true);
@@ -105,7 +105,7 @@ describe('Testsuit', function () {
         assert.equal(elements.length, 1);
 
         await driver.navigate().back();
-        await TestHelper.delay(100);
+        await ExtendedTestHelper.delay(100);
 
         elements = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(elements.length, 1);
@@ -116,9 +116,7 @@ describe('Testsuit', function () {
             localStorage.setItem('debug', JSON.stringify({ bDebug: false }));
             localStorage.setItem('bConfirmOnApply', 'false');
             const controller = app.getController();
-            //controller.reloadApplication(); // will kill this script
-            await controller.initController();
-            controller.getView().initView();
+            controller.reloadApplication(true);
             //await controller.reloadState();
 
             callback();

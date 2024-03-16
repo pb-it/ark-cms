@@ -16,6 +16,10 @@ class StateSelect {
     constructor() {
         $(window).on("changed.model", function (event, data) {
             if (this._$stateSelect) {
+                if (this._$profileSelect) {
+                    this._$profileSelect.remove();
+                    this._$profileSelect = null;
+                }
                 //this._$stateSelect.empty();
                 if (this._$modelSelect) {
                     this._$modelSelect.remove();
@@ -42,7 +46,7 @@ class StateSelect {
     async renderStateSelect() {
         if (!this._$stateSelect) {
             this._$stateSelect = $('<div/>');
-            var pc = app.controller.getProfileController();
+            var pc = app.getController().getProfileController();
             if (pc)
                 await this._updateStateSelect(pc.getCurrentProfileName());
         }
@@ -51,7 +55,7 @@ class StateSelect {
 
     async _updateStateSelect(profile, model, action, show) {
         var avail;
-        const pc = app.controller.getProfileController();
+        const pc = app.getController().getProfileController();
         if (pc)
             avail = pc.getProfiles();
         if (avail) {
@@ -142,10 +146,13 @@ class StateSelect {
 
     _renderProfileSelect(profile) {
         if (!this._$profileSelect) {
-            var group = new SubMenuGroup();
+            const group = new SubMenuGroup();
 
-            var pc = app.controller.getProfileController();
-            var avail = pc.getProfiles();
+            const controller = app.getController();
+            const pc = controller.getProfileController();
+            var avail;
+            if (pc)
+                avail = pc.getProfiles();
             if (avail) {
                 avail = [...avail];
                 var conf;
@@ -182,14 +189,15 @@ class StateSelect {
     }
 
     _renderModelSelect(model) {
-        var group = new SubMenuGroup();
+        const group = new SubMenuGroup();
 
         var modelNames;
-        var pc = app.controller.getProfileController();
-        if (pc.getProfiles()) {
+        const controller = app.getController();
+        const pc = controller.getProfileController();
+        if (pc && pc.getProfiles()) {
             if (this._profile === 'other') {
                 var used = pc.getAllUsedModels();
-                var models = app.controller.getModelController().getModels(app.controller.isInDebugMode());
+                var models = controller.getModelController().getModels(controller.isInDebugMode());
                 modelNames = models.map(function (model) {
                     return model.getDefinition()['name'];
                 }).filter(function (x) { return !used.includes(x) });
@@ -197,7 +205,7 @@ class StateSelect {
             } else
                 modelNames = pc.getMenu(this._profile);
         } else {
-            var models = app.controller.getModelController().getModels(app.controller.isInDebugMode());
+            const models = controller.getModelController().getModels(controller.isInDebugMode());
             modelNames = models.map(function (model) {
                 return model.getDefinition()['name'];
             });
@@ -206,8 +214,8 @@ class StateSelect {
         if (modelNames) {
             var conf;
             var menuItem;
-            var dummyGroup = new SubMenuGroup();
-            var mc = app.controller.getModelController();
+            const dummyGroup = new SubMenuGroup();
+            const mc = controller.getModelController();
             for (let modelName of modelNames) {
                 if (!modelName) {
                     conf = {
@@ -235,7 +243,6 @@ class StateSelect {
                     conf = {
                         'name': modelName
                     };
-                    var controller = app.getController();
                     var rc = controller.getRouteController();
                     let path = '/' + modelName;
                     var res = rc.getMatchingRoute(path);

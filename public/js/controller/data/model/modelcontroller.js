@@ -11,10 +11,17 @@ class ModelController {
     }
 
     async init() {
-        this._models = [];
+        var models;
         const controller = app.getController();
-        //var models = await controller.getDataService().fetchData('_model', null, null, null, null, null, null, true); // DataService not yet available
-        var models = await controller.getApiController().getApiClient().requestData('GET', '_model');
+        const ds = controller.getDataService();
+        if (ds) {
+            /*const cache = ds.getCache();
+            const mc = cache.getModelCache('_model');
+            await cache.deleteModelCache('_model');*/
+            models = await controller.getDataService().fetchData('_model', null, null, null, null, null, null, true);
+        } else
+            models = await controller.getApiController().getApiClient().requestData('GET', '_model');
+        this._models = [];
         if (models) {
             var model;
             for (var data of models) {
@@ -28,7 +35,10 @@ class ModelController {
                 this._models.push(model); // still push to enable edit
             }
         }
+
         $(window).trigger('changed.model');
+        //controller.reloadState(); //redraw visualisation with new menus
+        //controller.reloadApplication(true);
         return Promise.resolve();
     }
 

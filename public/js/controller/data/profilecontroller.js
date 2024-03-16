@@ -17,7 +17,9 @@ class ProfileController {
         if (entry && entry.length == 1) {
             var value = entry[0]['value'];
             if (value) {
-                try {
+                try { // data:text/javascript;charset=utf-8,
+                    if (value.startsWith('data:text/javascript;charset=utf-8,'))
+                        value = value.substring('data:text/javascript;charset=utf-8,'.length);
                     this._config = JSON.parse(value);
                 } catch (error) {
                     app.getController().showErrorMessage('Failed to parse profiles');

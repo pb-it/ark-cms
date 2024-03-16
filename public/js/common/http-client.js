@@ -31,9 +31,9 @@ class HttpClient {
 
     static async request(method, url, options, data) {
         var logger;
-        if (typeof hljs !== 'undefined' && app.hasOwnProperty('getController') && typeof app['getController'] == 'function') {
+        if (typeof app !== 'undefined' && typeof app.getController == 'function') {
             const controller = app.getController();
-            if (controller && controller.hasOwnProperty('getLogger') && typeof controller['getLogger'] == 'function')
+            if (controller && typeof controller.getLogger == 'function')
                 logger = controller.getLogger();
         }
         if (logger) {

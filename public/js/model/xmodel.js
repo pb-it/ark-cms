@@ -1,17 +1,5 @@
 class XModel {
 
-    static uploadData(data, version, bForce) {
-        if (!version) {
-            var ac = app.controller.getApiController();
-            var info = ac.getApiInfo();
-            version = info['version'];
-        }
-        var resource = "_model?v=" + encodeURIComponent(version);
-        if (bForce)
-            resource += "&forceMigration=true";
-        return app.getController().getApiController().getApiClient().requestData("PUT", resource, null, data);
-    }
-
     _data;
     _id;
     _version;
@@ -51,11 +39,9 @@ class XModel {
     }
 
     async setDefinition(data, bUpload = true, bForce) {
-        if (bUpload)
-            await XModel.uploadData(data, this._version, bForce);
         this._data = data;
-        if (this._id)
-            $(window).trigger('changed.model', this._data);
+        if (bUpload)
+            await this.uploadData(bForce);
         return Promise.resolve();
     }
 
@@ -75,13 +61,35 @@ class XModel {
         return this._module;
     }
 
-    async uploadData(bForce) {
-        return XModel.uploadData(this._data, this._version, bForce)
+    async uploadData(bForce, bInit) {
+        const controller = app.getController();
+        const ac = controller.getApiController();
+        var version = this._version;
+        if (!version) {
+            const info = ac.getApiInfo();
+            version = info['version'];
+        }
+        var resource = "_model?v=" + encodeURIComponent(version);
+        if (bForce)
+            resource += "&forceMigration=true";
+        const id = await ac.getApiClient().requestData("PUT", resource, null, this._data);
+        if (bInit) {
+            if (!this._id) {
+                await controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
+            } else
+                await this.initModel();
+        }
+        this._id = id;
+        return Promise.resolve(this._id);
     }
 
     async deleteModel() {
-        if (this._id)
-            await app.getController().getApiController().getApiClient().requestData("DELETE", "_model/" + this._id);
+        if (this._id) {
+            const controller = app.getController();
+            const ac = controller.getApiController();
+            await ac.getApiClient().requestData("DELETE", "_model/" + this._id);
+            await controller.getModelController().init(); //TODO: remove single one from controller and update view
+        }
         return Promise.resolve();
     }
 

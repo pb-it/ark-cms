@@ -599,7 +599,7 @@ class EditAttributesPanel extends Panel {
                                 var name;
                                 for (var entry of skeleton) {
                                     name = entry['name'];
-                                    if (name)
+                                    if (name && data.hasOwnProperty(name))
                                         this._data[name] = data[name];
                                 }
                             }

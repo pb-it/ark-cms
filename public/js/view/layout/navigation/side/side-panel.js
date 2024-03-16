@@ -74,8 +74,18 @@ class SidePanel {
                         const model = obj.getModel();
                         const mpcc = model.getModelPanelConfigController();
                         const panelConfig = mpcc.getPanelConfig(ActionEnum.delete);
+                        /*panelConfig.crudCallback = async function (data) { // overwritten by modal
+                            $(window).trigger('changed.model');
+                            return Promise.resolve(true);
+                        }.bind(this);*/
                         const panel = PanelController.createPanelForObject(obj, panelConfig);
                         const modal = await panel.openInModal(bExists ? ActionEnum.update : ActionEnum.create);
+                        const $modal = modal.getModalDomElement();
+                        $modal.on("remove", async function () {
+                            await app.getController().getProfileController().init();
+                            $(window).trigger('changed.model');
+                            return Promise.resolve();
+                        });
                     }
                     return Promise.resolve();
                 });

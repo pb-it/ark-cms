@@ -47,6 +47,8 @@ class CrudPanel extends CanvasPanel {
         //this._$panel.attr("data-type", this._obj.getTypeString());
         //this._$panel.attr("data-id", this._obj.getData().id);
 
+        this._form = null;
+
         return Promise.resolve();
     }
 
@@ -77,10 +79,10 @@ class CrudPanel extends CanvasPanel {
     }
 
     async _renderCreate() {
-        var $div = $('<div/>')
+        const $div = $('<div/>')
             .addClass('data');
         this._form = new Form(this._skeleton, this._obj.getData());
-        var $form = await this._form.renderForm();
+        const $form = await this._form.renderForm();
         $div.append($form);
 
         $div.append('<br/>');
@@ -111,8 +113,8 @@ class CrudPanel extends CanvasPanel {
             case DetailsEnum.all:
                 $div = $('<div/>')
                     .addClass('data');
-                var $form = await DataView.renderData(this._skeleton, this._obj.getData());
-                $div.append($form);
+                const $data = await DataView.renderData(this._skeleton, this._obj.getData());
+                $div.append($data);
 
                 $div.append('<br/>');
 
@@ -152,8 +154,8 @@ class CrudPanel extends CanvasPanel {
                 break;
             case DetailsEnum.title:
             default:
-                var title = this._obj.getTitle();
-                var $p = $('<p/>')
+                const title = this._obj.getTitle();
+                const $p = $('<p/>')
                     .html(encodeText(title))
                     .css({
                         "margin": "0px",
@@ -167,17 +169,17 @@ class CrudPanel extends CanvasPanel {
     }
 
     async _renderUpdate() {
-        var $div = $('<div/>')
+        const $div = $('<div/>')
             .addClass('data');
         this._form = new Form(this._skeleton, this._obj.getData());
-        var $form = await this._form.renderForm();
+        const $form = await this._form.renderForm();
         $div.append($form);
 
         $div.append('<br/>');
 
         $div.append(this._renderActionButtons());
 
-        var text = 'Update';
+        const text = 'Update';
         $div.append($('<button/>')
             .css({ 'float': 'right' })
             .html(text)
@@ -198,8 +200,8 @@ class CrudPanel extends CanvasPanel {
     }
 
     _renderActionButtons() {
-        var $div = $('<div/>').css({ 'float': 'left' });
-        var actions = this._obj.getModel().getCrudDialogActions();
+        const $div = $('<div/>').css({ 'float': 'left' });
+        const actions = this._obj.getModel().getCrudDialogActions();
         if (actions && actions.length > 0) {
             for (let action of actions) {
                 $div.append($('<button/>')
@@ -223,7 +225,7 @@ class CrudPanel extends CanvasPanel {
     }
 
     _renderDelete() {
-        var $confirm = $('<input/>').attr({ type: 'submit', id: 'confirm', name: 'confirm', value: 'Confirm' })
+        const $confirm = $('<input/>').attr({ type: 'submit', id: 'confirm', name: 'confirm', value: 'Confirm' })
             .click(async function (event) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -306,11 +308,13 @@ class CrudPanel extends CanvasPanel {
 
     async getChanges(bValidate, oldData) {
         var changed;
-        if (!oldData)
-            oldData = this._obj.getData();
-        if (oldData) {
-            const newData = await this._readData(bValidate);
-            changed = await CrudObject.getChanges(this._skeleton, oldData, newData);
+        if (this._config.action == ActionEnum.create || this._config.action == ActionEnum.update) {
+            if (!oldData)
+                oldData = this._obj.getData();
+            if (oldData) {
+                const newData = await this._readData(bValidate);
+                changed = await CrudObject.getChanges(this._skeleton, oldData, newData);
+            }
         }
         return Promise.resolve(changed);
     }

@@ -124,8 +124,8 @@ class Cache {
                 }
 
                 if (Object.keys(changed).length > 0) {
-                    var ds = this._controller.getDataService();
-                    var promises = [];
+                    const ds = this._controller.getDataService();
+                    const promises = [];
                     for (const [key, value] of Object.entries(changed)) {
                         cache = this._modelCacheArr[key];
                         if (cache) {
@@ -146,5 +146,16 @@ class Cache {
                 this._lastUpdate = new Date(timestamp);
         }
         return Promise.resolve(timestamp);
+    }
+
+    async update() {
+        const ds = this._controller.getDataService();
+        const promises = [];
+        for (const [key, value] of Object.entries(this._modelCacheArr)) {
+            promises.push(ds.fetchData(key, null, null, null, null, null, null, true));
+        }
+        if (promises.length > 0)
+            await Promise.all(promises);
+        return Promise.resolve();
     }
 }

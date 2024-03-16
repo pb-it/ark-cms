@@ -43,20 +43,15 @@ class DeleteModelPanel extends Panel {
             .click(async function (event) {
                 event.preventDefault();
 
-                app.controller.setLoadingState(true);
+                const controller = app.getController();
+                controller.setLoadingState(true);
                 try {
                     await this._model.deleteModel();
-
-                    await app.controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
-
                     this.dispose();
-                    //app.controller.reloadState(); //redraw visualisation with new menus
-                    //app.controller.reloadApplication();
-
-                    app.controller.setLoadingState(false);
+                    controller.setLoadingState(false);
                 } catch (error) {
-                    app.controller.setLoadingState(false);
-                    app.controller.showError(error);
+                    controller.setLoadingState(false);
+                    controller.showError(error);
                 }
                 return Promise.resolve();
             }.bind(this));

@@ -204,45 +204,45 @@ class EditModelPanel extends TabPanel {
     }
 
     async _checkConfirm(org, current) {
-        if (app.controller.getConfigController().confirmOnApply()) {
-            var bConfirm = await app.controller.getModalController().openDiffJsonModal(org, current);
+        const controller = app.getController();
+        if (controller.getConfigController().confirmOnApply()) {
+            var bConfirm = await controller.getModalController().openDiffJsonModal(org, current);
             if (!bConfirm)
                 return Promise.reject();
         }
 
-        app.controller.setLoadingState(true);
+        controller.setLoadingState(true);
 
         var bForce = false;
-        if (!app.controller.getVersionController().isCompatible()) {
-            app.controller.setLoadingState(false);
-            var bConfirmation = await app.controller.getModalController().openConfirmModal("Application versions do not match! Still force upload?");
-            if (bConfirmation)
+        if (!controller.getVersionController().isCompatible()) {
+            controller.setLoadingState(false);
+            var bConfirm = await controller.getModalController().openConfirmModal("Application versions do not match! Still force upload?");
+            if (bConfirm)
                 bForce = true;
             else
                 return Promise.reject();
         }
 
-        app.controller.setLoadingState(true);
-        var id = this._model.getId();
+        controller.setLoadingState(true);
+        const id = this._model.getId();
         await this._model.setDefinition(current, true, bForce);
-
         if (!id)
-            await app.controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
+            await controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
         else
             await this._model.initModel();
-
         this.dispose();
-
-        return app.controller.reloadState();
+        controller.setLoadingState(false);
+        return Promise.resolve();
     }
 
     async _hasChanged() {
-        app.controller.setLoadingState(true);
-        var org = this._model.getDefinition();
-        var current = await this._readDefinition(this.getOpenTab());
-        var delta = await diffJson(org, current);
-        var bChanged = !(delta.length === 1 && typeof delta[0].removed === 'undefined' && typeof delta[0].added === 'undefined');
-        app.controller.setLoadingState(false);
+        const controller = app.getController();
+        controller.setLoadingState(true);
+        const org = this._model.getDefinition();
+        const current = await this._readDefinition(this.getOpenTab());
+        const delta = await diffJson(org, current);
+        const bChanged = !(delta.length === 1 && typeof delta[0].removed === 'undefined' && typeof delta[0].added === 'undefined');
+        controller.setLoadingState(false);
         return Promise.resolve(bChanged);
     }
 }

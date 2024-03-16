@@ -20,11 +20,9 @@ describe('Testsuit', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
@@ -42,7 +40,7 @@ describe('Testsuit', function () {
             allPassed = allPassed && (this.currentTest.state === 'passed');
     });
 
-    it('#test sort timestamp', async function () {
+    it('#test datatypes', async function () {
         this.timeout(60000);
 
         await helper.setupModel(path.join(__dirname, './data/models/misc.json'));

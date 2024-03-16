@@ -38,8 +38,8 @@ class ConfigController {
             var resp;
             for (var model of models) {
                 resp = await model.uploadData(bForce);
-                //console.log(resp);
             }
+            await controller.getModelController().init();
 
             if (profiles)
                 await controller.getProfileController().setProfiles(profiles);
@@ -72,6 +72,7 @@ class ConfigController {
                         await ac.reloadModels();
                     var bReady = await ac.waitApiReady();
                     if (bReady) {
+                        //await controller.getModelController().init();
                         alert('Application is going to reload in order to finish import!');
                         controller.reloadApplication(); //TODO: quickfix ? overact?
                     } else {
