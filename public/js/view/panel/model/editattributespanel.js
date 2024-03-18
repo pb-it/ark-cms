@@ -347,12 +347,12 @@ class EditAttributesPanel extends Panel {
                             'view': 'select',
                             'required': true,
                             changeAction: async function (entry) {
-                                const fData = await entry._form.readForm(false, false);
+                                const fData = await entry._form.readForm({ bSkipNullValues: false, bValidate: false });
                                 const cdn = entry._form.getFormEntry('cdn');
                                 if (fData['storage'] == 'filesystem')
                                     await cdn.show();
                                 else
-                                    cdn.hide();
+                                    await cdn.hide();
                                 return Promise.resolve();
                             },
                         },
@@ -467,7 +467,7 @@ class EditAttributesPanel extends Panel {
     }
 
     async _addAttribute(panel) {
-        var data = await panel.getForm().readForm();
+        var data = await panel.getForm().readForm({ bIncludeHidden: false, bIncludeReadonly: false });
 
         var dt;
         if (this._data['dataType']) {
@@ -588,7 +588,7 @@ class EditAttributesPanel extends Panel {
                     dt = dtc.getDataType(this._data['dataType']);
                     if (dt) {
                         if (dt.applySkeleton)
-                            dt.applySkeleton(this._data, data);
+                            this._data = dt.applySkeleton(this._data, data);
                         else {
                             var skeleton;
                             if (dt.getSkeleton)

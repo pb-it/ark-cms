@@ -6,8 +6,56 @@
     },
     "attributes": [
         {
+            "name": "bool_checkbox",
+            "dataType": "boolean",
+            "required": true,
+            "defaultValue": false
+        },
+        {
+            "name": "bool_select",
+            "dataType": "boolean"
+        },
+        {
+            "name": "integer",
+            "dataType": "integer"
+        },
+        {
+            "name": "decimal",
+            "dataType": "decimal"
+        },
+        {
+            "name": "enum_select",
+            "dataType": "enumeration",
+            "options": [
+                {
+                    "value": "A"
+                },
+                {
+                    "value": "B"
+                }
+            ],
+            "view": "select"
+        },
+        {
+            "name": "enum_radio",
+            "dataType": "enumeration",
+            "options": [
+                {
+                    "value": "A"
+                },
+                {
+                    "value": "B"
+                }
+            ],
+            "view": "radio"
+        },
+        {
             "name": "string",
             "dataType": "string"
+        },
+        {
+            "name": "text",
+            "dataType": "text"
         },
         {
             "name": "url",
@@ -32,6 +80,11 @@
         {
             "name": "time",
             "dataType": "time"
+        },
+        {
+            "name": "relation",
+            "dataType": "relation",
+            "model": "_user"
         }
     ]
 }

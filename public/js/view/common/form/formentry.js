@@ -5,7 +5,8 @@ class FormEntry {
 
     _id;
     _value;
-    _visible;
+    _bVisible;
+    _bEditable;
 
     _$div;
     //_$label;
@@ -15,15 +16,11 @@ class FormEntry {
         this._form = form;
         this._attribute = attribute;
 
-        var formName = this._form.getName();
-        if (this._attribute.id)
-            this._id = this._attribute.id;
-        else if (formName)
-            this._id = formName + "." + this._attribute.name;
-        else
-            this._id = this._attribute.name + Date.now();
+        const id = this._attribute['id'] ?? this._attribute['name'];
+        this._id = id + ':' + Date.now();
 
-        this._visible = !this._attribute['hidden'];
+        this._bVisible = !this._attribute['hidden'];
+        this._bEditable = !this._attribute['readonly'];
     }
 
     setAttribute(attribute) {
@@ -47,22 +44,34 @@ class FormEntry {
     }
 
     isVisible() {
-        return this._visible;
+        return this._bVisible;
     }
 
-    isEditable() {
-        return !this._attribute['readonly'];
-    }
-
-    hide() {
-        this._visible = false;
+    async hide() {
+        this._value = await this.readValue(false);
+        this._bVisible = false;
         if (this._$div)
             this._$div.empty();
+        return Promise.resolve();
     }
 
     async show() {
-        this._visible = true;
+        this._bVisible = true;
         return this.renderEntry(this._value);
+    }
+
+    isEditable() {
+        return this._bEditable;
+    }
+
+    async enable() {
+        this._bEditable = true;
+        return this.renderEntry(await this.readValue(false));
+    }
+
+    async disable() {
+        this._bEditable = false;
+        return this.renderEntry(await this.readValue(false));
     }
 
     async renderEntry(value) {
@@ -70,11 +79,14 @@ class FormEntry {
 
         if (this._$div)
             this._$div.empty();
-        else
+        else {
+            const formName = this._form.getName() ?? 'form';
             this._$div = $('<div/>')
+                .attr('id', formName + ':' + this._id)
                 .addClass('formentry');
+        }
 
-        if (!this._visible)
+        if (!this._bVisible)
             this._$div.empty();
         else {
             const $label = this.renderLabel();

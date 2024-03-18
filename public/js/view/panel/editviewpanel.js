@@ -63,13 +63,13 @@ class EditViewPanel extends TabPanel {
                 view: 'select'
             },
             {
-                name: "details",
-                dataType: "enumeration",
+                name: 'details',
+                dataType: 'enumeration',
                 options: [{ 'value': 'none' }, { 'value': 'title' }, { 'value': 'all' }],
                 view: 'select',
                 changeAction: async function (entry) {
                     var fData = await entry._form.readForm();
-                    var e = entry._form.getFormEntry("detailsAttr");
+                    var e = entry._form.getFormEntry('detailsAttr');
 
                     var attribute = e.getAttribute();
                     if (fData['details'] === EditViewPanel.detailsEnumToString(DetailsEnum.all)) {
@@ -77,7 +77,7 @@ class EditViewPanel extends TabPanel {
                             e.setValue(attribute['options'].map(function (x) { return x['value'] }));
                         await e.show();
                     } else
-                        e.hide();
+                        await e.hide();
 
                     //await entry.renderValue(???);
                     //this.setFormData(fData); //backup already made changes

@@ -45,15 +45,15 @@ class ExtendedTestHelper extends TestHelper {
                 const models = await ds.read('_model');
 
                 var bReload;
-                if (bOverride || models.filter(function (x) { return x['name'] === 'studio' }).length == 0) {
+                if (bOverride || models.filter(function (x) { return x['definition']['name'] === 'studio' }).length == 0) {
                     await this.setupModel(path.join(__dirname, '../data/models/studio.json'));
                     bReload = true;
                 }
-                if (bOverride || models.filter(function (x) { return x['name'] === 'star' }).length == 0) {
+                if (bOverride || models.filter(function (x) { return x['definition']['name'] === 'star' }).length == 0) {
                     await this.setupModel(path.join(__dirname, '../data/models/star.json'));
                     bReload = true;
                 }
-                if (bOverride || models.filter(function (x) { return x['name'] === 'movie' }).length == 0) {
+                if (bOverride || models.filter(function (x) { return x['definition']['name'] === 'movie' }).length == 0) {
                     await this.setupModel(path.join(__dirname, '../data/models/movie.json'));
                     bReload = true;
                 }

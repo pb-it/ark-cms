@@ -265,7 +265,7 @@ Do you want to continue?`))
                     const controller = app.getController();
                     try {
                         var bReloadApp = false;
-                        const fdata = await this._form.readForm(true, true);
+                        const fdata = await this._form.readForm();
                         const cc = controller.getConfigController();
                         const sc = controller.getStorageController();
 
@@ -337,8 +337,8 @@ Do you want to continue?`))
     }
 
     async _hasChanged() {
-        var org = this._data;
-        var current = await this._form.readForm(true, true);
+        const org = this._data;
+        const current = await this._form.readForm();
         return Promise.resolve(!isEqualJson(org, current));
     }
 }

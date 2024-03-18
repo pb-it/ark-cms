@@ -1,9 +1,9 @@
 class BasicFormEntry extends FormEntry {
 
     static async loadTimePicker() {
-        var buildUrl = "/public/ext/";
-        var p1 = loadStyle(buildUrl + "jquery-ui-timepicker-addon.css");
-        var p2 = loadScript(buildUrl + "jquery-ui-timepicker-addon.js");
+        const buildUrl = "/public/ext/";
+        const p1 = loadStyle(buildUrl + "jquery-ui-timepicker-addon.css");
+        const p2 = loadScript(buildUrl + "jquery-ui-timepicker-addon.js");
         return Promise.all([p1, p2]);
     }
 
@@ -23,7 +23,7 @@ class BasicFormEntry extends FormEntry {
         else
             this._$value = $('<div/>').addClass('value');
 
-        var name = this._attribute.name;
+        const name = this._attribute['name'];
         var size;
 
         if (this._attribute['dataType']) {
@@ -298,7 +298,7 @@ class BasicFormEntry extends FormEntry {
             }
         }
         if (this._$input) {
-            if (this._attribute['readonly']) //editable
+            if (!this.isEditable())
                 this._$input.attr('disabled', true);
 
             if (this._attribute['clickAction'])
@@ -316,7 +316,7 @@ class BasicFormEntry extends FormEntry {
         if (this._$input) {
             if (this._attribute['dataType']) {
                 if (this._attribute['dataType'] === "enumeration" && this._attribute['view'] === "radio")
-                    data = $("input[type='radio'][name='" + this._id + "']:checked").val();
+                    data = this._$value.find("input[type='radio'][name='" + this._id + "']:checked").val();
                 else if (this._attribute['dataType'] === "boolean" && this._$input.prop('type') === 'fieldset')
                     data = this._$input.children().first().prop('checked');
                 else {
@@ -371,7 +371,7 @@ class BasicFormEntry extends FormEntry {
                     }
                 }
 
-                if (bValidate && this._attribute['required'] && !(this._attribute['readonly'])) {
+                if (bValidate && this._attribute['required'] && this.isEditable()) {
                     var bMissing = false;
                     if (this._attribute['dataType'] === 'boolean')
                         bMissing = !(data === true || data === false);

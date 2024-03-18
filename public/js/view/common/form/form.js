@@ -139,7 +139,7 @@ class Form {
         return Promise.resolve(this._$form);
     }
 
-    async readForm(bSkipNullValues = true, bValidate = true, bIncludeHidden = true, bIncludeReadonly = true) {
+    async readForm({ bSkipNullValues = true, bValidate = true, bIncludeHidden = true, bIncludeReadonly = true } = {}) {
         var data;
         if (this._entries) {
             data = {};

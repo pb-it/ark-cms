@@ -593,19 +593,19 @@ class ContextMenuController {
                         const controller = app.getController();
                         var skeleton;
                         if (attr['hidden']) {
-                            var copy = { ...attr };
+                            const copy = { ...attr };
                             delete copy['hidden'];
                             skeleton = [copy];
                         } else
                             skeleton = [attr];
-                        var panel = new FormPanel(null, skeleton);
+                        const panel = new FormPanel(null, skeleton);
                         panel.setApplyAction(async function (p) {
                             controller.setLoadingState(true);
                             try {
-                                var data = await p.getForm().readForm(false);
+                                const data = await p.getForm().readForm({ bSkipNullValues: false });
 
                                 var objs;
-                                var selected = controller.getSelectedObjects();
+                                const selected = controller.getSelectedObjects();
                                 if (selected && selected.length > 0)
                                     objs = selected;
                                 else

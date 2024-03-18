@@ -302,7 +302,7 @@ class CrudPanel extends CanvasPanel {
     async _readData(bValidate) {
         var data;
         if (this._form)
-            data = await this._form.readForm(true, bValidate);
+            data = await this._form.readForm({ bValidate: bValidate });
         return Promise.resolve(data);
     }
 

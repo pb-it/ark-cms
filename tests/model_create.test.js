@@ -50,58 +50,59 @@ describe('Testsuit', function () {
         await ExtendedTestHelper.delay(1000);
 
         var modal = await window.getTopModal();
-        var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
-        var input = await window.getFormInput(form, 'name');
+        assert.notEqual(modal, null);
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('movie');
-        button = await modal.findElement(webdriver.By.xpath(`//button[text()="Apply"]`));
+        var button = await modal.findElement(webdriver.By.xpath(`.//button[text()="Apply"]`));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
         await ExtendedTestHelper.delay(1000);
 
         const modelModal = await window.getTopModal();
-        button = await modelModal.findElement(webdriver.By.xpath(`//button[text()="Add Attribute"]`));
+        button = await modelModal.findElement(webdriver.By.xpath(`.//button[text()="Add Attribute"]`));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
-        await ExtendedTestHelper.delay(100);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
-        input = await window.getFormInput(form, 'name');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('name');
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('name');
-        var elem = await form.findElement(webdriver.By.css('select#dataType > option[value="string"]'));
+        var elem = await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="string"]'));
         assert.notEqual(elem, null, 'Option not found!');
         await elem.click();
-        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
-        await ExtendedTestHelper.delay(100);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
         await ExtendedTestHelper.delay(100);
 
-        button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
+        button = await modelModal.findElement(webdriver.By.xpath('.//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
-        await ExtendedTestHelper.delay(100);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        button = await modal.findElement(webdriver.By.xpath('//button[text()="Ignore"]'));
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Ignore"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
         await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();

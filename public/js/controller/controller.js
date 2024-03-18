@@ -150,19 +150,6 @@ class Controller {
         this._configController = new ConfigController();
         await this._configController.initConfigController();
 
-        if (this._storageController.loadLocal('bIndexedDB') === 'true') {
-            this._database = new Database('cache');
-            try {
-                await this._database.initDatabase();
-            } catch (error) {
-                console.error(error);
-                alert(`IndexDB encountered an error while restoring your cached data!
-More details are provided within the browser console.
-The usage of the cache will be paused until the problem got solved.
-You can also try to reset your cache via the 'Cache-Panel'.`);
-            }
-        }
-
         this._versionController = new VersionController();
         this._apiController = new ApiController(this._configController.getApi());
         this._authController = new AuthController();
@@ -171,6 +158,9 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
             await this._apiController.initApiController();
             await this._authController.initAuthController();
             await this._versionController.initVersionController();
+
+            if (this._storageController.loadLocal('bIndexedDB') === 'true')
+                await this._initDatabase();
 
             this._routeController = new RouteController();
             await this._routeController.init();
@@ -287,6 +277,27 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
 
         this._bFirstLoadAfterInit = true;
         return Promise.resolve(bInitDone);
+    }
+
+    async _initDatabase() {
+        //const dbIdentLocal = this._storageController.loadLocal(Database.DB_IDENT);
+        var dbIdent;
+        const entry = await this._apiController.getApiClient().requestData('GET', '_registry?key=dbIdent');
+        if (entry && entry.length == 1)
+            dbIdent = entry[0]['value'];
+
+        if (!dbIdent)
+            dbIdent = 'cache';
+        this._database = new Database(dbIdent);
+        try {
+            await this._database.initDatabase();
+        } catch (error) {
+            console.error(error);
+            alert(`IndexDB encountered an error while restoring your cached data!
+More details are provided within the browser console.
+The usage of the cache will be paused until the problem got solved.
+You can also try to reset your cache via the 'Cache-Panel'.`);
+        }
     }
 
     setupShortcuts() {
@@ -497,7 +508,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                             var form = panels[0].getForm();
                             if (obj && form) {
                                 var skeleton = obj.getSkeleton(true);
-                                var data = await form.readForm(true, false);
+                                var data = await form.readForm({ bValidate: false });
                                 var res = {};
                                 var property;
                                 var tmp;

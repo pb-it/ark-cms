@@ -96,7 +96,7 @@ class CreateFilterPanel extends Panel {
                 if (!this._obj) {
                     this._obj = new CrudObject(this._model.getName());
                 }
-                var skeleton = this._obj.getSkeleton(true);
+                const skeleton = this._obj.getSkeleton(true);
                 skeleton = [...skeleton];
                 for (var attr of skeleton) {
                     if (attr['defaultValue'])
@@ -106,26 +106,27 @@ class CreateFilterPanel extends Panel {
                     if (attr['required'])
                         delete attr['required'];
                 }
-                var panel = new FormPanel(null, skeleton, this._obj.getData());
+                const panel = new FormPanel(null, skeleton, this._obj.getData());
                 panel.setApplyAction(async function () {
                     event.preventDefault();
 
-                    app.controller.setLoadingState(true);
+                    const controller = app.getController();
+                    controller.setLoadingState(true);
                     try {
-                        var data = await panel.getForm().readForm();
+                        const data = await panel.getForm().readForm();
                         this._obj.setData(data, false);
-                        this._filter = await this._form.readForm(true, false);
+                        this._filter = await this._form.readForm({ bValidate: false });
                         this._filter.query = CreateFilterPanel.objectToQuery(this._obj);
                         this.render();
                         panel.dispose();
-                        app.controller.setLoadingState(false);
+                        controller.setLoadingState(false);
                     } catch (error) {
-                        app.controller.setLoadingState(false);
-                        app.controller.showError(error);
+                        controller.setLoadingState(false);
+                        controller.showError(error);
                     }
                     return Promise.resolve();
                 }.bind(this));
-                return app.controller.getModalController().openPanelInModal(panel);
+                return app.getController().getModalController().openPanelInModal(panel);
             }.bind(this)));
 
         $form.append(SPACE);
