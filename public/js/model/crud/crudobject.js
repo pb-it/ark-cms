@@ -575,18 +575,17 @@ class CrudObject {
 
         const db = controller.getDatabase();
         if (db) {
-            const oldest = db.getTimestamp();
-            if (oldest) {
-                const apiController = controller.getApiController();
+            const id = db.getChangeId();
+            if (id) {
                 const cache = await controller.getDataService().getCache();
-                const changes = await cache.getChanges(oldest);
+                const changes = await cache.getChanges(id);
                 if (changes) {
                     const data = changes['data'];
                     if (data && data.length == 1) {
                         const user = controller.getAuthController().getUser();
                         if (data[0]['model'] == this._typeString && data[0]['record_id'] == this._data['id'] &&
                             ((!user && !data[0]['user']) || data[0]['user']['id'] == user['id']))
-                            db.setTimestamp(null, changes['timestamp']);
+                            db.setChangeId(null, data[0]['id']);
                     }
                 }
             }

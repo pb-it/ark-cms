@@ -87,7 +87,7 @@ describe('Testsuit', function () {
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var elements = await driver.findElements(webdriver.By.xpath(xpathPanel));
-        assert.equal(elements.length, 1);
+        assert.equal(elements.length, 2);
 
         await driver.actions({ bridge: true }).contextClick(elements[0], webdriver.Button.RIGHT).perform();
 
@@ -99,7 +99,7 @@ describe('Testsuit', function () {
         await ExtendedTestHelper.delay(100);
 
         const url = await driver.getCurrentUrl();
-        assert.equal(url.endsWith('/data/_registry?key=version'), true);
+        assert.equal(url.endsWith('/data/_registry?key=dbIdent'), true);
 
         elements = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(elements.length, 1);
@@ -108,7 +108,7 @@ describe('Testsuit', function () {
         await ExtendedTestHelper.delay(100);
 
         elements = await driver.findElements(webdriver.By.xpath(xpathPanel));
-        assert.equal(elements.length, 1);
+        assert.equal(elements.length, 2);
 
         response = await driver.executeAsyncScript(async () => {
             const callback = arguments[arguments.length - 1];

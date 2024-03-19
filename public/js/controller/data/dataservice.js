@@ -294,7 +294,16 @@ class DataService {
 
             if (cache) {
                 if (bFullFetch) {
-                    await cache.setCompleteRecordSet(res, sort, timestamp);
+                    var id;
+                    if (app.getController().getDatabase()) {
+                        var response = await this._apiClient.request("GET", this._apiClient.getDataPath() + '_change?timestamp_lte=' + timestamp + '&_sort=id:desc&_limit=1');
+                        if (response) {
+                            var o = JSON.parse(response);
+                            if (o['data'] && o['data'].length == 1)
+                                id = o['data'][0]['id'];
+                        }
+                    }
+                    await cache.setCompleteRecordSet(res, sort, id);
                 } else {
                     if (Array.isArray(typeUrl)) {
                         await cache.cacheData(null, res);

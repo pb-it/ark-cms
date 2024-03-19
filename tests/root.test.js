@@ -3,6 +3,7 @@ const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
 describe("Root Suite", function () {
 
+    let bSetup;
     let driver;
 
     before('#setup', async function () {
@@ -11,6 +12,7 @@ describe("Root Suite", function () {
         if (!global.helper) {
             global.helper = new ExtendedTestHelper();
             await helper.setup(config);
+            bSetup = true;
         }
         driver = helper.getBrowser().getDriver();
 
@@ -22,6 +24,8 @@ describe("Root Suite", function () {
     after('#teardown', async function () {
         if (allPassed)
             await driver.quit();
+        if (bSetup)
+            await helper.teardown();
         return Promise.resolve();
     });
 

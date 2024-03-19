@@ -108,7 +108,7 @@ class ModelCache {
         return res;
     }
 
-    async setCompleteRecordSet(data, sort, timestamp) {
+    async setCompleteRecordSet(data, sort, id) {
         var sorted;
         if (this._defaultSort) {
             var sorted;
@@ -126,9 +126,9 @@ class ModelCache {
             }
         }
 
-        if (this._db && timestamp) {
-            var name = this._model.getName();
-            await this._db.initObjectStore(name, data, timestamp);
+        if (this._db && id) {
+            const name = this._model.getName();
+            await this._db.initObjectStore(name, data, id);
         }
         return Promise.resolve();
     }

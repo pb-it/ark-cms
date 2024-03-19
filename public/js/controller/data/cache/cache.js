@@ -2,13 +2,10 @@ class Cache {
 
     _controller;
     _modelCacheArr;
-    _lastUpdate;
 
     constructor() {
         this._controller = app.getController();
         this._modelCacheArr = [];
-
-        this._lastUpdate = new Date();
     }
 
     getModelCache(name) {
@@ -36,23 +33,18 @@ class Cache {
         return Promise.resolve();
     }
 
-    async getChanges(start) {
+    async getChanges(id) {
         var changes;
-        if (!start)
-            start = this._lastUpdate;
-        if (start) {
-            var apiClient = app.getController().getApiController().getApiClient();
-            var response = await apiClient.request("GET", apiClient.getDataPath() + '_change?timestamp_gte=' + start.toISOString() + '&model_neq=\\_%');
-            if (response)
-                changes = JSON.parse(response);
-        }
+        const apiClient = app.getController().getApiController().getApiClient();
+        const response = await apiClient.request('GET', apiClient.getDataPath() + '_change?id_gt=' + id + '&model_neq=\\_%');
+        if (response)
+            changes = JSON.parse(response);
         return Promise.resolve(changes);
     }
 
     async applyChanges(changes) {
-        var timestamp;
+        var last;
         if (changes) {
-            timestamp = changes['timestamp'];
             var data = changes['data'];
             if (data && data.length > 0) {
                 var modelName;
@@ -65,6 +57,8 @@ class Cache {
                 var changed = {};
                 var tmp;
                 for (var change of data) {
+                    if (!last || change['id'] > last)
+                        last = change['id'];
                     modelName = change['model'];
                     model = this._controller.getModelController().getModel(modelName);
                     if (model) {
@@ -142,10 +136,8 @@ class Cache {
                         await Promise.all(promises);
                 }
             }
-            if (timestamp)
-                this._lastUpdate = new Date(timestamp);
         }
-        return Promise.resolve(timestamp);
+        return Promise.resolve(last);
     }
 
     async update() {

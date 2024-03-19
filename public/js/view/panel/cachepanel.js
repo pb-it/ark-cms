@@ -104,14 +104,14 @@ class CachePanel extends TabPanel {
     }
 
     async _createDatabasePanel() {
-        var panel = new Panel({ 'title': 'Database' });
+        const panel = new Panel({ 'title': 'Database' });
         panel._renderContent = async function () {
-            var controller = app.getController();
-            var bLoading = controller.getLoadingState();
+            const controller = app.getController();
+            const bLoading = controller.getLoadingState();
             if (!bLoading)
                 controller.setLoadingState(true);
 
-            var $div = $('<div/>');
+            const $div = $('<div/>');
             if (this._db.isConnected()) {
                 var $table = $('<table>');
                 var arr = await this._db.getObjectStoreNames();
@@ -119,20 +119,30 @@ class CachePanel extends TabPanel {
                     var $row;
                     var $col;
                     var size;
-                    var timestamp;
+                    var id;
                     var $button;
-                    var meta = this._db.getMetaData();
+
+                    $row = $('<tr>');
+                    $col = $('<th>').text('model');
+                    $row.append($col);
+                    $col = $('<th>').text('count');
+                    $row.append($col);
+                    $col = $('<th>').text('state').attr('title', 'Change ID');
+                    $row.append($col);
+                    $table.append($row);
+
+                    const meta = this._db.getMetaData();
                     for (var typeString of arr) {
                         $row = $('<tr>');
                         $col = $('<td>').text(typeString);
                         $row.append($col);
 
                         size = await this._db.count(typeString);
-                        $col = $('<td>').text(size);
+                        $col = $('<td>').css({ 'min-width': '50px' }).text(size);
                         $row.append($col);
 
-                        timestamp = meta[typeString];
-                        $col = $('<td>').text(timestamp);
+                        id = meta[typeString];
+                        $col = $('<td>').css({ 'min-width': '50px' }).text(id);
                         $row.append($col);
 
                         $col = $('<td>');

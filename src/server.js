@@ -158,6 +158,24 @@ class Server {
 
         return app;
     }
+
+    async teardown() {
+        return new Promise(function (resolve, reject) {
+            if (this._svr) {
+                const id = setTimeout(function () {
+                    throw new Error('[Express] ✘ Could not close connections in time, forcefully shutting down');
+                }, 10000);
+                this._svr.close(function (err) {
+                    clearTimeout(id);
+                    if (err)
+                        reject(err);
+                    else
+                        resolve();
+                });
+            } else
+                resolve();
+        }.bind(this));
+    }
 }
 
 module.exports = Server;

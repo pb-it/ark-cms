@@ -5,10 +5,28 @@ const assert = require('assert');
 
 const { TestHelper } = require("@pb-it/ark-cms-selenium-test-helper");
 
+const Controller = require('../../src/controller.js');
+
 class ExtendedTestHelper extends TestHelper {
+
+    _controller;
 
     constructor() {
         super();
+    }
+
+    async setup(config) {
+        if (config['cmsServerConfig']) {
+            this._controller = new Controller();
+            await this._controller.init(config['cmsServerConfig']);
+        }
+        return super.setup(config);
+    }
+
+    async teardown() {
+        if (this._controller)
+            await this._controller.getServer().teardown();
+        return Promise.resolve();
     }
 
     async setupModel(file) {

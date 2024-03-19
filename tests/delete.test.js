@@ -60,11 +60,11 @@ describe('Testsuit', function () {
         var canvas = await window.getCanvas();
         assert.notEqual(canvas, null);
         var panels = await canvas.getPanels();
-        assert.equal(panels.length, 1);
+        assert.equal(panels.length, 2);
         var title = await panels[0].getElement().findElement(webdriver.By.xpath(`./div/p`));
         assert.notEqual(title, null);
         var text = await title.getText();
-        assert.equal(text, '<key: version>');
+        assert.equal(text, '<key: dbIdent>');
 
         await window.getTopNavigationBar().openAddEntry();
         await ExtendedTestHelper.delay(1000);
@@ -135,7 +135,7 @@ describe('Testsuit', function () {
         canvas = await window.getCanvas();
         assert.notEqual(canvas, null);
         panels = await canvas.getPanels();
-        assert.equal(panels.length, 2);
+        assert.equal(panels.length, 3);
 
         panel = null;
         var element;
@@ -164,7 +164,7 @@ describe('Testsuit', function () {
         canvas = await window.getCanvas();
         assert.notEqual(canvas, null);
         panels = await canvas.getPanels();
-        assert.equal(panels.length, 1);
+        assert.equal(panels.length, 2);
 
         return Promise.resolve();
     });

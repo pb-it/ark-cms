@@ -185,11 +185,11 @@ class Controller {
             await this._bookmarkController.init();
 
             if (this._database) {
-                var oldest = this._database.getTimestamp();
-                if (oldest) {
-                    var changes = await this._dataservice.getCache().getChanges(oldest);
+                const id = this._database.getChangeId();
+                if (id) {
+                    const changes = await this._dataservice.getCache().getChanges(id);
                     if (changes) {
-                        var data = changes['data'];
+                        const data = changes['data'];
                         if (data && data.length > 0) {
                             if (this._configController.automaticUpdateIndexedDB()) {
                                 if (this._database)

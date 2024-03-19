@@ -208,8 +208,8 @@ class Database {
 
         this._name = name;
 
-        var sc = this._controller.getStorageController();
-        var meta = sc.loadLocal(Database.META_IDENT);
+        const sc = this._controller.getStorageController();
+        const meta = sc.loadLocal(Database.META_IDENT);
         if (meta)
             this._meta = JSON.parse(meta);
         else
@@ -226,7 +226,7 @@ class Database {
 
     async initDatabase(callback) {
         const sc = app.getController().getStorageController();
-        var version = sc.loadLocal(Database.VERSION_IDENT);
+        const version = sc.loadLocal(Database.VERSION_IDENT);
         if (!version) {
             if (await Database._databaseExists(this._name))
                 await this.deleteDatabase();
@@ -253,7 +253,7 @@ class Database {
         if (this._db)
             this._db.close();
         await Database._deleteDatabase(this._name);
-        var sc = app.getController().getStorageController();
+        const sc = app.getController().getStorageController();
         sc.removeItem(Database.VERSION_IDENT);
         sc.removeItem(Database.META_IDENT);
         this._meta = {};
@@ -267,7 +267,7 @@ class Database {
         return names;
     }
 
-    async initObjectStore(name, data, timestamp) {
+    async initObjectStore(name, data, id) {
         if (this._db) {
             if (this._db.objectStoreNames.contains(name))
                 await this.clearObjectStore(name);
@@ -277,8 +277,8 @@ class Database {
                 });
             }
             await this.put(name, data);
-            this._meta[name] = timestamp;
-            var sc = app.getController().getStorageController();
+            this._meta[name] = id;
+            const sc = app.getController().getStorageController();
             sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
         }
         return Promise.resolve();
@@ -291,7 +291,7 @@ class Database {
             });
         }
         delete this._meta[name];
-        var sc = app.getController().getStorageController();
+        const sc = app.getController().getStorageController();
         sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
         return Promise.resolve();
     }
@@ -322,51 +322,49 @@ class Database {
     }
 
     async updateDatabase(changes) {
-        var timestamp;
-        var cache = await app.getController().getDataService().getCache();
+        var id;
+        const cache = await app.getController().getDataService().getCache();
         if (!changes) {
-            var oldest = this.getTimestamp();
-            if (oldest)
-                changes = await cache.getChanges(oldest);
+            id = this.getChangeId();
+            if (id)
+                changes = await cache.getChanges(id);
         }
         if (changes) {
-            timestamp = await cache.applyChanges(changes);
-            this.setTimestamp(null, timestamp);
+            id = await cache.applyChanges(changes);
+            this.setChangeId(null, id);
         }
-        return Promise.resolve(timestamp);
+        return Promise.resolve(id);
     }
 
-    getTimestamp(name) {
-        var oldest;
+    getChangeId(name) {
+        var id;
         if (name)
-            oldest = new Date(this._meta[name]);
+            id = this._meta[name];
         else {
-            var ts;
             if (Object.keys(this._meta).length > 0) {
                 for (var x in this._meta) {
                     if (this._meta[x]) {
-                        ts = new Date(this._meta[x]);
-                        if (oldest) {
-                            if (ts < oldest)
-                                oldest = ts;
+                        if (id) {
+                            if (this._meta[x] < id)
+                                id = this._meta[x];
                         } else
-                            oldest = ts;
+                            id = this._meta[x];
                     }
                 }
             }
         }
-        return oldest;
+        return id;
     }
 
-    setTimestamp(name, timestamp) {
+    setChangeId(name, id) {
         if (name)
-            this._meta[name] = timestamp;
+            this._meta[name] = id;
         else {
             for (var x in this._meta) {
-                this._meta[x] = timestamp;
+                this._meta[x] = id;
             }
         }
-        var sc = app.getController().getStorageController();
+        const sc = app.getController().getStorageController();
         sc.storeLocal(Database.META_IDENT, JSON.stringify(this._meta));
     }
 }

@@ -20,10 +20,14 @@ class Controller {
         this._appRoot = path.join(__dirname, "../"); //ends with backslash(linux)
     }
 
-    async init() {
-        if (!fs.existsSync(serverConfigPath) && fs.existsSync(serverConfigtemplatePath))
-            fs.copyFileSync(serverConfigtemplatePath, serverConfigPath);
-        this._serverConfig = require(serverConfigPath);
+    async init(config) {
+        if (config)
+            this._serverConfig = config;
+        else {
+            if (!fs.existsSync(serverConfigPath) && fs.existsSync(serverConfigtemplatePath))
+                fs.copyFileSync(serverConfigtemplatePath, serverConfigPath);
+            this._serverConfig = require(serverConfigPath);
+        }
 
         this._vcs = await this._checkVcs(this._appRoot);
 
@@ -66,6 +70,10 @@ class Controller {
 
     getAppRoot() {
         return this._appRoot;
+    }
+
+    getServer() {
+        return this._server;
     }
 
     getServerConfig() {

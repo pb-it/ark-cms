@@ -14,8 +14,8 @@ class Base64 {
         });
     }
 
-    static encodeText(text: string) {
-        return 'data:text/plain;base64,' + btoa(unescape(encodeURIComponent(text)));
+    static encodeText(text: string, mime: string = 'text/plain') {
+        return 'data:' + mime + ';base64,' + btoa(unescape(encodeURIComponent(text)));
     }
 
     /**

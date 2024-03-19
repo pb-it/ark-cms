@@ -1,6 +1,7 @@
 const config = {
+    //cmsServerConfig: { port: 4000 },
     host: 'http://localhost:4000',
-    //api: 'https://localhost:3002',
+    api: 'https://localhost:3002',
     browser: {
         //name: 'firefox',
         name: 'chrome',
