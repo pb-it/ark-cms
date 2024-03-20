@@ -13,6 +13,7 @@ class XModel {
 
     constructor(data, version) {
         this._data = data;
+        this._id = this._data['id'];
         this._version = version;
     }
 
@@ -51,6 +52,7 @@ class XModel {
 
     setId(id) {
         this._id = id;
+        this._data['id'] = id;
     }
 
     getName() {

@@ -2,8 +2,8 @@ class SelectableListEntry extends ListEntry {
 
     _bSelected;
 
-    constructor(name, data, bSelected) {
-        super(name, data)
+    constructor(name, data, options, bSelected) {
+        super(name, data, options)
         this._bSelected = bSelected;
     }
 

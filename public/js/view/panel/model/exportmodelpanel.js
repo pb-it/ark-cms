@@ -19,7 +19,7 @@ class ExportModelPanel extends Panel {
             else
                 sorted = models;
             for (var model of sorted) {
-                list.addEntry(new SelectableListEntry(model.getName(), model, true));
+                list.addEntry(new SelectableListEntry(model.getName(), model, null, true));
             }
         }
 

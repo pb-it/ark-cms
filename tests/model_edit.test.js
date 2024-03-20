@@ -7,7 +7,7 @@ const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
 const config = require('./config/test-config.js');
-const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
+const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
 describe('Testsuit', function () {
 
@@ -16,11 +16,11 @@ describe('Testsuit', function () {
         const window = app.getWindow();
         const sidemenu = window.getSideMenu();
         await sidemenu.click('Models');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('star');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Edit');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const modelModal = await window.getTopModal();
         assert.notEqual(modelModal, null);
@@ -29,7 +29,7 @@ describe('Testsuit', function () {
         var button = await tabPanel.findElement(webdriver.By.xpath('./div/div[@class="tab"]/button[text()="Defaults"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         return Promise.resolve();
     }
@@ -40,17 +40,17 @@ describe('Testsuit', function () {
         this.timeout(10000);
 
         if (!global.helper) {
-            global.helper = new TestHelper();
+            global.helper = new ExtendedTestHelper();
             await helper.setup(config);
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
@@ -77,7 +77,7 @@ describe('Testsuit', function () {
         assert.equal(id, 9);
 
         await driver.navigate().refresh();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         return Promise.resolve();
     });
@@ -89,18 +89,18 @@ describe('Testsuit', function () {
         const window = app.getWindow();
         const sidemenu = window.getSideMenu();
         await sidemenu.click('Models');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('movie');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Edit');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const modelModal = await window.getTopModal();
         var button = await window.getButton(modelModal, 'Add Attribute');
         assert.notEqual(button, null, 'Button not found!');
         button.click();
 
-        await TestHelper.delay(100);
+        await ExtendedTestHelper.delay(100);
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -113,7 +113,7 @@ describe('Testsuit', function () {
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
 
-        await TestHelper.delay(100);
+        await ExtendedTestHelper.delay(100);
 
         modal = await window.getTopModal();
         form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
@@ -127,16 +127,92 @@ describe('Testsuit', function () {
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
 
-        await TestHelper.delay(100);
+        await ExtendedTestHelper.delay(100);
 
         button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
 
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.equal(modal, null);
+
+        return Promise.resolve();
+    });
+
+    it('#remove and rename attributes', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Edit');
+        await ExtendedTestHelper.delay(1000);
+
+        const modelModal = await window.getTopModal();
+        assert.notEqual(modelModal, null);
+        const attrPanel = await modelModal.getPanel();
+        assert.notEqual(attrPanel, null);
+        var attr = await attrPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]/div/div[@class="list"]/ul/li/div[@class="node" and text()="premiere: date"]'));
+        assert.notEqual(attr, null);
+        var contextmenu = await window.openContextMenu(attr);
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Rename');
+        await ExtendedTestHelper.delay(1000);
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
+        assert.notEqual(input, null);
+        await input.clear();
+        await ExtendedTestHelper.delay(1000);
+        await input.sendKeys('release');
+        await ExtendedTestHelper.delay(1000);
+        var button = await panel.getButton('Apply');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        attr = await attrPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]/div/div[@class="list"]/ul/li/div[@class="node" and text()="junk: integer"]'));
+        assert.notEqual(attr, null);
+        var contextmenu = await window.openContextMenu(attr);
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Delete');
+        await ExtendedTestHelper.delay(1000);
+
+        button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        var modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        const tools = await app.getApiController().getTools();
+        const cmd = `async function test() {
+    var tableInfo;
+    const model = controller.getShelf().getModel('movie');
+    const knex = model.getShelf().getKnex();
+    const table = model.getTableName();
+    const bExist = await knex.schema.hasTable(table);
+    if (bExist)
+        tableInfo = await knex.table(table).columnInfo();
+    return Promise.resolve(tableInfo);
+};        
+module.exports = test;`
+        const res = await tools.serverEval(cmd);
+        const data = JSON.parse(res);
+        assert.equal(data['premiere'], undefined);
+        assert.equal(JSON.stringify(data['release']), JSON.stringify({ "defaultValue": null, "type": "date", "maxLength": null, "nullable": true }));
+        assert.equal(data['junk'], undefined);
 
         return Promise.resolve();
     });
@@ -179,25 +255,25 @@ describe('Testsuit', function () {
         var option = await forms[0].findElement(webdriver.By.css('select#panelType > option[value=""]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         option = await forms[0].findElement(webdriver.By.css('select#details > option[value=""]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         option = await forms[0].findElement(webdriver.By.css('select#float > option[value=""]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         option = await forms[1].findElement(webdriver.By.css('select#title > option[value=""]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         var modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -215,7 +291,7 @@ describe('Testsuit', function () {
         assert.notEqual(modelModal, null);
 
         await modelModal.closeModal();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         var modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -252,25 +328,25 @@ describe('Testsuit', function () {
         var option = await forms[0].findElement(webdriver.By.css('select#panelType > option[value="MediaPanel"]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         option = await forms[0].findElement(webdriver.By.css('select#details > option[value="title"]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         option = await forms[0].findElement(webdriver.By.css('select#float > option[value="left"]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         option = await forms[1].findElement(webdriver.By.css('select#title > option[value="name"]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         var modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -303,20 +379,20 @@ describe('Testsuit', function () {
         assert.equal(value, 'name');
 
         await modelModal.closeModal();
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         var modal = await window.getTopModal();
         assert.equal(modal, null);
 
         sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('star');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Show');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
-        await TestHelper.delay(1000);
+        await ExtendedTestHelper.delay(1000);
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -330,7 +406,7 @@ describe('Testsuit', function () {
         var i = 0;
         const loadingIcon = config['host'] + '/public/images/loading_icon.gif';
         while (img === loadingIcon && i < 10) {
-            await TestHelper.delay(1000);
+            await ExtendedTestHelper.delay(1000);
             thumb = thumb = await panels[0].findElement(webdriver.By.xpath(xpathThumb));
             img = await thumb.getAttribute('src');
             i++;

@@ -19,10 +19,18 @@ class ListVis {
     init() {
         this._nodes = [];
         var node;
+        var options;
         for (var entry of this._list.getEntries()) {
-            node = new UniversalNode({}, null, this, entry.getName(), entry);
-            if (this._config['editable'])
-                node.setEditable(true);
+            node = new UniversalNodeVis(null, this, entry);
+            if (this._config['editable']) {
+                options = entry.getOptions();
+                if (options) {
+                    options['bRemovable'] = true;
+                    options['bRearrangeable'] = true;
+                } else
+                    options = { 'bRemovable': true, 'bRearrangeable': true };
+                entry.setOptions(options);
+            }
             this._nodes.push(node);
         }
     }
@@ -33,12 +41,6 @@ class ListVis {
 
     isEditable() {
         return this._config['editable'];
-    }
-
-    removeNode(node) {
-        this._nodes = this._nodes.filter(function (x) { return x != node });
-        this._list.removeEntry(node.getData());
-        this.renderList();
     }
 
     renderList() {

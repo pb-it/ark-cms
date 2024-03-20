@@ -168,7 +168,7 @@ describe('Testsuit', function () {
         //console.log(text);
         assert.notEqual(text, 'Not Found');
         var tmp = JSON.parse(text);
-        assert.equal(tmp['data'].length, 2);
+        assert.equal(tmp['data'].length, 1);
 
         const app = helper.getApp();
         await app.logout();

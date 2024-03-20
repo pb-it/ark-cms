@@ -17,7 +17,7 @@ class ListFormEntry extends FormEntry {
         if (this._attribute['options']) {
             if (value && Array.isArray(value) && value.length > 0) {
                 for (var o of this._attribute['options']) {
-                    this._list.addEntry(new SelectableListEntry(o['value'], o['value'], value.includes(o['value'])));
+                    this._list.addEntry(new SelectableListEntry(o['value'], o['value'], null, value.includes(o['value'])));
                 }
             } else {
                 for (var o of this._attribute['options']) {
@@ -44,9 +44,7 @@ class ListFormEntry extends FormEntry {
         if (this._listVis) {
             this._list = this._listVis.getList();
             var selectedEntries = this._list.getEntries().filter(function (x) { return x.isSelected() });
-            value = selectedEntries.map(function (x) {
-                return x.getData(); // x.getName()
-            });
+            value = selectedEntries.map(function (x) { return x.getData(); });
         }
         return Promise.resolve(value);
     }

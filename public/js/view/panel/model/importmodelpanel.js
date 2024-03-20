@@ -53,7 +53,7 @@ class ImportModelPanel extends Panel {
 
         var list = new List();
         for (var model of this._models) {
-            list.addEntry(new SelectableListEntry(model.getName(), model, true));
+            list.addEntry(new SelectableListEntry(model.getName(), model, null, true));
         }
 
         var vListConfig = {

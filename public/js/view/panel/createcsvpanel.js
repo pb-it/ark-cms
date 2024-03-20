@@ -18,7 +18,7 @@ class CreateCsvPanel extends Panel {
 
         var list = new List();
         for (var attribute of this._model.getModelAttributesController().getAttributes(true)) {
-            list.addEntry(new SelectableListEntry(attribute['name'], attribute, true));
+            list.addEntry(new SelectableListEntry(attribute['name'], attribute, null, true));
         }
 
         var vListConfig = {

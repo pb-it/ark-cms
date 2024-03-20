@@ -2,6 +2,7 @@ class EditAttributesPanel extends Panel {
 
     _model;
     _attributes;
+    _changes;
 
     _list;
     _listVis;
@@ -24,8 +25,48 @@ class EditAttributesPanel extends Panel {
 
         this._list = new List();
         if (this._attributes) {
+            const renameEntry = new ContextMenuEntry("Rename", async function (event, target) {
+                const node = target.getNode();
+                const from = node.getData()['name'];
+                const modal = await this._rename(node);
+                await modal.waitClosed();
+                if (this._model.getId()) {
+                    const to = node.getData()['name'];
+                    if (from !== to) {
+                        const change = { 'rename': { 'from': from, 'to': to } };
+                        if (this._changes)
+                            this._changes.push(change);
+                        else
+                            this._changes = [change];
+                    }
+                }
+                const vis = target.getParent();
+                vis.init();
+                vis.renderList();
+                return Promise.resolve();
+            }.bind(this));
+
+            const editEntry = new ContextMenuEntry("Edit", async function (event, target) {
+                //TODO:
+                return Promise.resolve();
+            }.bind(this));
+            editEntry.setEnabledFunction(async function (target) {
+                return Promise.resolve(false);
+            });
+            editEntry.setIcon(new Icon('pen-to-square'));
+
+            const options = { 'cmEntries': [renameEntry, editEntry] };
+            if (this._model.getId()) {
+                options['cbRemove'] = function (entry) {
+                    const change = { 'delete': entry.getData()['name'] };
+                    if (this._changes)
+                        this._changes.push(change);
+                    else
+                        this._changes = [change];
+                }.bind(this);
+            }
             for (var a of this._attributes) {
-                this._list.addEntry(new ListEntry(a['name'] + ": " + a['dataType'], a));
+                this._list.addEntry(new ListEntry(a['name'] + ": " + a['dataType'], a, options));
             }
         }
 
@@ -50,11 +91,55 @@ class EditAttributesPanel extends Panel {
         return Promise.resolve($div);
     }
 
+    async _rename(node) {
+        const attr = node.getData();
+        const skeleton = [
+            {
+                name: 'name',
+                dataType: 'string',
+                required: true
+            }
+        ];
+        const panel = new FormPanel(null, skeleton, { 'name': attr['name'] });
+        panel.setApplyAction(async function () {
+            const data = await panel.getForm().readForm();
+            if (data['name'] && data['name'] != attr['name']) {
+                if (!data['name'].startsWith('_')) {
+                    if (/[^a-zA-Z0-9_-]/.test(data['name']))
+                        throw new Error("For field 'name' only alphanumeric characters, underscore(except first position) and minus(dash/hyphen) are allowed");
+                } else
+                    throw new Error("Field 'name' must not start with an underscore");
+
+                const lower = data['name'].toLowerCase();
+                const attribues = this.getAttributes();
+                if (attribues) {
+                    const names = attribues.map(function (x) {
+                        return x['name'];
+                    });
+                    for (var name of names) {
+                        if (name.toLowerCase() === lower)
+                            throw new Error("An attribute with name '" + name + "' is already defined");
+                    }
+                }
+
+                attr['name'] = data['name'];
+                node.setName(attr['name'] + ": " + attr['dataType']);
+            }
+            panel.dispose();
+            return Promise.resolve();
+        }.bind(this));
+        return app.getController().getModalController().openPanelInModal(panel);
+    }
+
     getAttributes() {
-        var attributes = this._listVis.getList().getEntries().map(function (entry) {
+        const attributes = this._listVis.getList().getEntries().map(function (entry) {
             return entry.getData();
         });
         return attributes;
+    }
+
+    getChanges() {
+        return this._changes;
     }
 
     _addAttributeEntry(data) {
@@ -64,7 +149,7 @@ class EditAttributesPanel extends Panel {
     }
 
     async _renderForm1() {
-        var dataTypeOptions = [
+        const dataTypeOptions = [
             { 'value': 'boolean' },
             { 'value': 'integer' },
             { 'value': 'decimal' },
@@ -78,17 +163,19 @@ class EditAttributesPanel extends Panel {
             { 'value': 'datetime' },
             { 'value': 'timestamp' },
             { 'value': 'enumeration' },
+            { 'value': 'list' },
             { 'value': 'relation' },
             { 'value': 'file' }
         ];
-        const dtc = app.getController().getDataTypeController();
-        var types = dtc.getDataType();
+        const controller = app.getController()
+        const dtc = controller.getDataTypeController();
+        const types = dtc.getDataType();
         if (types) {
             var tags = Object.keys(types);
             for (var tag of tags)
                 dataTypeOptions.push({ 'value': tag });
         }
-        var skeleton = [
+        const skeleton = [
             {
                 name: 'name',
                 dataType: 'string',
@@ -102,21 +189,21 @@ class EditAttributesPanel extends Panel {
                 required: true
             }
         ];
-        var attrPanel = new FormPanel(null, skeleton, { 'persistent': true });
+        const attrPanel = new FormPanel(null, skeleton, { 'persistent': true });
         attrPanel.setApplyAction(async function () {
-            var data = await attrPanel.getForm().readForm();
-            if (data.name) {
-                if (!data.name.startsWith('_')) {
-                    if (/[^a-zA-Z0-9_-]/.test(data.name))
+            const data = await attrPanel.getForm().readForm();
+            if (data['name']) {
+                if (!data['name'].startsWith('_')) {
+                    if (/[^a-zA-Z0-9_-]/.test(data['name']))
                         throw new Error("For field 'name' only alphanumeric characters, underscore(except first position) and minus(dash/hyphen) are allowed");
                 } else
                     throw new Error("Field 'name' must not start with an underscore");
 
-                var lower = data.name.toLowerCase();
-                var attribues = this.getAttributes();
+                const lower = data['name'].toLowerCase();
+                const attribues = this.getAttributes();
                 if (attribues) {
-                    var names = attribues.map(function (x) {
-                        return x.name;
+                    const names = attribues.map(function (x) {
+                        return x['name'];
                     });
                     for (var name of names) {
                         if (name.toLowerCase() === lower)
@@ -129,7 +216,7 @@ class EditAttributesPanel extends Panel {
             }
             return this._renderForm2();
         }.bind(this));
-        return app.controller.getModalController().openPanelInModal(attrPanel);
+        return controller.getModalController().openPanelInModal(attrPanel);
     }
 
     async _renderForm2() {
@@ -148,6 +235,25 @@ class EditAttributesPanel extends Panel {
                             ],
                             'view': 'select'
                         }
+                    ];
+                    break;
+                case 'integer':
+                    skeleton = [
+                        { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'integer' },
+                        { 'name': 'unsigned', 'dataType': 'boolean', 'required': true, 'defaultValue': false },
+                        { 'name': 'defaultValue', 'dataType': 'integer' }
+                    ];
+                    break;
+                case 'decimal':
+                    skeleton = [
+                        { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
+                        { 'name': 'defaultValue', 'dataType': 'decimal' }
+                    ];
+                    break;
+                case 'double':
+                    skeleton = [
+                        { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
+                        { 'name': 'defaultValue', 'dataType': 'double' }
                     ];
                     break;
                 case 'string':
@@ -197,26 +303,6 @@ class EditAttributesPanel extends Panel {
                         { 'name': 'defaultValue', 'dataType': 'string' }
                     ];
                     break;
-                case 'enumeration':
-                    skeleton = [
-                        {
-                            'name': 'view',
-                            'dataType': 'enumeration',
-                            'options': [{ 'value': 'select' }, { 'value': 'radio' }],
-                            'view': 'select',
-                            'required': true,
-                            'defaultValue': 'select'
-                        },
-                        {
-                            'name': 'options',
-                            'dataType': 'text',
-                            'required': true,
-                            'tooltip': '**Info**: Enter each available option in a separate line'
-                        },
-                        { 'name': 'defaultValue', 'dataType': 'string' },
-                        { 'name': 'bUseString', 'label': 'Use basic string datatype.', 'dataType': 'boolean', 'view': 'labelRight', 'required': true, 'defaultValue': false }
-                    ];
-                    break;
                 case 'time':
                     skeleton = [
                         {
@@ -264,6 +350,36 @@ class EditAttributesPanel extends Panel {
                         { 'name': 'defaultValue', 'dataType': 'timestamp' }
                     ];
                     break;
+                case 'enumeration':
+                    skeleton = [
+                        {
+                            'name': 'view',
+                            'dataType': 'enumeration',
+                            'options': [{ 'value': 'select' }, { 'value': 'radio' }],
+                            'view': 'select',
+                            'required': true,
+                            'defaultValue': 'select'
+                        },
+                        {
+                            'name': 'options',
+                            'dataType': 'text',
+                            'required': true,
+                            'tooltip': '**Info**: Enter each available option in a separate line'
+                        },
+                        { 'name': 'defaultValue', 'dataType': 'string' },
+                        { 'name': 'bUseString', 'label': 'Use basic string datatype.', 'dataType': 'boolean', 'view': 'labelRight', 'required': true, 'defaultValue': false }
+                    ];
+                    break;
+                case 'list':
+                    skeleton = [
+                        {
+                            'name': 'options',
+                            'dataType': 'text',
+                            'required': true,
+                            'tooltip': '**Info**: Enter each available option in a separate line'
+                        }
+                    ];
+                    break;
                 case 'relation':
                     var models = app.controller.getModelController().getModels();
                     var allModelNames = models.map(function (model) {
@@ -289,25 +405,6 @@ class EditAttributesPanel extends Panel {
                         { 'name': 'model', 'dataType': 'enumeration', 'options': options, 'view': 'select', 'required': true },
                         { 'name': 'multiple', 'dataType': 'boolean', 'required': true },
                         { 'name': 'via', 'dataType': 'string' }
-                    ];
-                    break;
-                case 'integer':
-                    skeleton = [
-                        { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'integer' },
-                        { 'name': 'unsigned', 'dataType': 'boolean', 'required': true, 'defaultValue': false },
-                        { 'name': 'defaultValue', 'dataType': 'integer' }
-                    ];
-                    break;
-                case 'decimal':
-                    skeleton = [
-                        { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
-                        { 'name': 'defaultValue', 'dataType': 'decimal' }
-                    ];
-                    break;
-                case 'double':
-                    skeleton = [
-                        { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
-                        { 'name': 'defaultValue', 'dataType': 'double' }
                     ];
                     break;
                 case 'file':
@@ -503,6 +600,9 @@ class EditAttributesPanel extends Panel {
                     this._data['view'] = data['view'];
                     this._data['options'] = data['options'].split('\n').map(function (x) { return { 'value': x.trim() } });
                     this._data['bUseString'] = data['bUseString'];
+                    break;
+                case 'list':
+                    this._data['options'] = data['options'].split('\n').map(function (x) { return { 'value': x.trim() } });
                     break;
                 case 'text':
                 case 'json':

@@ -94,9 +94,12 @@ class EditModelPanel extends TabPanel {
             definition = JSON.parse(fData.json);
         } else {
             definition = this._tmpModel.getDefinition();
-            if (tab == this._$attributesPanel)
+            if (tab == this._$attributesPanel) {
                 definition['attributes'] = this._$attributesPanel.getAttributes();
-            else if (tab == this._$defaultsPanel) {
+                const changes = this._$attributesPanel.getChanges();
+                if (changes && changes.length > 0)
+                    definition['changes'] = this._$attributesPanel.getChanges();
+            } else if (tab == this._$defaultsPanel) {
                 var defaults = shrink(await this._$defaultsPanel.getData());
                 if (defaults)
                     definition['defaults'] = defaults;

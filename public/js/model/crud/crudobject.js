@@ -121,6 +121,7 @@ class CrudObject {
                                         relevant[property] = newdata[property];
                                     break;*/
                                 case "json":
+                                case "list":
                                     if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
                                         if (!isEqualJson(olddata[property], newdata[property]))
                                             relevant[property] = JSON.stringify(newdata[property]);

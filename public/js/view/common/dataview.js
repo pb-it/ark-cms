@@ -118,7 +118,6 @@ class DataView {
                 case "double":
                 case "string":
                 case "enumeration":
-                case "list":
                     if (data && data[name]) {
                         if (typeof data[name] === 'string' || data[name] instanceof String)
                             value = encodeText(data[name]);
@@ -126,6 +125,10 @@ class DataView {
                             value = data[name];
                     } else
                         value = "";
+                    $value.html(value);
+                    break;
+                case "list":
+                    value = data[name].join(', ');
                     $value.html(value);
                     break;
                 case "text":

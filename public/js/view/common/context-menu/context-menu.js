@@ -47,7 +47,7 @@ class ContextMenu {
 
     async _renderEntry(parent, entry) {
         if (await entry.isVisible(this._target)) {
-            const bEnabled = await entry.isEnabled();
+            const bEnabled = await entry.isEnabled(this._target);
             const $li = $('<li/>');
             const style = { 'display': 'inline-block', 'width': '100%' };
             if (!bEnabled) {

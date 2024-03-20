@@ -19,4 +19,8 @@ class List {
     getEntries() {
         return this._entries;
     }
+
+    setEntries(entries) {
+        this._entries = entries;
+    }
 }

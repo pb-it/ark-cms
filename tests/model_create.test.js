@@ -39,7 +39,7 @@ describe('Testsuit', function () {
     });
 
     it('#create new model', async function () {
-        this.timeout(10000);
+        this.timeout(30000);
 
         const app = helper.getApp();
         const window = app.getWindow();
@@ -68,7 +68,6 @@ describe('Testsuit', function () {
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
         await ExtendedTestHelper.delay(1000);
-
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
         panel = await modal.getPanel();
@@ -79,6 +78,62 @@ describe('Testsuit', function () {
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('name');
         var elem = await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="string"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(100);
+
+        button = await modelModal.findElement(webdriver.By.xpath(`.//button[text()="Add Attribute"]`));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('name');
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('premiere');
+        var elem = await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="date"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(100);
+
+        button = await modelModal.findElement(webdriver.By.xpath(`.//button[text()="Add Attribute"]`));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('name');
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('junk');
+        var elem = await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="integer"]'));
         assert.notEqual(elem, null, 'Option not found!');
         await elem.click();
         button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
