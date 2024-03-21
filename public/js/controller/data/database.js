@@ -252,6 +252,7 @@ class Database {
     async deleteDatabase() {
         if (this._db)
             this._db.close();
+        this._db = null;
         await Database._deleteDatabase(this._name);
         const sc = app.getController().getStorageController();
         sc.removeItem(Database.VERSION_IDENT);

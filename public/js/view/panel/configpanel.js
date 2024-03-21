@@ -76,16 +76,16 @@ class ConfigPanel extends TabPanel {
                     required: true,
                     defaultValue: false,
                     changeAction: async function (entry) {
-                        var fData = await entry._form.readForm();
-
-                        var e = entry._form.getFormEntry('bConfirmOnApply');
-                        var attribute = e.getAttribute();
-                        attribute['readonly'] = fData['bDebug'];
+                        const fData = await entry._form.readForm();
+                        const e = entry._form.getFormEntry('bConfirmOnApply');
                         if (fData['bDebug']) {
                             this._bConfirmOnApply = fData['bConfirmOnApply'];
+                            await e.disable();
                             await e.renderValue(true);
-                        } else
+                        } else {
+                            await e.enable();
                             await e.renderValue(this._bConfirmOnApply);
+                        }
                         //await this._form.renderForm();
                         return Promise.resolve();
                     }.bind(this)
@@ -136,9 +136,10 @@ Do you want to continue?`))
                     changeAction: async function (entry) {
                         const fData = await entry._form.readForm();
                         const e = entry._form.getFormEntry('bAutomaticUpdateIndexedDB');
-                        const attribute = e.getAttribute();
-                        attribute['readonly'] = !fData['bIndexedDB'];
-                        await e.renderValue(fData['bAutomaticUpdateIndexedDB']);
+                        if (fData['bIndexedDB'])
+                            await e.enable();
+                        else
+                            await e.disable();
                         return Promise.resolve();
                     }.bind(this)
                 },

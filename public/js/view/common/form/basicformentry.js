@@ -144,7 +144,8 @@ class BasicFormEntry extends FormEntry {
                         if (name != 'created_at' && name != 'updated_at') {
                             if (value.indexOf('T') != -1) {
                                 var date = new Date(value);
-                                date.setTime(date.getTime() - date.getTimezoneOffset() * 60000);
+                                if (value.endsWith('Z') && this._attribute['timeZone'] != 'UTC')
+                                    date.setTime(date.getTime() - date.getTimezoneOffset() * 60000);
                                 value = date.toISOString().replace('T', ' ').split('.')[0];
                             }
                         }
@@ -363,6 +364,8 @@ class BasicFormEntry extends FormEntry {
                             case "datetime":
                             case "timestamp":
                                 var date = new Date(value);
+                                if (this._attribute['timeZone'] == 'UTC')
+                                    date.setTime(date.getTime() - date.getTimezoneOffset() * 60000);
                                 data = date.toISOString();
                                 break;
                             default:

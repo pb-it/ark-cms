@@ -229,6 +229,89 @@ describe('Testsuit', function () {
         return Promise.resolve();
     });
 
+    it('#test time(UTC) datatype', async function () {
+        this.timeout(60000);
+
+        const model = {
+            'name': 'time',
+            'options': {
+                'increments': true,
+                'timestamps': true
+            },
+            'attributes': [
+                {
+                    'name': 'dt',
+                    'dataType': 'datetime',
+                    'timeZone': 'UTC'
+                }
+            ]
+        };
+        const app = helper.getApp();
+        const id = await app.getModelController().addModel(model);
+
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        var menu = await sidemenu.getEntry('other');
+        if (menu) {
+            await sidemenu.click('other');
+            await ExtendedTestHelper.delay(1000);
+        }
+        await sidemenu.click('time');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Create');
+        await ExtendedTestHelper.delay(1000);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+        var panel = panels[0];
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('dt');
+        assert.notEqual(input, null);
+        const date = new Date();
+        const isoString = date.toISOString().replace('T', ' ').split('.')[0];
+        await input.sendKeys(isoString);
+        await ExtendedTestHelper.delay(1000);
+
+        var button = await panel.getButton('Create');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+
+        var contextmenu = await panels[0].openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Edit');
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('dt');
+        assert.notEqual(input, null);
+        var value = await input.getAttribute('value');
+        assert.equal(value, isoString);
+
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        return Promise.resolve();
+    });
+
     it('#test enumeration datatype', async function () {
         this.timeout(60000);
 

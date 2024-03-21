@@ -186,7 +186,7 @@ describe('Testsuit', function () {
         console.log(text);
         assert.notEqual(text, 'Unauthorized');
         tmp = JSON.parse(text);
-        assert.equal(tmp['data'].length, 5);
+        assert.equal(tmp['data'].length, 7);
 
         return Promise.resolve();
     });

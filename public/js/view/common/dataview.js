@@ -171,7 +171,7 @@ class DataView {
                             if (attribute['timeZone'])
                                 value = date.toLocaleString(app.getController().getLocale(), { timeZone: attribute['timeZone'] });
                             else
-                                value = date.toLocaleString(app.getController().getLocale());
+                                value = date.toLocaleString(app.getController().getLocale()); // { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }
                         } else
                             value = data[name];
                     } else

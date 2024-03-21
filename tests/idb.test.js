@@ -256,4 +256,89 @@ module.exports = test;`
 
         return Promise.resolve();
     });
+
+    it('#test indexedDB integrity', async function () {
+        this.timeout(30000);
+
+        var err;
+        try {
+            const version = await common.exec('curl --version');
+            //console.log(version);
+        } catch (error) {
+            err = error;
+        }
+        if (!err) {
+            const app = helper.getApp();
+            const ac = app.getApiController();
+            const tools = ac.getTools();
+            const window = app.getWindow();
+            var sidemenu = window.getSideMenu();
+            await sidemenu.click('Data');
+            await ExtendedTestHelper.delay(1000);
+            var menu = await sidemenu.getEntry('other');
+            if (menu) {
+                await sidemenu.click('other');
+                await ExtendedTestHelper.delay(1000);
+            }
+            await sidemenu.click('movie');
+            await ExtendedTestHelper.delay(1000);
+            await sidemenu.click('Show');
+            await ExtendedTestHelper.delay(1000);
+            await sidemenu.click('All');
+            await ExtendedTestHelper.delay(1000);
+
+            var canvas = await window.getCanvas();
+            assert.notEqual(canvas, null);
+            var panels = await canvas.getPanels();
+            assert.equal(panels.length, 5);
+
+            var cmd = 'curl -k -c cookies.txt -d "user=admin&pass=admin" ' + config['api'] + '/sys/auth/login';
+            var res = await common.exec(cmd);
+            assert.equal(res, 'Found. Redirecting to /');
+            cmd = `curl -X POST -k -b cookies.txt ${config['api']}/api/data/v1/movie -H 'Content-Type: application/json' -d '{"name":"Titanic"}'`;
+            res = await common.exec(cmd);
+            var data = JSON.parse(res);
+            assert.equal(data['name'], 'Titanic');
+            cmd = `async function test() {
+    const knex = controller.getKnex();
+    //const rs = await knex.raw("TRUNCATE TABLE _change;");
+    const rs = await knex.raw("DELETE FROM _change WHERE id > 0;");
+    return Promise.resolve('OK');
+};        
+module.exports = test;`;
+            res = await tools.serverEval(cmd);
+            assert.equal(res, 'OK', 'Truncating table failed');
+            cmd = `curl -X POST -k -b cookies.txt ${config['api']}/api/data/v1/movie -H 'Content-Type: application/json' -d '{"name":"Gladiator"}'`;
+            res = await common.exec(cmd);
+            data = JSON.parse(res);
+            assert.equal(data['name'], 'Gladiator');
+            fs.rmSync(path.join(__dirname, '../cookies.txt'));
+
+            await app.reload();
+            await ExtendedTestHelper.delay(1000);
+
+            var modal = await window.getTopModal();
+            assert.notEqual(modal, null, 'Missing modal');
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="Delete Copy"]'));
+            assert.notEqual(button, null, 'Button not found');
+            await button.click();
+
+            await driver.wait(webdriver.until.alertIsPresent());
+            const alert = await driver.switchTo().alert();
+            const text = await alert.getText();
+            assert.equal(text, 'Done');
+            await alert.accept();
+            await ExtendedTestHelper.delay(1000);
+            modal = await window.getTopModal();
+            assert.equal(modal, null);
+
+            canvas = await window.getCanvas();
+            assert.notEqual(canvas, null);
+            panels = await canvas.getPanels();
+            assert.equal(panels.length, 7);
+        } else
+            this.skip();
+
+        return Promise.resolve();
+    });
 });

@@ -184,27 +184,8 @@ class Controller {
             this._bookmarkController = new BookmarkController();
             await this._bookmarkController.init();
 
-            if (this._database) {
-                const id = this._database.getChangeId();
-                if (id) {
-                    const changes = await this._dataservice.getCache().getChanges(id);
-                    if (changes) {
-                        const data = changes['data'];
-                        if (data && data.length > 0) {
-                            if (this._configController.automaticUpdateIndexedDB()) {
-                                if (this._database)
-                                    await this._database.updateDatabase(changes);
-                                else
-                                    await this._dataservice.getCache().applyChanges(changes);
-                            } else {
-                                const modal = await this._modalController.openPanelInModal(new UpdateCachePanel(changes));
-                                this.setLoadingState(false);
-                                await modal.waitClosed();
-                            }
-                        }
-                    }
-                }
-            }
+            if (this._database)
+                await this._updateDatabase();
 
             this._bConnection = true;
             bInitDone = true;
@@ -298,6 +279,65 @@ More details are provided within the browser console.
 The usage of the cache will be paused until the problem got solved.
 You can also try to reset your cache via the 'Cache-Panel'.`);
         }
+    }
+
+    async _updateDatabase() {
+        const id = this._database.getChangeId();
+        if (id) {
+            const changes = await this._dataservice.getCache().getChanges(id);
+            if (changes) {
+                const data = changes['data'];
+                if (data && data.length > 0) {
+                    if (data[0]['id'] == id + 1) {
+                        if (this._configController.automaticUpdateIndexedDB()) {
+                            if (this._database)
+                                await this._database.updateDatabase(changes);
+                            else
+                                await this._dataservice.getCache().applyChanges(changes);
+                        } else {
+                            var modal = await this._modalController.openPanelInModal(new UpdateCachePanel(changes));
+                            this.setLoadingState(false);
+                            await modal.waitClosed();
+                        }
+                    } else {
+                        var modal = await this._openDatabaseIntegrityCheckFailedPanel();
+                        this.setLoadingState(false);
+                        await modal.waitClosed();
+                    }
+                }
+            }
+        }
+        return Promise.resolve();
+    }
+
+    async _openDatabaseIntegrityCheckFailedPanel() {
+        const panel = new Panel();
+        const $d = $('<div/>')
+            .css({ 'padding': '10' });
+        $d.append("<h2>Integrity check failed</h2>");
+        $d.append("The server does not provide sufficient information to seamlessly update you local database copy!<br/><br/>");
+        const $delete = $('<button>')
+            .text('Delete Copy')
+            .click(async function (event) {
+                event.stopPropagation();
+                await this._database.deleteDatabase();
+                await this.getDataService().getCache().deleteModelCache();
+                alert('Done');
+                panel.dispose();
+                return Promise.resolve();
+            }.bind(this));
+        $d.append($delete);
+        const $continue = $('<button>')
+            .text('Continue without update')
+            .css({ 'float': 'right' })
+            .click(async function (event) {
+                event.stopPropagation();
+                panel.dispose();
+                return Promise.resolve();
+            }.bind(panel));
+        $d.append($continue);
+        panel.setContent($d);
+        return this._modalController.openPanelInModal(panel);
     }
 
     setupShortcuts() {
@@ -696,6 +736,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
     }
 
     async select(ctrl, shift, panel) {
+        this._view.getSideNavigationBar().close();
         if (ctrl == true) {
             if (panel.isSelected()) {
                 this._selected.splice(this._selected.indexOf(panel), 1);
