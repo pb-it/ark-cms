@@ -217,6 +217,94 @@ describe('Testsuit', function () {
         return Promise.resolve();
     });
 
+    it('#test querybuilder', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        var menu = await sidemenu.getEntry('other');
+        if (menu) {
+            await sidemenu.click('other');
+            await ExtendedTestHelper.delay(1000);
+        }
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await ExtendedTestHelper.delay(1000);
+
+        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
+        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        assert.equal(panels.length, 5);
+
+        await window.getTopNavigationBar().openApplyFilter();
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var button = await window.getButton(modal, 'New');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        const filterPanel = await modal.getPanel();
+        assert.notEqual(filterPanel, null);
+        button = await window.getButton(modal, 'QueryBuilder');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getElement().findElement(webdriver.By.xpath('//div[@class="select"]/input[starts-with(@list,"studio")]'));
+        assert.notEqual(input, null);
+        var option = await form.getElement().findElement(webdriver.By.xpath('//div[@class="select"]/datalist[starts-with(@id,"studio")]/option[text()="Walt Disney Pictures"]'));
+        assert.notEqual(option, null);
+        var value = await option.getAttribute('value');
+        await input.sendKeys(value);
+        await input.sendKeys(webdriver.Key.ENTER);
+        await ExtendedTestHelper.delay(1000);
+        button = await panel.getButton('Apply');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        form = await filterPanel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('query');
+        assert.notEqual(input, null);
+        value = await input.getAttribute('value');
+        assert.equal(value, '$.[?(@.studio.id==3)]');
+        button = await filterPanel.getButton('Filter');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+
+        return Promise.resolve();
+    });
+
     it('#test filter in searchbar', async function () {
         this.timeout(30000);
 
