@@ -3,6 +3,8 @@ class Panel {
     _config;
 
     _bRendered;
+    _bRendering;
+    _bRetriggered;
 
     _$panel;
     _$content;
@@ -35,15 +37,23 @@ class Panel {
     */
     async render() {
         if (this._$panel) {
-            this._$panel.hide();
-            this._$panel.empty();
-
-            await this._init();
-            var content = await this._renderContent();
-            this._$panel.append(content);
-            await this._teardown();
-
-            this._$panel.show();
+            if (this._bRendering)
+                this._bRetriggered = true;
+            else {
+                this._bRendering = true;
+                this._$panel.hide();
+                this._$panel.empty();
+                var content;
+                do {
+                    this._bRetriggered = false;
+                    await this._init();
+                    content = await this._renderContent();
+                    await this._teardown();
+                } while (this._bRetriggered)
+                this._$panel.append(content);
+                this._$panel.show();
+                this._bRendering = false;
+            }
         }
         return Promise.resolve(this._$panel);
     }

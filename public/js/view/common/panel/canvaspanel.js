@@ -131,21 +131,23 @@ class CanvasPanel extends Panel {
     }
 
     _initDrag(bDraggable = true) {
-        /*this._$panel.draggable({
-            disabled: !bDraggable
-        });*/
+        if (this._$panel) {
+            /*this._$panel.draggable({
+                disabled: !bDraggable
+            });*/
 
-        if (bDraggable) {
-            this._$panel.attr({
-                'draggable': 'true'
-            });
-            this._$panel.on('dragstart.panel', this._drag.bind(this));
-            if (!this._bContextMenu)
-                this._$panel.on('dragend.panel', this._initDrag.bind(this, false));
-        } else {
-            this._$panel.removeAttr('draggable');
-            this._$panel.off('dragstart.panel');
-            this._$panel.off('dragend.panel');
+            if (bDraggable) {
+                this._$panel.attr({
+                    'draggable': 'true'
+                });
+                this._$panel.on('dragstart.panel', this._drag.bind(this));
+                if (!this._bContextMenu)
+                    this._$panel.on('dragend.panel', this._initDrag.bind(this, false));
+            } else {
+                this._$panel.removeAttr('draggable');
+                this._$panel.off('dragstart.panel');
+                this._$panel.off('dragend.panel');
+            }
         }
     }
 

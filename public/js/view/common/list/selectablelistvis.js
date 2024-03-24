@@ -8,8 +8,7 @@ class SelectableListVis extends ListVis {
         this._nodes = [];
         var node;
         for (var entry of this._list.getEntries()) {
-            node = new SelectableNodeVis(null, this, entry);
-            node.setSelected(entry.isSelected());
+            node = new SelectableNodeVis(null, this, entry, entry.isSelected());
             this._nodes.push(node);
         }
     }
@@ -32,11 +31,14 @@ class SelectableListVis extends ListVis {
                 .text("Select All")
                 .prop("disabled", bDisabled)
                 .click(function (event) {
+                    event.preventDefault();
                     event.stopPropagation();
 
                     for (var node of this._nodes) {
                         node.setSelected(true);
                     }
+                    if (this._config['changeAction'])
+                        this._config['changeAction']();
                 }.bind(this));
             this._$div.append($selectAllButton);
 
@@ -44,11 +46,14 @@ class SelectableListVis extends ListVis {
                 .text("Deselect All")
                 .prop("disabled", bDisabled)
                 .click(function (event) {
+                    event.preventDefault();
                     event.stopPropagation();
 
                     for (var node of this._nodes) {
                         node.setSelected(false);
                     }
+                    if (this._config['changeAction'])
+                        this._config['changeAction']();
                 }.bind(this));
             this._$div.append($deselectAllButton);
         }

@@ -176,7 +176,7 @@ class Controller {
             this._dataTypeController = new DataTypeController();
             this._panelController = new PanelController();
             this._extensionController = new ExtensionController();
-            await this._extensionController.init();
+            await this._extensionController.initExtensionController();
 
             this._profileController = new ProfileController();
             await this._profileController.init();
@@ -400,6 +400,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
 
                             try {
                                 await this.getDataService().getCache().deleteModelCache();
+                                //await this._extensionController.initExtensionController();
                                 var modal;
                                 var mc = this.getModalController();
                                 var modals = mc.getModals();

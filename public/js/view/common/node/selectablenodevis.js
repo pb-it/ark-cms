@@ -2,10 +2,18 @@ class SelectableNodeVis extends UniversalNodeVis {
 
     _$checkbox;
 
-    constructor(id, parent, node) {
+    constructor(id, parent, node, bSelected) {
         super(id, parent, node);
 
         this._$checkbox = $('<input />', { type: 'checkbox', id: this._id, value: this._name });
+        this._$checkbox.prop('checked', bSelected);
+        const options = node.getOptions();
+        if (options) {
+            if (options['clickAction'])
+                this._$checkbox.click(options['clickAction']);
+            if (options['changeAction'])
+                this._$checkbox.change(options['changeAction']);
+        }
     }
 
     setSelected(bSelected) {

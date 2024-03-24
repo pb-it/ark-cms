@@ -7,13 +7,20 @@ class DeleteModelPanel extends Panel {
         this._model = model;
     }
 
+    async _init() {
+        await super._init();
+        const ref = await app.getController().getModelController().getRelations(this._model);
+        console.log(ref);
+        return Promise.resolve;
+    }
+
     async _renderContent() {
-        var $div = $('<div/>')
+        const $div = $('<div/>')
             .css({ 'padding': '10' });
 
         $div.append("<b>Warning:</b> Are you sure you want to permanently delete the model '" + this._model.getName() + "'?<br/><br/>");
 
-        var skeleton = [
+        const skeleton = [
             {
                 name: "deleteRecords",
                 label: "Also delete all entries/records",
@@ -24,20 +31,19 @@ class DeleteModelPanel extends Panel {
                 readonly: true
             }
         ];
-        var form = new Form(skeleton, {});
+        const form = new Form(skeleton, {});
         $div.append(await form.renderForm());
 
         $div.append("<br/>");
 
-        var $abort = $('<button/>')
+        const $abort = $('<button/>')
             .text("Cancel") //Abort
             .click(async function (event) {
                 event.preventDefault();
                 this.dispose();
             }.bind(this));
         $div.append($abort);
-
-        var $confirm = $('<button/>')
+        const $confirm = $('<button/>')
             .text("Delete") //Confirm
             .css({ 'float': 'right' })
             .click(async function (event) {

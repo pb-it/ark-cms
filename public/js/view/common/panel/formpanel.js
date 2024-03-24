@@ -23,4 +23,26 @@ class FormPanel extends Dialog {
     getForm() {
         return this._form;
     }
+
+    async getData() {
+        return this._readData(false);
+    }
+
+    async _readData(bValidate) {
+        var data;
+        if (this._form)
+            data = await this._form.readForm({ bValidate: bValidate });
+        return Promise.resolve(data);
+    }
+
+    async getChanges(bValidate, oldData) {
+        var changed;
+        if (!oldData)
+            oldData = this._data;
+        if (oldData) {
+            const newData = await this._readData(bValidate);
+            changed = await CrudObject.getChanges(this._skeleton, oldData, newData);
+        }
+        return Promise.resolve(changed);
+    }
 }

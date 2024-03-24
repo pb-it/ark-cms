@@ -189,29 +189,41 @@ class ExtensionSelect {
     _renderActionSelect() {
         var conf;
         var menuItem;
-        var group = new SubMenuGroup();
+        const group = new SubMenuGroup();
 
-        /*conf = {
-            'name': 'Edit',
-            'click': async function (event, item) {
-                event.stopPropagation();
-    
-                app.controller.getView().getSideNavigationBar().close();
-    
-                //TODO:
-            }.bind(this)
-        };
-        menuItem = new MenuItem(conf);
-        group.addMenuItem(menuItem);*/
+        const controller = app.getController();
+        const ext = controller.getExtensionController().getExtension(this._extension);
+        const module = ext['module'];
+        if (module && typeof module['configure'] == 'function') {
+            conf = {
+                'name': 'Configure',
+                'click': async function (event, item) {
+                    event.stopPropagation();
+
+                    try {
+                        module.configure();
+                        controller.getView().getSideNavigationBar().close();
+                    } catch (error) {
+                        controller.setLoadingState(false);
+                        controller.showError(error);
+                    }
+                    return Promise.resolve();
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            group.addMenuItem(menuItem);
+        }
 
         conf = {
             'name': 'Delete',
             'click': async function (event, item) {
                 event.stopPropagation();
 
-                if (confirm("Delete extension '" + this._extension + "'?")) {
-                    const controller = app.getController();
-                    try {
+                try {
+                    var bTeardown;
+                    if (module && typeof module['teardown'] == 'function')
+                        bTeardown = await module.teardown();
+                    if (bTeardown || confirm("Delete extension '" + this._extension + "'?")) {
                         controller.setLoadingState(true);
                         var res = await controller.getExtensionController().deleteExtension(this._extension);
                         controller.setLoadingState(false);
@@ -233,12 +245,11 @@ class ExtensionSelect {
                             alert(msg);
                         } else
                             alert('Something went wrong!');
-                    } catch (error) {
-                        controller.setLoadingState(false);
-                        controller.showError(error);
                     }
+                } catch (error) {
+                    controller.setLoadingState(false);
+                    controller.showError(error);
                 }
-
                 return Promise.resolve();
             }.bind(this)
         };

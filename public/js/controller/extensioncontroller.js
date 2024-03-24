@@ -6,37 +6,50 @@ class ExtensionController {
     constructor() {
     }
 
-    async init() {
+    async initExtensionController() {
         const controller = app.getController();
+        const ac = controller.getApiController();
+        const info = ac.getApiInfo();
+        if (info['extensions'])
+            this._info = { ...info['extensions'] };
+        else
+            this._info = {};
+        this._extensions = [];
         //var model = controller.getModelController().getModel('_extension'); //readAll???
         const res = await controller.getDataService().fetchData('_extension', null, null, null, null, null, null, true);
-        this._extensions = [...res];
-        if (this._extensions.length > 0) {
-            const ac = controller.getApiController();
-            const info = ac.getApiInfo();
-            if (info['extensions'])
-                this._info = { ...info['extensions'] };
-            else
-                this._info = {};
+        if (res.length > 0) {
             var name;
-            for (var ext of this._extensions) {
-                name = ext['name'];
-                if (this._info[name]) {
-                    if (ext['client-extension']) {
-                        try {
-                            var module = await loadModule(ext['client-extension']);
-                            if (module && module.init)
-                                await module.init();
-                        } catch (error) {
-                            console.error(error);
-                            controller.showErrorMessage("Loading extension '" + name + "' failed!");
-                        }
-                    }
-                } else
+            for (var extension of res) {
+                name = extension['name'];
+                if (this._info[name])
+                    await this._initExtension(extension);
+                else
                     this._info[name] = {};
             }
         }
         $(window).trigger('changed.extension');
+        return Promise.resolve();
+    }
+
+    async _initExtension(extension) {
+        const controller = app.getController();
+        const ext = { ...extension };
+        const name = ext['name'];
+        if (ext['client-extension']) {
+            try {
+                const module = await loadModule(ext['client-extension']);
+                if (module) {
+                    ext['module'] = module;
+                    if (module.init)
+                        await module.init();
+                }
+            } catch (error) {
+                console.error(error);
+                controller.showErrorMessage("Loading extension '" + name + "' failed!");
+            }
+        }
+        this._extensions = this._extensions.filter((x) => x['name'] !== name);
+        this._extensions.push(ext);
         return Promise.resolve();
     }
 
@@ -75,12 +88,10 @@ class ExtensionController {
         }
         if (res) {
             //await this.init(); // messes up sidemenu
-            if (existing) {
-                var name = res['name'];
-                if (name)
-                    this._extensions = this._extensions.filter((x) => x['name'] !== name);
-            }
-            this._extensions.push(res);
+            const controller = app.getController();
+            await controller.getProfileController().init();
+            await controller.getModelController().init();
+            await this._initExtension(res);
             $(window).trigger('changed.extension');
         }
         return Promise.resolve('OK');

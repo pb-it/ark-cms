@@ -179,7 +179,32 @@ class BasicFormEntry extends FormEntry {
                     break;
                 case "enumeration":
                     var options = this._attribute['options'];
-                    if (this._attribute['view'] === 'radio') {
+                    if (!this._attribute['view'] || this._attribute['view'] === 'select') {
+                        this._$input = $('<select/>')
+                            .attr('name', name)
+                            .attr('id', name);
+
+                        var $option = $('<option/>', { value: '' }).text('undefined');
+                        if (this._attribute.required)
+                            $option.attr('hidden', true);
+                        else if (value === '')
+                            $option.prop('selected', true);
+                        this._$input.append($option);
+
+                        var v;
+                        if (options) {
+                            for (var o of options) {
+                                v = o['value'];
+                                $option = $('<option/>', { value: v }).text(o['label'] ? o['label'] : v);
+                                $option.prop('disabled', o['disabled'])
+                                if (value === v)
+                                    $option.prop('selected', true);
+                                if (o['tooltip'])
+                                    $option.attr('title', o['tooltip']);
+                                this._$input.append($option);
+                            }
+                        }
+                    } else if (this._attribute['view'] === 'radio') {
                         this._$input = $('<fieldset/>')
                             .attr('name', name);
 
@@ -207,31 +232,6 @@ class BasicFormEntry extends FormEntry {
                             if (o['tooltip'])
                                 $label.attr('title', o['tooltip']);
                             this._$input.append($label);
-                        }
-                    } else if (this._attribute['view'] === 'select') {
-                        this._$input = $('<select/>')
-                            .attr('name', name)
-                            .attr('id', name);
-
-                        var $option = $('<option/>', { value: '' }).text('undefined');
-                        if (this._attribute.required)
-                            $option.attr('hidden', true);
-                        else if (value === '')
-                            $option.prop('selected', true);
-                        this._$input.append($option);
-
-                        var v;
-                        if (options) {
-                            for (var o of options) {
-                                v = o['value'];
-                                $option = $('<option/>', { value: v }).text(o['label'] ? o['label'] : v);
-                                $option.prop('disabled', o['disabled'])
-                                if (value === v)
-                                    $option.prop('selected', true);
-                                if (o['tooltip'])
-                                    $option.attr('title', o['tooltip']);
-                                this._$input.append($option);
-                            }
                         }
                     }
                     break;

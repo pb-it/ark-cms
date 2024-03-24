@@ -60,4 +60,22 @@ class ModelController {
     getModel(name) {
         return this._models.filter(function (x) { return x.getDefinition()['name'] === name })[0];
     }
+
+    async getRelations(model) {
+        const res = [];
+        const name = model.getName();
+        var definition;
+        for (var m of this._models) {
+            definition = m.getDefinition();
+            if (definition['name'] != name) {
+                if (definition['attributes']) {
+                    for (var attr of definition['attributes']) {
+                        if (attr['dataType'] == 'relation' && attr['model'] == name)
+                            res.push(definition['name'] + '[' + attr['name'] + ']');
+                    }
+                }
+            }
+        }
+        return Promise.resolve(res);
+    }
 }
