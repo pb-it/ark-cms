@@ -201,7 +201,7 @@ class ExtensionSelect {
                     event.stopPropagation();
 
                     try {
-                        module.configure();
+                        await module.configure();
                         controller.getView().getSideNavigationBar().close();
                     } catch (error) {
                         controller.setLoadingState(false);
