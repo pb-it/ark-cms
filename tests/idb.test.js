@@ -295,7 +295,7 @@ module.exports = test;`
             var cmd = 'curl -k -c cookies.txt -d "user=admin&pass=admin" ' + config['api'] + '/sys/auth/login';
             var res = await common.exec(cmd);
             assert.equal(res, 'Found. Redirecting to /');
-            cmd = `curl -X POST -k -b cookies.txt ${config['api']}/api/data/v1/movie -H 'Content-Type: application/json' -d '{"name":"Titanic"}'`;
+            cmd = `curl -X POST -k -b cookies.txt ${config['api']}/api/data/v1/movie -H "Content-Type: application/json" -d "{\\"name\\":\\"Titanic\\"}"`;
             res = await common.exec(cmd);
             var data = JSON.parse(res);
             assert.equal(data['name'], 'Titanic');
@@ -308,7 +308,7 @@ module.exports = test;`
 module.exports = test;`;
             res = await tools.serverEval(cmd);
             assert.equal(res, 'OK', 'Truncating table failed');
-            cmd = `curl -X POST -k -b cookies.txt ${config['api']}/api/data/v1/movie -H 'Content-Type: application/json' -d '{"name":"Gladiator"}'`;
+            cmd = `curl -X POST -k -b cookies.txt ${config['api']}/api/data/v1/movie -H "Content-Type: application/json" -d "{\\"name\\":\\"Gladiator\\"}"`;
             res = await common.exec(cmd);
             data = JSON.parse(res);
             assert.equal(data['name'], 'Gladiator');
