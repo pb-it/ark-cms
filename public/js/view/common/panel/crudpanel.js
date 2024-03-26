@@ -526,8 +526,7 @@ class CrudPanel extends CanvasPanel {
     }
 
     async _drop(event) {
-        event.preventDefault();
-        event.stopPropagation();
+        await super._drop(event);
         const dT = event.originalEvent.dataTransfer;
         if (dT) {
             const str = dT.getData("text/plain");

@@ -187,7 +187,7 @@ class BasicFormEntry extends FormEntry {
                         var $option = $('<option/>', { value: '' }).text('undefined');
                         if (this._attribute.required)
                             $option.attr('hidden', true);
-                        else if (value === '')
+                        else if (!value)
                             $option.prop('selected', true);
                         this._$input.append($option);
 
@@ -197,7 +197,7 @@ class BasicFormEntry extends FormEntry {
                                 v = o['value'];
                                 $option = $('<option/>', { value: v }).text(o['label'] ? o['label'] : v);
                                 $option.prop('disabled', o['disabled'])
-                                if (value === v)
+                                if (value == v)
                                     $option.prop('selected', true);
                                 if (o['tooltip'])
                                     $option.attr('title', o['tooltip']);

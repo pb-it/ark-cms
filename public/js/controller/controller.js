@@ -578,6 +578,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
 
                 $(document).unbind('keydown.panel');
                 $(document).unbind('keyup.panel');
+                $(document).unbind('dragend.panel');
 
                 if (this._bFirstLoadAfterInit)
                     this._bFirstLoadAfterInit = false;

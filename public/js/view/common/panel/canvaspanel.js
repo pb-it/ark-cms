@@ -69,6 +69,10 @@ class CanvasPanel extends Panel {
                             this._initDrag(false);
                     }
                 }.bind(this));
+                $(document).on('dragend.panel', function (event) {
+                    if (!this._bSelectable)
+                        this._initDrag(false);
+                }.bind(this));
             }
             this._initContextMenu();
         }
@@ -141,8 +145,8 @@ class CanvasPanel extends Panel {
                     'draggable': 'true'
                 });
                 this._$panel.on('dragstart.panel', this._drag.bind(this));
-                if (!this._bContextMenu)
-                    this._$panel.on('dragend.panel', this._initDrag.bind(this, false));
+                if (!this._bSelectable)
+                    this._$panel.on('dragend.panel', function () { $(document).trigger('dragend.panel') });
             } else {
                 this._$panel.removeAttr('draggable');
                 this._$panel.off('dragstart.panel');
