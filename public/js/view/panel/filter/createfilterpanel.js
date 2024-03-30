@@ -56,6 +56,7 @@ class CreateFilterPanel extends Panel {
     }
 
     _model;
+    _orig;
     _filter;
 
     _form;
@@ -64,6 +65,7 @@ class CreateFilterPanel extends Panel {
     constructor(model, filter) {
         super();
         this._model = model;
+        this._orig = filter;
         if (filter)
             this._filter = filter;
         else
@@ -71,23 +73,22 @@ class CreateFilterPanel extends Panel {
     }
 
     async _renderContent() {
-        var $div = $('<div/>')
-            .append(await this._renderStringForm());
+        const $div = $('<div/>')
+            .append(await this._renderForm());
         return Promise.resolve($div);
     }
 
-    async _renderStringForm() {
-        var skeleton = [
+    async _renderForm() {
+        const skeleton = [
             { name: "name", dataType: "string" }, //not required when not saving!
             { name: "typeString", label: "model", dataType: "string", readonly: true },
             { name: "query", dataType: "text", required: true },
             { name: "comment", dataType: "text" }];
         this._form = new Form(skeleton, this._filter);
-        var $form = await this._form.renderForm();
+        const $form = await this._form.renderForm();
 
         $form.append('<br/><br/>');
 
-        var mfc = this._model.getModelFilterController();
         $form.append($('<button/>')
             .text("QueryBuilder")
             .click(async function (event) {
@@ -144,10 +145,12 @@ class CreateFilterPanel extends Panel {
             .click(async function (event) {
                 event.preventDefault();
 
-                app.controller.setLoadingState(true);
+                const controller = app.getController();
+                controller.setLoadingState(true);
                 try {
-                    var newFilter = await this._form.readForm();
-                    if (newFilter.name && newFilter.name != "") {
+                    const newFilter = await this._form.readForm();
+                    if (newFilter['name'] && newFilter['name'] != "") {
+                        const mfc = this._model.getModelFilterController();
                         await mfc.saveFilter(newFilter);
                         this._filter = newFilter;
                         //this.render();
@@ -156,11 +159,10 @@ class CreateFilterPanel extends Panel {
                         this._form.getFormEntry('name').getInput().focus();
                         throw new Error("Field 'name' is required");
                     }
-
-                    app.controller.setLoadingState(false);
+                    controller.setLoadingState(false);
                 } catch (error) {
-                    app.controller.setLoadingState(false);
-                    app.controller.showError(error);
+                    controller.setLoadingState(false);
+                    controller.showError(error);
                 }
                 return Promise.resolve();
             }.bind(this)));
@@ -172,11 +174,13 @@ class CreateFilterPanel extends Panel {
             .click(async function (event) {
                 event.preventDefault();
 
-                app.controller.setLoadingState(true);
+                const controller = app.getController();
+                controller.setLoadingState(true);
                 try {
-                    var newFilter = await this._form.readForm();
-                    if (newFilter.name && newFilter.name != "") {
-                        if (this._filter.name)
+                    const newFilter = await this._form.readForm();
+                    if (newFilter['name'] && newFilter['name'] != '') {
+                        const mfc = this._model.getModelFilterController();
+                        if (this._filter['name'])
                             await mfc.deleteFilter(this._filter);
                         await mfc.saveFilter(newFilter, true);
                         this._filter = newFilter;
@@ -186,11 +190,10 @@ class CreateFilterPanel extends Panel {
                         this._form.getFormEntry('name').getInput().focus();
                         throw new Error("Field 'name' is required");
                     }
-
-                    app.controller.setLoadingState(false);
+                    controller.setLoadingState(false);
                 } catch (error) {
-                    app.controller.setLoadingState(false);
-                    app.controller.showError(error);
+                    controller.setLoadingState(false);
+                    controller.showError(error);
                 }
                 return Promise.resolve();
             }.bind(this)));
@@ -207,12 +210,12 @@ class CreateFilterPanel extends Panel {
 
     _applyFilter(filter) {
         const controller = app.getController();
-        var state = controller.getStateController().getState();
+        const state = controller.getStateController().getState();
         if (state.filters) {
             var bReplaced = false;
-            if (filter.name) {
+            if (this._orig) {
                 for (var i = 0; i < state.filters.length; i++) {
-                    if (state.filters[i].name === filter.name) {
+                    if (state.filters[i] === this._orig) {
                         state.filters[i] = filter;
                         bReplaced = true;
                         break;

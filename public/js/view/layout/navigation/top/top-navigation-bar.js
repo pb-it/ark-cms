@@ -62,7 +62,7 @@ class TopNavigationBar {
 
     _renderMenu() {
         var conf = {
-            'icon': "bars",
+            'icon': new Icon('bars'),
             'root': true
         };
         var menuItem = new MenuItem(conf);
@@ -70,8 +70,8 @@ class TopNavigationBar {
         var subMenuGroup = new SubMenuGroup('down', 'right');
 
         conf = {
-            'icon': "user",
-            'name': "User",
+            'icon': new Icon('user'),
+            'name': 'User',
             'click': async function (event, item) {
                 event.stopPropagation();
                 return app.getController().getAuthController().logout();
@@ -80,26 +80,26 @@ class TopNavigationBar {
         subMenuGroup.addMenuItem(new MenuItem(conf));
 
         conf = {
-            'icon': "globe",
-            'name': "About"
+            'icon': new Icon('globe'),
+            'name': 'About'
         };
         subMenuGroup.addMenuItem(new MenuItem(conf));
 
         conf = {
-            'icon': "envelope",
-            'name': "Contact"
+            'icon': new Icon('envelope'),
+            'name': 'Contact'
         };
         subMenuGroup.addMenuItem(new MenuItem(conf));
 
         conf = {
-            'icon': "info-circle",
-            'name': "Info"
+            'icon': new Icon('info-circle'),
+            'name': 'Info'
         };
         subMenuGroup.addMenuItem(new MenuItem(conf));
 
         conf = {
-            'icon': "question-circle",
-            'name': "FAQ"
+            'icon': new Icon('question-circle'),
+            'name': 'FAQ'
         };
         subMenuGroup.addMenuItem(new MenuItem(conf));
 

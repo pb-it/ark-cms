@@ -105,8 +105,8 @@ class SideNavigationBar {
         if (controller.hasConnection()) {
             var conf = {
                 'style': 'iconbar',
-                'icon': "home",
-                'tooltip': "Home",
+                'icon': new Icon('home'),
+                'tooltip': 'Home',
                 'click': function (event, icon) {
                     this.close();
                     app.controller.loadState(new State(), true);
@@ -118,8 +118,8 @@ class SideNavigationBar {
             if (controller.isInDebugMode()) {
                 conf = {
                     'style': 'iconbar',
-                    'icon': "redo",
-                    'tooltip': "Reload",
+                    'icon': new Icon('redo'),
+                    'tooltip': 'Reload',
                     'click': async function (event, icon) {
                         this.close();
                         if (event.ctrlKey)
@@ -132,8 +132,8 @@ class SideNavigationBar {
 
                 conf = {
                     'style': 'iconbar',
-                    'icon': "compass",
-                    'tooltip': "Navigate",
+                    'icon': new Icon('compass'),
+                    'tooltip': 'Navigate',
                     'click': async function (event, icon) {
                         this.close();
 
@@ -146,8 +146,8 @@ class SideNavigationBar {
 
             conf = {
                 'style': 'iconbar',
-                'icon': "pen-ruler",
-                'tooltip': "Models",
+                'icon': new Icon('pen-ruler'),
+                'tooltip': 'Models',
                 'click': async function (event, icon) {
                     var activeIcon = this._topIconBar.getActiveItem();
                     this.close();
@@ -162,8 +162,8 @@ class SideNavigationBar {
 
             conf = {
                 'style': 'iconbar',
-                'icon': "database",
-                'tooltip': "Data",
+                'icon': new Icon('database'),
+                'tooltip': 'Data',
                 'click': async function (event, icon) {
                     //event.preventDefault();
                     //event.stopPropagation();
@@ -181,8 +181,8 @@ class SideNavigationBar {
             if (controller.isInDebugMode() && controller.getConfigController().experimentalFeaturesEnabled()) {
                 conf = {
                     'style': 'iconbar',
-                    'icon': "bookmark",
-                    'tooltip': "Bookmarks",
+                    'icon': new Icon('bookmark'),
+                    'tooltip': 'Bookmarks',
                     'click': async function (event, icon) {
                         this.close();
 
@@ -196,10 +196,12 @@ class SideNavigationBar {
 
             if (this._topIconBarExtensions && this._topIconBarExtensions.length > 0) {
                 for (var ext of this._topIconBarExtensions) {
-                    conf = ext();
-                    if (conf) {
-                        menuItem = new MenuItem(conf);
-                        this._topIconBar.addMenuItem(menuItem);
+                    if (typeof ext.func === 'function') {
+                        conf = ext.func();
+                        if (conf) {
+                            menuItem = new MenuItem(conf);
+                            this._topIconBar.addMenuItem(menuItem);
+                        }
                     }
                 }
             }
@@ -213,10 +215,12 @@ class SideNavigationBar {
         var menuItem;
         if (this._bottomIconBarExtensions && this._bottomIconBarExtensions.length > 0) {
             for (var ext of this._bottomIconBarExtensions) {
-                conf = ext();
-                if (conf) {
-                    menuItem = new MenuItem(conf);
-                    this._bottomIconBar.addMenuItem(menuItem);
+                if (typeof ext.func === 'function') {
+                    conf = ext.func();
+                    if (conf) {
+                        menuItem = new MenuItem(conf);
+                        this._bottomIconBar.addMenuItem(menuItem);
+                    }
                 }
             }
         }
@@ -227,8 +231,8 @@ class SideNavigationBar {
             if (authController && authController.isAdministrator()) {
                 conf = {
                     'style': 'iconbar',
-                    'icon': "puzzle-piece",
-                    'tooltip': "Extensions",
+                    'icon': new Icon('puzzle-piece'),
+                    'tooltip': 'Extensions',
                     'click': async function (event, icon) {
                         var activeIcon = this._bottomIconBar.getActiveItem();
                         this.close();
@@ -246,8 +250,8 @@ class SideNavigationBar {
                 if (controller.getDataService()) {
                     conf = {
                         'style': 'iconbar',
-                        'icon': "clipboard",
-                        'tooltip': "Cache",
+                        'icon': new Icon('clipboard'),
+                        'tooltip': 'Cache',
                         'click': async function (event, icon) {
                             this.close();
 
@@ -262,8 +266,8 @@ class SideNavigationBar {
                 if (controller.getRouteController()) {
                     conf = {
                         'style': 'iconbar',
-                        'icon': "map",
-                        'tooltip': "Sitemap",
+                        'icon': new Icon('map'),
+                        'tooltip': 'Sitemap',
                         'click': async function (event, icon) {
                             this.close();
 
@@ -278,8 +282,8 @@ class SideNavigationBar {
 
         conf = {
             'style': 'iconbar',
-            'icon': "cog",
-            'tooltip': "Configuration",
+            'icon': new Icon('cog'),
+            'tooltip': 'Configuration',
             'click': async function (event, icon) {
                 this.close();
 
@@ -297,9 +301,18 @@ class SideNavigationBar {
     }
 
     addIconBarItem(ext, bTop = true) {
-        if (bTop)
+        if (bTop) {
+            if (ext['name'])
+                this._topIconBarExtensions = this._topIconBarExtensions.filter(function (x) {
+                    return x['name'] !== ext['name'];
+                });
             this._topIconBarExtensions.push(ext);
-        else
+        } else {
+            if (ext['name'])
+                this._bottomIconBarExtensions = this._bottomIconBarExtensions.filter(function (x) {
+                    return x['name'] !== ext['name'];
+                });
             this._bottomIconBarExtensions.push(ext);
+        }
     }
 }

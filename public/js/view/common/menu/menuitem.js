@@ -35,7 +35,7 @@ class MenuItem {
 
             var $icon;
             if (this._conf.icon) {
-                $icon = new Icon(this._conf.icon).renderIcon();
+                $icon = this._conf.icon.renderIcon();
                 $div.append($icon);
             }
 

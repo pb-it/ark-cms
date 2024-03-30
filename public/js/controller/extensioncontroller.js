@@ -19,12 +19,17 @@ class ExtensionController {
         const res = await controller.getDataService().fetchData('_extension', null, null, null, null, null, null, true);
         if (res.length > 0) {
             var name;
+            var ext;
             for (var extension of res) {
                 name = extension['name'];
                 if (this._info[name])
                     await this._initExtension(extension);
-                else
+                else {
+                    ext = { ...extension };
+                    this._extensions = this._extensions.filter((x) => x['name'] !== name);
+                    this._extensions.push(ext);
                     this._info[name] = {};
+                }
             }
         }
         $(window).trigger('changed.extension');

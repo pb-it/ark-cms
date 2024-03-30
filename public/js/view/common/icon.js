@@ -1,23 +1,27 @@
 class Icon {
 
-    _iconType;
+    _name;
+    _svg;
 
-    constructor(iconType) {
-        this._iconType = iconType;
+    constructor(name) {
+        this._name = name;
     }
 
-    getIconType() {
-        return this._iconType;
+    setSvg(svg) {
+        this._svg = svg;
     }
 
     renderIcon() {
         var $i;
-        var bSolid = false;
-        if (bSolid == true)
-            $i = $("<i class='fas fa-" + this._iconType + "' aria-hidden='true'>");
-        else
-            $i = $("<i class='fa fa-" + this._iconType + "' aria-hidden='true'>");
-
+        if (this._svg)
+            $i = $("<i>").append(this._svg);
+        else if (this._name) {
+            var bSolid = false;
+            if (bSolid == true)
+                $i = $("<i class='fas fa-" + this._name + "' aria-hidden='true'>");
+            else
+                $i = $("<i class='fa fa-" + this._name + "' aria-hidden='true'>");
+        }
         return $i;
     }
 }

@@ -26,6 +26,15 @@ div.menuitem.iconbar:hover:not(.active) {
     color: black;
 }
 
+div.menuitem.iconbar>i>svg {
+    stroke: white;
+    stroke-width: 4px;
+}
+
+div.menuitem.iconbar>i>svg:hover:not(.active) {
+    stroke: black;
+}
+
 span.bubble {
     position: relative;
     top: -8px;

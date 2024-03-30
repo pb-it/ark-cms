@@ -56,7 +56,7 @@ class Breadcrumb {
 
     _renderModelMenu(name) {
         var conf = {
-            'icon': "map-marker",
+            'icon': new Icon('map-marker'),
             'name': name,
             'root': true
         };
@@ -67,8 +67,8 @@ class Breadcrumb {
         var state = app.controller.getStateController().getState();
         if (state['name']) {
             conf = {
-                'icon': "edit",
-                'name': "Edit",
+                'icon': new Icon('edit'),
+                'name': 'Edit',
                 'click': async function (event) {
                     return app.controller.getModalController().openPanelInModal(new CrudStatePanel(ActionEnum.update, state));
                 }
@@ -77,8 +77,8 @@ class Breadcrumb {
         }
 
         conf = {
-            'icon': "save",
-            'name': "Save",
+            'icon': new Icon('save'),
+            'name': 'Save',
             'click': async function (event) {
                 var copy = { ...state };
                 delete copy['name'];
@@ -88,8 +88,8 @@ class Breadcrumb {
         subMenuGroup.addMenuItem(new MenuItem(conf));
 
         conf = {
-            'icon': "remove",
-            'name': "Remove",
+            'icon': new Icon('remove'),
+            'name': 'Remove',
             'click': function (event) {
                 app.controller.loadState(new State(), true);
             }
@@ -113,7 +113,7 @@ class Breadcrumb {
                 });
 
             var conf = {
-                'icon': "plus",
+                'icon': new Icon('plus'),
                 'root': true,
                 'click': async function (event, icon) {
                     var state = new State();
@@ -140,7 +140,7 @@ class Breadcrumb {
                 });
 
             var conf = {
-                'icon': "filter",
+                'icon': new Icon('filter'),
                 'root': true,
                 'click': async function (event, icon) {
                     var panel = new SelectFilterPanel(app.controller.getStateController().getState().typeString);
@@ -168,7 +168,7 @@ class Breadcrumb {
             $div.append($d);
 
             conf = {
-                'icon': "sort",
+                'icon': new Icon('sort'),
                 'root': true,
                 'click': async function (event, icon) {
                     event.preventDefault();
@@ -181,7 +181,7 @@ class Breadcrumb {
             $div.append($d);
 
             conf = {
-                'icon': "th",
+                'icon': new Icon('th'),
                 'root': true,
                 'click': async function (event, icon) {
                     event.preventDefault();
@@ -269,8 +269,8 @@ class Breadcrumb {
         var menuItem;
         var subMenuGroup;
         for (let filter of filters) {
-            if (filter.name)
-                name = filter.name;
+            if (filter['name'])
+                name = filter['name'];
             else
                 name = "undefined";
 
@@ -283,22 +283,26 @@ class Breadcrumb {
             subMenuGroup = new SubMenuGroup('down', 'left');
 
             conf = {
-                'icon': "edit",
-                'name': "Edit",
+                'icon': new Icon('edit'),
+                'name': 'Edit',
                 'click': async function (event) {
-                    return app.controller.getModalController().openPanelInModal(new CreateFilterPanel(app.controller.getStateController().getState().getModel(), filter));
+                    const controller = app.getController();
+                    const model = controller.getStateController().getState().getModel();
+                    const panel = new CreateFilterPanel(model, filter)
+                    return controller.getModalController().openPanelInModal(panel);
                 }
             };
             subMenuGroup.addMenuItem(new MenuItem(conf));
 
             conf = {
-                'icon': "remove",
-                'name': "Remove",
+                'icon': new Icon('remove'),
+                'name': 'Remove',
                 'click': function (event) {
-                    var state = app.controller.getStateController().getState();
-                    delete state.name;
-                    state.filters = state.filters.filter(function (x) { return x != filter; });
-                    app.controller.loadState(state, true);
+                    const controller = app.getController();
+                    const state = controller.getStateController().getState();
+                    delete state['name'];
+                    state['filters'] = state['filters'].filter(function (x) { return x != filter; });
+                    controller.loadState(state, true);
                 }
             };
             subMenuGroup.addMenuItem(new MenuItem(conf));
