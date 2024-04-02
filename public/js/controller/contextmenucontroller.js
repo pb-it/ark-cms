@@ -634,19 +634,21 @@ class ContextMenuController {
 
     static _getBackLink(model, attr) {
         var backLink = null;
-        if (attr['multiple']) {
-            if (attr['via'])
-                backLink = attr['via'];
-        }
-        if (!backLink) {
-            var relModel = app.getController().getModelController().getModel(attr['model']);
-            if (relModel) {
-                var relAttributes = relModel.getModelAttributesController().getAttributes();
-                if (relAttributes) {
-                    for (var relAttr of relAttributes) {
-                        if (relAttr['dataType'] === "relation" && relAttr['model'] === model.getName() && relAttr['multiple'] && !relAttr['via']) {
-                            backLink = relAttr['name'];
-                            break;
+        if (model.getName() !== attr['model']) {
+            if (attr['multiple']) {
+                if (attr['via'])
+                    backLink = attr['via'];
+            }
+            if (!backLink) {
+                var relModel = app.getController().getModelController().getModel(attr['model']);
+                if (relModel) {
+                    var relAttributes = relModel.getModelAttributesController().getAttributes();
+                    if (relAttributes) {
+                        for (var relAttr of relAttributes) {
+                            if (relAttr['dataType'] === "relation" && relAttr['model'] === model.getName() && relAttr['multiple'] && !relAttr['via']) {
+                                backLink = relAttr['name'];
+                                break;
+                            }
                         }
                     }
                 }

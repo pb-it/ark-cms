@@ -385,26 +385,34 @@ class EditAttributesPanel extends Panel {
                     var allModelNames = models.map(function (model) {
                         return model.getDefinition()['name'];
                     });
-                    var thisModelName = this._model.getName();
                     var options = [];
-                    var attributes = this.getAttributes();
-                    var exist;
-                    if (attributes)
-                        exist = attributes.filter(function (x) { return x['dataType'] === "relation" && x['model'] && x['multiple'] });
                     for (var name of allModelNames) {
-                        if (name === thisModelName)
-                            continue;
-                        else if (exist && exist.indexOf(name) !== -1)
-                            continue;
-                        else
-                            options.push({ 'value': name });
+                        options.push({ 'value': name });
                     }
                     options = options.sort((a, b) => a['value'].localeCompare(b['value']));
 
                     skeleton = [
                         { 'name': 'model', 'dataType': 'enumeration', 'options': options, 'view': 'select', 'required': true },
-                        { 'name': 'multiple', 'dataType': 'boolean', 'required': true },
-                        { 'name': 'via', 'dataType': 'string' }
+                        {
+                            'name': 'multiple',
+                            'dataType': 'boolean',
+                            'required': true,
+                            changeAction: async function (entry) {
+                                const fData = await entry._form.readForm();
+                                const tn = entry._form.getFormEntry('tableName');
+                                const via = entry._form.getFormEntry('via');
+                                if (fData['multiple']) {
+                                    await tn.enable();
+                                    await via.enable();
+                                } else {
+                                    await tn.disable();
+                                    await via.disable();
+                                }
+                                return Promise.resolve();
+                            }.bind(this)
+                        },
+                        { 'name': 'tableName', 'dataType': 'string', 'readonly': true },
+                        { 'name': 'via', 'dataType': 'string', 'readonly': true }
                     ];
                     break;
                 case 'file':
@@ -624,8 +632,17 @@ class EditAttributesPanel extends Panel {
                     break;
                 case 'relation':
                     this._data.model = data.model;
-                    if (data.multiple == true)
+                    if (data.multiple) {
+                        var attributes = this.getAttributes();
+                        if (attributes) {
+                            var exist = attributes.filter(function (x) { return x['dataType'] === "relation" && x['model'] === data.model && x['multiple'] && x['tableName'] === data.tableName });
+                            if (exist && exist.length > 0)
+                                throw new Error("Field 'tableName' must be unique");
+                        }
                         this._data.multiple = data.multiple;
+                        if (data.tableName)
+                            this._data.tableName = data.tableName;
+                    }
                     if (data.via)
                         this._data.via = data.via;
                     break;

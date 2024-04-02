@@ -564,21 +564,72 @@ class CrudObject {
 
     async _updateCache(oldData, newData) {
         const controller = app.getController();
-        const changed = CrudObject.getChangedRelations(this._model, oldData, newData);
-        if (Object.keys(changed).length > 0) {
-            const ds = controller.getDataService();
-            const promises = [];
-            for (const [key, value] of Object.entries(changed)) {
-                promises.push(ds.fetchData(key, value, null, null, null, null, null, true));
+        const cache = await controller.getDataService().getCache();
+        const ds = controller.getDataService();
+        const promises = [];
+        if (newData) {
+            const changed = CrudObject.getChangedRelations(this._model, oldData, newData);
+            if (Object.keys(changed).length > 0) {
+                for (const [key, value] of Object.entries(changed)) {
+                    promises.push(ds.fetchData(key, value, null, null, null, null, null, true));
+                }
             }
-            await Promise.all(promises);
+        } else {
+            const name = this._model.getName();
+            const models = controller.getModelController().getModels();
+            var definition;
+            var mc;
+            var data;
+            var ids;
+            var tmp;
+            for (var m of models) {
+                definition = m.getDefinition();
+                mc = cache.getModelCache(definition['name']);
+                if (mc) {
+                    data = await mc.getCompleteRecordSet();
+                    if (data) {
+                        if (definition['attributes']) {
+                            ids = [];
+                            for (var attr of definition['attributes']) {
+                                if (attr['dataType'] == 'relation' && attr['model'] == name) {
+                                    if (attr['multiple']) {
+                                        if (!attr['via']) {
+                                            for (var d of data) {
+                                                tmp = d[attr['name']];
+                                                if (tmp && tmp.length > 0) {
+                                                    tmp = tmp.map(x => x['id']);
+                                                    if (tmp.includes(oldData['id'])) {
+                                                        if (!ids.includes(d['id']))
+                                                            ids.push(d['id']);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        for (var d of data) {
+                                            tmp = d[attr['name']];
+                                            if (tmp && tmp['id'] == oldData['id']) {
+                                                if (!ids.includes(d['id']))
+                                                    ids.push(d['id']);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (ids.length > 0)
+                                promises.push(ds.fetchData(definition['name'], ids, null, null, null, null, null, true));
+                        }
+                    }
+                }
+            }
         }
+        if (promises.length > 0)
+            await Promise.all(promises);
 
         const db = controller.getDatabase();
         if (db) {
             const id = db.getChangeId();
             if (id) {
-                const cache = await controller.getDataService().getCache();
                 const changes = await cache.getChanges(id);
                 if (changes) {
                     const data = changes['data'];

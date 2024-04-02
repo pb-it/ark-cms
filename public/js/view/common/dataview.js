@@ -284,25 +284,26 @@ class DataView {
     }
 
     static async renderRelation(attribute, data) {
-        var modelName = attribute['model'];
-        var $list = $('<ul/>').addClass('select');
+        const modelName = attribute['model'];
+        const $list = $('<ul/>').addClass('select');
         var $li;
-        var model = app.controller.getModelController().getModel(modelName);
-        var mpcc = model.getModelPanelConfigController();
-        var panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);
+        const controller = app.getController();
+        const model = controller.getModelController().getModel(modelName);
+        const mpcc = model.getModelPanelConfigController();
+        const panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);
         var panel;
         if (data) {
             if (attribute['multiple'] && Array.isArray(data)) {
-                var ids = data.map(function (x) {
+                const ids = data.map(function (x) {
                     if (isNaN(x))
                         return x['id'];
                     else
                         return x;
                 });
-                var objs = [];
+                const objs = [];
                 var add;
                 for (var j = 0; j < Math.ceil(ids.length / 100); j++) {
-                    add = await app.controller.getDataService().fetchObjectById(modelName, ids.slice(j * 100, (j + 1) * 100));
+                    add = await controller.getDataService().fetchObjectById(modelName, ids.slice(j * 100, (j + 1) * 100));
                     objs.push(...add);
                 }
                 for (var obj of objs) {
@@ -314,11 +315,15 @@ class DataView {
                     $list.append($li);
                 }
             } else {
-                var id = data['id'];
+                const id = data['id'];
                 var obj;
-                if (id)
-                    obj = await app.controller.getDataService().fetchObjectById(modelName, id);
-                else
+                if (id) {
+                    try {
+                        obj = await controller.getDataService().fetchObjectById(modelName, id);
+                    } catch (error) {
+                        controller.showError(error);
+                    }
+                } else
                     obj = new CrudObject(modelName, data);
                 if (obj) {
                     $li = $("<li/>")
