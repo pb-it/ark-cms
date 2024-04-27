@@ -43,6 +43,7 @@ describe("Root Suite", function () {
     require('./panel.test.js');
     require('./contextmenu.test.js');
     require('./navigation.test.js');
+    require('./state.test.js');
     require('./search.test.js');
     require('./sort.test.js');
     require('./filter.test.js');

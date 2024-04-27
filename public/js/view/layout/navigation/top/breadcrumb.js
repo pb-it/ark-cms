@@ -17,17 +17,22 @@ class Breadcrumb {
 
         var state;
         var stateName;
-        var sc = app.controller.getStateController();
+        var defaultSort;
+        const controller = app.getController();
+        const sc = controller.getStateController();
         if (sc) {
             state = sc.getState();
             if (state) {
-                var typeString = state['typeString'];
+                const typeString = state['typeString'];
                 if (typeString) {
-                    var mc = app.controller.getModelController();
+                    const mc = controller.getModelController();
                     if (mc.isModelDefined(typeString)) {
                         stateName = typeString;
                         if (state['name'] && !state['where'])
                             stateName += '(' + state['name'] + ')';
+
+                        const model = mc.getModel(typeString);
+                        defaultSort = model.getModelDefaultsController().getDefaultSort();
                     }
                 }
             }
@@ -42,6 +47,9 @@ class Breadcrumb {
 
             if (state.where)
                 this._renderWhere(state);
+
+            if (state.sort && (!defaultSort || state.sort != defaultSort))
+                this._renderSort(state.sort);
 
             if (state.limit)
                 this._renderLimit(state.limit);
@@ -236,29 +244,46 @@ class Breadcrumb {
             else
                 text = 'where:' + state['where'].substring(0, 70) + '...';
         }
-        var $button = $('<button/>')
+        const $button = $('<button/>')
             .text(text)
             .css({ 'margin': '0 1 0 1' })
             .click(function (event) {
                 event.stopPropagation();
-                var state = app.controller.getStateController().getState();
+                const controller = app.getController();
+                const state = controller.getStateController().getState();
                 delete state.name;
                 delete state.where;
-                app.controller.loadState(state, true);
+                controller.loadState(state, true);
+            });
+        this._$breadcrumb.append($button);
+    }
+
+    _renderSort(sort) {
+        const $button = $('<button/>')
+            .text('sort:' + sort)
+            .css({ 'margin': '0 1 0 1' })
+            .click(function (event) {
+                event.stopPropagation();
+                const controller = app.getController();
+                const state = controller.getStateController().getState();
+                delete state.name;
+                delete state.sort;
+                controller.loadState(state, true);
             });
         this._$breadcrumb.append($button);
     }
 
     _renderLimit(limit) {
-        var $button = $('<button/>')
+        const $button = $('<button/>')
             .text('limit:' + limit)
             .css({ 'margin': '0 1 0 1' })
             .click(function (event) {
                 event.stopPropagation();
-                var state = app.controller.getStateController().getState();
+                const controller = app.getController();
+                const state = controller.getStateController().getState();
                 delete state.name;
                 delete state.limit;
-                app.controller.loadState(state, true);
+                controller.loadState(state, true);
             });
         this._$breadcrumb.append($button);
     }
