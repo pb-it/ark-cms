@@ -5,6 +5,8 @@ class FileFormEntry extends FormEntry {
     _$inputFile;
     _$delete;
 
+    _bDelete;
+
     constructor(form, attribute) {
         super(form, attribute);
     }
@@ -16,7 +18,7 @@ class FileFormEntry extends FormEntry {
                 var data = this._form.getFormData();
                 if (this._attribute['storage'] == 'filesystem')
                     this._value['filename'] = value;
-                else if (attr['storage'] == 'base64')
+                else if (this._attribute['storage'] == 'base64')
                     this._value['base64'] = value;
                 if (this._attribute['filename_prop'])
                     this._value['filename'] = data[this._attribute['filename_prop']];
@@ -99,7 +101,7 @@ class FileFormEntry extends FormEntry {
                 var input = this._$inputFile[0];
                 if (input.files && input.files.length > 0)
                     file = input.files[0];
-                if (file)
+                if (file && this._$inputFilename)
                     this._$inputFilename.val(file.name);
             }.bind(this));
         this._$value.append(this._$inputFile);
@@ -112,6 +114,7 @@ class FileFormEntry extends FormEntry {
                 .click(async function (event) {
                     event.stopPropagation();
 
+                    this._bDelete = true;
                     await this.renderValue(null);
 
                     return Promise.resolve();
@@ -146,7 +149,7 @@ class FileFormEntry extends FormEntry {
                 data['base64'] = await Base64.encodeObject(file);
             else if (this._value && this._value['base64'])
                 data['base64'] = this._value['base64'];
-            if (this._$delete && this._$delete.prop('checked'))
+            if ((this._bDelete && !data['url'] && !file) || (this._$delete && this._$delete.prop('checked')))
                 data['delete'] = true;
         }
         return Promise.resolve(data);

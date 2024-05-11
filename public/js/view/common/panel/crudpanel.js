@@ -546,7 +546,7 @@ class CrudPanel extends CanvasPanel {
                     const propName = model.getModelDefaultsController().getDefaultThumbnailProperty();
                     if (propName) {
                         const attr = model.getModelAttributesController().getAttribute(propName);
-                        if (attr['dataType'] === "relation" && attr['model'] === droptype) {
+                        if (attr && attr['dataType'] === "relation" && attr['model'] === droptype) {
                             const bConfirmation = await controller.getModalController().openConfirmModal("Change thumbnail?");
                             if (bConfirmation) {
                                 const obj = new Object();
