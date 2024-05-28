@@ -6,8 +6,10 @@ class XModel {
 
     _module;
 
-    _doubleClickAction;
+    _configTabs;
+    _sideMenuEntries;
     _contextMenuEntries;
+    _doubleClickAction;
     _prepareDataAction;
     _crudDialogActions;
 
@@ -18,11 +20,13 @@ class XModel {
     }
 
     async initModel() {
+        this._configTabs = [];
+        this._sideMenuEntries = [];
         this._contextMenuEntries = ContextMenuController.getContextMenuEntries(this); //TODO:
         this._crudDialogActions = [];
 
-        if (this._data['extensions']) {
-            var extension = this._data['extensions']['client'];
+        if (this._data.hasOwnProperty('extensions')) {
+            const extension = this._data['extensions']['client'];
             if (extension) {
                 this._module = await loadModule(extension);
                 // this._crudDialogActions.push(module.checkAction);
@@ -32,6 +36,21 @@ class XModel {
                 // loadCode(extension);
             }
         }
+
+        const controller = app.getController();
+        const ec = controller.getExtensionController();
+        if (ec) {
+            const extensions = ec.getExtensions();
+            if (extensions.length > 0) {
+                var module;
+                for (var ext of extensions) {
+                    module = ext['module'];
+                    if (module && typeof module['initModel'] == 'function')
+                        await module.initModel(this);
+                }
+            }
+        }
+
         return Promise.resolve();
     }
 
@@ -122,6 +141,14 @@ class XModel {
             return true;
         else
             return false;
+    }
+
+    getConfigTabs() {
+        return this._configTabs;
+    }
+
+    getSideMenuEntries() {
+        return this._sideMenuEntries;
     }
 
     getContextMenuEntries() {

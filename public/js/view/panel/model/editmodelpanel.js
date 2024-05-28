@@ -4,6 +4,7 @@ class EditModelPanel extends TabPanel {
     _tmpModel;
 
     _extensionForm;
+    _tabs;
     _rawForm;
 
     _$attributesPanel;
@@ -15,13 +16,14 @@ class EditModelPanel extends TabPanel {
         super(config);
 
         this._model = model;
-        var data = this._model.getDefinition();
-        var copy = JSON.parse(JSON.stringify(data));
+        const def = this._model.getDefinition();
+        const copy = JSON.parse(JSON.stringify(def)); //deep copy
         this._tmpModel = new XModel(copy);
     }
 
     async _init() {
         await super._init();
+        const controller = app.getController();
 
         this._$attributesPanel = new EditAttributesPanel(this._tmpModel);
         this._panels.push(this._$attributesPanel);
@@ -29,10 +31,21 @@ class EditModelPanel extends TabPanel {
         this._$defaultsPanel = new EditModelDefaultsPanel(this._tmpModel);
         this._panels.push(this._$defaultsPanel);
 
-        if (app.controller.isInDebugMode()) {
+        const authController = controller.getAuthController();
+        if (authController && authController.isAdministrator()) {
             this._$extensionsPanel = await this._createExtensionsPanel();
             this._panels.push(this._$extensionsPanel);
 
+            this._tabs = this._model.getConfigTabs();
+            if (this._tabs && this._tabs.length > 0) {
+                for (var tab of this._tabs) {
+                    await tab.init(this._tmpModel);
+                    this._panels.push(tab);
+                }
+            }
+        }
+
+        if (controller.isInDebugMode()) {
             this._$rawPanel = await this._createRawPanel();
             this._panels.push(this._$rawPanel);
         }
@@ -43,7 +56,7 @@ class EditModelPanel extends TabPanel {
             try {
                 this._tmpModel.setDefinition(await this._readDefinition(oldTab), false);
             } catch (error) {
-                app.controller.showError(error);
+                app.getController().showError(error);
             }
             return Promise.resolve();
         }.bind(this));
@@ -52,16 +65,16 @@ class EditModelPanel extends TabPanel {
     }
 
     async _createExtensionsPanel() {
-        var panel = new Panel({ 'title': 'Extensions' });
+        const panel = new Panel({ 'title': 'Extensions' });
         panel._renderContent = async function () {
-            var $d = $('<div/>');
+            const $d = $('<div/>');
 
-            var skeleton = [
+            const skeleton = [
                 { name: 'server', dataType: 'text', size: '20' },
                 { name: 'client', dataType: 'text', size: '20' }
             ];
             this._extensionForm = new Form(skeleton, this._tmpModel.getDefinition()['extensions']);
-            var $form = await this._extensionForm.renderForm();
+            const $form = await this._extensionForm.renderForm();
             $d.append($form);
 
             return Promise.resolve($d);
@@ -71,14 +84,14 @@ class EditModelPanel extends TabPanel {
     }
 
     async _createRawPanel() {
-        var panel = new Panel({ 'title': 'RAW' });
+        const panel = new Panel({ 'title': 'RAW' });
         panel._renderContent = async function () {
-            var $d = $('<div/>');
+            const $d = $('<div/>');
 
-            var skeleton = [{ name: 'json', dataType: 'text', size: '40' }];
-            var definition = this._tmpModel.getDefinition();
+            const skeleton = [{ name: 'json', dataType: 'text', size: '40' }];
+            const definition = this._tmpModel.getDefinition();
             this._rawForm = new Form(skeleton, { 'json': JSON.stringify(definition, null, '\t') });
-            var $form = await this._rawForm.renderForm();
+            const $form = await this._rawForm.renderForm();
             $d.append($form);
 
             return Promise.resolve($d);
@@ -114,52 +127,61 @@ class EditModelPanel extends TabPanel {
                         delete definition['extensions'];
                 }
             }
+
+            if (this._tabs && this._tabs.length > 0) {
+                for (var tab of this._tabs) {
+                    if (typeof tab['applyChanges'] === 'function')
+                        await tab.applyChanges(definition);
+                }
+            }
+            if (definition['extensions'] && Object.keys(definition['extensions']).length === 0)
+                delete definition['extensions'];
         }
         return Promise.resolve(definition);
     }
 
     async _apply() {
+        const controller = app.getController();
         try {
-            app.controller.setLoadingState(true);
-            var data = await this._readDefinition(this.getOpenTab());
+            controller.setLoadingState(true);
+            const current = await this._readDefinition(this.getOpenTab());
 
             var org;
             var id = this._model.getId();
             if (id)
                 org = this._model.getDefinition();
-            var current = data;
 
             var delta = await diffJson(org, current);
             var bChanged = !(delta.length === 1 && typeof delta[0].removed === 'undefined' && typeof delta[0].added === 'undefined');
             if (bChanged) {
                 var bTitle = false;
-                var defaults = data['defaults'];
+                const defaults = current['defaults'];
                 if (defaults && defaults['title'])
                     bTitle = true;
 
                 if (bTitle || id) {
                     await this._checkConfirm(org, current);
                 } else {
-                    var panel = new Panel();
+                    const panel = new Panel();
 
-                    var $div = $('<div/>')
+                    const $div = $('<div/>')
                         .css({ 'padding': '10' });
 
                     $div.append(`<b>Information:</b><br/>
-                You have not choosen an attibute which holds the title for your model.<br/>
-                As a result the title of your records will build up upon their ID,<br/>
-                which may not be very convenient to work with in search fields.<br/><br/>`);
+You have not choosen an attibute which holds the title for your model.<br/>
+As a result the title of your records will build up upon their ID,<br/>
+which may not be very convenient to work with in search fields.<br/><br/>`);
 
-                    var $change = $('<button/>')
+                    const $change = $('<button/>')
                         .text("Change") //Abort
                         .click(async function (event) {
                             event.preventDefault();
 
                             await this.openTab(this._$defaultsPanel);
-                            var form = this._$defaultsPanel.getTitleForm();
-                            var entry = form.getEntries()[0];
-                            var $input = entry.getInput();
-                            var $option = $input.first();
+                            const form = this._$defaultsPanel.getTitleForm();
+                            const entry = form.getEntries()[0];
+                            const $input = entry.getInput();
+                            const $option = $input.first();
                             $option.focus(); //TODO: focus is not working!
 
                             panel.dispose();
@@ -168,19 +190,20 @@ class EditModelPanel extends TabPanel {
                         }.bind(this));
                     $div.append($change);
 
-                    var $ignore = $('<button/>')
+                    const $ignore = $('<button/>')
                         .text("Ignore")
                         .css({ 'float': 'right' })
                         .click(async function (event) {
                             event.preventDefault();
 
                             panel.dispose();
+                            const controller = app.getController();
                             try {
                                 await this._checkConfirm(org, current);
                             } catch (error) {
-                                app.controller.setLoadingState(false);
+                                controller.setLoadingState(false);
                                 if (error)
-                                    app.controller.showError(error);
+                                    controller.showError(error);
                             }
 
                             return Promise.resolve();
@@ -190,18 +213,18 @@ class EditModelPanel extends TabPanel {
                     $div.append("<br/>");
 
                     panel.setContent($div);
-                    await app.controller.getModalController().openPanelInModal(panel);
+                    await controller.getModalController().openPanelInModal(panel);
                 }
             } else {
-                app.controller.setLoadingState(false);
-                var bClose = await app.controller.getModalController().openConfirmModal("No changes detected! Close window?");
+                controller.setLoadingState(false);
+                const bClose = await app.controller.getModalController().openConfirmModal("No changes detected! Close window?");
                 if (bClose)
                     this.dispose();
             }
-            app.controller.setLoadingState(false);
+            controller.setLoadingState(false);
         } catch (error) {
-            app.controller.setLoadingState(false);
-            app.controller.showError(error);
+            controller.setLoadingState(false);
+            controller.showError(error);
         }
         return Promise.resolve();
     }
@@ -234,6 +257,7 @@ class EditModelPanel extends TabPanel {
         else
             await this._model.initModel();
         this.dispose();
+        $(window).trigger('changed.model');
         controller.setLoadingState(false);
         return Promise.resolve();
     }

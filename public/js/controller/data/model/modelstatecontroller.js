@@ -51,6 +51,10 @@ class ModelStateController {
                     node.sort = state.sort;
                     node.limit = state.limit;
                     node.filters = state.filters;
+                    if (state.funcState)
+                        node.funcState = state.funcState;
+                    else if (node.funcState)
+                        delete node.funcState;
                 } else
                     throw new Error("It already exists a state with this name");
             } else {
@@ -59,7 +63,9 @@ class ModelStateController {
             }
         } else
             states = [state];
-        return this.updateStates(states);
+        await this.updateStates(states);
+        $(window).trigger('changed.model');
+        return Promise.resolve();
     }
 
     /*async deleteState(state) {

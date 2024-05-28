@@ -20,6 +20,8 @@ class CrudStatePanel extends Panel {
         { name: "limit", dataType: "string" },
         { name: "filters", dataType: "text" },
         { name: "bIgnoreCache", dataType: "boolean" },
+        { name: "customRoute", dataType: "string", readonly: true },
+        { name: "funcState", dataType: "text" },
         { name: "comment", dataType: "text" }];
         var state = new State(this._state);
         if (state.filters && state.filters.length > 0) {
@@ -40,28 +42,29 @@ class CrudStatePanel extends Panel {
             .click(async function (event) {
                 event.stopPropagation();
 
-                app.controller.setLoadingState(true);
+                const controller = app.getController();
+                controller.setLoadingState(true);
                 try {
-                    var newState = await form.readForm();
+                    const newState = await form.readForm();
                     if (newState.name && newState.name != "") {
                         if (newState.filters)
                             newState.filters = JSON.parse(newState.filters);
                         this._state = newState;
 
-                        var msc = app.controller.getModelController().getModel(this._state['typeString']).getModelStateController();
+                        const msc = controller.getModelController().getModel(this._state['typeString']).getModelStateController();
                         await msc.saveState(this._state, this._action == ActionEnum.update);
                         //TODO: await app.controller.getBookmarkController().addBookmark(newState);
 
                         //this.render();
-                        app.controller.setLoadingState(false);
+                        controller.setLoadingState(false);
                         alert(label + 'd successfully');
                     } else {
                         this._form.getFormEntry('name').getInput().focus();
                         throw new Error("Field 'name' is required");
                     }
                 } catch (error) {
-                    app.controller.setLoadingState(false);
-                    app.controller.showError(error);
+                    controller.setLoadingState(false);
+                    controller.showError(error);
                 }
                 return Promise.resolve();
             }.bind(this))

@@ -200,6 +200,7 @@ class State {
 
     name;
 
+    funcState;
     customRoute;
 
     typeString;
@@ -229,6 +230,7 @@ class State {
     parseFromData(data) {
         this.name = data.name;
 
+        this.funcState = data.funcState;
         this.customRoute = data.customRoute;
 
         this.typeString = data.typeString;

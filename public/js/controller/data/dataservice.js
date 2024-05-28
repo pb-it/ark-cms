@@ -4,75 +4,76 @@ class DataService {
 
     static sortData(model, sort, arr) {
         if (arr) {
-            var parts = sort.split(":");
+            const parts = sort.split(":");
             if (parts.length == 2) {
-                var prop = parts[0];
-
-                var mac = model.getModelAttributesController();
-                var attr = mac.getAttribute(prop);
-
-                switch (attr['dataType']) {
-                    case 'time':
-                        if (parts[1] === "asc")
-                            arr.sort(function (a, b) { return new Date('1970-01-01T' + a[prop]) - new Date('1970-01-01T' + b[prop]); });
-                        else if (parts[1] === "desc")
-                            arr.sort(function (a, b) { return new Date('1970-01-01T' + b[prop]) - new Date('1970-01-01T' + a[prop]); });
-                        break;
-                    case 'date':
-                    case 'datetime':
-                    case 'timestamp':
-                        if (parts[1] === "asc")
-                            arr.sort(function (a, b) { return new Date(a[prop]) - new Date(b[prop]); });
-                        else if (parts[1] === "desc")
-                            arr.sort(function (a, b) { return new Date(b[prop]) - new Date(a[prop]); });
-                        break;
-                    case 'string':
-                    case 'text':
-                    case 'url':
-                    case 'enumeration':
-                    case 'json':
-                        if (parts[1] === "asc")
-                            arr.sort(function (a, b) {
-                                if (a[prop] === "" || a[prop] === null) return 1;
-                                if (b[prop] === "" || b[prop] === null) return -1;
-                                if (a[prop] === b[prop]) return 0;
-                                return a[prop].localeCompare(b[prop]);
-                            });
-                        else if (parts[1] === "desc")
-                            arr.sort(function (a, b) {
-                                if (a[prop] === "" || a[prop] === null) return 1;
-                                if (b[prop] === "" || b[prop] === null) return -1;
-                                if (a[prop] === b[prop]) return 0;
-                                return b[prop].localeCompare(a[prop]);
-                            });
-                        break;
-                    default:
-                        var funcSort;
-                        const dtc = app.getController().getDataTypeController();
-                        var dt = dtc.getDataType(attr['dataType']);
-                        if (dt)
-                            funcSort = dt.getSortFunction();
-                        else
-                            funcSort = null;
-                        if (funcSort)
-                            funcSort(arr, parts[1]);
-                        else {
+                const prop = parts[0];
+                const mac = model.getModelAttributesController();
+                const attr = mac.getAttribute(prop);
+                if (attr) {
+                    switch (attr['dataType']) {
+                        case 'time':
+                            if (parts[1] === "asc")
+                                arr.sort(function (a, b) { return new Date('1970-01-01T' + a[prop]) - new Date('1970-01-01T' + b[prop]); });
+                            else if (parts[1] === "desc")
+                                arr.sort(function (a, b) { return new Date('1970-01-01T' + b[prop]) - new Date('1970-01-01T' + a[prop]); });
+                            break;
+                        case 'date':
+                        case 'datetime':
+                        case 'timestamp':
+                            if (parts[1] === "asc")
+                                arr.sort(function (a, b) { return new Date(a[prop]) - new Date(b[prop]); });
+                            else if (parts[1] === "desc")
+                                arr.sort(function (a, b) { return new Date(b[prop]) - new Date(a[prop]); });
+                            break;
+                        case 'string':
+                        case 'text':
+                        case 'url':
+                        case 'enumeration':
+                        case 'json':
                             if (parts[1] === "asc")
                                 arr.sort(function (a, b) {
                                     if (a[prop] === "" || a[prop] === null) return 1;
                                     if (b[prop] === "" || b[prop] === null) return -1;
                                     if (a[prop] === b[prop]) return 0;
-                                    return a[prop] - b[prop];
+                                    return a[prop].localeCompare(b[prop]);
                                 });
                             else if (parts[1] === "desc")
                                 arr.sort(function (a, b) {
                                     if (a[prop] === "" || a[prop] === null) return 1;
                                     if (b[prop] === "" || b[prop] === null) return -1;
                                     if (a[prop] === b[prop]) return 0;
-                                    return b[prop] - a[prop];
+                                    return b[prop].localeCompare(a[prop]);
                                 });
-                        }
-                }
+                            break;
+                        default:
+                            var funcSort;
+                            const dtc = app.getController().getDataTypeController();
+                            var dt = dtc.getDataType(attr['dataType']);
+                            if (dt)
+                                funcSort = dt.getSortFunction();
+                            else
+                                funcSort = null;
+                            if (funcSort)
+                                funcSort(arr, parts[1]);
+                            else {
+                                if (parts[1] === "asc")
+                                    arr.sort(function (a, b) {
+                                        if (a[prop] === "" || a[prop] === null) return 1;
+                                        if (b[prop] === "" || b[prop] === null) return -1;
+                                        if (a[prop] === b[prop]) return 0;
+                                        return a[prop] - b[prop];
+                                    });
+                                else if (parts[1] === "desc")
+                                    arr.sort(function (a, b) {
+                                        if (a[prop] === "" || a[prop] === null) return 1;
+                                        if (b[prop] === "" || b[prop] === null) return -1;
+                                        if (a[prop] === b[prop]) return 0;
+                                        return b[prop] - a[prop];
+                                    });
+                            }
+                    }
+                } else
+                    throw new Error('Attribute \'' + prop + '\' not defined!');
             }
         }
         return arr;

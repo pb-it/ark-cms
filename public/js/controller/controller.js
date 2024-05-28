@@ -600,7 +600,11 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
 
                 var bHome = false;
                 if (state) {
-                    if (state['customRoute']) {
+                    if (state['funcState']) {
+                        const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+                        var fn = new AsyncFunction(state['funcState']);
+                        var tmp = await fn.bind(this)();
+                    } else if (state['customRoute']) {
                         var res = this._routeController.getMatchingRoute(state['customRoute']);
                         if (res) {
                             var route = res['route'];
@@ -648,17 +652,6 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                                 alert(str);
                             }
 
-                        } else if (state['customRoute'].startsWith('/dashboard/')) {
-                            var parts = state['customRoute'].split('/');
-                            if (parts.length == 3) {
-                                var model = this._modelController.getModel(parts[2]);
-                                if (model && model.hasOwnProperty('createDashboard'))
-                                    panels = await model.createDashboard();
-                            }
-                            if (panels)
-                                await this._view.getCanvas().showPanels(panels);
-                            else
-                                throw new Error("No dashboard defined");
                         } else
                             throw new Error("Unknown route '" + state['customRoute'] + "'");
                     } else if (state['typeString']) {

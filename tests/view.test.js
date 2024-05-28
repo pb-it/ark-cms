@@ -8,9 +8,20 @@ const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 describe('Testsuit', function () {
 
     async function checkThumbnail(panel) {
+        const file = config['host'] + '/public/images/missing_image.png';
         const xpathThumb = `./div/div[@class="thumbnail"]/img`;
-        const thumb = await panel.findElement(webdriver.By.xpath(xpathThumb));
+        var thumb = await panel.findElement(webdriver.By.xpath(xpathThumb));
         assert.notEqual(thumb, null, 'Thumbnail not found!');
+        var img = await thumb.getAttribute('src');
+        var i = 0;
+        const loadingIcon = config['host'] + '/public/images/loading_icon.gif';
+        while (img === loadingIcon && i < 10) {
+            await ExtendedTestHelper.delay(1000);
+            thumb = await panel.findElement(webdriver.By.xpath(xpathThumb));
+            img = await thumb.getAttribute('src');
+            i++;
+        }
+        assert.equal(img, file);
         const width = parseInt(await thumb.getAttribute('width'));
         assert.equal(width, 200);
         const height = parseInt(await thumb.getAttribute('height'));
@@ -173,7 +184,7 @@ describe('Testsuit', function () {
         assert.equal(modal, null);
 
         await app.reload();
-        await ExtendedTestHelper.delay(1000);
+        await ExtendedTestHelper.delay(2000);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);

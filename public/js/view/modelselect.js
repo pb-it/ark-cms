@@ -87,7 +87,7 @@ class ModelSelect {
                 if (!data || (data['name'] && !this._names.includes(data['name']))) {
                     this._$modelSelect.empty();
                     this._$mSelect = null;
-                    this._updateModelSelect();
+                    this._updateModelSelect(this._modelName);
                 }
             }
         }.bind(this));
@@ -102,21 +102,12 @@ class ModelSelect {
     }
 
     _updateModelSelect(model) {
+        this._modelName = model;
         this._renderModelSelect();
-
-        if (!model) {
-            if (this._modelName)
-                this._modelName = null;
-            if (this._$actionSelect)
-                this._$actionSelect.remove();
-        } else {
-            if (this._modelName != model) {
-                this._modelName = model;
-                if (this._$actionSelect)
-                    this._$actionSelect.remove();
-                this._renderActionSelect();
-            }
-        }
+        if (this._$actionSelect)
+            this._$actionSelect.remove();
+        if (this._modelName)
+            this._renderActionSelect();
     }
 
     _renderModelSelect() {

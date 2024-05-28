@@ -270,13 +270,9 @@ class StateSelect {
     }
 
     _renderActionSelect(action) {
-        var group = new SubMenuGroup();
-
-        var conf;
-        var menuItem;
-        var dummyGroup = new SubMenuGroup();
-
-        conf = {
+        const group = new SubMenuGroup();
+        const dummyGroup = new SubMenuGroup();
+        var conf = {
             'name': 'Show',
             'click': async function (event, item) {
                 if (item.isActive()) {
@@ -288,7 +284,7 @@ class StateSelect {
                 }
             }.bind(this)
         };
-        menuItem = new MenuItem(conf);
+        var menuItem = new MenuItem(conf);
         menuItem.addSubMenuGroup(dummyGroup);
         if (action && action === 'show')
             menuItem.setActive();
@@ -297,10 +293,10 @@ class StateSelect {
         conf = {
             'name': 'Create',
             'click': function (event, item) {
-                var state = new State();
+                const state = new State();
                 state.typeString = this._model;
                 state.action = ActionEnum.create;
-                app.controller.loadState(state, true);
+                app.getController().loadState(state, true);
             }.bind(this)
         };
         menuItem = new MenuItem(conf);
@@ -312,13 +308,9 @@ class StateSelect {
     }
 
     _renderShowSelect(show) {
-        var group = new SubMenuGroup();
-
-        var conf;
-        var menuItem;
-        var dummyGroup = new SubMenuGroup();
-
-        conf = {
+        const group = new SubMenuGroup();
+        const dummyGroup = new SubMenuGroup();
+        var conf = {
             'name': 'State',
             'click': async function (event, item) {
                 if (item.isActive()) {
@@ -330,26 +322,11 @@ class StateSelect {
                 }
             }.bind(this)
         };
-        menuItem = new MenuItem(conf);
+        var menuItem = new MenuItem(conf);
         menuItem.addSubMenuGroup(dummyGroup);
         if (show && show === 'state')
             menuItem.setActive();
         group.addMenuItem(menuItem);
-
-        var model = app.getController().getModelController().getModel(this._model);
-        if (model.hasOwnProperty('createDashboard')) {
-            conf = {
-                'name': 'Dashboard',
-                'click': function (event, item) {
-                    var state = new State();
-                    //state.typeString = this._model;
-                    state['customRoute'] = '/dashboard/' + this._model;
-                    app.getController().loadState(state, true);
-                }.bind(this)
-            };
-            menuItem = new MenuItem(conf);
-            group.addMenuItem(menuItem);
-        }
 
         conf = {
             'name': 'All',
@@ -361,6 +338,16 @@ class StateSelect {
         };
         menuItem = new MenuItem(conf);
         group.addMenuItem(menuItem);
+
+        const model = app.getController().getModelController().getModel(this._model);
+        const entries = model.getSideMenuEntries();
+        if (entries.length > 0) {
+            var menuItem;
+            for (var conf of entries) {
+                menuItem = new MenuItem(conf);
+                group.addMenuItem(menuItem);
+            }
+        }
 
         group.showSubMenuGroup();
         this._$showSelect = group.renderMenu();

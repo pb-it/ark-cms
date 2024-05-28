@@ -22,6 +22,8 @@ describe("Root Suite", function () {
     });
 
     after('#teardown', async function () {
+        this.timeout(15000);
+
         if (allPassed)
             await driver.quit();
         if (bSetup)
