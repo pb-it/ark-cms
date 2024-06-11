@@ -1,5 +1,7 @@
 class ExtensionSelect {
 
+    _extensionMenu;
+
     _$extensionSelect;
 
     _$eSelect;
@@ -31,6 +33,7 @@ class ExtensionSelect {
     }
 
     _updateExtensionSelect(extension) {
+        this._$extensionSelect.empty();
         this._renderExtensionSelect();
 
         if (!extension) {
@@ -49,147 +52,155 @@ class ExtensionSelect {
     }
 
     _renderExtensionSelect() {
-        if (!this._$eSelect) {
-            var group = new SubMenuGroup();
+        if (!this._extensionMenu)
+            this._extensionMenu = this._createExtensionMenu();
 
-            var conf;
-            var menuItem;
+        this._$eSelect = new MenuVis(this._extensionMenu).renderMenu();
+        this._$extensionSelect.append(this._$eSelect);
+    }
 
-            conf = {
-                'name': 'Add',
-                'click': function (event, item) {
-                    event.stopPropagation();
+    _createExtensionMenu() {
+        const menuItems = [];
 
-                    const controller = app.getController();
-                    controller.getView().getSideNavigationBar().close();
+        var conf;
+        var menuItem;
 
-                    try {
-                        var $input = $('<input/>')
-                            .prop('type', 'file')
-                            .prop('accept', 'application/zip')
-                            .prop('multiple', true)
-                            .css({ 'visibility': 'hidden' })
-                            .bind("click", function (e) {
-                                this.remove();
-                            })
-                            .on("change", async function () {
-                                if (this.files.length > 0) {
-                                    try {
-                                        controller.setLoadingState(true);
-                                        var name;
-                                        var existing;
-                                        var res;
-                                        var msg;
-                                        var extensions = controller.getExtensionController().getExtensions();
-                                        var tmp;
-                                        for (var file of this.files) {
-                                            if (file.type === 'application/zip' || file.type === 'application/x-zip-compressed') {
-                                                msg = null;
-                                                tmp = file.name.indexOf('@');
-                                                if (tmp != -1)
-                                                    name = file.name.substring(0, tmp);
-                                                else if (file.name.endsWith('.zip'))
-                                                    name = file.name.substring(0, file.name.length - 4);
-                                                else
-                                                    throw new Error('Filename does not comply specification');
-                                                existing = null;
-                                                for (var x of extensions) {
-                                                    if (x['name'] == name) {
-                                                        existing = x;
-                                                        break;
-                                                    }
-                                                }
-                                                if (!existing)
-                                                    res = await controller.getExtensionController().addExtension(file);
-                                                else if (confirm('An extension with name \'' + name + '\' already exists!\nDo you want to override it?'))
-                                                    res = await controller.getExtensionController().addExtension(file, existing);
-                                                else
-                                                    msg = 'Aborted';
+        conf = {
+            'name': 'Add',
+            'click': function (event, item) {
+                event.stopPropagation();
 
-                                                if (!msg) {
-                                                    if (res == 'OK') {
-                                                        msg = 'Uploaded \'' + name + '\' successfully!';
-                                                        var bRestart;
-                                                        var ac = controller.getApiController();
-                                                        var info = await ac.fetchApiInfo();
-                                                        if (info)
-                                                            bRestart = info['state'] === 'openRestartRequest';
-                                                        if (bRestart) {
-                                                            msg += '\nAPI server application needs to be restarted for the changes to take effect!';
-                                                            controller.getView().initView();
-                                                        } else {
-                                                            controller.getView().getSideNavigationBar().close();
-                                                            msg += '\nReload website for the changes to take effect!';
-                                                        }
-                                                    } else
-                                                        msg = 'Something went wrong!';
-                                                }
-                                            } else
-                                                msg = 'An extension has to be provided as zip archive!\nSkipping \'' + name + '\'';
-                                            alert(msg);
-                                        }
-                                        controller.setLoadingState(false);
-                                    } catch (error) {
-                                        controller.setLoadingState(false);
-                                        if (error instanceof HttpError && error['response']) {
-                                            if (error['response']['status'] == 422 && error['response']['body'])
-                                                controller.showErrorMessage(error['response']['body']);
+                const controller = app.getController();
+                controller.getView().getSideNavigationBar().close();
+
+                try {
+                    var $input = $('<input/>')
+                        .prop('type', 'file')
+                        .prop('accept', 'application/zip')
+                        .prop('multiple', true)
+                        .css({ 'visibility': 'hidden' })
+                        .bind("click", function (e) {
+                            this.remove();
+                        })
+                        .on("change", async function () {
+                            if (this.files.length > 0) {
+                                try {
+                                    controller.setLoadingState(true);
+                                    var name;
+                                    var existing;
+                                    var res;
+                                    var msg;
+                                    var extensions = controller.getExtensionController().getExtensions();
+                                    var tmp;
+                                    for (var file of this.files) {
+                                        if (file.type === 'application/zip' || file.type === 'application/x-zip-compressed') {
+                                            msg = null;
+                                            tmp = file.name.indexOf('@');
+                                            if (tmp != -1)
+                                                name = file.name.substring(0, tmp);
+                                            else if (file.name.endsWith('.zip'))
+                                                name = file.name.substring(0, file.name.length - 4);
                                             else
-                                                controller.showErrorMessage(error['message']);
+                                                throw new Error('Filename does not comply specification');
+                                            existing = null;
+                                            for (var x of extensions) {
+                                                if (x['name'] == name) {
+                                                    existing = x;
+                                                    break;
+                                                }
+                                            }
+                                            if (!existing)
+                                                res = await controller.getExtensionController().addExtension(file);
+                                            else if (confirm('An extension with name \'' + name + '\' already exists!\nDo you want to override it?'))
+                                                res = await controller.getExtensionController().addExtension(file, existing);
+                                            else
+                                                msg = 'Aborted';
+
+                                            if (!msg) {
+                                                if (res == 'OK') {
+                                                    msg = 'Uploaded \'' + name + '\' successfully!';
+                                                    var bRestart;
+                                                    var ac = controller.getApiController();
+                                                    var info = await ac.fetchApiInfo();
+                                                    if (info)
+                                                        bRestart = info['state'] === 'openRestartRequest';
+                                                    if (bRestart) {
+                                                        msg += '\nAPI server application needs to be restarted for the changes to take effect!';
+                                                        controller.getView().initView();
+                                                    } else {
+                                                        controller.getView().getSideNavigationBar().close();
+                                                        msg += '\nReload website for the changes to take effect!';
+                                                    }
+                                                } else
+                                                    msg = 'Something went wrong!';
+                                            }
                                         } else
-                                            controller.showError(error);
+                                            msg = 'An extension has to be provided as zip archive!\nSkipping \'' + name + '\'';
+                                        alert(msg);
                                     }
+                                    controller.setLoadingState(false);
+                                } catch (error) {
+                                    controller.setLoadingState(false);
+                                    if (error instanceof HttpError && error['response']) {
+                                        if (error['response']['status'] == 422 && error['response']['body'])
+                                            controller.showErrorMessage(error['response']['body']);
+                                        else
+                                            controller.showErrorMessage(error['message']);
+                                    } else
+                                        controller.showError(error);
                                 }
-                                this.remove();
-                                return Promise.resolve();
-                            });
-                        $input.click();
-                    } catch (error) {
-                        controller.showError(error, "Reading of file failed");
+                            }
+                            this.remove();
+                            return Promise.resolve();
+                        });
+                    $input.click();
+                } catch (error) {
+                    controller.showError(error, "Reading of file failed");
+                }
+            }.bind(this)
+        };
+        menuItem = new MenuItem(conf);
+        menuItems.push(menuItem);
+
+        var extensions = app.getController().getExtensionController().getExtensions();
+        this._names = extensions.map(function (x) {
+            return x['name'];
+        });
+        this._names.sort((a, b) => a.localeCompare(b));
+        for (let name of this._names) {
+            conf = {
+                'name': name,
+                'click': function (event, item) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const menuItem = item.getMenuItem();
+                    const menu = menuItem.getMenu();
+                    if (item.isActive()) {
+                        menu.setActiveItem();
+                        this._updateExtensionSelect();
+                    } else {
+                        menu.setActiveItem(menuItem);
+                        this._updateExtensionSelect(name);
                     }
                 }.bind(this)
             };
+
             menuItem = new MenuItem(conf);
-            group.addMenuItem(menuItem);
-
-            var dummyGroup = new SubMenuGroup(); // only to show carret
-
-            var extensions = app.getController().getExtensionController().getExtensions();
-            this._names = extensions.map(function (x) {
-                return x['name'];
-            });
-            this._names.sort((a, b) => a.localeCompare(b));
-            for (let name of this._names) {
-                conf = {
-                    'name': name,
-                    'click': function (event, item) {
-                        if (item.isActive()) {
-                            group.activateItem();
-                            this._updateExtensionSelect();
-                        } else {
-                            group.activateItem(item);
-                            this._updateExtensionSelect(name);
-                        }
-                    }.bind(this)
-                };
-
-                menuItem = new MenuItem(conf);
-                menuItem.addSubMenuGroup(dummyGroup);
-                if (this._modelName && this._modelName === name)
-                    menuItem.setActive();
-                group.addMenuItem(menuItem);
-            }
-
-            group.showSubMenuGroup();
-            this._$eSelect = group.renderMenu();
-            this._$extensionSelect.append(this._$eSelect);
+            menuItem.setSubMenu(new Menu());
+            if (this._modelName && this._modelName === name)
+                menuItem.setActive();
+            menuItems.push(menuItem);
         }
+
+        const menu = new Menu({ 'class': ['float'] });
+        menu.setItems(menuItems);
+        return menu;
     }
 
     _renderActionSelect() {
         var conf;
         var menuItem;
-        const group = new SubMenuGroup();
+        const menuItems = [];
 
         const controller = app.getController();
         const ext = controller.getExtensionController().getExtension(this._extension);
@@ -211,7 +222,7 @@ class ExtensionSelect {
                 }.bind(this)
             };
             menuItem = new MenuItem(conf);
-            group.addMenuItem(menuItem);
+            menuItems.push(menuItem);
         }
 
         conf = {
@@ -254,10 +265,11 @@ class ExtensionSelect {
             }.bind(this)
         };
         menuItem = new MenuItem(conf);
-        group.addMenuItem(menuItem);
+        menuItems.push(menuItem);
 
-        group.showSubMenuGroup();
-        this._$actionSelect = group.renderMenu();
+        const menu = new Menu({ 'class': ['float'] });
+        menu.setItems(menuItems);
+        this._$actionSelect = new MenuVis(menu).renderMenu();
         this._$extensionSelect.append(this._$actionSelect);
     }
 }

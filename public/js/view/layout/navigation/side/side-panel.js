@@ -17,6 +17,10 @@ class SidePanel {
         this._stateSelect = new StateSelect();
     }
 
+    initSidePanel() {
+        this._stateSelect.initStateSelect();
+    }
+
     renderSidePanel() {
         this._$div.empty();
         return this._$div;
@@ -47,6 +51,12 @@ class SidePanel {
         this._$div.append(this._$content);
         this._$div[0].style.width = 'auto';
 
+        this._setContextMenu();
+
+        return Promise.resolve();
+    }
+
+    _setContextMenu() {
         this._$content.off('contextmenu');
         this._$content.on('contextmenu', async function (event) {
             event.preventDefault();
@@ -103,8 +113,6 @@ class SidePanel {
 
             return Promise.resolve();
         }.bind(this));
-
-        return Promise.resolve();
     }
 
     hideSidePanel() {

@@ -1,4 +1,4 @@
-class SubMenuGroup extends Menu {
+class SubMenuGroup extends MenuVis {
 
     _direction;
     _align;
@@ -21,6 +21,9 @@ class SubMenuGroup extends Menu {
                 else if (align === 'left')
                     this._$div.addClass('downalignleft');
             } else if (direction === 'left') {
+                if (align === 'top')
+                    this._$div.addClass('leftaligntop');
+            } else if (direction === 'right') {
                 if (align === 'top')
                     this._$div.addClass('rightaligntop');
             }

@@ -314,4 +314,41 @@ describe('Testsuit', function () {
 
         return Promise.resolve();
     });
+
+    it('#test side-navigation iconbar', async function () {
+        this.timeout(10000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+
+        const xpathDataIcon = `//div[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title='Data']`;
+        var icons = await driver.findElements(webdriver.By.xpath(xpathDataIcon));
+        assert.equal(icons.length, 1);
+        var clazz = await icons[0].getAttribute('class');
+        assert.ok(clazz.indexOf('active') != -1);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Extensions');
+
+        const xpathExtensionsIcon = `//div[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title='Extensions']`;
+        icons = await driver.findElements(webdriver.By.xpath(xpathExtensionsIcon));
+        assert.equal(icons.length, 1);
+        clazz = await icons[0].getAttribute('class');
+        assert.ok(clazz.indexOf('active') != -1);
+
+        icons = await driver.findElements(webdriver.By.xpath(xpathDataIcon));
+        assert.equal(icons.length, 1);
+        var clazz = await icons[0].getAttribute('class');
+        assert.ok(clazz.indexOf('active') == -1);
+
+        const xpathActiveIcon = `//div[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and contains(@class, 'active')]`;
+        icons = await driver.findElements(webdriver.By.xpath(xpathActiveIcon));
+        assert.equal(icons.length, 1);
+        var title = await icons[0].getAttribute('title');
+        assert.equal(title, 'Extensions');
+
+        return Promise.resolve();
+    });
 });

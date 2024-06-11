@@ -68,9 +68,9 @@ class Breadcrumb {
             'name': name,
             'root': true
         };
-        var menuItem = new MenuItem(conf);
+        const menuItem = new MenuItem(conf);
 
-        var subMenuGroup = new SubMenuGroup('down', 'left');
+        const menuItems = [];
 
         var state = app.controller.getStateController().getState();
         if (state['name']) {
@@ -81,7 +81,7 @@ class Breadcrumb {
                     return app.controller.getModalController().openPanelInModal(new CrudStatePanel(ActionEnum.update, state));
                 }
             };
-            subMenuGroup.addMenuItem(new MenuItem(conf));
+            menuItems.push(new MenuItem(conf));
         }
 
         conf = {
@@ -93,7 +93,7 @@ class Breadcrumb {
                 return app.controller.getModalController().openPanelInModal(new CrudStatePanel(ActionEnum.create, copy));
             }
         };
-        subMenuGroup.addMenuItem(new MenuItem(conf));
+        menuItems.push(new MenuItem(conf));
 
         conf = {
             'icon': new Icon('remove'),
@@ -102,10 +102,18 @@ class Breadcrumb {
                 app.controller.loadState(new State(), true);
             }
         };
-        subMenuGroup.addMenuItem(new MenuItem(conf));
+        menuItems.push(new MenuItem(conf));
 
-        menuItem.addSubMenuGroup(subMenuGroup);
-        var $div = menuItem.renderMenuItem();
+        conf = {
+            'direction': 'down',
+            'alignment': 'left'
+        }
+        const subMenu = new Menu(conf);
+        subMenu.setItems(menuItems);
+
+        menuItem.setSubMenu(subMenu);
+
+        const $div = new MenuItemVis(menuItem).renderMenuItem();
         $div.css({ 'margin': '0 1 0 0' });
 
         this._$breadcrumb.append($div);
@@ -130,7 +138,7 @@ class Breadcrumb {
                     return app.getController().loadState(state, true);
                 }.bind(this)
             };
-            var $d = new MenuItem(conf).renderMenuItem();
+            var $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
             $d.css({ 'margin': '0 1 0 1' });
             $div.append($d);
 
@@ -171,7 +179,7 @@ class Breadcrumb {
                     return app.controller.getModalController().openPanelInModal(panel);
                 }.bind(this)
             };
-            var $d = new MenuItem(conf).renderMenuItem();
+            var $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
             $d.css({ 'margin': '0 1 0 1' });
             $div.append($d);
 
@@ -184,7 +192,7 @@ class Breadcrumb {
                     return app.controller.getModalController().openPanelInModal(new EditSortPanel());
                 }.bind(this)
             };
-            $d = new MenuItem(conf).renderMenuItem();
+            $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
             $d.css({ 'margin': '0 1 0 1' });
             $div.append($d);
 
@@ -198,7 +206,7 @@ class Breadcrumb {
                     return app.controller.getModalController().openPanelInModal(new EditViewPanel(null, model));
                 }.bind(this)
             };
-            $d = new MenuItem(conf).renderMenuItem();
+            $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
             $d.css({ 'margin': '0 1 0 1' });
             $div.append($d);
 
@@ -292,7 +300,9 @@ class Breadcrumb {
         var name;
         var conf;
         var menuItem;
-        var subMenuGroup;
+        var menuItems;
+        var subMenu;
+        var $div;
         for (let filter of filters) {
             if (filter['name'])
                 name = filter['name'];
@@ -305,7 +315,7 @@ class Breadcrumb {
             };
             menuItem = new MenuItem(conf);
 
-            subMenuGroup = new SubMenuGroup('down', 'left');
+            menuItems = [];
 
             conf = {
                 'icon': new Icon('edit'),
@@ -317,7 +327,7 @@ class Breadcrumb {
                     return controller.getModalController().openPanelInModal(panel);
                 }
             };
-            subMenuGroup.addMenuItem(new MenuItem(conf));
+            menuItems.push(new MenuItem(conf));
 
             conf = {
                 'icon': new Icon('remove'),
@@ -330,10 +340,18 @@ class Breadcrumb {
                     controller.loadState(state, true);
                 }
             };
-            subMenuGroup.addMenuItem(new MenuItem(conf));
+            menuItems.push(new MenuItem(conf));
 
-            menuItem.addSubMenuGroup(subMenuGroup);
-            var $div = menuItem.renderMenuItem();
+            conf = {
+                'direction': 'down',
+                'alignment': 'left'
+            }
+            subMenu = new Menu(conf);
+            subMenu.setItems(menuItems);
+
+            menuItem.setSubMenu(subMenu);
+
+            $div = new MenuItemVis(menuItem).renderMenuItem();
             $div.addClass('filter')
                 .css({ 'margin': '0 1 0 1' });
 
