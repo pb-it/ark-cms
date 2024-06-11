@@ -176,7 +176,7 @@ describe('Testsuit', function () {
      * check for outdated/multiple listeners on side menu
      */
     it('#test context menu in side panel', async function () {
-        this.timeout(10000);
+        this.timeout(30000);
 
         const app = helper.getApp();
         const window = app.getWindow();
@@ -217,10 +217,128 @@ describe('Testsuit', function () {
         assert.notEqual(modal, null);
         elements = await driver.findElements(webdriver.By.xpath(xpathContextMenu));
         assert.equal(elements.length, 0);
-        await modal.closeModal();
+
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('value');
+        assert.notEqual(input, null);
+        var value = await input.getAttribute('value');
+        assert.equal(value, '{"available":[]}');
+        await input.clear();
+        await input.sendKeys('{"available":[{"name":"movie-db","menu":["movie",null,"studio",null,"star"]}]}');
+
+        button = await window.getButton(panel.getElement(), 'Create');
+        assert.notEqual(button, null);
+        await button.click();
         await ExtendedTestHelper.delay(1000);
+        var bDebugMode = await app.isDebugModeActive();
+        if (bDebugMode) {
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+            await ExtendedTestHelper.delay(1000);
+        }
+        await app.waitLoadingFinished(10);
+
         modal = await window.getTopModal();
         assert.equal(modal, null);
+
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('movie-db');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await ExtendedTestHelper.delay(1000);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 5);
+
+        // undo
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+
+        sidepanel = await driver.findElement(webdriver.By.xpath('/html/body/div[@id="sidenav"]/div[@id="sidepanel"]'));
+        assert.notEqual(sidepanel, null);
+        contextMenu = await window.openContextMenu(sidepanel);
+        await ExtendedTestHelper.delay(1000);
+
+        elements = await driver.findElements(webdriver.By.xpath(xpathContextMenu));
+        assert.equal(elements.length, 1);
+        await contextMenu.click('Edit');
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        elements = await driver.findElements(webdriver.By.xpath(xpathContextMenu));
+        assert.equal(elements.length, 0);
+
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('value');
+        assert.notEqual(input, null);
+        await input.clear();
+
+        button = await window.getButton(panel.getElement(), 'Update');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        if (bDebugMode) {
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+            await ExtendedTestHelper.delay(1000);
+        }
+        await app.waitLoadingFinished(10);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        await app.reload(); //TODO: 
+        await ExtendedTestHelper.delay(1000);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await ExtendedTestHelper.delay(1000);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 5);
+
+        //const ds = app.getDataService();
+        //await ds.delete('misc', id);
+
+        var response = await driver.executeAsyncScript(async () => {
+            const callback = arguments[arguments.length - 1];
+
+            const ac = app.getController().getApiController().getApiClient();
+            await ac.requestData('DELETE', '_registry', null, { 'key': 'profiles' });
+
+            callback('OK');
+        });
+        assert.equal(response, 'OK');
 
         return Promise.resolve();
     });

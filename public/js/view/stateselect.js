@@ -309,7 +309,7 @@ class StateSelect {
                     conf = {
                         'name': '-'
                     };
-                    menuItem = new MenuItemVis(new MenuItem(conf));
+                    menuItem = new MenuItem(conf);
                 } else if (mc.isModelDefined(modelName)) {
                     conf = {
                         'name': modelName,
