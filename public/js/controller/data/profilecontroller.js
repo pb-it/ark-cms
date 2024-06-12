@@ -13,7 +13,9 @@ class ProfileController {
     }
 
     async init() {
-        var entry = await this._apiClient.requestData("GET", "_registry?key=profiles");
+        this._config = null;
+        this._profiles = null;
+        const entry = await this._apiClient.requestData("GET", "_registry?key=profiles");
         if (entry && entry.length == 1) {
             var value = entry[0]['value'];
             if (value) {

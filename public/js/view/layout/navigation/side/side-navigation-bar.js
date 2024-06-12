@@ -17,6 +17,10 @@ class SideNavigationBar {
     _sidePanel;
     _$sidePanel;
 
+    _extensionSelect;
+    _modelSelect;
+    _stateSelect;
+
     constructor() {
         this._$sideNav = $('div#sidenav');
 
@@ -24,6 +28,10 @@ class SideNavigationBar {
         this._bottomIconBarExtensions = [];
 
         this._sidePanel = new SidePanel();
+
+        this._extensionSelect = new ExtensionSelect();
+        this._modelSelect = new ModelSelect();
+        this._stateSelect = new StateSelect();
 
         window.addEventListener('click', function (event) {
             var controller = app.getController();
@@ -45,6 +53,22 @@ class SideNavigationBar {
         }.bind(this));
     }
 
+    getTopIconBar() {
+        return this._topIconBar;
+    }
+
+    getBottomIconBar() {
+        return this._bottomIconBar;
+    }
+
+    getSidePanel() {
+        return this._sidePanel;
+    }
+
+    getStateSelect() {
+        return this._stateSelect;
+    }
+
     renderSideNavigationBar() {
         if (this._$sidePanel)
             this._$sidePanel.detach();
@@ -56,7 +80,7 @@ class SideNavigationBar {
         this._checkNotification();
 
         if (!this._$sidePanel) {
-            this._sidePanel.initSidePanel();
+            this._stateSelect.initStateSelect();
             this._$sidePanel = this._sidePanel.renderSidePanel();
         }
         this._$sideNav.append(this._$sidePanel);
@@ -172,7 +196,7 @@ class SideNavigationBar {
                     if (activeIcon != item) {
                         this._topIconBar.setActiveItem(item);
                         this.updateSideNavigationBar();
-                        await this._sidePanel.showModelSelect();
+                        this._sidePanel.show(this._modelSelect.renderModelSelect());
                     }
                     return Promise.resolve();
                 }.bind(this)
@@ -195,7 +219,64 @@ class SideNavigationBar {
                     if (activeIcon != item) {
                         this._topIconBar.setActiveItem(item);
                         this.updateSideNavigationBar();
-                        await this._sidePanel.showStateSelect();
+                        const $content = await this._stateSelect.renderStateSelect();
+                        $content.off('contextmenu');
+                        $content.on('contextmenu', async function (event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            const controller = app.getController();
+                            try {
+                                controller.setLoadingState(true, false);
+                                const entries = [];
+                                const editEntry = new ContextMenuEntry('Edit', async function (event, target) {
+                                    var data;
+                                    var bExists;
+                                    const controller = app.getController();
+                                    var tmp = await controller.getDataService().fetchData('_registry', null, 'key=profiles');
+                                    if (tmp) {
+                                        if (tmp.length == 0)
+                                            data = { 'key': 'profiles', 'value': '{"available":[]}' };
+                                        else if (tmp.length == 1) {
+                                            bExists = true;
+                                            data = tmp[0];
+                                        }
+                                    }
+                                    if (data) {
+                                        const obj = new CrudObject('_registry', data);
+                                        const model = obj.getModel();
+                                        const mpcc = model.getModelPanelConfigController();
+                                        const panelConfig = mpcc.getPanelConfig(ActionEnum.delete);
+                                        /*panelConfig.crudCallback = async function (data) { // overwritten by modal
+                                            $(window).trigger('changed.model');
+                                            return Promise.resolve(true);
+                                        }.bind(this);*/
+                                        const panel = PanelController.createPanelForObject(obj, panelConfig);
+                                        const modal = await panel.openInModal(bExists ? ActionEnum.update : ActionEnum.create);
+                                        const $modal = modal.getModalDomElement();
+                                        $modal.on("remove", async function () {
+                                            await app.getController().getProfileController().init();
+                                            $(window).trigger('changed.model');
+                                            return Promise.resolve();
+                                        });
+                                    }
+                                    return Promise.resolve();
+                                });
+                                editEntry.setIcon(new Icon('pen-to-square'));
+                                entries.push(editEntry);
+
+                                const contextMenu = new ContextMenu(this);
+                                contextMenu.setEntries(entries);
+                                await contextMenu.renderContextMenu(event.pageX, event.pageY);
+                                controller.setLoadingState(false);
+                            } catch (error) {
+                                controller.setLoadingState(false);
+                                controller.showError(error);
+                            }
+
+                            return Promise.resolve();
+                        }.bind(this));
+                        this._sidePanel.show($content);
                     }
                     return Promise.resolve();
                 }.bind(this)
@@ -278,7 +359,7 @@ class SideNavigationBar {
                         if (activeIcon != item) {
                             this._bottomIconBar.setActiveItem(item);
                             this.updateSideNavigationBar();
-                            await this._sidePanel.showExtensionSelect();
+                            await this._sidePanel.show(this._extensionSelect.renderExtensionSelect());
                         }
                         return Promise.resolve();
                     }.bind(this)

@@ -309,9 +309,6 @@ describe('Testsuit', function () {
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
-        await app.reload(); //TODO: 
-        await ExtendedTestHelper.delay(1000);
-
         sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await ExtendedTestHelper.delay(1000);

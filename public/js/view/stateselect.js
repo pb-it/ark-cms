@@ -15,12 +15,13 @@ class StateSelect {
     _$modelSelect;
     _$actionSelect;
     _$showSelect;
-    _$storedSelect;
+    _$panel;
 
     _profile;
     _model;
     _action;
     _show;
+    _panel;
 
     constructor() {
     }
@@ -28,35 +29,40 @@ class StateSelect {
     initStateSelect() {
         $(window).on("changed.model", function (event, data) {
             if (this._$stateSelect) {
+                this._profileMenu = null;
+                this._modelMenu = null;
+                this._actionMenu = null;
+                this._showMenu = null;
+                this._panel = null;
                 //this._$stateSelect.empty();
                 if (this._$profileSelect) {
-                    this._profileMenu = null;
                     this._$profileSelect.remove();
                     this._$profileSelect = null;
                 }
                 if (this._$modelSelect) {
-                    this._modelMenu = null;
                     this._$modelSelect.remove();
                     this._$modelSelect = null;
                 }
                 if (this._$actionSelect) {
-                    this._actionMenu = null;
                     this._$actionSelect.remove();
                     this._$actionSelect = null;
                 }
                 if (this._$showSelect) {
-                    this._showMenu = null;
                     this._$showSelect.remove();
                     this._$showSelect = null;
                 }
-                if (this._$storedSelect) {
-                    this._$storedSelect.remove();
-                    this._$storedSelect = null;
+                if (this._$panel) {
+                    this._$panel.remove();
+                    this._$panel = null;
                 }
 
-                this._updateStateSelect(this._profile, this._model, this._action, this._show);
+                this.updateStateSelect(this._profile, this._model, this._action, this._show);
             }
         }.bind(this));
+    }
+
+    getProfile() {
+        return this._profile;
     }
 
     async renderStateSelect() {
@@ -64,14 +70,14 @@ class StateSelect {
             this._$stateSelect = $('<div/>');
             const pc = app.getController().getProfileController();
             if (pc)
-                await this._updateStateSelect(pc.getCurrentProfileName());
+                await this.updateStateSelect(pc.getCurrentProfileName());
             else
-                await this._updateStateSelect(this._profile);
+                await this.updateStateSelect(this._profile);
         }
         return Promise.resolve(this._$stateSelect);
     }
 
-    async _updateStateSelect(profile, model, action, show) {
+    async updateStateSelect(profile, model, action, show, panel) {
         var bProfileChanged;
         var bRenderModelSelect;
         var bRemoveModelSelect;
@@ -82,8 +88,8 @@ class StateSelect {
         var bRenderShowSelect;
         var bRemoveShowSelect;
         var bShowChanged;
-        var bRenderStoredSelect;
-        var bRemoveStoredSelect;
+        var bRenderPanel;
+        var bRemovePanel;
 
         var avail;
         const pc = app.getController().getProfileController();
@@ -144,15 +150,18 @@ class StateSelect {
                 this._show = show;
                 bShowChanged = true;
             }
-            if (!this._$storedSelect && this._show === 'state')
-                bRenderStoredSelect = true;
+            if (!this._$panel)
+                bRenderPanel = true;
         } else {
             if (this._show) {
                 this._show = null;
                 bShowChanged = true;
             }
-            bRemoveStoredSelect = true;
+            bRemovePanel = true;
         }
+
+        if (panel)
+            this._panel = panel;
 
 
         if (avail)
@@ -197,17 +206,19 @@ class StateSelect {
         if (!bRemoveShowSelect && (bShowChanged || bRenderShowSelect))
             this._renderShowSelect(show);
 
-        // stored
-        if (bShowChanged || bRemoveStoredSelect) {
-            if (this._$storedSelect) {
-                this._$storedSelect.remove();
-                this._$storedSelect = null;
+        // panel
+        if (bShowChanged || bRemovePanel) {
+            if (this._$panel) {
+                this._$panel.remove();
+                this._$panel = null;
             }
             if (show)
-                bRenderStoredSelect = true;
+                bRenderPanel = true;
         }
-        if (!bRemoveStoredSelect && bRenderStoredSelect)
-            await this._renderStoredSelect();
+        if (!bRemovePanel && bRenderPanel) {
+            if (panel)
+                await this._renderPanel(panel);
+        }
 
         return Promise.resolve(this._$stateSelect);
     }
@@ -247,11 +258,11 @@ class StateSelect {
                         if (item.isActive()) {
                             menu.setActiveItem();
                             //this._profile = null;
-                            await this._updateStateSelect();
+                            await this.updateStateSelect();
                         } else {
                             menu.setActiveItem(menuItem);
                             //this._profile = name;
-                            await this._updateStateSelect(name);
+                            await this.updateStateSelect(name);
                         }
                     }.bind(this)
                 };
@@ -322,11 +333,11 @@ class StateSelect {
                             if (item.isActive()) {
                                 menu.setActiveItem();
                                 //this._model = null;
-                                await this._updateStateSelect(this._profile);
+                                await this.updateStateSelect(this._profile);
                             } else {
                                 menu.setActiveItem(menuItem);
                                 //this._model = name;
-                                await this._updateStateSelect(this._profile, name);
+                                await this.updateStateSelect(this._profile, name);
                             }
                         }.bind(this)
                     };
@@ -386,10 +397,10 @@ class StateSelect {
                 const menu = menuItem.getMenu();
                 if (item.isActive()) {
                     menu.setActiveItem();
-                    await this._updateStateSelect(this._profile, this._model);
+                    await this.updateStateSelect(this._profile, this._model);
                 } else {
                     menu.setActiveItem(menuItem);
-                    await this._updateStateSelect(this._profile, this._model, 'show');
+                    await this.updateStateSelect(this._profile, this._model, 'show');
                 }
             }.bind(this)
         };
@@ -444,10 +455,10 @@ class StateSelect {
                 const menu = menuItem.getMenu();
                 if (item.isActive()) {
                     menu.setActiveItem();
-                    await this._updateStateSelect(this._profile, this._model, this._action);
+                    await this.updateStateSelect(this._profile, this._model, this._action);
                 } else {
                     menu.setActiveItem(menuItem);
-                    await this._updateStateSelect(this._profile, this._model, this._action, 'state');
+                    await this.updateStateSelect(this._profile, this._model, this._action, 'state', new SelectStatePanel(this._model));
                 }
                 return Promise.resolve();
             }.bind(this)
@@ -490,16 +501,15 @@ class StateSelect {
         return menu;
     }
 
-    async _renderStoredSelect() {
-        const panel = new SelectStatePanel(this._model);
+    async _renderPanel(panel) {
         const $d = await panel.render();
         $d.css({
             'float': 'left',
             'height': '100%',
             'overflow-y': 'auto'
         });
-        this._$storedSelect = $d;
-        this._$stateSelect.append(this._$storedSelect);
+        this._$panel = $d;
+        this._$stateSelect.append(this._$panel);
         return Promise.resolve();
     }
 }
