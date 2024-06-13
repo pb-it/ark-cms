@@ -302,7 +302,7 @@ describe('Testsuit', function () {
         await sidemenu.click('Reload');
         await ExtendedTestHelper.delay(1000);*/
 
-        var input = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/input[@id="searchField"]'));
+        var input = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/div/input[@id="searchField"]'));
         assert.equal(input.length, 1);
         await input[0].sendKeys('John');
 

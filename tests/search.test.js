@@ -59,7 +59,7 @@ describe('Testsuit', function () {
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 5);
 
-        var input = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/input[@id="searchField"]'));
+        var input = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/div/input[@id="searchField"]'));
         assert.equal(input.length, 1);
         await input[0].sendKeys('pirate');
 
@@ -118,6 +118,40 @@ describe('Testsuit', function () {
         assert.notEqual(title, null);
         var text = await title.getText();
         assert.equal(text, '_model');
+
+        return Promise.resolve();
+    });
+
+    it('#test search configuration', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await ExtendedTestHelper.delay(1000);
+
+        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
+        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        assert.equal(panels.length, 5);
+
+        var button = await driver.findElements(webdriver.By.xpath(`//form[@id="searchForm"]/div/div[contains(@class, 'btn')]`));
+        assert.equal(button.length, 1);
+        await button[0].click();
+        await ExtendedTestHelper.delay(1000);
+
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+
+        await modal.closeModal();
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
 
         return Promise.resolve();
     });

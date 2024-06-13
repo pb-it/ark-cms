@@ -15,26 +15,46 @@ class SearchForm {
         this._$searchForm = $('<form/>')
             .prop('id', 'searchForm');
 
+        const $searchDiv = $('<div/>');
+
         this._$searchField = $('<input/>')
             .prop('id', 'searchField')
             .prop('type', 'text')
             .prop('placeholder', 'Search..');
 
-        var $button = $('<button/>')
+        const $configIcon = $('<div/>')
+            .addClass(['btn', 'icon'])
+            .append("<i class='fa fa-sliders'></i>")
+            .click(function (event) {
+                event.preventDefault();
+
+                const controller = app.getController();
+                try {
+                    const model = controller.getStateController().getState().getModel();
+                    controller.getModalController().openPanelInModal(new EditSearchPanel(null, model));
+                } catch (error) {
+                    controller.showError(error);
+                }
+            });
+
+        const $button = $('<button/>')
             .prop('id', 'searchButton')
             .prop('type', 'submit')
             .append("<i class='fa fa-search'></i>");
 
-        this._$searchForm.append(this._$searchField);
+        $searchDiv.append(this._$searchField);
+        $searchDiv.append($configIcon);
+        this._$searchForm.append($searchDiv);
         this._$searchForm.append($button);
 
         return this._$searchForm;
     }
 
     renderSearchForm() {
-        var state = app.controller.getStateController().getState();
-        if (state && state.search)
-            this._$searchField.val(state.search);
+        const controller = app.getController();
+        const state = controller.getStateController().getState();
+        if (state && state['search'])
+            this._$searchField.val(state['search']);
         else
             this._$searchField.val('');
 
@@ -55,10 +75,11 @@ class SearchForm {
     }
 
     _applySearch(bPush) {
-        var state = app.controller.getStateController().getState();
-        if (!bPush && !state.search)
+        const controller = app.getController();
+        const state = controller.getStateController().getState();
+        if (!bPush && !state['search'])
             bPush = true;
-        state.search = this._$searchField.val();
-        app.controller.loadState(state, bPush, true);
+        state['search'] = this._$searchField.val();
+        controller.loadState(state, bPush, true);
     }
 }

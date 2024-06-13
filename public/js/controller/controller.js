@@ -141,7 +141,7 @@ class Controller {
             }
             return Promise.resolve();
         }.bind(this));
-        this.setupShortcuts();
+        this._setupShortcuts();
 
         this._modalController = new ModalController(); //VersionController may open a modal
 
@@ -186,6 +186,8 @@ class Controller {
 
             if (this._database)
                 await this._updateDatabase();
+
+            this._initRoutes();
 
             this._bConnection = true;
             bInitDone = true;
@@ -340,7 +342,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
         return this._modalController.openPanelInModal(panel);
     }
 
-    setupShortcuts() {
+    _setupShortcuts() {
         $(document).keydown(async function (e) { // window.addEventListener('keydown', function() { ... });
             if (e.ctrlKey) {
                 if (!e.shiftKey) {
@@ -491,6 +493,23 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
         }.bind(this));
 
         //$(document).on('copy', function(e) { ... }); //document.addEventListener('copy', ...);
+    }
+
+    _initRoutes() {
+        const route = {
+            "regex": "^/help$",
+            "fn": async function () {
+                const controller = app.getController();
+                try {
+                    const mc = controller.getModalController();
+                    await mc.openPanelInModal(new HelpPanel());
+                } catch (error) {
+                    controller.showError(error);
+                }
+                return Promise.resolve();
+            }
+        };
+        this._routeController.addRoute(route);
     }
 
     hasConnection() {

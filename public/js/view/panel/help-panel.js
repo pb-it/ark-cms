@@ -8,9 +8,11 @@ class HelpPanel extends Panel {
         var $div = $('<div/>')
             .css({ 'padding': '10' });
 
-        $div.append('<h3 id="keyboard-shortcuts-hotkeys">keyboard shortcuts / hotkeys</h3>\
+        $div.append('<h3 id="keyboard-shortcuts-hotkeys">Keyboard Shortcuts / Hotkeys</h3>\
         <ul>\
-        <li>hard refresh: <kbd>Ctrl</kbd> + <kbd>R</kbd></li>\
+        <li>Help: <kbd>Shift</kbd> + <kbd>?</kbd></li>\
+        <li>Hard Refresh: <kbd>Ctrl</kbd> + <kbd>R</kbd></li>\
+        <li>Search: <kbd>Ctrl</kbd> + <kbd>K</kbd></li>\
         </ul>');
 
         $div.append('<br/><br/>');

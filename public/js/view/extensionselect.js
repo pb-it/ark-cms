@@ -231,10 +231,12 @@ class ExtensionSelect {
                 event.stopPropagation();
 
                 try {
-                    var bTeardown;
+                    var bConfirm;
                     if (module && typeof module['teardown'] == 'function')
-                        bTeardown = await module.teardown();
-                    if (bTeardown || confirm("Delete extension '" + this._extension + "'?")) {
+                        bConfirm = await module.teardown();
+                    else
+                        bConfirm = confirm("Delete extension '" + this._extension + "'?");
+                    if (bConfirm) {
                         controller.setLoadingState(true);
                         var res = await controller.getExtensionController().deleteExtension(this._extension);
                         controller.setLoadingState(false);

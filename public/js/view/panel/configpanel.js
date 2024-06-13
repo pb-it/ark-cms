@@ -240,11 +240,17 @@ Do you want to continue?`))
 
             var $clear = $('<button>')
                 .text('Restore Default Settings')
-                .click(function (event) {
+                .click(async function (event) {
                     event.stopPropagation();
 
-                    this._form.setFormData({});
-                    this._form.renderForm();
+                    try {
+                        this._form.setFormData({});
+                        await this._form.renderForm();
+                    } catch (error) {
+                        controller.showError(error);
+                    }
+
+                    return Promise.resolve();
                 }.bind(this));
             $div.append($clear);
 

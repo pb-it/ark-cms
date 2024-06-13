@@ -40,12 +40,6 @@ class EditViewPanel extends TabPanel {
 
             if (!data['detailsAttr'])
                 data['detailsAttr'] = attributeNames;
-
-            if (!data['searchFields']) {
-                var prop = model.getModelDefaultsController().getDefaultTitleProperty();
-                if (prop)
-                    data['searchFields'] = [prop];
-            }
         }
 
         const panelOptions = [];
@@ -123,15 +117,6 @@ class EditViewPanel extends TabPanel {
                 dataType: "enumeration",
                 options: [{ 'value': 'default' }, { 'value': 'none' }],
                 view: 'select'
-            },
-            {
-                name: "searchFields",
-                label: "*SearchFields",
-                tooltip: "**INFO**: Not stored!",
-                dataType: "list",
-                options: searchOptions,
-                columns: 5,
-                hidden: !bEdit
             }
         ];
         form.init(skeleton, data);
@@ -255,7 +240,6 @@ class EditViewPanel extends TabPanel {
                         var data = await this._read();
                         delete data['bSelectable'];
                         delete data['bContextMenu'];
-                        delete data['searchFields'];
 
                         await this._model.getModelDefaultsController().setDefaultPanelConfig(data);
                         controller.setLoadingState(false);
