@@ -5,7 +5,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
-describe('Testsuit', function () {
+describe('Testsuit - Panel', function () {
 
     async function checkForm(form) {
         const app = helper.getApp();
@@ -169,10 +169,7 @@ describe('Testsuit', function () {
         form = await window.getForm(panels[0]);
         await checkForm(form);
 
-        const xpathView = `//*[@id="topnav"]/div/div/div/i[contains(@class, 'fa-th')]`;
-        var view = await driver.findElements(webdriver.By.xpath(xpathView));
-        assert.equal(view.length, 1);
-        await view[0].click();
+        await window.getTopNavigationBar().openEditView();
         await TestHelper.delay(1000);
 
         modal = await window.getTopModal();

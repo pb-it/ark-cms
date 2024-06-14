@@ -299,7 +299,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                         } else {
                             var modal = await this._modalController.openPanelInModal(new UpdateCachePanel(changes));
                             this.setLoadingState(false);
-                            await modal.waitClosed();
+                            //await modal.waitClosed();
                         }
                     } else {
                         var modal = await this._openDatabaseIntegrityCheckFailedPanel();

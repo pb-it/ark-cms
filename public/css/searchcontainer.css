@@ -20,7 +20,7 @@
     padding-top: 6px;
     padding-bottom: 6px;
     padding-left: 6px;
-    padding-right: 30px;
+    padding-right: 60px;
     border: none;
     font-size: 17px;
     box-sizing: border-box;
@@ -28,18 +28,28 @@
     height: 100%;
 }
 
-#searchContainer form>div>div.btn.icon {
+#searchContainer form div.iconBox {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    padding: 3px;
+    top: 0px;
+    right: 0px;
+}
 
+#searchContainer form div.btn.icon {
+    display: inline-block;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-right: 4px;
+    padding: 3px;
+    width: 16px;
+    height: 16px;
+
+    text-align: center;
     color: black;
     border: 1px solid white;
     border-radius: 0.3rem;
 }
 
-#searchContainer form>div>div.btn.icon:hover {
+#searchContainer form div.btn.icon:hover {
     background: #ccc;
     cursor: pointer;
 }

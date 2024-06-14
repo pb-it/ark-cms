@@ -31,16 +31,16 @@ class VersionController {
         return bCompatible;
     }
 
-    static viewNewVersionInfo(version) {
-        var panel = new Panel();
+    static async viewNewVersionInfo(version) {
+        const panel = new Panel();
 
-        var $d = $('<div/>')
+        const $d = $('<div/>')
             .css({ 'padding': '10' });
 
         $d.append("<h2>Info</h2>");
         $d.append("You are now using version '" + version + "' of this application.<br/><br/>");
 
-        var $skip = $('<button>')
+        const $skip = $('<button>')
             .text('View Changelog')
             .click(async function (event) {
                 event.stopPropagation();
@@ -48,7 +48,7 @@ class VersionController {
                 window.open('https://github.com/pb-it/ark-cms/blob/main/CHANGELOG.md');
             }.bind(this));
         $d.append($skip);
-        var $ok = $('<button>')
+        const $ok = $('<button>')
             .text('OK')
             .css({ 'float': 'right' })
             .click(async function (event) {
@@ -61,7 +61,7 @@ class VersionController {
 
         panel.setContent($d);
 
-        app.controller.getModalController().openPanelInModal(panel);
+        return app.getController().getModalController().openPanelInModal(panel);
     }
 
     static viewMissmatchInfo() {
@@ -119,24 +119,25 @@ class VersionController {
         var info = JSON.parse(response);
         this._appVersion = info['version'];
         if (this._appVersion) {
+            const controller = app.getController();
             var bSet = false;
             var last;
             if (window.localStorage)
                 last = window.localStorage.getItem(APP_VERSION_IDENT);
             if (last) {
                 if (last !== this._appVersion) {
-                    VersionController.viewNewVersionInfo(this._appVersion);
+                    await VersionController.viewNewVersionInfo(this._appVersion);
                     bSet = true;
                 }
             } else {
-                app.controller.getModalController().openPanelInModal(new TutorialPanel());
+                await controller.getModalController().openPanelInModal(new TutorialPanel());
                 bSet = true;
             }
             if (bSet)
                 this._setAppVersion(this._appVersion);
 
-            var ac = app.controller.getApiController();
-            var info = await ac.fetchApiInfo();
+            const ac = controller.getApiController();
+            info = await ac.fetchApiInfo();
             this._bCompatible = VersionController.compatible(info['version'], this._appVersion);
             if (!this._bCompatible)
                 VersionController.viewMissmatchInfo(); //TODO: throw error / block access

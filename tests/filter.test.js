@@ -5,7 +5,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
-describe('Testsuit', function () {
+describe('Testsuit - Filter', function () {
 
     let driver;
 
@@ -329,13 +329,9 @@ describe('Testsuit', function () {
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 5);
 
-        var input = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/div/input[@id="searchField"]'));
-        assert.equal(input.length, 1);
-        await input[0].sendKeys('$.[?(@.studio.id==3)]');
-
-        var button = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/button[@id="searchButton"]'));
-        assert.equal(button.length, 1);
-        await button[0].click();
+        const tnb = window.getTopNavigationBar();
+        const sb = tnb.getSearchBox();
+        await sb.search('$.[?(@.studio.id==3)]');
         await ExtendedTestHelper.delay(1000);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -345,7 +341,7 @@ describe('Testsuit', function () {
         var text = await elements[0].getText();
         assert.equal(text, 'Pirates of the Caribbean');
 
-        await input[0].clear();
+        await sb.clear();
         await ExtendedTestHelper.delay(1000);
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 5);

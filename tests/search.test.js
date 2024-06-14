@@ -5,7 +5,25 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
-describe('Testsuit', function () {
+describe('Testsuit - Search', function () {
+
+    async function checkThumbnail(panel) {
+        const file = config['host'] + '/public/images/missing_image.png';
+        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
+        const xpathThumb = xpathPanel + `/div/div[@class="thumbnail"]/img`;
+        var thumb = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathThumb }), 1000);
+        var img = await thumb.getAttribute('src');
+        var i = 0;
+        const loadingIcon = config['host'] + '/public/images/loading_icon.gif';
+        while (img === loadingIcon && i < 10) {
+            await ExtendedTestHelper.delay(1000);
+            thumb = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathThumb }), 1000);
+            img = await thumb.getAttribute('src');
+            i++;
+        }
+        assert.equal(img, file);
+        return Promise.resolve();
+    }
 
     let driver;
 
@@ -59,13 +77,9 @@ describe('Testsuit', function () {
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 5);
 
-        var input = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/div/input[@id="searchField"]'));
-        assert.equal(input.length, 1);
-        await input[0].sendKeys('pirate');
-
-        var button = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/button[@id="searchButton"]'));
-        assert.equal(button.length, 1);
-        await button[0].click();
+        const tnb = window.getTopNavigationBar();
+        const sb = tnb.getSearchBox();
+        await sb.search('pirate');
         await ExtendedTestHelper.delay(1000);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -130,28 +144,83 @@ describe('Testsuit', function () {
         const sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await ExtendedTestHelper.delay(1000);
-        await sidemenu.click('movie');
+        await sidemenu.click('star');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
         await ExtendedTestHelper.delay(1000);
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
-        assert.equal(panels.length, 5);
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+        var title = await panels[0].getElement().findElement(webdriver.By.xpath('div/p'));
+        assert.notEqual(title, null);
+        var text = await title.getText();
+        assert.equal(text, 'John Doe');
 
-        var button = await driver.findElements(webdriver.By.xpath(`//form[@id="searchForm"]/div/div[contains(@class, 'btn')]`));
-        assert.equal(button.length, 1);
-        await button[0].click();
+        await window.getTopNavigationBar().openEditView();
         await ExtendedTestHelper.delay(1000);
-
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
+        var panel = await modal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]/div/div/div[@class="panel"]'));
+        assert.notEqual(panel, null, 'Panel not found!');
+        var forms = await panel.findElements(webdriver.By.xpath('./div/form[contains(@class, "crudform")]'));
+        assert.equal(forms.length, 1);
+        var option = await forms[0].findElement(webdriver.By.css('select#panelType > option[value="MediaPanel"]'));
+        assert.notEqual(option, null, 'Option not found!');
+        await option.click();
+        await ExtendedTestHelper.delay(1000);
+        option = await forms[0].findElement(webdriver.By.css('select#details > option[value="title"]'));
+        assert.notEqual(option, null, 'Option not found!');
+        await option.click();
+        await ExtendedTestHelper.delay(1000);
+        var button = await window.getButton(modal, 'Set as default');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        await driver.wait(webdriver.until.alertIsPresent());
+        var alert = await driver.switchTo().alert();
+        text = await alert.getText();
+        assert.equal(text, 'Changed successfully');
+        await alert.accept();
+        await ExtendedTestHelper.delay(1000);
+        button = await window.getButton(modal, 'Apply');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        var modal = await window.getTopModal();
+        assert.equal(modal, null);
 
-        await modal.closeModal();
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+        title = await panels[0].getElement().findElement(webdriver.By.xpath('div/div/p'));
+        assert.notEqual(title, null);
+        text = await title.getText();
+        assert.equal(text, 'John Doe');
+        await checkThumbnail();
+
+        await app.reload(); // clear panelConfig from state
+        await ExtendedTestHelper.delay(2000);
+
+        const tnb = window.getTopNavigationBar();
+        const sb = tnb.getSearchBox();
+        await sb.openConfiguration();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        button = await window.getButton(modal, 'Apply');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
         modal = await window.getTopModal();
         assert.equal(modal, null);
+
+        await checkThumbnail();
 
         return Promise.resolve();
     });

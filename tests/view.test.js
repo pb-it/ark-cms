@@ -5,7 +5,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
-describe('Testsuit', function () {
+describe('Testsuit - View', function () {
 
     async function checkThumbnail(panel) {
         const file = config['host'] + '/public/images/missing_image.png';
@@ -124,10 +124,7 @@ describe('Testsuit', function () {
         var text = await elements[0].getText();
         assert.equal(text, 'John Doe');
 
-        const xpathView = `//*[@id="topnav"]/div/div/div/i[contains(@class, 'fa-th')]`;
-        var view = await driver.findElements(webdriver.By.xpath(xpathView));
-        assert.equal(view.length, 1);
-        await view[0].click();
+        await window.getTopNavigationBar().openEditView();
         await ExtendedTestHelper.delay(1000);
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -163,9 +160,7 @@ describe('Testsuit', function () {
         assert.equal(panels.length, 1);
         await checkThumbnail(panels[0]);
 
-        view = await driver.findElements(webdriver.By.xpath(xpathView));
-        assert.equal(view.length, 1);
-        await view[0].click();
+        await window.getTopNavigationBar().openEditView();
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -249,10 +244,7 @@ describe('Testsuit', function () {
         var text = await elements[0].getText();
         assert.equal(text, 'John Doe');
 
-        const xpathView = `//*[@id="topnav"]/div/div/div/i[contains(@class, 'fa-th')]`;
-        var view = await driver.findElements(webdriver.By.xpath(xpathView));
-        assert.equal(view.length, 1);
-        await view[0].click();
+        await window.getTopNavigationBar().openEditView();
         await ExtendedTestHelper.delay(1000);
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -289,9 +281,7 @@ describe('Testsuit', function () {
 
         // open view panel again after first time appended new view to state
         // -> verify parsing while opening panel does not mess up settings
-        view = await driver.findElements(webdriver.By.xpath(xpathView));
-        assert.equal(view.length, 1);
-        await view[0].click();
+        await window.getTopNavigationBar().openEditView();
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -302,13 +292,9 @@ describe('Testsuit', function () {
         await sidemenu.click('Reload');
         await ExtendedTestHelper.delay(1000);*/
 
-        var input = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/div/input[@id="searchField"]'));
-        assert.equal(input.length, 1);
-        await input[0].sendKeys('John');
-
-        button = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/button[@id="searchButton"]'));
-        assert.equal(button.length, 1);
-        await button[0].click();
+        const tnb = window.getTopNavigationBar();
+        const sb = tnb.getSearchBox();
+        await sb.search('John');
         await ExtendedTestHelper.delay(1000);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));

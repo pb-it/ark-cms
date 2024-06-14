@@ -29,6 +29,15 @@ class EditSearchPanel extends Panel {
                 readonly: true
             },
             {
+                name: "xpath",
+                label: "xPath",
+                tooltip: "**INFO**: Searchquery with xPath syntax",
+                dataType: "boolean",
+                required: true,
+                defaultValue: true,
+                readonly: true
+            },
+            {
                 name: "searchFields",
                 label: "Attributes",
                 tooltip: "**INFO**: Attributes to search through",
@@ -102,7 +111,9 @@ class EditSearchPanel extends Panel {
             state['panelConfig']['searchFields'] = data['searchFields'];
         } else {
             const panelConfig = new MediaPanelConfig();
-            panelConfig.initPanelConfig(this._model, state.action, data);
+            const conf = { ...this._model.getModelDefaultsController().getDefaultPanelConfig() };
+            conf['searchFields'] = data['searchFields'];
+            panelConfig.initPanelConfig(this._model, state.action, conf);
             state['panelConfig'] = panelConfig;
         }
         controller.loadState(state, true);

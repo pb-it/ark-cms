@@ -22,6 +22,24 @@ class SearchForm {
             .prop('type', 'text')
             .prop('placeholder', 'Search..');
 
+        const $iconBox = $('<div/>')
+            .addClass('iconBox');
+        const $clearIcon = $('<div/>')
+            .addClass(['btn', 'icon'])
+            .append("<i class='fa fa-xmark'></i>") // '&times;'
+            .click(function (event) {
+                event.preventDefault();
+
+                const controller = app.getController();
+                try {
+                    const state = controller.getStateController().getState();
+                    delete state['search'];
+                    controller.loadState(state, true, true);
+                } catch (error) {
+                    controller.showError(error);
+                }
+            });
+        $iconBox.append($clearIcon);
         const $configIcon = $('<div/>')
             .addClass(['btn', 'icon'])
             .append("<i class='fa fa-sliders'></i>")
@@ -36,6 +54,7 @@ class SearchForm {
                     controller.showError(error);
                 }
             });
+        $iconBox.append($configIcon);
 
         const $button = $('<button/>')
             .prop('id', 'searchButton')
@@ -43,7 +62,8 @@ class SearchForm {
             .append("<i class='fa fa-search'></i>");
 
         $searchDiv.append(this._$searchField);
-        $searchDiv.append($configIcon);
+        $searchDiv.append($iconBox);
+
         this._$searchForm.append($searchDiv);
         this._$searchForm.append($button);
 
@@ -63,7 +83,12 @@ class SearchForm {
             if (this._timer)
                 clearTimeout(this._timer);
             this._timer = setTimeout(async function () {
-                this._applySearch(false);
+                try {
+                    await this._applySearch(false);
+                } catch (error) {
+                    controller.showError(error);
+                }
+                return Promise.resolve();
             }.bind(this), 1200);
         }.bind(this));
 
@@ -74,12 +99,12 @@ class SearchForm {
         }.bind(this));
     }
 
-    _applySearch(bPush) {
+    async _applySearch(bPush) {
         const controller = app.getController();
         const state = controller.getStateController().getState();
         if (!bPush && !state['search'])
             bPush = true;
         state['search'] = this._$searchField.val();
-        controller.loadState(state, bPush, true);
+        return controller.loadState(state, bPush, true);
     }
 }

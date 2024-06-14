@@ -215,13 +215,10 @@ describe('Testsuit - File', function () {
         var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 2);
 
-        var input = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/div/input[@id="searchField"]'));
-        assert.equal(input.length, 1);
-        await input[0].sendKeys('Bunny');
-
-        var button = await driver.findElements(webdriver.By.xpath('//form[@id="searchForm"]/button[@id="searchButton"]'));
-        assert.equal(button.length, 1);
-        await button[0].click();
+        const window = app.getWindow();
+        const tnb = window.getTopNavigationBar();
+        const sb = tnb.getSearchBox();
+        await sb.search('Bunny');
         await ExtendedTestHelper.delay(1000);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));

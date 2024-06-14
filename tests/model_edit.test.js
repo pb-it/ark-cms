@@ -9,7 +9,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
-describe('Testsuit', function () {
+describe('Testsuit - Edit Model', function () {
 
     async function openDefaultsTab() {
         const app = helper.getApp();
@@ -407,7 +407,7 @@ module.exports = test;`
         const loadingIcon = config['host'] + '/public/images/loading_icon.gif';
         while (img === loadingIcon && i < 10) {
             await ExtendedTestHelper.delay(1000);
-            thumb = thumb = await panels[0].findElement(webdriver.By.xpath(xpathThumb));
+            thumb = await panels[0].findElement(webdriver.By.xpath(xpathThumb));
             img = await thumb.getAttribute('src');
             i++;
         }
