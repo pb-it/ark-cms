@@ -599,9 +599,16 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                 $(document).unbind('keyup.panel');
                 $(document).unbind('dragend.panel');
 
-                if (this._bFirstLoadAfterInit)
+                this._view.initView();
+                if (this._bFirstLoadAfterInit) {
+                    var modals = this._modalController.getModals();
+                    if (modals && modals.length > 0) {
+                        this.setLoadingState(false);
+                        await modals[0].waitClosed();
+                        this.setLoadingState(true);
+                    }
                     this._bFirstLoadAfterInit = false;
-                else {
+                } else {
                     this._modalController.closeAll();
                     try {
                         await this._apiController.fetchApiInfo(); // needed for notification in side bar
@@ -615,7 +622,6 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                     }
                 }
                 await this.clearSelected();
-                this._view.initView();
 
                 var bHome = false;
                 if (state) {

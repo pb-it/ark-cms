@@ -49,8 +49,10 @@ class TopNavigationBar {
                     if (this._$searchContainer.children().length == 0)
                         this._$searchContainer.append(this._$searchForm);
                     this._searchForm.renderSearchForm();
-                } else
+                } else {
+                    this._$searchForm.detach();
                     this._$searchContainer.empty();
+                }
             }
         } else {
             this._$breadcrumb.empty();

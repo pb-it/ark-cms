@@ -171,6 +171,13 @@ module.exports = test;`
         await sidemenu.click('Reload');
         await ExtendedTestHelper.delay(1000);*/
 
+        const url = await driver.getCurrentUrl();
+        assert.ok(url.endsWith('/data/star'));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 2);
+
         response = await driver.executeAsyncScript(async () => {
             const callback = arguments[arguments.length - 1];
 

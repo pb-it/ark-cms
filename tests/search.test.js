@@ -224,4 +224,50 @@ describe('Testsuit - Search', function () {
 
         return Promise.resolve();
     });
+
+    it('#test search box rerender', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('star');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await ExtendedTestHelper.delay(1000);
+
+        const tnb = window.getTopNavigationBar();
+        const sb = tnb.getSearchBox();
+        await sb.openConfiguration();
+        await ExtendedTestHelper.delay(1000);
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await app.getWindow().getTopModal();
+        assert.equal(modal, null);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Home');
+        await ExtendedTestHelper.delay(1000);
+        await driver.navigate().back();
+        await ExtendedTestHelper.delay(1000);
+
+        await sb.openConfiguration();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await app.getWindow().getTopModal();
+        assert.equal(modal, null);
+
+        return Promise.resolve();
+    });
 });
