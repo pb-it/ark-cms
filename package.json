@@ -40,6 +40,7 @@
         "test:panel": "mocha --timeout 10000 tests/panel.test.js",
         "test:contextmenu": "mocha --bail --timeout 10000 tests/contextmenu.test.js",
         "test:view": "mocha --timeout 10000 tests/view.test.js",
+        "test:cache": "mocha --timeout 10000 tests/cache.test.js",
         "test:idb": "mocha --timeout 10000 tests/idb.test.js",
         "test:auth": "mocha --timeout 10000 tests/auth.test.js",
         "test:file": "mocha --timeout 10000 tests/file.test.js",

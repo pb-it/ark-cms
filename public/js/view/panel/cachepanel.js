@@ -5,6 +5,7 @@ class CachePanel extends TabPanel {
 
     _$cachePanel;
     _$databasePanel;
+    _$offlinePanel;
 
     constructor(config) {
         super(config);
@@ -25,27 +26,32 @@ class CachePanel extends TabPanel {
             this._panels.push(this._$databasePanel);
         }
 
+        if (app.getController().getConfigController().experimentalFeaturesEnabled()) {
+            this._$offlinePanel = await this._createOfflinePanel();
+            this._panels.push(this._$offlinePanel);
+        }
+
         await this.openTab(this._$cachePanel);
 
         return Promise.resolve();
     }
 
     async _createCachePanel() {
-        var panel = new Panel({ 'title': 'Cache' });
+        const panel = new Panel({ 'title': 'Cache' });
         panel._renderContent = async function () {
-            var controller = app.getController();
-            var bLoading = controller.getLoadingState();
+            const controller = app.getController();
+            const bLoading = controller.getLoadingState();
             if (!bLoading)
                 controller.setLoadingState(true);
 
-            var $div = $('<div/>');
+            const $div = $('<div/>');
             var $table = $('<table>');
             var $row;
             var $col;
             var size;
             var $button;
 
-            var arr = this._cache.getModelCache();
+            const arr = this._cache.getModelCache();
             for (var typeString in arr) {
                 $row = $('<tr>');
                 $col = $('<td>').text(typeString);
@@ -80,13 +86,14 @@ class CachePanel extends TabPanel {
                 $table.append($row);
             }
             $div.append($table);
-            $div.append("<br>");
+            $div.append('<br>');
 
             if (!this._db) {
                 $button = $('<button>')
                     .text('Update')
-                    .click(typeString, async function (event) {
+                    .click(async function (event) {
                         event.stopPropagation();
+
                         await this._cache.update();
                         await this._$cachePanel.render();
                         return Promise.resolve();
@@ -286,6 +293,76 @@ class CachePanel extends TabPanel {
 
             if (!bLoading)
                 controller.setLoadingState(false);
+
+            return Promise.resolve($div);
+        }.bind(this);
+
+        return Promise.resolve(panel);
+    }
+
+    async _createOfflinePanel() {
+        const panel = new Panel({ 'title': 'Offline Mode' });
+        panel._renderContent = async function () {
+            const controller = app.getController();
+            controller.setLoadingState(true);
+
+            const $div = $('<div/>');
+
+            const $offline = $('<input/>')
+                .attr('type', 'checkbox')
+                .prop('id', 'offlineMode')
+                .prop('checked', controller._bOfflineMode)
+                .click(function () {
+                    controller._bOfflineMode = this.checked;
+                    controller.getView().getSideNavigationBar().updateSideNavigationBar();
+                });
+            const $label = $('<label/>')
+                .attr('for', 'offlineMode')
+                .append('Enable');
+            $div.append($offline);
+            $div.append($label);
+            $div.append('<br>');
+
+            const ds = controller.getDataService();
+            if (ds._pending.length > 0) {
+                $div.append('<h3>Pending:</h3>');
+
+                const $table = $('<table>');
+                var $row;
+                var $col;
+                for (var entry of ds._pending) {
+                    $row = $('<tr>');
+                    $col = $('<td>').text(entry['typeString']);
+                    $row.append($col);
+                    $table.append($row);
+                }
+                $div.append($table);
+                $div.append('<br>');
+
+                const $button = $('<button>')
+                    .text('Update')
+                    .click(async function (event) {
+                        event.stopPropagation();
+                        if (controller._bOfflineMode) {
+                            const ds = controller.getDataService();
+                            if (ds._pending.length > 0) {
+                                for (var entry of ds._pending) {
+                                    controller._bOfflineMode = false;
+                                    ds.request(entry['typeString'], entry['action'], entry['id'], entry['data']);
+                                    controller._bOfflineMode = true;
+                                }
+                                ds._pending = [];
+                            }
+                        }
+                        await this._cache.update();
+                        await this._$offlinePanel.render();
+                        return Promise.resolve();
+                    }.bind(this));
+                $div.append($button);
+                $div.append('<br>');
+            }
+
+            controller.setLoadingState(false);
 
             return Promise.resolve($div);
         }.bind(this);

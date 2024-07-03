@@ -35,6 +35,8 @@ class Controller {
 
     _formatter;
 
+    _bOfflineMode;
+
     constructor(model, view) {
         this._model = model;
         this._view = view;
@@ -401,20 +403,21 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                             e.stopPropagation();
 
                             try {
+                                this.setLoadingState(true);
                                 await this.getDataService().getCache().deleteModelCache();
                                 //await this._extensionController.initExtensionController();
                                 var modal;
-                                var mc = this.getModalController();
-                                var modals = mc.getModals();
+                                const mc = this.getModalController();
+                                const modals = mc.getModals();
                                 if (modals) {
-                                    var length = modals.length;
+                                    const length = modals.length;
                                     if (length > 0)
                                         modal = modals[length - 1];
                                 }
                                 if (modal) {
-                                    var panel = modal.getPanel();
+                                    const panel = modal.getPanel();
                                     if (panel instanceof CrudPanel) {
-                                        var data = await panel.getData();
+                                        const data = await panel.getData();
                                         await panel.setData(data);
                                     } else
                                         await panel.render();

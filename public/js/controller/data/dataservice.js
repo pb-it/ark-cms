@@ -148,9 +148,13 @@ class DataService {
     _cache;
     _apiClient;
 
+    _pending;
+
     constructor() {
         this._cache = new Cache();
         this._apiClient = app.getController().getApiController().getApiClient();
+
+        this._pending = [];
     }
 
     getCache() {
@@ -403,29 +407,39 @@ class DataService {
             resource = typeString;
 
         if (method && resource) {
-            var resp = await this._apiClient.requestData(method, resource, null, data);
-            if (resp) {
-                var cache = this._cache.getModelCache(typeString);
-                if (!cache) {
-                    const model = app.getController().getModelController().getModel(typeString);
-                    if (model) {
-                        if (model.getDefinition()['options']['increments'])
-                            cache = await this._cache.createModelCache(model);
-                    } else
-                        throw new Error('Unknown model \'' + typeString + '\'');
-                }
-                if (cache) {
-                    if (action == ActionEnum.delete) {
-                        if (resp == "OK") //delete default 200 response text
-                            await cache.delete(id);
-                        else
-                            throw new Error("deleting record failed");
-                    } else
-                        await cache.cacheData(resource, resp);
-                }
-                res = resp;
-            } else
-                throw new Error("request returned empty respose");
+            const controller = app.getController();
+            if (controller._bOfflineMode) {
+                this._pending.push({
+                    'typeString': typeString,
+                    'action': action,
+                    'id': id,
+                    'data': data
+                });
+            } else {
+                const resp = await this._apiClient.requestData(method, resource, null, data);
+                if (resp) {
+                    var cache = this._cache.getModelCache(typeString);
+                    if (!cache) {
+                        const model = controller.getModelController().getModel(typeString);
+                        if (model) {
+                            if (model.getDefinition()['options']['increments'])
+                                cache = await this._cache.createModelCache(model);
+                        } else
+                            throw new Error('Unknown model \'' + typeString + '\'');
+                    }
+                    if (cache) {
+                        if (action == ActionEnum.delete) {
+                            if (resp == "OK") //delete default 200 response text
+                                await cache.delete(id);
+                            else
+                                throw new Error("deleting record failed");
+                        } else
+                            await cache.cacheData(resource, resp);
+                    }
+                    res = resp;
+                } else
+                    throw new Error("request returned empty respose");
+            }
         }
         return Promise.resolve(res);
     }

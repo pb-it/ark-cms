@@ -49,14 +49,14 @@ class AuthController {
     }
 
     async showLoginDialog() {
-        var panel = new Panel();
+        const panel = new Panel();
 
-        var $d = $('<div/>')
+        const $div = $('<div/>')
             .css({ 'padding': '10' });
 
-        $d.append("<h2>Login</h2>");
+        $div.append("<h2>Login</h2>");
 
-        var $form = $('<form/>')
+        const $form = $('<form/>')
             .prop('target', '_blank')
             .submit(async function (event) {
                 event.preventDefault();
@@ -80,29 +80,36 @@ class AuthController {
 
                 return Promise.resolve();
             }.bind(this));
+
+        var $entry = $('<div/>');
         var $label = $('<label/>')
             .attr('for', 'username')
             .text('Username: ');
-        $form.append($label);
-        $form.append('<br/>');
+        $entry.append($label);
+        $entry.append('<br/>');
         this._$username = $('<input/>')
             .prop('id', 'username')
             .prop('type', 'text');
-        $form.append(this._$username);
-        $form.append('<br/>');
+        $entry.append(this._$username);
+        $form.append($entry);
 
+        $entry = $('<div/>')
+            .css({
+                'margin-top': '10px'
+            });
         $label = $('<label/>')
             .attr('for', 'password')
             .text('Password: ');
-        $form.append($label);
-        $form.append('<br/>');
+        $entry.append($label);
+        $entry.append('<br/>');
         this._$password = $('<input/>')
             .prop('id', 'password')
             .prop('type', 'password');
-        $form.append(this._$password);
-        $form.append('<br/><br/>');
+        $entry.append(this._$password);
+        $form.append($entry);
+        $form.append('<br/>');
 
-        var $login = $('<button>')
+        const $login = $('<button>')
             .text('Login')
             .css({ 'float': 'right' })
             .click(async function (event) {
@@ -113,13 +120,13 @@ class AuthController {
             }.bind(this));
         $form.append($login);
 
-        $d.append($form);
+        $div.append($form);
 
-        var $footer = $('<div/>')
+        const $footer = $('<div/>')
             .addClass('clear');
-        $d.append($footer);
+        $div.append($footer);
 
-        panel.setContent($d);
+        panel.setContent($div);
 
         await this._controller.getModalController().openPanelInModal(panel);
 

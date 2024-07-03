@@ -246,7 +246,7 @@ class CrudObject {
         var attribute;
         var model;
         var changed;
-        if (oldData) {
+        if (oldData && Object.keys(oldData).length > 0) {
             if (newData) {
                 var bFound;
                 for (const [key, value] of Object.entries(newData)) {
@@ -520,28 +520,17 @@ class CrudObject {
     async create(data) {
         if (!data)
             data = this._data;
-        data = await this.request(ActionEnum.create, data);
-        this.setData(data);
-        if (app.getController().getConfigController().automaticUpdateCache())
-            await this._updateCache(null, data);
-        return Promise.resolve(data);
+        return this.request(ActionEnum.create, data);
     }
 
     async read() {
-        var data = await this.request(ActionEnum.read);
-        this.setData(data);
-        return Promise.resolve(data);
+        return this.request(ActionEnum.read);
     }
 
     async update(data) {
-        if (this._data['id'] || !this._model.getDefinition()['options']['increments']) {
-            var oldData = this._data;
-            var newData = data;
+        if (this._data['id'] || !this._model.getDefinition()['options']['increments'])
             data = await this.request(ActionEnum.update, data);
-            this.setData(data);
-            if (app.getController().getConfigController().automaticUpdateCache())
-                await this._updateCache(oldData, newData);
-        } else {
+        else {
             for (const [key, value] of Object.entries(data)) {
                 if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length == 0))
                     delete this._data[key];
@@ -554,12 +543,7 @@ class CrudObject {
     }
 
     async delete() {
-        var res = await this.request(ActionEnum.delete);
-        //this.setData(null);
-        this._bDeleted = true;
-        if (app.getController().getConfigController().automaticUpdateCache())
-            await this._updateCache(this._data);
-        return Promise.resolve(res);
+        return this.request(ActionEnum.delete);
     }
 
     async _updateCache(oldData, newData) {
@@ -646,6 +630,8 @@ class CrudObject {
     }
 
     async request(action, data) {
+        const oldData = this._data;
+
         var id;
         if (this._model.getDefinition()['options']['increments']) {
             if (this._data && this._data['id'])
@@ -665,6 +651,15 @@ class CrudObject {
                 }
             }
         }
-        return await app.getController().getDataService().request(this.getTypeString(), action, id, data);
+        const controller = app.getController();
+        const res = await controller.getDataService().request(this.getTypeString(), action, id, data);
+        if (action == ActionEnum.delete) {
+            //this.setData(null);
+            this._bDeleted = true;
+        } else
+            this.setData(res);
+        if (action != ActionEnum.read && controller.getConfigController().automaticUpdateCache() && !controller._bOfflineMode)
+            await this._updateCache(oldData, data);
+        return Promise.resolve(res);
     }
 }

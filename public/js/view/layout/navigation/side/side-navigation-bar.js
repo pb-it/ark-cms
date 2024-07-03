@@ -12,6 +12,7 @@ class SideNavigationBar {
     _$bottomIconBar;
     _bottomIconBarExtensions;
 
+    _cacheMenuItem;
     _confMenuItem;
 
     _sidePanel;
@@ -117,10 +118,16 @@ class SideNavigationBar {
         } else
             bNotification = true;
 
-        if (bNotification) {
+        if (bNotification)
             this._confMenuItem.setNotification('!');
-            this.updateSideNavigationBar();
+
+        if (controller._bOfflineMode) {
+            bNotification = true;
+            this._cacheMenuItem.setNotification('!');
         }
+
+        if (bNotification)
+            this.updateSideNavigationBar();
     }
 
     _initTopIconBar() {
@@ -384,8 +391,8 @@ class SideNavigationBar {
                             return app.getController().getModalController().openPanelInModal(new CachePanel(config));
                         }.bind(this)
                     };
-                    menuItem = new MenuItem(conf);
-                    menuItems.push(menuItem);
+                    this._cacheMenuItem = new MenuItem(conf);
+                    menuItems.push(this._cacheMenuItem);
                 }
 
                 if (controller.getRouteController()) {
@@ -434,6 +441,13 @@ class SideNavigationBar {
     }
 
     updateSideNavigationBar() {
+        if (this._cacheMenuItem) {
+            if (app.getController()._bOfflineMode)
+                this._cacheMenuItem.setNotification('!');
+            else
+                this._cacheMenuItem.setNotification();
+        }
+
         this._topIconBarVis.renderMenu();
         this._bottomIconBarVis.renderMenu();
     }
