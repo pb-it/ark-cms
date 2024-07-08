@@ -32,12 +32,17 @@ class Select {
         const model = app.getController().getModelController().getModel(this._typeString);
         if (model) {
             const mpcc = model.getModelPanelConfigController();
-            const panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);
-            if (panelConfig) {
-                delete panelConfig['display'];
-                delete panelConfig['float'];
-                this._panelConfig = panelConfig;
+            //const panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);
+            const panelConfig = new MediaPanelConfig();
+            const conf = { ...model.getModelDefaultsController().getDefaultPanelConfig() };
+            delete conf['display'];
+            delete conf['float'];
+            if (conf['panelType'] === 'CollectionPanel') {
+                conf['panelType'] = 'CrudPanel';
+                conf['details'] = DetailsEnum.title;
             }
+            panelConfig.initPanelConfig(model, ActionEnum.read, conf);
+            this._panelConfig = panelConfig;
         } else
             throw new Error('Model \'' + this._typeString + '\' not found');
     }

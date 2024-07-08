@@ -31,7 +31,7 @@ async function openApi(path) {
     return Promise.resolve(text);
 }
 
-describe('Testsuit', function () {
+describe('Testsuit - Misc', function () {
 
     let driver;
 
@@ -44,11 +44,9 @@ describe('Testsuit', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
@@ -76,11 +74,9 @@ describe('Testsuit', function () {
 
         const app = helper.getApp();
         await app.logout();
-
         await ExtendedTestHelper.delay(1000);
 
         await app.login();
-
         await ExtendedTestHelper.delay(1000);
 
         const window = app.getWindow();
@@ -89,8 +85,7 @@ describe('Testsuit', function () {
         const button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
         assert.notEqual(button, null);
         await button.click();
-
-        await ExtendedTestHelper.delay(1000);
+        await app.waitLoadingFinished(10);
 
         modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -128,7 +123,6 @@ describe('Testsuit', function () {
         const tools = ac.getTools();
 
         await tools.restoreBackup(path.join(__dirname, './data/sql/start_01.sql'));
-
         await ExtendedTestHelper.delay(1000);
 
         await ac.restart(true);

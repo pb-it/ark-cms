@@ -1,6 +1,8 @@
 const os = require('os');
 const path = require('path');
 
+const http = require('http');
+const https = require('https');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -12,22 +14,17 @@ class Server {
     _controller;
     _publicDir;
     _app;
+    _svr;
 
     constructor(controller) {
         this._controller = controller;
-        console.log
         if (process.env.NODE_ENV === 'production')
             this._publicDir = '../dist/public';
         else
             this._publicDir = '../public';
-        var port;
-        const config = this._controller.getServerConfig();
-        if (config)
-            port = config['port'];
-        this._app = this.initApp(port);
     }
 
-    initApp(port) {
+    async initApp() {
         const app = express();
         app.use(cors());
         app.use(bodyParser.json({ limit: '50mb', extended: true }));
@@ -152,11 +149,54 @@ class Server {
             }
         });*/
 
+        const config = this._controller.getServerConfig();
+        /*var port;
+        if (config)
+            port = config['port'];
         app.listen(port, () => {
             console.log("[Express] ✔ Server listening on port %d in %s mode", port, app.get('env'));
-        });
+        });*/
+        this._svr = await this._initServer(app, config, this._controller.getAppRoot());
 
-        return app;
+        return Promise.resolve(app);
+    }
+
+    async _initServer(app, config, appRoot) {
+        var server;
+        if (config['ssl'] && appRoot) {
+            const options = {
+                key: fs.readFileSync(path.join(appRoot, 'config/ssl/key.pem'), 'utf8'),
+                cert: fs.readFileSync(path.join(appRoot, 'config/ssl/cert.pem'), 'utf8')
+            };
+
+            if (options)
+                server = https.createServer(options, app);
+            else {
+                var msg = "No valid SSL certificate found";
+                console.error(msg);
+                Logger.error("[App] ✘ " + msg);
+            }
+        } else
+            server = http.createServer(app);
+        if (server) {
+            /*server.setTimeout(600 * 1000, (socket) => {
+                console.log('timeout');
+                socket.destroy();
+            });*/
+            return new Promise(function (resolve, reject) {
+                server.listen(config['port'], function () {
+                    console.log(`[Express] ✔ Server listening on port ${config['port']} in ${app.get('env')} mode`);
+                    resolve(this);
+                });
+                server.once('error', (err) => {
+                    if (err) {
+                        server.close();
+                        reject(err);
+                    }
+                });
+            });
+        }
+        return Promise.reject();
     }
 
     async teardown() {

@@ -32,6 +32,7 @@ class Controller {
         this._vcs = await this._checkVcs(this._appRoot);
 
         this._server = new Server(this);
+        await this._server.initApp();
         return Promise.resolve();
     }
 

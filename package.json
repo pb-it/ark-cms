@@ -38,6 +38,7 @@
         "test:search": "mocha --timeout 10000 tests/search.test.js",
         "test:filter": "mocha --timeout 10000 tests/filter.test.js",
         "test:panel": "mocha --timeout 10000 tests/panel.test.js",
+        "test:collection": "mocha --timeout 10000 tests/collection.test.js",
         "test:contextmenu": "mocha --bail --timeout 10000 tests/contextmenu.test.js",
         "test:view": "mocha --timeout 10000 tests/view.test.js",
         "test:cache": "mocha --timeout 10000 tests/cache.test.js",

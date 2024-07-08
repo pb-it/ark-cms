@@ -578,7 +578,6 @@ class ContextMenuController {
                                         objs = [target.getObject()];
 
                                     const panel = ContextMenuController._getAddPanel(model, attr, objs, target);
-                                    PanelController.createPanel(attr['model'], attr, ActionEnum.create);
                                     return app.getController().getModalController().openPanelInModal(panel);
                                 });
                                 addGroup.push(entry);
