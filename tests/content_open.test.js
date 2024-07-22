@@ -95,8 +95,7 @@ describe('Testsuit', function () {
         const item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
         assert.notEqual(item, null);
         await item.click();
-
-        await ExtendedTestHelper.delay(100);
+        await app.waitLoadingFinished(10);
 
         const url = await driver.getCurrentUrl();
         assert.equal(url.endsWith('/data/_registry?key=dbIdent'), true);
@@ -105,7 +104,7 @@ describe('Testsuit', function () {
         assert.equal(elements.length, 1);
 
         await driver.navigate().back();
-        await ExtendedTestHelper.delay(100);
+        await app.waitLoadingFinished(10);
 
         elements = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(elements.length, 2);

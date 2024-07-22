@@ -85,6 +85,12 @@
             "name": "relation",
             "dataType": "relation",
             "model": "_user"
+        },
+        {
+            "name": "relation_multi",
+            "dataType": "relation",
+            "model": "_model",
+            "multiple": true
         }
     ]
 }

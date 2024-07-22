@@ -254,7 +254,7 @@ class CrudObject {
                     if (attribute && attribute['dataType'] === 'relation') {
                         changed = [];
                         if (attribute['multiple']) {
-                            if (oldData[key]) {
+                            if (oldData[key] && Array.isArray(oldData[key])) {
                                 if (value) {
                                     for (var item of oldData[key]) {
                                         bFound = false;
@@ -658,8 +658,19 @@ class CrudObject {
             this._bDeleted = true;
         } else
             this.setData(res);
-        if (action != ActionEnum.read && controller.getConfigController().automaticUpdateCache() && !controller._bOfflineMode)
-            await this._updateCache(oldData, data);
+        if (action != ActionEnum.read && controller.getConfigController().automaticUpdateCache() && !controller._bOfflineMode) {
+            switch (action) {
+                case ActionEnum.create:
+                    await this._updateCache(null, res);
+                    break;
+                case ActionEnum.update:
+                    await this._updateCache(oldData, res);
+                    break;
+                case ActionEnum.delete:
+                    await this._updateCache(oldData, null);
+                    break;
+            }
+        }
         return Promise.resolve(res);
     }
 }

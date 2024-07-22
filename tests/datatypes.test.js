@@ -58,7 +58,7 @@ describe('Testsuit', function () {
         await sidemenu.click('misc');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Create');
-        await ExtendedTestHelper.delay(1000);
+        await app.waitLoadingFinished(10);
 
         var canvas = await window.getCanvas();
         assert.notEqual(canvas, null);
@@ -73,6 +73,7 @@ describe('Testsuit', function () {
         await checkbox.click();
         await ExtendedTestHelper.delay(1000);
 
+        await driver.executeScript('window.scrollTo(0, document.body.scrollHeight)');
         var button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
@@ -167,6 +168,7 @@ describe('Testsuit', function () {
         assert.notEqual(input, null);
         await input.sendKeys('00:00:01');
         await ExtendedTestHelper.delay(1000);
+        await driver.executeScript('window.scrollTo(0, document.body.scrollHeight)');
         var button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
@@ -278,6 +280,7 @@ describe('Testsuit', function () {
         await input.sendKeys(isoString);
         await ExtendedTestHelper.delay(1000);
 
+        await driver.executeScript('window.scrollTo(0, document.body.scrollHeight)');
         var button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
@@ -347,6 +350,7 @@ describe('Testsuit', function () {
         await input.click();
         await ExtendedTestHelper.delay(1000);
 
+        await driver.executeScript('window.scrollTo(0, document.body.scrollHeight)');
         var button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
@@ -478,6 +482,43 @@ describe('Testsuit', function () {
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
+
+        return Promise.resolve();
+    });
+
+    /**
+     * Cache update will fail when created relation is not an array
+     */
+    it('#test relation datatype 2', async function () {
+        this.timeout(60000);
+
+        const app = helper.getApp();
+        const ds = app.getDataService();
+
+        var tmp = await ds.read('misc', null, null, null, null, null, null, true);
+        const count = tmp.length;
+
+        const models = await ds.read('_model');
+        assert.ok(models.length > 0);
+        var id = models[0]['id'];
+
+        var err;
+        try {
+            const entry = {
+                'relation_multi': id
+            };
+            var tmp = await ds.create('misc', entry);
+            console.log(tmp);
+            assert.notEqual(Object.keys(tmp).length, 0);
+            assert.equal(tmp['relation_multi'], id);
+            id = tmp['id'];
+        } catch (error) {
+            err = error;
+        }
+        assert.equal(err, 'Error: Empty response! Take a look at the browser log for more details.');
+
+        tmp = await ds.read('misc', null, null, null, null, null, null, true);
+        assert.equal(tmp.length, count);
 
         return Promise.resolve();
     });

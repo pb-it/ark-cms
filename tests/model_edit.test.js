@@ -615,14 +615,13 @@ module.exports = test;`
         await sidemenu.click('star');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Edit');
-        await ExtendedTestHelper.delay(1000);
+        await app.waitLoadingFinished(10);
 
         const modelModal = await window.getTopModal();
         var button = await window.getButton(modelModal, 'Add Attribute');
         assert.notEqual(button, null, 'Button not found!');
         button.click();
-
-        await ExtendedTestHelper.delay(100);
+        await app.waitLoadingFinished(10);
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -634,8 +633,7 @@ module.exports = test;`
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
-        await ExtendedTestHelper.delay(100);
+        await app.waitLoadingFinished(10);
 
         modal = await window.getTopModal();
         panel = await modal.getPanel();
@@ -692,7 +690,7 @@ module.exports = test;`
         var contextmenu = await window.openContextMenu(panels[0]);
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Edit');
-        await ExtendedTestHelper.delay(1000);
+        await app.waitLoadingFinished(10);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
@@ -711,7 +709,7 @@ module.exports = test;`
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Update"]'));
         assert.notEqual(button, null, 'Button not found');
         await button.click();
-        await ExtendedTestHelper.delay(1000);
+        await app.waitLoadingFinished(10);
 
         modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -721,7 +719,7 @@ module.exports = test;`
         await contextmenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('friends');
-        await ExtendedTestHelper.delay(1000);
+        await app.waitLoadingFinished(10);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
