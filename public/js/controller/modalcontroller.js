@@ -102,6 +102,8 @@ class ModalController {
             var modal;
             var panel;
             try {
+                controller.setLoadingState(true);
+
                 const model = obj.getModel();
                 const mpcc = model.getModelPanelConfigController();
                 const panelConfig = mpcc.getPanelConfig(action, DetailsEnum.all);
@@ -143,10 +145,16 @@ class ModalController {
         return Promise.resolve(bConfirm);*/
 
         return new Promise(function (resolve, reject) {
-            var modal = app.controller.getModalController().addModal();
+            const controller = app.getController();
+            const modal = controller.getModalController().addModal();
+            var bConfirm;
+            modal.setCloseCallback(function () {
+                resolve(bConfirm);
+            });
+            const panel = new Panel();
 
-            var $d = $('<div/>')
-                .html("<br/>" + msg + "<br/><br/>");
+            const $d = $('<div/>')
+                .html(msg + "<br/><br/>");
 
             $d.append($('<button/>')
                 .text("No")
@@ -154,10 +162,7 @@ class ModalController {
                     event.preventDefault();
                     event.stopPropagation();
                     modal.close();
-                    resolve(false);
                 }.bind(this)));
-
-            $d.append(SPACE);
 
             $d.append($('<button/>')
                 .text("Yes")
@@ -165,17 +170,23 @@ class ModalController {
                 .click(async function (event) {
                     event.preventDefault();
                     event.stopPropagation();
+                    bConfirm = true;
                     modal.close();
-                    resolve(true);
                 }.bind(this)));
 
-            modal.open($d);
+            panel.setContent($d);
+            modal.openPanel(panel);
         });
     }
 
     async openErrorModal(error, msg) {
         return new Promise(function (resolve, reject) {
-            var modal = app.controller.getModalController().addModal();
+            const controller = app.getController();
+            const modal = controller.getModalController().addModal();
+            modal.setCloseCallback(function () {
+                resolve();
+            });
+            const panel = new Panel();
 
             var $d = $('<div/>')
                 .html("<br/>ERROR:\n" + msg + "<br/><br/>")
@@ -191,8 +202,6 @@ class ModalController {
                     window.location.href = 'mailto:support@pb-it.at?subject=' + encodeURIComponent(error.toString()) + '&body=' + encodeURIComponent(str);
                 }.bind(this)));
 
-            $d.append(SPACE);
-
             $d.append($('<button/>')
                 .text("OK")
                 .css({ 'float': 'right' })
@@ -203,21 +212,22 @@ class ModalController {
                     event.preventDefault();
                     event.stopPropagation();
                     modal.close();
-                    resolve();
                 }.bind(this)));
 
-            modal.open($d);
+            panel.setContent($d);
+            modal.openPanel(panel);
         });
     }
 
     async openDiffJsonModal(oldobj, newObj) {
         return new Promise(async function (resolve, reject) {
-            app.controller.setLoadingState(true);
-            var modal = app.controller.getModalController().addModal();
+            const controller = app.getController();
+            controller.setLoadingState(true);
+            const modal = controller.getModalController().addModal();
 
-            var $div = $('<div/>');
+            const $div = $('<div/>');
 
-            var panel = new DiffJsonPanel(oldobj, newObj);
+            const panel = new DiffJsonPanel(oldobj, newObj);
             $div.append(await panel.render());
 
             $div.append($('<button/>')
@@ -240,18 +250,19 @@ class ModalController {
                 }.bind(this)));
 
             modal.open($div);
-            app.controller.setLoadingState(false);
+            controller.setLoadingState(false);
             return Promise.resolve();
         });
     }
 
     async openEditJsonModal(obj) {
         return new Promise(async function (resolve, reject) {
-            var modal = app.controller.getModalController().addModal();
+            const controller = app.getController();
+            const modal = controller.getModalController().addModal();
 
-            var $div = $('<div/>');
+            const $div = $('<div/>');
 
-            var $textarea = $('<textarea/>')
+            const $textarea = $('<textarea/>')
                 .attr('rows', 5)
                 .attr('cols', 80)
                 .val(JSON.stringify(obj, null, '\t'));

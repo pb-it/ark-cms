@@ -88,12 +88,24 @@ class Select {
 
         if (this._selectedValues && this._selectedValues.length > 0) {
             var ids = [];
+            var id;
             for (var item of this._selectedValues) {
-                if (isNaN(item)) {
-                    if (item['id'])
-                        ids.push(item['id']);
-                } else
-                    ids.push(item);
+                id = null;
+                if (item) {
+                    if (typeof item === 'object')
+                        id = item['id'];
+                    else if (Number.isInteger(item))
+                        id = item;
+                }
+                if (id)
+                    ids.push(id);
+                else {
+                    var name = this._name;
+                    var index = name.indexOf(':');
+                    if (index != -1)
+                        name = name.substring(0, index);
+                    throw new Error('Received undefined or unknown entry for select \'' + name + '\'');
+                }
             }
 
             for (var data of optData) {

@@ -2,6 +2,7 @@ class Modal {
 
     _panel;
     _bDispose;
+    _closeCallback;
 
     _$modal;
     _$close;
@@ -24,6 +25,10 @@ class Modal {
             .addClass('clear'));
 
         this._$modal.append(this._$modalContent);
+    }
+
+    setCloseCallback(cb) {
+        this._closeCallback = cb;
     }
 
     getModalDomElement() { // getComponent
@@ -105,6 +110,8 @@ class Modal {
         }
         if (this._$modal)
             this._$modal.remove();
+        if (this._closeCallback)
+            this._closeCallback();
     }
 
     async waitClosed() {

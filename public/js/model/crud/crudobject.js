@@ -252,13 +252,18 @@ class CrudObject {
                 for (const [key, value] of Object.entries(newData)) {
                     attribute = ac.getAttribute(key);
                     if (attribute && attribute['dataType'] === 'relation') {
-                        changed = [];
                         if (attribute['multiple']) {
+                            changed = [];
+                            var ids = null;
+                            if (value.some(isNaN))
+                                ids = value.map(function (x) { return x['id'] });
+                            else
+                                ids = value;
                             if (oldData[key] && Array.isArray(oldData[key])) {
-                                if (value) {
+                                if (ids) {
                                     for (var item of oldData[key]) {
                                         bFound = false;
-                                        for (var x of value) {
+                                        for (var x of ids) {
                                             if (item['id'] == x) {
                                                 bFound = true;
                                                 break;
@@ -267,7 +272,7 @@ class CrudObject {
                                         if (!bFound)
                                             changed.push(item['id']);
                                     }
-                                    for (var item of value) {
+                                    for (var item of ids) {
                                         bFound = false;
                                         for (var x of oldData[key]) {
                                             if (item == x['id']) {
@@ -280,16 +285,33 @@ class CrudObject {
                                     }
                                 } else
                                     changed = oldData[key].map(function (x) { return x['id'] });
-                            } else if (value)
-                                changed = value;
+                            } else if (ids)
+                                changed = ids;
                         } else {
-                            if (oldData[key])
-                                changed.push(oldData[key]['id']);
-                            if (value)
-                                changed.push(value);
+                            changed = null;
+                            var id = null;
+                            if (value) {
+                                if (Number.isInteger(value))
+                                    id = value;
+                                else if (value['id'])
+                                    id = value['id'];
+                            }
+                            if (oldData[key]) {
+                                if (id) {
+                                    if (oldData[key]['id'] != id)
+                                        changed = [oldData[key]['id'], id];
+                                } else
+                                    changed = oldData[key]['id'];
+                            } else if (id)
+                                changed = id;
                         }
-                        if (changed.length > 0)
-                            data[attribute['model']] = changed;
+                        if (changed) {
+                            if (Array.isArray(changed)) {
+                                if (changed.length > 0)
+                                    data[attribute['model']] = changed;
+                            } else
+                                data[attribute['model']] = changed;
+                        }
                     }
                 }
             } else {
@@ -554,8 +576,11 @@ class CrudObject {
         if (newData) {
             const changed = CrudObject.getChangedRelations(this._model, oldData, newData);
             if (Object.keys(changed).length > 0) {
+                var mCache;
                 for (const [key, value] of Object.entries(changed)) {
-                    promises.push(ds.fetchData(key, value, null, null, null, null, null, true));
+                    mCache = cache.getModelCache(key);
+                    if (mCache)
+                        promises.push(ds.fetchData(key, value, null, null, null, null, null, true));
                 }
             }
         } else {
