@@ -296,20 +296,19 @@ class CrudObject {
                                 else if (value['id'])
                                     id = value['id'];
                             }
-                            if (oldData[key]) {
+                            if (oldData[key] && Object.keys(oldData[key]).length > 0) {
                                 if (id) {
                                     if (oldData[key]['id'] != id)
                                         changed = [oldData[key]['id'], id];
                                 } else
-                                    changed = oldData[key]['id'];
+                                    changed = [oldData[key]['id']];
                             } else if (id)
-                                changed = id;
+                                changed = [id];
                         }
-                        if (changed) {
-                            if (Array.isArray(changed)) {
-                                if (changed.length > 0)
-                                    data[attribute['model']] = changed;
-                            } else
+                        if (changed && (!Array.isArray(changed) || changed.length > 0)) {
+                            if (data[attribute['model']])
+                                data[attribute['model']] = data[attribute['model']].concat(changed);
+                            else
                                 data[attribute['model']] = changed;
                         }
                     }
@@ -328,12 +327,16 @@ class CrudObject {
                             }
                         } else {
                             if (Number.isInteger(value))
-                                changed = value;
+                                changed = [value];
                             else if (value['id'])
-                                changed = value['id'];
+                                changed = [value['id']];
                         }
-                        if (changed)
-                            data[attribute['model']] = changed;
+                        if (changed) {
+                            if (data[attribute['model']])
+                                data[attribute['model']] = data[attribute['model']].concat(changed);
+                            else
+                                data[attribute['model']] = changed;
+                        }
                     }
                 }
             }
@@ -351,12 +354,16 @@ class CrudObject {
                         }
                     } else {
                         if (Number.isInteger(value))
-                            changed = value;
+                            changed = [value];
                         else if (value['id'])
-                            changed = value['id'];
+                            changed = [value['id']];
                     }
-                    if (changed)
-                        data[attribute['model']] = changed;
+                    if (changed) {
+                        if (data[attribute['model']])
+                            data[attribute['model']] = data[attribute['model']].concat(changed);
+                        else
+                            data[attribute['model']] = changed;
+                    }
                 }
             }
         }

@@ -529,38 +529,40 @@ class CrudPanel extends CanvasPanel {
         await super._drop(event);
         const dT = event.originalEvent.dataTransfer;
         if (dT) {
-            const str = dT.getData("text/plain");
-            //console.log(str);
-            const url = new URL(str);
-            const state = State.getStateFromUrl(url);
-            if (state) {
-                const controller = app.getController();
-                const droptype = state['typeString'];
-                const model = this._obj.getModel();
-                if (this._config.getPanelClass() == MediaPanel) {
-                    const id = state.id;
-                    if (isNaN(id)) {
-                        alert("invalid data!");
-                        return Promise.reject();
-                    }
-                    const propName = model.getModelDefaultsController().getDefaultThumbnailProperty();
-                    if (propName) {
-                        const attr = model.getModelAttributesController().getAttribute(propName);
-                        if (attr && attr['dataType'] === "relation" && attr['model'] === droptype) {
-                            const bConfirmation = await controller.getModalController().openConfirmModal("Change thumbnail?");
-                            if (bConfirmation) {
-                                const obj = new Object();
-                                obj[propName] = id;
-                                await this._obj.update(obj);
-                                this.render();
+            const controller = app.getController();
+            try {
+                const str = dT.getData("text/plain");
+                //console.log(str);
+                const url = new URL(str);
+                const state = State.getStateFromUrl(url);
+                if (state) {
+                    const droptype = state['typeString'];
+                    const model = this._obj.getModel();
+                    if (this._config.getPanelClass() == MediaPanel) {
+                        const id = state.id;
+                        if (isNaN(id)) {
+                            alert("invalid data!");
+                            return Promise.reject();
+                        }
+                        const propName = model.getModelDefaultsController().getDefaultThumbnailProperty();
+                        if (propName) {
+                            const attr = model.getModelAttributesController().getAttribute(propName);
+                            if (attr && attr['dataType'] === "relation" && attr['model'] === droptype) {
+                                const bConfirmation = await controller.getModalController().openConfirmModal("Change thumbnail?");
+                                if (bConfirmation) {
+                                    controller.setLoadingState(true);
+                                    const obj = new Object();
+                                    obj[propName] = id;
+                                    await this._obj.update(obj);
+                                    this.render();
+                                    controller.setLoadingState(false);
+                                }
                             }
                         }
-                    }
-                } else if (model.isCollection()) {
-                    if (droptype === "collections")
-                        alert("NotImplementedException");
-                    else if (droptype === this._obj.getCollectionType()) {
-                        try {
+                    } else if (model.isCollection()) {
+                        if (droptype === "collections")
+                            alert("NotImplementedException");
+                        else if (droptype === this._obj.getCollectionType()) {
                             controller.setLoadingState(true);
                             var items;
                             var data = await controller.getDataService().fetchDataByState(state);
@@ -577,13 +579,13 @@ class CrudPanel extends CanvasPanel {
                                     await this.addItems(new CrudObject(droptype, data));
                             }
                             controller.setLoadingState(false);
-                        } catch (error) {
-                            controller.setLoadingState(false);
-                            controller.showError(error);
-                        }
-                    } else
-                        alert("type not supported by the collection");
+                        } else
+                            alert("type not supported by the collection");
+                    }
                 }
+            } catch (error) {
+                controller.setLoadingState(false);
+                controller.showError(error);
             }
         }
         return Promise.resolve();
