@@ -21,11 +21,14 @@ class SelectFormEntry extends FormEntry {
             } else {
                 this._select = new Select(this._id, this._attribute['model'], this._attribute['multiple'] ? -1 : 1, this._form.getCallback());
 
-                var backlink = this._attribute['via'];
+                const backlink = this._attribute['via'];
                 if (backlink) {
-                    var obj = {};
-                    obj[backlink] = this._form.getFormData();
-                    this._select.setCreateData(obj);
+                    const fData = this._form.getFormData();
+                    if (fData['id']) {
+                        const obj = {};
+                        obj[backlink] = fData;
+                        this._select.setCreateData(obj);
+                    }
                 }
 
                 if (value) {

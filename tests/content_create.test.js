@@ -5,7 +5,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
-describe('Testsuit', function () {
+describe('Testsuit - Create', function () {
 
     let driver;
 
@@ -18,11 +18,9 @@ describe('Testsuit', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await TestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await TestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
@@ -40,7 +38,7 @@ describe('Testsuit', function () {
             allPassed = allPassed && (this.currentTest.state === 'passed');
     });
 
-    it('#create content', async function () {
+    it('#create movie', async function () {
         this.timeout(10000);
 
         const app = helper.getApp();
@@ -51,6 +49,7 @@ describe('Testsuit', function () {
         await sidemenu.click('movie');
         await TestHelper.delay(1000);
         await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
         await TestHelper.delay(1000);
 
         const xpath = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
@@ -63,6 +62,7 @@ describe('Testsuit', function () {
         const button = await window.getButton(panel, 'Create');
         assert.notEqual(button, null);
         await button.click();
+        await app.waitLoadingFinished(10);
 
         return Promise.resolve();
     });

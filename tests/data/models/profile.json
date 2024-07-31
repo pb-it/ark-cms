@@ -1,0 +1,19 @@
+{
+    "name": "profile",
+    "options": {
+        "increments": true,
+        "timestamps": true
+    },
+    "attributes": [
+        {
+            "name": "star",
+            "model": "star",
+            "dataType": "relation",
+            "required": true
+        },
+        {
+            "name": "url",
+            "dataType": "url"
+        }
+    ]
+}
