@@ -93,6 +93,7 @@ describe('Testsuit - Edit Model', function () {
         await sidemenu.click('movie');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Edit');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         const modelModal = await window.getTopModal();
@@ -152,6 +153,7 @@ describe('Testsuit - Edit Model', function () {
         await sidemenu.click('movie');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Edit');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         const modelModal = await window.getTopModal();
@@ -179,6 +181,7 @@ describe('Testsuit - Edit Model', function () {
         var button = await panel.getButton('Apply');
         assert.notEqual(button, null);
         await button.click();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         attr = await attrPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]/div/div[@class="list"]/ul/li/div[@class="node" and text()="junk: integer"]'));
@@ -186,6 +189,7 @@ describe('Testsuit - Edit Model', function () {
         var contextmenu = await window.openContextMenu(attr);
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Delete');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
@@ -273,6 +277,7 @@ module.exports = test;`
         button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         var modal = await window.getTopModal();
@@ -346,6 +351,7 @@ module.exports = test;`
         button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         var modal = await window.getTopModal();
@@ -392,6 +398,7 @@ module.exports = test;`
         await sidemenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
@@ -436,13 +443,14 @@ module.exports = test;`
         await sidemenu.click('star');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Edit');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         const modelModal = await window.getTopModal();
         var button = await window.getButton(modelModal, 'Add Attribute');
         assert.notEqual(button, null, 'Button not found!');
         button.click();
-
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(100);
 
         var modal = await window.getTopModal();
@@ -455,7 +463,7 @@ module.exports = test;`
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(100);
 
         modal = await window.getTopModal();
@@ -481,11 +489,13 @@ module.exports = test;`
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(100);
 
         button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
@@ -499,6 +509,7 @@ module.exports = test;`
         await sidemenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
@@ -513,6 +524,7 @@ module.exports = test;`
         var contextmenu = await window.openContextMenu(panels[0]);
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Edit');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
@@ -532,6 +544,7 @@ module.exports = test;`
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Update"]'));
         assert.notEqual(button, null, 'Button not found');
         await button.click();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
@@ -542,6 +555,7 @@ module.exports = test;`
         await contextmenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('father');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -554,6 +568,7 @@ module.exports = test;`
         contextmenu = await window.openContextMenu(panels[0]);
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Delete');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
@@ -576,6 +591,7 @@ module.exports = test;`
         await sidemenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
@@ -588,6 +604,7 @@ module.exports = test;`
         var contextmenu = await window.openContextMenu(panels[0]);
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Edit');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
@@ -663,6 +680,7 @@ module.exports = test;`
         button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
@@ -676,6 +694,7 @@ module.exports = test;`
         await sidemenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
