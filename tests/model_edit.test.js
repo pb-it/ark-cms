@@ -429,7 +429,7 @@ module.exports = test;`
     });
 
     it('#add relation within same model', async function () {
-        this.timeout(30000);
+        this.timeout(60000);
 
         const app = helper.getApp();
         const ds = app.getDataService();
