@@ -124,7 +124,7 @@ class EditModelDefaultsPanel extends Panel {
         var mdc = this._model.getModelDefaultsController();
         var mac = this._model.getModelAttributesController();
 
-        var models = app.controller.getModelController().getModels();
+        var models = app.getController().getModelController().getModels();
         var names = models.map(function (model) {
             return model.getDefinition()['name'];
         });
@@ -194,6 +194,12 @@ class EditModelDefaultsPanel extends Panel {
 
             if (this._fetchForm)
                 defaults[ModelDefaultsController.FETCH_IDENT] = await this._fetchForm.readForm();
+            else {
+                const def = this._model.getDefinition();
+                if (def.hasOwnProperty('defaults') &&
+                    def['defaults'].hasOwnProperty(ModelDefaultsController.FETCH_IDENT))
+                    defaults[ModelDefaultsController.FETCH_IDENT] = def['defaults'][ModelDefaultsController.FETCH_IDENT];
+            }
         }
 
         return Promise.resolve(defaults);
