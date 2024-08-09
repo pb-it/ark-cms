@@ -1,3 +1,4 @@
+const os = require('os');
 const path = require('path');
 const fs = require('fs');
 
@@ -31,7 +32,7 @@ async function openApi(path) {
     return Promise.resolve(text);
 }
 
-describe('Testsuit - Misc', function () {
+describe('Testsuit - Misc.', function () {
 
     let driver;
 
@@ -181,6 +182,135 @@ describe('Testsuit - Misc', function () {
         assert.notEqual(text, 'Unauthorized');
         tmp = JSON.parse(text);
         assert.equal(tmp['data'].length, 7);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        await app.login();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        return Promise.resolve();
+    });
+
+    it('#test API restart while create', async function () {
+        this.timeout(60000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('star');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+        var panel = panels[0];
+
+        const ac = app.getApiController();
+        await ac.restart(true);
+
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
+        assert.notEqual(input, null);
+        await input.sendKeys('Test');
+        await ExtendedTestHelper.delay(1000);
+
+        button = await panel.getButton('Create');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        var modal;
+        var bDebugMode = await app.isDebugModeActive();
+        if (bDebugMode) {
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+        }
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null); // 401: Unauthorized
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        await app.logout();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        await app.login();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        return Promise.resolve();
+    });
+
+    xit('#test API restart while create #2', async function () {
+        this.timeout(60000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('star');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+        var panel = panels[0];
+
+        var response = await driver.executeAsyncScript(async () => {
+            const callback = arguments[arguments.length - 1];
+            var res;
+            try {
+                const controller = app.getController();
+                const ac = controller.getApiController();
+                await ac.restartApi();
+                res = 'OK';
+            } catch (error) {
+                alert('Error');
+                console.error(error);
+                res = error;
+            } finally {
+                callback(res);
+            }
+        });
+        assert.equal(response, 'OK', "Restarting API failed");
+        await ExtendedTestHelper.delay(2000);
+
+        /*const cmdCtrl = os.platform().includes('darwin') ? webdriver.Key.COMMAND : webdriver.Key.CONTROL;
+        await driver.actions().keyDown(cmdCtrl)
+            .sendKeys('r') // reload
+            .keyUp(cmdCtrl)
+            .perform();
+            sidemenu = window.getSideMenu();*/
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Reload');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null); // ERR_CONNECTION_REFUSED
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
 
         return Promise.resolve();
     });

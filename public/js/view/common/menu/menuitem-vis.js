@@ -87,8 +87,12 @@ class MenuItemVis {
                         subMenuGroup.hideSubMenuGroup();
                     }
                 }.bind(this));
-            } else
+            } else {
                 $div.addClass('unknown');
+                $div.click(function (event) {
+                    event.stopPropagation();
+                }.bind(this));
+            }
 
             const notification = this._menuItem.getNotification();
             if (notification)

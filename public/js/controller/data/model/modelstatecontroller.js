@@ -14,7 +14,11 @@ class ModelStateController {
     }
 
     getStateTree() {
-        return this._model.getDefinition()[ModelStateController.STATE_IDENT];
+        var states;
+        const data = this._model.getDefinition();
+        if (data['_sys'])
+            states = data['_sys'][ModelStateController.STATE_IDENT];
+        return states;
     }
 
     getAllStatesAlphabetical() {
@@ -32,15 +36,16 @@ class ModelStateController {
     }
 
     async updateStates(states) {
-        var data = this._model.getDefinition();
-        data[ModelStateController.STATE_IDENT] = states;
+        const data = this._model.getDefinition();
+        if (!data['_sys'])
+            data['_sys'] = {};
+        data['_sys'][ModelStateController.STATE_IDENT] = states;
         await this._model.setDefinition(data, false);
         return app.getController().getApiController().getApiClient().requestData("PUT", "_model/" + this._model.getId() + "/" + ModelStateController.STATE_IDENT, null, states);
     }
 
     async saveState(state, bUpdate) {
-        var data = this._model.getDefinition();
-        var states = data[ModelStateController.STATE_IDENT];
+        var states = this.getStateTree();
         if (states && states.length > 0) {
             var node = Tree.getNode(states, state.name);
             if (node) {
@@ -69,8 +74,10 @@ class ModelStateController {
     }
 
     /*async deleteState(state) {
-        var data = this._model.getDefinition();
-        var states = data[ModelStateController.STATE_IDENT].filter(function (x) { return x.name != state.name });
+        const data = this._model.getDefinition();
+        var states;
+        if (data['_sys'])
+            states = data['_sys'][ModelStateController.STATE_IDENT].filter(function (x) { return x.name != state.name });
         return this.updateStates(states);
     }*/
 }

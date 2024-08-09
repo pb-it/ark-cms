@@ -7,7 +7,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
-describe('Testsuit', function () {
+describe('Testsuit - Datatypes', function () {
 
     let driver;
 
@@ -489,7 +489,7 @@ describe('Testsuit', function () {
     /**
      * Cache update will fail when created relation is not an array
      */
-    it('#test relation datatype 2', async function () {
+    it('#test relation datatype #2', async function () {
         this.timeout(60000);
 
         const app = helper.getApp();

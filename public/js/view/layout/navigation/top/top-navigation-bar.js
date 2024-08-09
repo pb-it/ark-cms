@@ -71,19 +71,48 @@ class TopNavigationBar {
 
         const menuItems = [];
 
-        conf = {
-            'icon': new Icon('user'),
-            'name': 'User',
-            'click': async function (event, item) {
-                event.stopPropagation();
-                return app.getController().getAuthController().logout();
-            }.bind(this)
-        };
-        menuItems.push(new MenuItem(conf));
+        const controller = app.getController();
+        const authController = controller.getAuthController();
+        if (authController) {
+            const user = authController.getUser();
+            if (user) {
+                conf = {
+                    'icon': new Icon('sign-out'),
+                    'name': 'Sign out',
+                    'click': async function (event, item) {
+                        event.stopPropagation();
+                        return app.getController().getAuthController().logout();
+                    }.bind(this)
+                };
+                menuItems.push(new MenuItem(conf));
+
+                conf = {
+                    'icon': new Icon('user'),
+                    'name': 'User'
+                };
+                menuItems.push(new MenuItem(conf));
+            } else {
+                conf = {
+                    'icon': new Icon('sign-in'),
+                    'name': 'Sign in',
+                    'click': async function (event, item) {
+                        //event.stopPropagation();
+                        await authController.showLoginDialog();
+                        return Promise.resolve();
+                    }.bind(this)
+                };
+                menuItems.push(new MenuItem(conf));
+            }
+        }
 
         conf = {
             'icon': new Icon('globe'),
-            'name': 'About'
+            'name': 'About',
+            'click': async function (event, item) {
+                const win = window.open('https://github.com/pb-it/ark-cms?tab=readme-ov-file#readme', '_blank');
+                win.focus();
+                return Promise.resolve();
+            }.bind(this)
         };
         menuItems.push(new MenuItem(conf));
 
@@ -101,7 +130,12 @@ class TopNavigationBar {
 
         conf = {
             'icon': new Icon('question-circle'),
-            'name': 'FAQ'
+            'name': 'FAQ',
+            'click': async function (event, item) {
+                const win = window.open('https://github.com/pb-it/ark-cms/discussions/categories/q-a', '_blank');
+                win.focus();
+                return Promise.resolve();
+            }.bind(this)
         };
         menuItems.push(new MenuItem(conf));
 

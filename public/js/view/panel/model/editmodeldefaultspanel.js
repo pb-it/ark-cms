@@ -8,6 +8,7 @@ class EditModelDefaultsPanel extends Panel {
     _collectionForm;
     _thumbnailViewForm;
     _panelViewForm;
+    _fetchForm;
 
     constructor(model) {
         super({ 'title': 'Defaults' });
@@ -16,23 +17,24 @@ class EditModelDefaultsPanel extends Panel {
     }
 
     async _renderContent() {
-        var $div = $('<div/>')
+        const $div = $('<div/>')
             .css({ 'padding': '10' });
 
-        var mdc = this._model.getModelDefaultsController();
-        var mac = this._model.getModelAttributesController();
+        const mdc = this._model.getModelDefaultsController();
+        const mac = this._model.getModelAttributesController();
         var stringAttrNames;
-        var attributes = mac.getAttributes();
+        const attributes = mac.getAttributes();
         if (attributes) {
             var stringAttr = attributes.filter(function (x) { return (x['dataType'] === 'string' || x['dataType'] === 'text' || x['dataType'] === 'enumeration' || x['dataType'] === 'url') });
             stringAttrNames = stringAttr.map(function (x) { return { 'value': x['name'] } });
         } else
             stringAttrNames = [];
 
-        var panelConfig = { ...mdc.getDefaultPanelConfig() };
+        const panelConfig = { ...mdc.getDefaultPanelConfig() };
 
         this._panelViewForm = EditViewPanel.getPanelViewForm(this._model, panelConfig);
         var $form = await this._panelViewForm.renderForm();
+        $div.append('<h3>View</h3>');
         $div.append($form);
         $div.append('</br>');
 
@@ -89,6 +91,29 @@ class EditModelDefaultsPanel extends Panel {
         $form = await this._thumbnailViewForm.renderForm();
         $div.append($form);
         $div.append('</br>');
+
+        if (app.getController().getConfigController().experimentalFeaturesEnabled()) {
+            skeleton = [
+                {
+                    name: 'bConfirmation',
+                    label: 'Confirmation',
+                    tooltip: '**INFO**: Enable confirmation before fetching the entire dataset.',
+                    dataType: 'boolean'
+                },
+                {
+                    name: 'iBatchSize',
+                    label: 'Batch Size',
+                    tooltip: '**INFO**: Requests on the entire dataset will be split into batches of defined size.\nThis is intended to prevent heavy server load through a single request on a large dataset.',
+                    dataType: 'integer'
+                }
+            ];
+            data = mdc.getDefaultFetchConfig();
+            this._fetchForm = new Form(skeleton, data);
+            $form = await this._fetchForm.renderForm();
+            $div.append('<h3>Fetch / API Request</h3>');
+            $div.append($form);
+            $div.append('</br>');
+        }
 
         return Promise.resolve($div);
     }
@@ -163,11 +188,12 @@ class EditModelDefaultsPanel extends Panel {
                 defaults['sort'] = sortData['sortCriteria'] + ":" + sortData['sort'];
 
             var data = { ...await this._panelViewForm.readForm(), ...await this._thumbnailViewForm.readForm() };
-
             delete data['bContextMenu'];
             delete data['searchFields'];
-
             defaults[ModelDefaultsController.VIEW_IDENT] = data;
+
+            if (this._fetchForm)
+                defaults[ModelDefaultsController.FETCH_IDENT] = await this._fetchForm.readForm();
         }
 
         return Promise.resolve(defaults);

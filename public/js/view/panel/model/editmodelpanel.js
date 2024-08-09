@@ -3,13 +3,14 @@ class EditModelPanel extends TabPanel {
     _model;
     _tmpModel;
 
-    _extensionForm;
+    _modulesForm;
     _tabs;
     _rawForm;
 
     _$attributesPanel;
     _$defaultsPanel;
-    _$extensionsPanel;
+    _$miscPanel;
+    _$modulesPanel;
     _$rawPanel;
 
     constructor(config, model) {
@@ -31,10 +32,15 @@ class EditModelPanel extends TabPanel {
         this._$defaultsPanel = new EditModelDefaultsPanel(this._tmpModel);
         this._panels.push(this._$defaultsPanel);
 
+        if (controller.getConfigController().experimentalFeaturesEnabled()) {
+            this._$miscPanel = new EditModelMiscPanel(this._tmpModel);
+            this._panels.push(this._$miscPanel);
+        }
+
         const authController = controller.getAuthController();
         if (authController && authController.isAdministrator()) {
-            this._$extensionsPanel = await this._createExtensionsPanel();
-            this._panels.push(this._$extensionsPanel);
+            this._$modulesPanel = await this._createModulesPanel();
+            this._panels.push(this._$modulesPanel);
 
             this._tabs = this._model.getConfigTabs();
             if (this._tabs && this._tabs.length > 0) {
@@ -64,8 +70,8 @@ class EditModelPanel extends TabPanel {
         return Promise.resolve();
     }
 
-    async _createExtensionsPanel() {
-        const panel = new Panel({ 'title': 'Extensions' });
+    async _createModulesPanel() {
+        const panel = new Panel({ 'title': 'Modules' });
         panel._renderContent = async function () {
             const $d = $('<div/>');
 
@@ -73,8 +79,12 @@ class EditModelPanel extends TabPanel {
                 { name: 'server', dataType: 'text', size: '20' },
                 { name: 'client', dataType: 'text', size: '20' }
             ];
-            this._extensionForm = new Form(skeleton, this._tmpModel.getDefinition()['extensions']);
-            const $form = await this._extensionForm.renderForm();
+            var data;
+            const def = this._tmpModel.getDefinition();
+            if (def['_sys'])
+                data = def['_sys']['modules'];
+            this._modulesForm = new Form(skeleton, data);
+            const $form = await this._modulesForm.renderForm();
             $d.append($form);
 
             return Promise.resolve($d);
@@ -118,13 +128,24 @@ class EditModelPanel extends TabPanel {
                     definition['defaults'] = defaults;
                 else if (definition['defaults'])
                     delete definition['defaults'];
-            } else if (tab == this._$extensionsPanel) {
-                if (this._extensionForm) {
-                    var fData = await this._extensionForm.readForm();
-                    if (!isEmpty(fData))
-                        definition['extensions'] = fData;
-                    else if (definition['extensions'] || definition['extensions'] === null)
-                        delete definition['extensions'];
+            } else if (tab == this._$miscPanel) {
+                var data = await this._$miscPanel.getData();
+                if (data) {
+                    if (data['public'] === true)
+                        definition['public'] = true;
+                    else
+                        delete definition['public'];
+                }
+            } else if (tab == this._$modulesPanel) {
+                if (this._modulesForm) {
+                    var fData = await this._modulesForm.readForm();
+                    if (!isEmpty(fData)) {
+                        if (!definition['_sys'])
+                            definition['_sys'] = { 'modules': fData };
+                        else
+                            definition['_sys']['modules'] = fData;
+                    } else if (definition['_sys'] && (definition['_sys']['modules'] || definition['_sys']['modules'] === null))
+                        delete definition['_sys']['modules'];
                 }
             }
 
@@ -134,8 +155,12 @@ class EditModelPanel extends TabPanel {
                         await tab.applyChanges(definition);
                 }
             }
-            if (definition['extensions'] && Object.keys(definition['extensions']).length === 0)
-                delete definition['extensions'];
+            if (definition['_sys']) {
+                if (definition['_sys']['modules'] && Object.keys(definition['_sys']['modules']).length === 0)
+                    delete definition['_sys']['modules'];
+                if (Object.keys(definition['_sys']).length === 0)
+                    delete definition['_sys'];
+            }
         }
         return Promise.resolve(definition);
     }
@@ -217,7 +242,7 @@ which may not be very convenient to work with in search fields.<br/><br/>`);
                 }
             } else {
                 controller.setLoadingState(false);
-                const bClose = await app.controller.getModalController().openConfirmModal("No changes detected! Close window?");
+                const bClose = await controller.getModalController().openConfirmModal("No changes detected! Close window?");
                 if (bClose)
                     this.dispose();
             }

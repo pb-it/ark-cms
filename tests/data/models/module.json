@@ -1,0 +1,23 @@
+{
+    "name": "module",
+    "options": {
+        "increments": true,
+        "timestamps": true
+    },
+    "defaults": {
+        "title": "title",
+        "sort": "created_at:desc"
+    },
+    "attributes": [
+        {
+            "name": "title",
+            "dataType": "string",
+            "persistent": false,
+            "hidden": true
+        },
+        {
+            "name": "name",
+            "dataType": "string"
+        }
+    ]
+}

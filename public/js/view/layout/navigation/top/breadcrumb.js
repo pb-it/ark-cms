@@ -72,34 +72,48 @@ class Breadcrumb {
 
         const menuItems = [];
 
-        var state = app.controller.getStateController().getState();
-        if (state['name']) {
+        const controller = app.getController();
+        const state = controller.getStateController().getState();
+        const view = controller.getView();
+        const Panel = view.getCrudStatePanelClass();
+        if (Panel) {
+
+            if (state['name']) {
+                conf = {
+                    'icon': new Icon('edit'),
+                    'name': 'Edit',
+                    'click': async function (event) {
+                        return controller.getModalController().openPanelInModal(new Panel(ActionEnum.update, state));
+                    }
+                };
+                menuItems.push(new MenuItem(conf));
+            }
+
             conf = {
-                'icon': new Icon('edit'),
-                'name': 'Edit',
+                'icon': new Icon('save'),
+                'name': 'Save',
                 'click': async function (event) {
-                    return app.controller.getModalController().openPanelInModal(new CrudStatePanel(ActionEnum.update, state));
+                    var copy = { ...state };
+                    delete copy['name'];
+                    return controller.getModalController().openPanelInModal(new Panel(ActionEnum.create, copy));
                 }
             };
             menuItems.push(new MenuItem(conf));
         }
 
-        conf = {
-            'icon': new Icon('save'),
-            'name': 'Save',
-            'click': async function (event) {
-                var copy = { ...state };
-                delete copy['name'];
-                return app.controller.getModalController().openPanelInModal(new CrudStatePanel(ActionEnum.create, copy));
+        const model = state.getModel();
+        const entries = model.getTopMenuEntries();
+        if (entries.length > 0) {
+            for (var conf of entries) {
+                menuItems.push(new MenuItem(conf));
             }
-        };
-        menuItems.push(new MenuItem(conf));
+        }
 
         conf = {
             'icon': new Icon('remove'),
             'name': 'Remove',
             'click': function (event) {
-                app.controller.loadState(new State(), true);
+                controller.loadState(new State(), true);
             }
         };
         menuItems.push(new MenuItem(conf));
@@ -147,41 +161,48 @@ class Breadcrumb {
     }
 
     _renderFilterIconBar() {
-        var state = app.controller.getStateController().getState();
+        const controller = app.getController();
+        const state = controller.getStateController().getState();
         if (!state.action || state.action == ActionEnum.read || state.action == ActionEnum.update) {
-            var $div = $('<div/>')
+            const $div = $('<div/>')
                 .css({
                     'display': 'inline-block',
                     'vertical-align': 'top'
                 });
 
-            var conf = {
-                'icon': new Icon('filter'),
-                'root': true,
-                'click': async function (event, icon) {
-                    var panel = new SelectFilterPanel(app.controller.getStateController().getState().typeString);
-                    panel.setApplyAction(function (data) {
-                        var filters = this.getSelected();
-                        if (filters) {
-                            var f;
-                            if (state.filters)
-                                f = state.filters;
-                            else
-                                f = [];
-                            for (var filter of filters) {
-                                f.push(filter);
+            var conf;
+            var $d;
+            const view = controller.getView();
+            const Panel = view.getSelectFilterPanelClass();
+            if (Panel) {
+                conf = {
+                    'icon': new Icon('filter'),
+                    'root': true,
+                    'click': async function (event, icon) {
+                        var panel = new Panel(controller.getStateController().getState().typeString);
+                        panel.setApplyAction(function (data) {
+                            var filters = this.getSelected();
+                            if (filters) {
+                                var f;
+                                if (state.filters)
+                                    f = state.filters;
+                                else
+                                    f = [];
+                                for (var filter of filters) {
+                                    f.push(filter);
+                                }
+                                state.filters = f;
                             }
-                            state.filters = f;
-                        }
-                        panel.dispose();
-                        return app.controller.loadState(state, true);
-                    }.bind(panel));
-                    return app.controller.getModalController().openPanelInModal(panel);
-                }.bind(this)
-            };
-            var $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
-            $d.css({ 'margin': '0 1 0 1' });
-            $div.append($d);
+                            panel.dispose();
+                            return controller.loadState(state, true);
+                        }.bind(panel));
+                        return controller.getModalController().openPanelInModal(panel);
+                    }.bind(this)
+                };
+                $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
+                $d.css({ 'margin': '0 1 0 1' });
+                $div.append($d);
+            }
 
             conf = {
                 'icon': new Icon('sort'),
@@ -189,7 +210,7 @@ class Breadcrumb {
                 'click': async function (event, icon) {
                     event.preventDefault();
 
-                    return app.controller.getModalController().openPanelInModal(new EditSortPanel());
+                    return controller.getModalController().openPanelInModal(new EditSortPanel());
                 }.bind(this)
             };
             $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
@@ -202,8 +223,8 @@ class Breadcrumb {
                 'click': async function (event, icon) {
                     event.preventDefault();
 
-                    var model = app.controller.getStateController().getState().getModel();
-                    return app.controller.getModalController().openPanelInModal(new EditViewPanel(null, model));
+                    var model = controller.getStateController().getState().getModel();
+                    return controller.getModalController().openPanelInModal(new EditViewPanel(null, model));
                 }.bind(this)
             };
             $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
@@ -297,6 +318,7 @@ class Breadcrumb {
     }
 
     _renderFilters(filters) {
+        const controller = app.getController();
         var name;
         var conf;
         var menuItem;
@@ -307,7 +329,7 @@ class Breadcrumb {
             if (filter['name'])
                 name = filter['name'];
             else
-                name = "undefined";
+                name = "<undefined>::filter";
 
             conf = {
                 'name': name,
@@ -317,17 +339,21 @@ class Breadcrumb {
 
             menuItems = [];
 
-            conf = {
-                'icon': new Icon('edit'),
-                'name': 'Edit',
-                'click': async function (event) {
-                    const controller = app.getController();
-                    const model = controller.getStateController().getState().getModel();
-                    const panel = new CreateFilterPanel(model, filter)
-                    return controller.getModalController().openPanelInModal(panel);
-                }
-            };
-            menuItems.push(new MenuItem(conf));
+            const view = controller.getView();
+            const Panel = view.getCreateFilterPanelClass();
+            if (Panel) {
+                conf = {
+                    'icon': new Icon('edit'),
+                    'name': 'Edit',
+                    'click': async function (event) {
+                        const controller = app.getController();
+                        const model = controller.getStateController().getState().getModel();
+                        const panel = new Panel(model, filter)
+                        return controller.getModalController().openPanelInModal(panel);
+                    }
+                };
+                menuItems.push(new MenuItem(conf));
+            }
 
             conf = {
                 'icon': new Icon('remove'),

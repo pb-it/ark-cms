@@ -2,8 +2,9 @@ class Canvas {
 
     _$canvas;
     _$list;
-    _$counter;
     _$corner;
+    _$counter;
+    _$topButton;
 
     _panels;
     _loaded;
@@ -26,10 +27,11 @@ class Canvas {
     }
 
     init() {
-        var main = $("main");
-        main.empty();
+        const body = $('body')[0];
+        const $main = $('main');
+        $main.empty();
         this._$canvas = $('<div/>', { id: 'canvas' })
-            .appendTo(main);
+            .appendTo($main);
         this._$list = $('<ul></ul>');
         this._$canvas.append(this._$list);
 
@@ -39,10 +41,11 @@ class Canvas {
         this._$corner = $('<div/>', { id: 'corner' })
             .hide()
             .appendTo(this._$canvas);
-        $('<button/>')
+        this._$topButton = $('<button/>')
             .attr('id', "top")
-            .click(function () { $("body").scrollTop(0); })
+            .click(function () { $('body').scrollTop(0); })
             .append(new Icon('chevron-up').renderIcon())
+            .hide()
             .appendTo(this._$corner);
         this._$counter = $('<div/>', { id: 'counter' })
             .appendTo(this._$canvas);
@@ -63,6 +66,10 @@ class Canvas {
                     }
                 }
             }
+            if (body.scrollTop) // body.scrollHeight > body.clientHeight
+                this._$topButton.show();
+            else
+                this._$topButton.hide();
         }.bind(this));
 
         $(window).off('click.canvas');

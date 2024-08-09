@@ -8,6 +8,7 @@ class XModel {
 
     _configTabs;
     _sideMenuEntries;
+    _topMenuEntries;
     _contextMenuEntries;
     _doubleClickAction;
     _prepareDataAction;
@@ -22,18 +23,19 @@ class XModel {
     async initModel() {
         this._configTabs = [];
         this._sideMenuEntries = [];
+        this._topMenuEntries = [];
         this._contextMenuEntries = ContextMenuController.getContextMenuEntries(this); //TODO:
         this._crudDialogActions = [];
 
-        if (this._data.hasOwnProperty('extensions')) {
-            const extension = this._data['extensions']['client'];
-            if (extension) {
-                this._module = await loadModule(extension);
+        if (this._data.hasOwnProperty('_sys') && this._data._sys.hasOwnProperty('modules')) {
+            const module = this._data['_sys']['modules']['client'];
+            if (module) {
+                this._module = await loadModule(module);
                 // this._crudDialogActions.push(module.checkAction);
                 if (this._module && this._module.init)
-                    this._module.init.call(this);
-                // eval(extension);
-                // loadCode(extension);
+                    this._module.init.call(this); // await this._module.init.bind(this)();
+                // eval(module);
+                // loadCode(module);
             }
         }
 
@@ -149,6 +151,10 @@ class XModel {
 
     getSideMenuEntries() {
         return this._sideMenuEntries;
+    }
+
+    getTopMenuEntries() {
+        return this._topMenuEntries;
     }
 
     getContextMenuEntries() {

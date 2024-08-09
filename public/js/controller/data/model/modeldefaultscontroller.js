@@ -11,6 +11,7 @@ class ModelDefaultsController {
     static COLLECTION_IDENT = "collection";
     static PANEL_TYPE_IDENT = 'panelType';
     static VIEW_IDENT = 'view';
+    static FETCH_IDENT = 'fetch';
 
     _apiClient;
     _model;
@@ -21,18 +22,22 @@ class ModelDefaultsController {
     }
 
     async setDefaults(defaults) {
-        var data = this._model.getDefinition();
+        const data = this._model.getDefinition();
         data[ModelDefaultsController.DEFAULTS_IDENT] = defaults;
         await this._model.setDefinition(data);
         return Promise.resolve();
     }
 
-    getDefaultSort() {
+    _getDefaultProperty(property) {
         var res;
-        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
+        const defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
         if (defaults)
-            res = defaults[ModelDefaultsController.SORT_IDENT];
+            res = defaults[property];
         return res;
+    }
+
+    getDefaultSort() {
+        return this._getDefaultProperty(ModelDefaultsController.SORT_IDENT);
     }
 
     async setDefaultSort(sort) {
@@ -48,10 +53,7 @@ class ModelDefaultsController {
     }
 
     getDefaultTitleProperty(bFallback = true) {
-        var res;
-        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
-        if (defaults)
-            res = defaults[ModelDefaultsController.TITLE_IDENT];
+        var res = this._getDefaultProperty(ModelDefaultsController.TITLE_IDENT);
         if (!res && bFallback) {
             var name;
             var str;
@@ -71,59 +73,35 @@ class ModelDefaultsController {
     }
 
     getDefaultMediaTypeProperty() {
-        var res;
-        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
-        if (defaults)
-            res = defaults[ModelDefaultsController.MEDIA_TYPE_IDENT];
-        return res;
+        return this._getDefaultProperty(ModelDefaultsController.MEDIA_TYPE_IDENT);
     }
 
     getDefaultFileProperty() {
-        var res;
-        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
-        if (defaults)
-            res = defaults[ModelDefaultsController.FILE_IDENT];
-        return res;
+        return this._getDefaultProperty(ModelDefaultsController.FILE_IDENT);
     }
 
     getDefaultThumbnailProperty() {
-        var res;
-        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
-        if (defaults)
-            res = defaults[ModelDefaultsController.THUMBNAIL_IDENT];
-        return res;
+        return this._getDefaultProperty(ModelDefaultsController.THUMBNAIL_IDENT);
     }
 
     getDefaultCollectionModel() {
-        var res;
-        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
-        if (defaults)
-            res = defaults[ModelDefaultsController.COLLECTION_MODEL_IDENT];
-        return res;
+        return this._getDefaultProperty(ModelDefaultsController.COLLECTION_MODEL_IDENT);
     }
 
     getDefaultCollectionModelProperty() {
-        var res;
-        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
-        if (defaults)
-            res = defaults[ModelDefaultsController.COLLECTION_MODEL_PROPERTY_IDENT];
-        return res;
+        return this._getDefaultProperty(ModelDefaultsController.COLLECTION_MODEL_PROPERTY_IDENT);
     }
 
     getDefaultCollectionProperty() {
-        var res;
-        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
-        if (defaults)
-            res = defaults[ModelDefaultsController.COLLECTION_IDENT];
-        return res;
+        return this._getDefaultProperty(ModelDefaultsController.COLLECTION_IDENT);
     }
 
     getDefaultPanelConfig() {
-        var config;
-        var defaults = this._model.getDefinition()[ModelDefaultsController.DEFAULTS_IDENT];
-        if (defaults)
-            config = defaults[ModelDefaultsController.VIEW_IDENT];
-        return config;
+        return this._getDefaultProperty(ModelDefaultsController.VIEW_IDENT);
+    }
+
+    getDefaultFetchConfig() {
+        return this._getDefaultProperty(ModelDefaultsController.FETCH_IDENT);
     }
 
     async setDefaultPanelConfig(config) {

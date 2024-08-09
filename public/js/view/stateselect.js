@@ -446,30 +446,8 @@ class StateSelect {
     _createShowMenu(show) {
         const menuItems = [];
 
+        const controller = app.getController();
         var conf = {
-            'name': 'State',
-            'click': async function (event, item) {
-                event.preventDefault();
-                event.stopPropagation();
-                const menuItem = item.getMenuItem();
-                const menu = menuItem.getMenu();
-                if (item.isActive()) {
-                    menu.setActiveItem();
-                    await this.updateStateSelect(this._profile, this._model, this._action);
-                } else {
-                    menu.setActiveItem(menuItem);
-                    await this.updateStateSelect(this._profile, this._model, this._action, 'state', new SelectStatePanel(this._model));
-                }
-                return Promise.resolve();
-            }.bind(this)
-        };
-        var menuItem = new MenuItem(conf);
-        menuItem.setSubMenu(new Menu());
-        if (show && show === 'state')
-            menuItem.setActive();
-        menuItems.push(menuItem);
-
-        conf = {
             'name': 'All',
             'click': async function (event, item) {
                 var state = new State();
@@ -477,8 +455,35 @@ class StateSelect {
                 return app.getController().loadState(state, true);
             }.bind(this)
         };
-        menuItem = new MenuItem(conf);
+        var menuItem = new MenuItem(conf);
         menuItems.push(menuItem);
+
+        const view = controller.getView();
+        const Panel = view.getSelectStatePanelClass();
+        if (Panel) {
+            conf = {
+                'name': 'State',
+                'click': async function (event, item) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const menuItem = item.getMenuItem();
+                    const menu = menuItem.getMenu();
+                    if (item.isActive()) {
+                        menu.setActiveItem();
+                        await this.updateStateSelect(this._profile, this._model, this._action);
+                    } else {
+                        menu.setActiveItem(menuItem);
+                        await this.updateStateSelect(this._profile, this._model, this._action, 'state', new Panel(this._model));
+                    }
+                    return Promise.resolve();
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            menuItem.setSubMenu(new Menu());
+            if (show && show === 'state')
+                menuItem.setActive();
+            menuItems.push(menuItem);
+        }
 
         if (this._model) {
             const model = app.getController().getModelController().getModel(this._model);

@@ -4,9 +4,18 @@ class View {
     _topNavigationBar;
     _canvas;
 
+    _selectStatePanelClass;
+    _crudStatePanelClass;
+    _selectFilterPanelClass;
+
     constructor() {
         this._sideNavigationBar = new SideNavigationBar();
         this._topNavigationBar = new TopNavigationBar();
+
+        this._selectStatePanelClass = SelectStatePanel;
+        this._crudStatePanelClass = CrudStatePanel;
+        this._selectFilterPanelClass = SelectFilterPanel;
+        this._createFilterPanelClass = CreateFilterPanel;
     }
 
     initView() {
@@ -29,5 +38,37 @@ class View {
 
     getCanvas() {
         return this._canvas;
+    }
+
+    getSelectStatePanelClass() {
+        return this._selectStatePanelClass;
+    }
+
+    setSelectStatePanelClass(clazz) {
+        this._selectStatePanelClass = clazz;
+    }
+
+    getCrudStatePanelClass() {
+        return this._crudStatePanelClass;
+    }
+
+    setCrudStatePanelClass(clazz) {
+        this._crudStatePanelClass = clazz;
+    }
+
+    getSelectFilterPanelClass() {
+        return this._selectFilterPanelClass;
+    }
+
+    setSelectFilterPanelClass(clazz) {
+        this._selectFilterPanelClass = clazz;
+    }
+
+    getCreateFilterPanelClass() {
+        return this._createFilterPanelClass;
+    }
+
+    setCreateFilterPanelClass(clazz) {
+        this._createFilterPanelClass = clazz;
     }
 }

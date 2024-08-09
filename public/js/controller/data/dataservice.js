@@ -204,10 +204,12 @@ class DataService {
         }
 
         if (!res) {
+            var fetchConfig;
             const bFullFetch = !id && !where && (!limit || limit == -1);
-            const oFullFetch = model.getDefinition()['oFullFetch'];
             if (bFullFetch) {
-                if (oFullFetch && oFullFetch['bConfirmation'] && !confirm('Continue fetching all \'' + typeString + '\'?'))
+                const mdc = model.getModelDefaultsController();
+                fetchConfig = { ...mdc.getDefaultFetchConfig() };
+                if (fetchConfig && fetchConfig['bConfirmation'] && !confirm('Continue fetching all \'' + typeString + '\'?'))
                     throw new Error('Aborted');
             }
 
@@ -232,26 +234,26 @@ class DataService {
                     typeUrl.push(DataService._getUrl(typeString, part, where, sort, limit));
             } else {
                 if (typeUrl) {
-                    if (bFullFetch && oFullFetch && oFullFetch['paging']) {
+                    if (bFullFetch && fetchConfig && fetchConfig['iBatchSize']) {
                         typeUrl = [];
                         tmp = await this._apiClient.request("GET", this._apiClient.getDataPath() + DataService._getUrl(typeString, null, null, 'id:desc', 1));
                         if (tmp) {
                             var o = JSON.parse(tmp);
                             if (o['data'] && o['data'].length == 1) {
                                 const last = o['data'][0]['id'];
-                                var blockCount = Math.ceil(last / oFullFetch['paging']);
+                                var blockCount = Math.ceil(last / fetchConfig['iBatchSize']);
                                 var start = 0;
                                 var end;
                                 var whereBlock;
                                 for (var i = 0; i < blockCount; i++) {
                                     if (i > 0)
-                                        start = i * oFullFetch['paging'];
+                                        start = i * fetchConfig['iBatchSize'];
                                     else
                                         start = 0;
                                     if (i == blockCount - 1)
                                         end = -1;
                                     else
-                                        end = start + oFullFetch['paging'];
+                                        end = start + fetchConfig['iBatchSize'];
                                     if (start != 0)
                                         whereBlock = 'id_gt=' + start;
                                     else

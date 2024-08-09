@@ -35,9 +35,12 @@ class TutorialPanel extends Panel {
                 $div.append($continue);
                 break;
             case 2:
-                $div.append("under construction - coming soon ...<br/><br/>");
-                $div.append("<img src=\"https://c.tenor.com/_4YgA77ExHEAAAAd/rick-roll.gif\"/>");
-                $div.append("<br/><br/>");
+                $div.append(`<img src=\"https://img.freepik.com/free-vector/construction-with-black-yellow-stripes_1017-30755.jpg\"
+    alt=\"under construction - coming soon ...\"/>
+<br/>
+<div style=\"float: right;\">Designed by <a href=\"www.freepik.com\">Freepik</a></div>
+<br/>
+<br/>`);
 
                 var $continue = $('<button>')
                     .text('Close')

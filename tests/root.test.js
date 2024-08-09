@@ -39,6 +39,7 @@ describe("Root Suite", function () {
     require('./content_create.test.js');
     require('./model_edit.test.js');
     require('./content_create2.test.js');
+    require('./modules.test.js');
     require('./datatypes.test.js');
     require('./form.test.js');
     require('./delete.test.js');
