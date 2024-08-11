@@ -24,14 +24,18 @@ describe("Root Suite", function () {
     after('#teardown', async function () {
         this.timeout(15000);
 
-        if (allPassed)
-            await driver.quit();
-        if (bSetup)
-            await helper.teardown();
+        if (allPassed) {
+            if (bSetup)
+                await helper.teardown();
+            /*else
+                await driver.quit();*/
+        }
+
         return Promise.resolve();
     });
 
     require('./login.test.js');
+    require('./helper.test.js');
     require('./clear.test.js');
     require('./settings.test.js');
     require('./content_open.test.js');
@@ -39,6 +43,7 @@ describe("Root Suite", function () {
     require('./content_create.test.js');
     require('./model_edit.test.js');
     require('./content_create2.test.js');
+    require('./dataservice.test.js');
     require('./modules.test.js');
     require('./datatypes.test.js');
     require('./form.test.js');

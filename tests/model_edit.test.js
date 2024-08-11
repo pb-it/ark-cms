@@ -97,7 +97,10 @@ describe('Testsuit - Edit Model', function () {
         await ExtendedTestHelper.delay(1000);
 
         const modelModal = await window.getTopModal();
-        var button = await window.getButton(modelModal, 'Add Attribute');
+        assert.notEqual(modelModal, null);
+        var panel = await modelModal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Add Attribute');
         assert.notEqual(button, null, 'Button not found!');
         button.click();
 
@@ -105,11 +108,14 @@ describe('Testsuit - Edit Model', function () {
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
-        const input = await window.getFormInput(form, 'name');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        const input = await form.getFormInput('name');
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('stars');
-        await form.findElement(webdriver.By.css('select#dataType > option[value="relation"]')).click();
+        await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="relation"]')).click();
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
@@ -117,23 +123,28 @@ describe('Testsuit - Edit Model', function () {
         await ExtendedTestHelper.delay(100);
 
         modal = await window.getTopModal();
-        form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
-        var elem = await form.findElement(webdriver.By.css('select#model > option[value="star"]'));
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        var elem = await form.getElement().findElement(webdriver.By.css('select#model > option[value="star"]'));
         assert.notEqual(elem, null, 'Option not found!');
         await elem.click();
-        elem = await form.findElement(webdriver.By.xpath('//select[@name="multiple"]/option[@value="true"]'));
+        await ExtendedTestHelper.delay(100);
+        elem = await form.getElement().findElement(webdriver.By.xpath('//select[@name="multiple"]/option[@value="true"]'));
         assert.notEqual(elem, null, 'Option not found!');
         await elem.click();
+        await ExtendedTestHelper.delay(100);
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
         await ExtendedTestHelper.delay(100);
 
         button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
@@ -255,7 +266,7 @@ module.exports = test;`
         var panel = await modelModal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]/div/div/div[@class="panel"]'));
         assert.notEqual(panel, null, 'Panel not found!');
         var forms = await panel.findElements(webdriver.By.xpath('./div/form[contains(@class, "crudform")]'));
-        assert.equal(forms.length, 6);
+        assert.equal(forms.length, 7);
         var option = await forms[0].findElement(webdriver.By.css('select#panelType > option[value=""]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
@@ -320,9 +331,8 @@ module.exports = test;`
 
         var panel = await modelModal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]/div/div/div[@class="panel"]'));
         assert.notEqual(panel, null, 'Panel not found!');
-        //var form = await window.getForm(panel);
         var forms = await panel.findElements(webdriver.By.xpath('./div/form[contains(@class, "crudform")]'));
-        assert.equal(forms.length, 6);
+        assert.equal(forms.length, 7);
         var element = await forms[0].findElement(webdriver.By.xpath('./div[@class="formentry"]/div[@class="value"]/select[@id="panelType"]'));
         assert.notEqual(element, null, 'Select not found!');
         //var select = new Select(element);
@@ -365,7 +375,7 @@ module.exports = test;`
         panel = await modelModal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]/div/div/div[@class="panel"]'));
         assert.notEqual(panel, null, 'Panel not found!');
         forms = await panel.findElements(webdriver.By.xpath('./div/form[contains(@class, "crudform")]'));
-        assert.equal(forms.length, 6);
+        assert.equal(forms.length, 7);
         element = await forms[0].findElement(webdriver.By.xpath('./div[@class="formentry"]/div[@class="value"]/select[@id="panelType"]'));
         assert.notEqual(element, null, 'Select not found!');
         value = await element.getAttribute('value');
@@ -401,26 +411,27 @@ module.exports = test;`
         await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
 
         const file = config['host'] + '/public/images/missing_image.png';
         const xpathThumb = `./div/div[@class="thumbnail"]/img`;
-        var thumb = await panels[0].findElement(webdriver.By.xpath(xpathThumb));
+        var thumb = await panels[0].getElement().findElement(webdriver.By.xpath(xpathThumb));
         assert.notEqual(thumb, null, 'Thumbnail not found!');
         var img = await thumb.getAttribute('src');
         var i = 0;
         const loadingIcon = config['host'] + '/public/images/loading_icon.gif';
         while (img === loadingIcon && i < 10) {
             await ExtendedTestHelper.delay(1000);
-            thumb = await panels[0].findElement(webdriver.By.xpath(xpathThumb));
+            thumb = await panels[0].getElement().findElement(webdriver.By.xpath(xpathThumb));
             img = await thumb.getAttribute('src');
             i++;
         }
         assert.equal(img, file);
 
-        var title = await panels[0].findElement(webdriver.By.xpath(`./div/div/p`));
+        var title = await panels[0].getElement().findElement(webdriver.By.xpath(`./div/div/p`));
         assert.notEqual(title, null, 'Title not found!');
         var text = await title.getText();
         assert.equal(text, 'John Wick');
@@ -447,7 +458,10 @@ module.exports = test;`
         await ExtendedTestHelper.delay(1000);
 
         const modelModal = await window.getTopModal();
-        var button = await window.getButton(modelModal, 'Add Attribute');
+        assert.notEqual(modelModal, null);
+        var panel = await modelModal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Add Attribute');
         assert.notEqual(button, null, 'Button not found!');
         button.click();
         await app.waitLoadingFinished(10);
@@ -455,11 +469,15 @@ module.exports = test;`
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
-        var input = await window.getFormInput(form, 'name');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('father');
-        await form.findElement(webdriver.By.css('select#dataType > option[value="relation"]')).click();
+        await ExtendedTestHelper.delay(100);
+        await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="relation"]')).click();
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
@@ -467,6 +485,7 @@ module.exports = test;`
         await ExtendedTestHelper.delay(100);
 
         modal = await window.getTopModal();
+        assert.notEqual(modal, null);
         panel = await modal.getPanel();
         assert.notEqual(panel, null);
         var form = await panel.getForm();
@@ -512,16 +531,17 @@ module.exports = test;`
         await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
         assert.equal(panels.length, 2);
 
-        var title = await panels[0].findElement(webdriver.By.xpath(`./div/div/p`));
+        var title = await panels[0].getElement().findElement(webdriver.By.xpath(`./div/div/p`));
         assert.notEqual(title, null, 'Title not found!');
         var text = await title.getText();
         assert.equal(text, 'John Wick');
 
-        var contextmenu = await window.openContextMenu(panels[0]);
+        var contextmenu = await panels[0].openContextMenu();
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Edit');
         await app.waitLoadingFinished(10);
@@ -533,15 +553,15 @@ module.exports = test;`
         assert.notEqual(panel, null);
         form = await panel.getForm();
         assert.notEqual(form, null);
-        input = await form.getElement().findElement(webdriver.By.xpath('//div[@class="select"]/input[starts-with(@list,"father")]'));
+        input = await form.getElement().findElement(webdriver.By.xpath('.//div[@class="select"]/input[starts-with(@list,"father")]'));
         assert.notEqual(input, null);
-        var option = await form.getElement().findElement(webdriver.By.xpath('//div[@class="select"]/datalist[starts-with(@id,"father")]/option[text()="Dad"]'));
+        var option = await form.getElement().findElement(webdriver.By.xpath('.//div[@class="select"]/datalist[starts-with(@id,"father")]/option[text()="Dad"]'));
         assert.notEqual(option, null);
         var value = await option.getAttribute('value');
         await input.sendKeys(value);
         await input.sendKeys(webdriver.Key.ENTER);
         await ExtendedTestHelper.delay(1000);
-        button = await modal.findElement(webdriver.By.xpath('//button[text()="Update"]'));
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Update"]'));
         assert.notEqual(button, null, 'Button not found');
         await button.click();
         await app.waitLoadingFinished(10);
@@ -550,7 +570,7 @@ module.exports = test;`
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
-        contextmenu = await window.openContextMenu(panels[0]);
+        contextmenu = await panels[0].openContextMenu();
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Show');
         await ExtendedTestHelper.delay(1000);
@@ -558,14 +578,16 @@ module.exports = test;`
         await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
-        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
-        title = await panels[0].findElement(webdriver.By.xpath(`./div/div/p`));
+        title = await panels[0].getElement().findElement(webdriver.By.xpath(`./div/div/p`));
         assert.notEqual(title, null, 'Title not found!');
         text = await title.getText();
         assert.equal(text, 'Dad');
 
-        contextmenu = await window.openContextMenu(panels[0]);
+        contextmenu = await panels[0].openContextMenu();
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Delete');
         await app.waitLoadingFinished(10);
@@ -573,8 +595,7 @@ module.exports = test;`
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        //var button = await helper.getButton(modal, 'Confirm');
-        var elements = await modal.findElements(webdriver.By.xpath(`//input[@type="submit" and @name="confirm"]`));
+        var elements = await modal.findElements(webdriver.By.xpath(`.//input[@type="submit" and @name="confirm"]`));
         assert.equal(elements.length, 1);
         button = elements[0];
         assert.notEqual(button, null);
@@ -594,14 +615,16 @@ module.exports = test;`
         await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
-        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
-        title = await panels[0].findElement(webdriver.By.xpath(`./div/div/p`));
+        title = await panels[0].getElement().findElement(webdriver.By.xpath(`./div/div/p`));
         assert.notEqual(title, null, 'Title not found!');
         text = await title.getText();
         assert.equal(text, 'John Wick');
 
-        var contextmenu = await window.openContextMenu(panels[0]);
+        var contextmenu = await panels[0].openContextMenu();
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Edit');
         await app.waitLoadingFinished(10);
@@ -635,19 +658,26 @@ module.exports = test;`
         await app.waitLoadingFinished(10);
 
         const modelModal = await window.getTopModal();
-        var button = await window.getButton(modelModal, 'Add Attribute');
+        assert.notEqual(modelModal, null);
+        var panel = await modelModal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Add Attribute');
         assert.notEqual(button, null, 'Button not found!');
         button.click();
         await app.waitLoadingFinished(10);
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
-        var input = await window.getFormInput(form, 'name');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('friends');
-        await form.findElement(webdriver.By.css('select#dataType > option[value="relation"]')).click();
-        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
+        await ExtendedTestHelper.delay(100);
+        await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="relation"]')).click();
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
         await app.waitLoadingFinished(10);
@@ -661,7 +691,7 @@ module.exports = test;`
         assert.notEqual(elem, null, 'Option not found!');
         await elem.click();
         await ExtendedTestHelper.delay(100);
-        elem = await form.getElement().findElement(webdriver.By.xpath('//select[@name="multiple"]/option[@value="true"]'));
+        elem = await form.getElement().findElement(webdriver.By.xpath('.//select[@name="multiple"]/option[@value="true"]'));
         assert.notEqual(elem, null, 'Option not found!');
         await elem.click();
         await ExtendedTestHelper.delay(100);
@@ -672,12 +702,12 @@ module.exports = test;`
         bDisabled = await input.getAttribute('disabled');
         assert.equal(bDisabled, null);
         await ExtendedTestHelper.delay(1000);
-        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
         await ExtendedTestHelper.delay(100);
 
-        button = await modelModal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
+        button = await modelModal.findElement(webdriver.By.xpath('.//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
         await app.waitLoadingFinished(10);
@@ -697,16 +727,17 @@ module.exports = test;`
         await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
         assert.equal(panels.length, 2);
 
-        var title = await panels[0].findElement(webdriver.By.xpath(`./div/div/p`));
+        var title = await panels[0].getElement().findElement(webdriver.By.xpath(`./div/div/p`));
         assert.notEqual(title, null, 'Title not found!');
         var text = await title.getText();
         assert.equal(text, 'John Wick');
 
-        var contextmenu = await window.openContextMenu(panels[0]);
+        var contextmenu = await panels[0].openContextMenu();
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Edit');
         await app.waitLoadingFinished(10);
@@ -717,15 +748,15 @@ module.exports = test;`
         assert.notEqual(panel, null);
         form = await panel.getForm();
         assert.notEqual(form, null);
-        input = await form.getElement().findElement(webdriver.By.xpath('//div[@class="select"]/input[starts-with(@list,"friends")]'));
+        input = await form.getElement().findElement(webdriver.By.xpath('.//div[@class="select"]/input[starts-with(@list,"friends")]'));
         assert.notEqual(input, null);
-        var option = await form.getElement().findElement(webdriver.By.xpath('//div[@class="select"]/datalist[starts-with(@id,"father")]/option[text()="Friend"]'));
+        var option = await form.getElement().findElement(webdriver.By.xpath('.//div[@class="select"]/datalist[starts-with(@id,"father")]/option[text()="Friend"]'));
         assert.notEqual(option, null);
         var value = await option.getAttribute('value');
         await input.sendKeys(value);
         await input.sendKeys(webdriver.Key.ENTER);
         await ExtendedTestHelper.delay(1000);
-        button = await modal.findElement(webdriver.By.xpath('//button[text()="Update"]'));
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Update"]'));
         assert.notEqual(button, null, 'Button not found');
         await button.click();
         await app.waitLoadingFinished(10);
@@ -733,16 +764,18 @@ module.exports = test;`
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
-        contextmenu = await window.openContextMenu(panels[0]);
+        contextmenu = await panels[0].openContextMenu();
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await contextmenu.click('friends');
         await app.waitLoadingFinished(10);
 
-        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
-        title = await panels[0].findElement(webdriver.By.xpath(`./div/div/p`));
+        title = await panels[0].getElement().findElement(webdriver.By.xpath(`./div/div/p`));
         assert.notEqual(title, null, 'Title not found!');
         text = await title.getText();
         assert.equal(text, 'Friend');

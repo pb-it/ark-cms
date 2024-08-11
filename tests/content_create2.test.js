@@ -108,27 +108,34 @@ describe('Testsuit - Create #2', function () {
         await app.waitLoadingFinished(10);
 
         const modelModal = await window.getTopModal();
-        var button = await window.getButton(modelModal, 'Add Attribute');
+        assert.notEqual(modelModal, null);
+        var panel = await modelModal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Add Attribute');
         assert.notEqual(button, null, 'Button not found!');
         button.click();
         await app.waitLoadingFinished(10);
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
-        var input = await window.getFormInput(form, 'name');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('profiles');
-        await form.findElement(webdriver.By.css('select#dataType > option[value="relation"]')).click();
+        await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="relation"]')).click();
         button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
         await app.waitLoadingFinished(10);
 
         modal = await window.getTopModal();
+        assert.notEqual(modal, null);
         panel = await modal.getPanel();
         assert.notEqual(panel, null);
-        var form = await panel.getForm();
+        form = await panel.getForm();
         assert.notEqual(form, null);
         var elem = await form.getElement().findElement(webdriver.By.css('select#model > option[value="profile"]'));
         assert.notEqual(elem, null, 'Option not found!');
@@ -194,7 +201,7 @@ describe('Testsuit - Create #2', function () {
         assert.notEqual(panel, null);
         form = await panel.getForm();
         assert.notEqual(form, null);
-        button = await window.getButton(panel.getElement(), 'Create');
+        button = await panel.getButton('Create');
         assert.notEqual(button, null);
 
         await modal.closeModal();

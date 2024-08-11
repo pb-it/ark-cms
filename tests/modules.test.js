@@ -128,7 +128,6 @@ describe('Testsuit - Modules', function () {
         var form = forms[0];
 
         //var input = await form.getFormInput('server');
-        //var input = await window.getFormInput(form, 'server');
         var input = await form.findElement(webdriver.By.xpath(`./div[@class="formentry"]/div[@class="value"]/textarea[@name="server"]`));
         assert.notEqual(input, null);
         /*const cmdCtrl = os.platform().includes('darwin') ? webdriver.Key.COMMAND : webdriver.Key.CONTROL; // u'\ue009'

@@ -8,7 +8,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
-describe('Testsuit', function () {
+describe('Testsuit - Navigation', function () {
 
     let driver;
 
@@ -229,7 +229,7 @@ describe('Testsuit', function () {
         await input.clear();
         await input.sendKeys('{"available":[{"name":"movie-db","menu":["movie",null,"studio",null,"star"]}]}');
 
-        button = await window.getButton(panel.getElement(), 'Create');
+        button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -292,7 +292,7 @@ describe('Testsuit', function () {
         assert.notEqual(input, null);
         await input.clear();
 
-        button = await window.getButton(panel.getElement(), 'Update');
+        button = await panel.getButton('Update');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -353,13 +353,15 @@ describe('Testsuit', function () {
         await sidemenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         var url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/movie');
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
         assert.equal(panels.length, 5);
 
         const xpathAdd = `//*[@id="topnav"]/div/div/div/i[contains(@class, 'fa-plus')]`;
@@ -371,11 +373,13 @@ describe('Testsuit', function () {
         url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/movie/new');
 
-        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
-        var form = await window.getForm(panels[0]);
+        var form = await panels[0].getForm();
         assert.notEqual(form, null);
-        var input = await window.getFormInput(form, 'name');
+        var input = await form.getFormInput('name');
         assert.notEqual(input, null);
         await input.sendKeys('Test');
         await ExtendedTestHelper.delay(1000);
@@ -384,18 +388,22 @@ describe('Testsuit', function () {
         await ExtendedTestHelper.delay(1000);
         url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/movie');
-        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
         assert.equal(panels.length, 5);
 
         await driver.navigate().forward();
         await ExtendedTestHelper.delay(1000);
         url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/movie/new');
-        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
-        form = await window.getForm(panels[0]);
+        form = await panels[0].getForm();
         assert.notEqual(form, null);
-        input = await window.getFormInput(form, 'name');
+        input = await form.getFormInput('name');
         var value = await input.getAttribute('value');
         //assert.equal(value, 'John Test'); //TODO: fails
         assert.equal(value, '');
@@ -419,11 +427,13 @@ describe('Testsuit', function () {
         await ExtendedTestHelper.delay(1000);
         url = await driver.getCurrentUrl();
         assert.equal(url, config['host'] + '/data/movie/new');
-        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
-        form = await window.getForm(panels[0]);
+        form = await panels[0].getForm();
         assert.notEqual(form, null);
-        input = await window.getFormInput(form, 'name');
+        input = await form.getFormInput('name');
         var value = await input.getAttribute('value');
         assert.equal(value, 'Test');
 

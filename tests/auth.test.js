@@ -5,7 +5,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
-describe('Testsuit', function () {
+describe('Testsuit - Authentication/Authorization', function () {
 
     let driver;
 
@@ -18,11 +18,9 @@ describe('Testsuit', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await TestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await TestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
@@ -53,31 +51,34 @@ describe('Testsuit', function () {
         await sidemenu.click('_user');
         await TestHelper.delay(1000);
         await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
         await TestHelper.delay(1000);
 
-        const xpath = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        const panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        const form = await window.getForm(panel);
-        var input = await window.getFormInput(form, 'email');
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panel = await canvas.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('email');
         assert.notEqual(input, null);
         await input.sendKeys('-');
-        input = await window.getFormInput(form, 'username');
+        input = await form.getFormInput('username');
         assert.notEqual(input, null);
         await input.sendKeys('user');
-        input = await window.getFormInput(form, 'password');
+        input = await form.getFormInput('password');
         assert.notEqual(input, null);
         await input.sendKeys('user');
-        //input = await window.getFormInput(form, 'roles');
         //const option = await form.findElement(webdriver.By.css('select#roles... > option[value="user"]'));
-        const option = await form.findElement(webdriver.By.xpath('//div[@class="select"]/datalist[starts-with(@id,"roles")]/option[text()="user"]'));
+        const option = await form.getElement().findElement(webdriver.By.xpath('//div[@class="select"]/datalist[starts-with(@id,"roles")]/option[text()="user"]'));
         assert.notEqual(option, null);
-        input = await form.findElement(webdriver.By.xpath('//div[@class="select"]/input[starts-with(@list,"roles")]'));
+        input = await form.getElement().findElement(webdriver.By.xpath('//div[@class="select"]/input[starts-with(@list,"roles")]'));
         assert.notEqual(input, null);
         const value = await option.getAttribute('value');
         await input.sendKeys(value);
         await input.sendKeys(webdriver.Key.ENTER);
         await TestHelper.delay(100);
-        button = await window.getButton(panel, 'Create');
+        button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
 

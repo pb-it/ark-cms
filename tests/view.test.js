@@ -5,6 +5,8 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
+const { Form } = require('@pb-it/ark-cms-selenium-test-helper');
+
 describe('Testsuit - View', function () {
 
     async function checkThumbnail(panel) {
@@ -40,11 +42,9 @@ describe('Testsuit - View', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
@@ -138,17 +138,20 @@ describe('Testsuit - View', function () {
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
         await ExtendedTestHelper.delay(1000);
-        var input = await window.getFormInput(forms[1], 'width');
+        var form = new Form(helper, forms[1]);
+        var input = await form.getFormInput('width');
         assert.notEqual(input, null, 'Input not found!');
         await input.clear();
         await input.sendKeys('200');
         await ExtendedTestHelper.delay(1000);
-        input = await window.getFormInput(forms[1], 'height');
+        input = await form.getFormInput('height');
         assert.notEqual(input, null, 'Input not found!');
         await input.clear();
         await input.sendKeys('200');
         await ExtendedTestHelper.delay(1000);
-        var button = await window.getButton(modal, 'Apply');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Apply');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -164,8 +167,9 @@ describe('Testsuit - View', function () {
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-
-        button = await window.getButton(modal, 'Set as default');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        button = await panel.getButton('Set as default');
         assert.notEqual(button, null);
         await button.click();
         await driver.wait(webdriver.until.alertIsPresent());
@@ -262,7 +266,9 @@ describe('Testsuit - View', function () {
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
         await ExtendedTestHelper.delay(1000);
-        var button = await window.getButton(modal, 'Apply');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Apply');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);

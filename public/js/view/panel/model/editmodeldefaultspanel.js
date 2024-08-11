@@ -92,28 +92,26 @@ class EditModelDefaultsPanel extends Panel {
         $div.append($form);
         $div.append('</br>');
 
-        if (app.getController().getConfigController().experimentalFeaturesEnabled()) {
-            skeleton = [
-                {
-                    name: 'bConfirmation',
-                    label: 'Confirmation',
-                    tooltip: '**INFO**: Enable confirmation before fetching the entire dataset.',
-                    dataType: 'boolean'
-                },
-                {
-                    name: 'iBatchSize',
-                    label: 'Batch Size',
-                    tooltip: '**INFO**: Requests on the entire dataset will be split into batches of defined size.\nThis is intended to prevent heavy server load through a single request on a large dataset.',
-                    dataType: 'integer'
-                }
-            ];
-            data = mdc.getDefaultFetchConfig();
-            this._fetchForm = new Form(skeleton, data);
-            $form = await this._fetchForm.renderForm();
-            $div.append('<h3>Fetch / API Request</h3>');
-            $div.append($form);
-            $div.append('</br>');
-        }
+        skeleton = [
+            {
+                name: 'bConfirmation',
+                label: 'Confirmation',
+                tooltip: '**INFO**: Enable confirmation before fetching the entire dataset.',
+                dataType: 'boolean'
+            },
+            {
+                name: 'iBatchSize',
+                label: 'Batch Size',
+                tooltip: '**INFO**: Requests on the entire dataset will be split into batches of defined size.\nThis is intended to prevent heavy server load through a single request on a large dataset.',
+                dataType: 'integer'
+            }
+        ];
+        data = mdc.getDefaultFetchConfig();
+        this._fetchForm = new Form(skeleton, data);
+        $form = await this._fetchForm.renderForm();
+        $div.append('<h3>Fetch / API Request</h3>');
+        $div.append($form);
+        $div.append('</br>');
 
         return Promise.resolve($div);
     }

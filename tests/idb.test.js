@@ -10,7 +10,7 @@ const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
 const common = require('../src/common/common.js');
 
-describe('Testsuit', function () {
+describe('Testsuit - IndexDB', function () {
 
     let bSetup;
     let driver;
@@ -25,11 +25,9 @@ describe('Testsuit', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();

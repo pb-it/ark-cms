@@ -36,11 +36,9 @@ describe('Testsuit - Search', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
@@ -164,9 +162,9 @@ describe('Testsuit - Search', function () {
         await ExtendedTestHelper.delay(1000);
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var panel = await modal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]/div/div/div[@class="panel"]'));
+        var panel = await modal.getPanel();
         assert.notEqual(panel, null, 'Panel not found!');
-        var forms = await panel.findElements(webdriver.By.xpath('./div/form[contains(@class, "crudform")]'));
+        var forms = await panel.getElement().findElements(webdriver.By.xpath('.//div/form[contains(@class, "crudform")]'));
         assert.equal(forms.length, 1);
         var option = await forms[0].findElement(webdriver.By.css('select#panelType > option[value="MediaPanel"]'));
         assert.notEqual(option, null, 'Option not found!');
@@ -176,7 +174,7 @@ describe('Testsuit - Search', function () {
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
         await ExtendedTestHelper.delay(1000);
-        var button = await window.getButton(modal, 'Set as default');
+        var button = await panel.getButton('Set as default');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -186,7 +184,7 @@ describe('Testsuit - Search', function () {
         assert.equal(text, 'Changed successfully');
         await alert.accept();
         await ExtendedTestHelper.delay(1000);
-        button = await window.getButton(modal, 'Apply');
+        button = await panel.getButton('Apply');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -212,7 +210,9 @@ describe('Testsuit - Search', function () {
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        button = await window.getButton(modal, 'Apply');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        button = await panel.getButton('Apply');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);

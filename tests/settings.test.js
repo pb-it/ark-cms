@@ -5,13 +5,15 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
-describe('Testsuit', function () {
+const { Form } = require('@pb-it/ark-cms-selenium-test-helper');
+
+describe('Testsuit - Settings', function () {
 
     let driver;
 
     async function checkErrorMessage(bEqual) {
         const xpath = '/html/body/div[@class="modal"]/div[@class="modal-content"]/div[@class="panel"]/div';
-        const panel = driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 5000);
+        const panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 5000);
         assert.notEqual(panel, null);
         const text = await panel.getText();
         //console.log(text);
@@ -28,11 +30,9 @@ describe('Testsuit', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await TestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await TestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
@@ -64,14 +64,11 @@ describe('Testsuit', function () {
 
         const app = helper.getApp();
         await app.reload();
+        await app.waitLoadingFinished(10);
+        await TestHelper.delay(1000);
 
-        await TestHelper.delay(3000); // reload with failed attempt to connect to API takes longer
         const window = app.getWindow();
         modal = await window.getTopModal();
-        if (!modal) {
-            await TestHelper.delay(3000); // even longer when target is not on localhost - timeout currently configured with 5 seconds
-            modal = await window.getTopModal();
-        }
         assert.notEqual(modal, null, "Modal with connection-error not open");
         await checkErrorMessage(true);
         await modal.closeModal();
@@ -83,8 +80,10 @@ describe('Testsuit', function () {
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var form = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
-        var input = await window.getFormInput(form, 'api');
+        var formElement = await modal.findElement(webdriver.By.xpath('//form[contains(@class, "crudform")]'));
+        assert.notEqual(formElement, null);
+        var form = new Form(helper, formElement);
+        var input = await form.getFormInput('api');
         assert.notEqual(input, null);
         await input.clear();
         if (helper.getConfig()['api'])

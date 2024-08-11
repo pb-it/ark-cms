@@ -18,11 +18,9 @@ describe('Testsuit - Filter', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await ExtendedTestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await ExtendedTestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
@@ -76,16 +74,20 @@ describe('Testsuit - Filter', function () {
         await sidemenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
         assert.equal(panels.length, 5);
 
         await window.getTopNavigationBar().openApplyFilter();
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var button = await window.getButton(modal, 'New');
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('New');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -100,7 +102,7 @@ describe('Testsuit - Filter', function () {
         assert.notEqual(input, null);
         await input.sendKeys('$.[?(@.studio.id==1)]');
         await ExtendedTestHelper.delay(1000);
-        button = await window.getButton(modal, 'Filter');
+        button = await panel.getButton('Filter');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -112,20 +114,24 @@ describe('Testsuit - Filter', function () {
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
-        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
         assert.equal(panels.length, 3);
 
         await window.getTopNavigationBar().openApplyFilter();
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        button = await window.getButton(modal, 'New');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        button = await panel.getButton('New');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var panel = await modal.getPanel();
+        panel = await modal.getPanel();
         assert.notEqual(panel, null);
         var form = await panel.getForm();
         assert.notEqual(form, null);
@@ -133,7 +139,7 @@ describe('Testsuit - Filter', function () {
         assert.notEqual(input, null);
         await input.sendKeys('$.[?(@.name=~/(man|pirate|potter)/i)]');
         await ExtendedTestHelper.delay(1000);
-        button = await window.getButton(modal, 'Filter');
+        button = await panel.getButton('Filter');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -173,7 +179,7 @@ describe('Testsuit - Filter', function () {
         input = await form.getFormInput('name');
         assert.notEqual(input, null);
         await input.sendKeys('Marvel Studios');
-        button = await window.getButton(modal, 'Save');
+        button = await panel.getButton('Save');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -198,11 +204,13 @@ describe('Testsuit - Filter', function () {
         await window.getTopNavigationBar().openApplyFilter();
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        button = await window.getButton(modal, 'Marvel Studios');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        button = await panel.getButton('Marvel Studios');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
-        button = await window.getButton(modal, 'Apply');
+        button = await panel.getButton('Apply');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -237,14 +245,17 @@ describe('Testsuit - Filter', function () {
         await sidemenu.click('All');
         await ExtendedTestHelper.delay(1000);
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
         assert.equal(panels.length, 5);
 
         await window.getTopNavigationBar().openApplyFilter();
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var button = await window.getButton(modal, 'New');
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('New');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -253,7 +264,7 @@ describe('Testsuit - Filter', function () {
         assert.notEqual(modal, null);
         const filterPanel = await modal.getPanel();
         assert.notEqual(filterPanel, null);
-        button = await window.getButton(modal, 'QueryBuilder');
+        button = await filterPanel.getButton('QueryBuilder');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);

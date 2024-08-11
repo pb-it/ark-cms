@@ -8,7 +8,7 @@ const assert = require('assert');
 const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
-describe('Testsuit', function () {
+describe('Testsuit - Clear', function () {
 
     let driver;
 
@@ -21,11 +21,9 @@ describe('Testsuit', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await TestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await TestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();

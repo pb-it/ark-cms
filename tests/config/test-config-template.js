@@ -1,12 +1,35 @@
 const config = {
-    //cmsServerConfig: { port: 4000 },
+    /*cmsServerConfig: {
+        host: 'localhost',
+        port: 4000
+    },*/
     host: 'http://localhost:4000',
     api: 'https://localhost:3002',
+    /*proxy: {
+        bmp: {
+            protocol: 'http',
+            host: 'localhost',
+            port: 9090,
+            // executable: '/opt/browsermob-proxy-2.1.4/bin/browsermob-proxy'
+        },
+        options: { // *OPTIONAL*
+            //protocol: 'http',
+            //host: 'localhost',
+            port: 39999,
+            //trustAllServers: true,
+            //bindAddress: '127.0.0.1'
+        }
+
+    },*/
     browser: {
         //name: 'firefox',
         name: 'chrome',
         //snap: true,
-        //arguments: ['user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36']
+        //arguments: ['user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'],
+        /*proxy: {
+            http: 'localhost:39999',
+            https: 'localhost:39999'
+        }*/
     },
     //cdn: ''
 };

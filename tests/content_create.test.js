@@ -52,14 +52,16 @@ describe('Testsuit - Create', function () {
         await app.waitLoadingFinished(10);
         await TestHelper.delay(1000);
 
-        const xpath = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        const panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
-        const form = await window.getForm(panel);
+        const canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        const panel = await canvas.getPanel();
+        assert.notEqual(panel, null);
+        const form = await panel.getForm();
         assert.notEqual(form, null);
-        const input = await window.getFormInput(form, 'name');
+        const input = await form.getFormInput('name');
         assert.notEqual(input, null);
         await input.sendKeys('TestMovie');
-        const button = await window.getButton(panel, 'Create');
+        const button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
         await app.waitLoadingFinished(10);

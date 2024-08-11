@@ -5,12 +5,12 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
+const { Form } = require('@pb-it/ark-cms-selenium-test-helper');
+
 describe('Testsuit - Panel', function () {
 
     async function checkForm(form) {
-        const app = helper.getApp();
-        const window = app.getWindow();
-        var input = await window.getFormInput(form, 'id');
+        var input = await form.getFormInput('id');
         assert.notEqual(input, null);
         var id = await input.getAttribute('value');
         assert.equal(id, '1');
@@ -19,7 +19,7 @@ describe('Testsuit - Panel', function () {
         var bReadonly = await input.getAttribute('readonly');
         assert.equal(bReadonly, null);
 
-        input = await window.getFormInput(form, 'name');
+        input = await form.getFormInput('name');
         assert.notEqual(input, null);
         var value = await input.getAttribute('value');
         assert.equal(value, 'John Doe');
@@ -52,11 +52,9 @@ describe('Testsuit - Panel', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await TestHelper.delay(1000);
 
         await app.prepare(config['api'], config['username'], config['password']);
-
         await TestHelper.delay(1000);
 
         const modal = await app.getWindow().getTopModal();
@@ -150,10 +148,12 @@ describe('Testsuit - Panel', function () {
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        //var panel = await modal.findElement(webdriver.By.xpath('//div[contains(@class, "panel")]'));
-        var panel = await modal.findElement(webdriver.By.xpath('//div[@class="panel"]')); // classlist must not contain 'selectable'
+        //var panel = await modal.findElement(webdriver.By.xpath('.//div[contains(@class, "panel")]'));
+        var panel = await modal.findElement(webdriver.By.xpath('.//div[@class="panel"]')); // classlist must not contain 'selectable'
         assert.notEqual(panel, null);
-        var form = await window.getForm(panel);
+        var elements = await panel.findElements(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
+        assert.equal(elements.length, 1);
+        var form = new Form(helper, elements[0]);
 
         assert.notEqual(form, null);
         await checkForm(form);
@@ -166,7 +166,9 @@ describe('Testsuit - Panel', function () {
         await TestHelper.delay(1000);
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
-        form = await window.getForm(panels[0]);
+        elements = await panels[0].findElements(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
+        assert.equal(elements.length, 1);
+        form = new Form(helper, elements[0]);
         await checkForm(form);
 
         await window.getTopNavigationBar().openEditView();
@@ -174,17 +176,17 @@ describe('Testsuit - Panel', function () {
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        panel = await modal.findElement(webdriver.By.xpath('.//div[@class="panel"]'));
-        form = await panel.findElement(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
-        //form = await modal.findElement(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
-        //form = await window.getForm(panel);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
         /*driver.executeScript(function () {
             arguments[0].style.backgroundColor = 'lightblue';
         }, form);*/
-        const option = await form.findElement(webdriver.By.css('select#float > option[value="left"]'));
+        const option = await form.getElement().findElement(webdriver.By.css('select#float > option[value="left"]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
-        var button = await window.getButton(modal, 'Apply');
+        var button = await panel.getButton('Apply');
         assert.notEqual(button, null);
         await button.click();
         await TestHelper.delay(1000);
@@ -194,7 +196,9 @@ describe('Testsuit - Panel', function () {
 
         panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
         assert.equal(panels.length, 1);
-        form = await window.getForm(panels[0]);
+        elements = await panels[0].findElements(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
+        assert.equal(elements.length, 1);
+        form = new Form(helper, elements[0]);
         await checkForm(form);
 
         const title = await panels[0].getAttribute('title');

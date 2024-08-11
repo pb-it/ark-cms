@@ -7,7 +7,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
-describe('Testsuit', function () {
+describe('Testsuit - ContextMenu', function () {
 
     let driver;
 
@@ -137,12 +137,15 @@ describe('Testsuit', function () {
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var form = await window.getForm(modal);
-        var option = await form.findElement(webdriver.By.css('select#gender > option[value="male"]'));
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var option = await form.getElement().findElement(webdriver.By.css('select#gender > option[value="male"]'));
         assert.notEqual(option, null, 'Option not found!');
         await option.click();
         await ExtendedTestHelper.delay(1000);
-        var button = await window.getButton(modal, 'Apply');
+        var button = await panel.getButton('Apply');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -168,18 +171,19 @@ describe('Testsuit', function () {
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var panel = await modal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]'));
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
 
-        var input = await panel.findElement(webdriver.By.xpath('//div[@class="select"][1]/input[starts-with(@list,"movies")]'));
+        var input = await panel.getElement().findElement(webdriver.By.xpath('//div[@class="select"][1]/input[starts-with(@list,"movies")]'));
         assert.notEqual(input, null);
-        option = await panel.findElement(webdriver.By.xpath('//div[@class="select"][1]/datalist[starts-with(@id,"movies")]/option[text()="TestMovie"]'));
+        option = await panel.getElement().findElement(webdriver.By.xpath('//div[@class="select"][1]/datalist[starts-with(@id,"movies")]/option[text()="TestMovie"]'));
         assert.notEqual(option, null);
         var value = await option.getAttribute('value');
         await input.sendKeys(value);
         await input.sendKeys(webdriver.Key.ENTER);
         await ExtendedTestHelper.delay(1000);
 
-        button = await window.getButton(modal, 'Add');
+        button = await panel.getButton('Add');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -289,6 +293,7 @@ describe('Testsuit', function () {
         await sidemenu.click('Show');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
@@ -304,7 +309,6 @@ describe('Testsuit', function () {
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        //var button = await helper.getButton(modal, 'Confirm');
         var elements = await modal.findElements(webdriver.By.xpath(`//input[@type="submit" and @name="confirm"]`));
         assert.equal(elements.length, 1);
         var button = elements[0];

@@ -9,23 +9,52 @@ const Controller = require('../../src/controller.js');
 
 class ExtendedTestHelper extends TestHelper {
 
+    static async readJson(window, panel) {
+        var contextmenu = await panel.openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Debug');
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('JSON');
+        await ExtendedTestHelper.delay(1000);
+
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var jsonPanel = await modal.getPanel();
+        assert.notEqual(jsonPanel, null);
+        var div = await jsonPanel.getElement().findElement(webdriver.By.xpath('./div'));
+        assert.notEqual(div, null);
+        var text = await div.getText();
+        var obj = JSON.parse(text);
+        //console.log(obj);
+
+        await modal.closeModal();
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+        return Promise.resolve(obj);
+    }
+
     _controller;
 
     constructor() {
         super();
     }
 
-    async setup(config) {
-        if (config['cmsServerConfig']) {
-            this._controller = new Controller();
-            await this._controller.init(config['cmsServerConfig']);
+    async setup(config, bUseProxy) {
+        if (config['cmsServerConfig'] && config['cmsServerConfig']['host'] === 'localhost') {
+            if (!this._controller) {
+                this._controller = new Controller();
+                await this._controller.init(config['cmsServerConfig']);
+            }
         }
-        return super.setup(config);
+        return super.setup(config, bUseProxy);
     }
 
     async teardown() {
-        if (this._controller)
+        super.teardown();
+        if (this._controller) {
             await this._controller.getServer().teardown();
+            this._controller = null;
+        }
         return Promise.resolve();
     }
 
@@ -38,6 +67,10 @@ class ExtendedTestHelper extends TestHelper {
     async setupData(model, file, bExlusive) {
         const str = fs.readFileSync(file, 'utf8');
         const data = JSON.parse(str);
+        return this._setupData(model, data, bExlusive);
+    }
+
+    async _setupData(model, data, bExlusive) {
         const ds = this.getApp().getDataService();
         if (bExlusive) {
             var tmp = await ds.read(model);
@@ -97,6 +130,31 @@ class ExtendedTestHelper extends TestHelper {
                     assert.notEqual(Object.keys(res).length, 0);
                 }
 
+                break;
+            case 2:
+                var model = {
+                    "name": "dummy",
+                    "options": {
+                        "increments": true,
+                        "timestamps": true
+                    },
+                    "attributes": [
+                        {
+                            "name": "name",
+                            "dataType": "string"
+                        }
+                    ]
+                }
+                await this.getApp().getModelController().addModel(model);
+
+                const data = [];
+                for (var i = 1; i <= 10; i++) {
+                    data.push({
+                        'id': i,
+                        'name': i
+                    });
+                }
+                await this._setupData('dummy', data, true);
                 break;
             default:
         }

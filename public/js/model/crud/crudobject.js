@@ -109,17 +109,18 @@ class CrudObject {
                                     } else
                                         relevant[property] = newdata[property];
                                     break;
-                                /*case "date":
+                                case "date":
                                 case "datetime":
                                 case "timestamp":
                                     if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
                                         if (olddata[property] !== newdata[property]) {
-                                            if (new Date(olddata[property]).getTime() !== new Date(newdata[property]).getTime())
+                                            // ignore missmatch within millisecond range because the form entry cuts them off
+                                            if (Math.floor(new Date(olddata[property]).getTime() / 1000) - Math.floor(new Date(newdata[property]).getTime() / 1000) !== 0)
                                                 relevant[property] = newdata[property];
                                         }
                                     } else
                                         relevant[property] = newdata[property];
-                                    break;*/
+                                    break;
                                 case "json":
                                 case "list":
                                     if (olddata && olddata[property] !== null && olddata[property] !== undefined) {

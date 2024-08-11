@@ -20,7 +20,6 @@ describe('Testsuit - File', function () {
         }
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
-
         await ExtendedTestHelper.delay(1000);
 
         await app.resetLocalStorage();
@@ -94,14 +93,17 @@ describe('Testsuit - File', function () {
         await sidemenu.click('Create');
         await ExtendedTestHelper.delay(1000);
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        const panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathPanel }), 1000);
-        const form = await window.getForm(panel);
-        var input = await window.getFormInput(form, 'title');
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panel = await canvas.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('title');
         assert.notEqual(input, null);
         await input.sendKeys('Testbild');
         await ExtendedTestHelper.delay(100);
-        const inputs = await form.findElements(webdriver.By.xpath(`./div[@class="formentry"]/div[@class="value"]/input`));
+        const inputs = await form.getElement().findElements(webdriver.By.xpath(`./div[@class="formentry"]/div[@class="value"]/input`));
         if (inputs && inputs.length == 11)
             input = inputs[6];
         else
@@ -110,7 +112,7 @@ describe('Testsuit - File', function () {
         await input.sendKeys('https://upload.wikimedia.org/wikipedia/commons/1/12/Testbild.png');
         await ExtendedTestHelper.delay(100);
 
-        button = await window.getButton(panel, 'Create');
+        button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
         await app.waitLoadingFinished(10);
@@ -118,11 +120,14 @@ describe('Testsuit - File', function () {
         const modal = await window.getTopModal();
         assert.equal(modal, null);
 
-        const panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        const panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
 
         const api = await app.getApiUrl();
         const file = api + '/cdn/Testbild.png';
+        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         const xpathThumb = xpathPanel + `/div/div[@class="thumbnail"]/img`;
         var thumb = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathThumb }), 1000);
         var img = await thumb.getAttribute('src');
@@ -157,14 +162,17 @@ describe('Testsuit - File', function () {
         await sidemenu.click('Create');
         await ExtendedTestHelper.delay(1000);
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        var panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathPanel }), 1000);
-        const form = await window.getForm(panel);
-        var input = await window.getFormInput(form, 'title');
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panel = await canvas.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('title');
         assert.notEqual(input, null);
         await input.sendKeys('Big Buck Bunny (BBB)');
         await ExtendedTestHelper.delay(100);
-        const inputs = await form.findElements(webdriver.By.xpath(`./div[@class="formentry"]/div[@class="value"]/input`));
+        const inputs = await form.getElement().findElements(webdriver.By.xpath(`./div[@class="formentry"]/div[@class="value"]/input`));
         if (inputs && inputs.length == 11)
             input = inputs[6];
         else
@@ -177,7 +185,7 @@ describe('Testsuit - File', function () {
         await input.sendKeys('https://peach.blender.org/wp-content/uploads/title_anouncement.jpg');
         await ExtendedTestHelper.delay(100);
 
-        button = await window.getButton(panel, 'Create');
+        button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
 
@@ -198,7 +206,9 @@ describe('Testsuit - File', function () {
         const modal = await window.getTopModal();
         assert.equal(modal, null);
 
-        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
 
         return Promise.resolve();
@@ -291,14 +301,17 @@ ${file}`;
         await sidemenu.click('Create');
         await ExtendedTestHelper.delay(1000);
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        var panel = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathPanel }), 1000);
-        var form = await window.getForm(panel);
-        var input = await window.getFormInput(form, 'title');
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panel = await canvas.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('title');
         assert.notEqual(input, null);
         await input.sendKeys('Testbild');
         await ExtendedTestHelper.delay(100);
-        var inputs = await form.findElements(webdriver.By.xpath(`./div[@class="formentry"]/div[@class="value"]/input`));
+        var inputs = await form.getElement().findElements(webdriver.By.xpath(`./div[@class="formentry"]/div[@class="value"]/input`));
         if (inputs && inputs.length == 7)
             input = inputs[5];
         else
@@ -308,18 +321,19 @@ ${file}`;
         await input.sendKeys(file_url);
         await ExtendedTestHelper.delay(100);
 
-        button = await window.getButton(panel, 'Create');
+        button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
         await app.waitLoadingFinished(10);
 
         var modal = await window.getTopModal();
         assert.equal(modal, null);
-        var canvas = await window.getCanvas();
+        canvas = await window.getCanvas();
         assert.notEqual(canvas, null);
         var panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
 
+        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
         const xpathThumb = xpathPanel + `/div/div[@class="thumbnail"]/img`;
         var thumb = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpathThumb }), 1000);
         var img = await thumb.getAttribute('src');
@@ -351,7 +365,7 @@ ${file}`;
         assert.notEqual(input, null);
         var value = await input.getAttribute('value');
         assert.equal(value, file_url);
-        button = await window.getButton(modal, 'Remove');
+        button = await panel.getButton('Remove');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -362,7 +376,7 @@ ${file}`;
             input = null;
         value = await input.getAttribute('value');
         assert.equal(value, '');
-        button = await window.getButton(modal, 'Update');
+        button = await panel.getButton('Update');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);

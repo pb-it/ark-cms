@@ -8,7 +8,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
-describe('Testsuit', function () {
+describe('Testsuit - Sort', function () {
 
     async function checkCanvas(window, data, dt) {
         var canvas = await window.getCanvas();

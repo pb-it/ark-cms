@@ -32,10 +32,8 @@ class EditModelPanel extends TabPanel {
         this._$defaultsPanel = new EditModelDefaultsPanel(this._tmpModel);
         this._panels.push(this._$defaultsPanel);
 
-        if (controller.getConfigController().experimentalFeaturesEnabled()) {
-            this._$miscPanel = new EditModelMiscPanel(this._tmpModel);
-            this._panels.push(this._$miscPanel);
-        }
+        this._$miscPanel = new EditModelMiscPanel(this._tmpModel);
+        this._panels.push(this._$miscPanel);
 
         const authController = controller.getAuthController();
         if (authController && authController.isAdministrator()) {

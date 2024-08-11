@@ -103,7 +103,7 @@ describe('Testsuit - State', function () {
         assert.notEqual(option, null);
         await option.click();
         await ExtendedTestHelper.delay(1000);
-        var button = await window.getButton(modal, 'Set as default');
+        var button = await panel.getButton('Set as default');
         assert.notEqual(button, null);
         await button.click();
         await driver.wait(webdriver.until.alertIsPresent());
@@ -112,7 +112,7 @@ describe('Testsuit - State', function () {
         assert.equal(text, 'Changed successfully');
         await alert.accept();
         await ExtendedTestHelper.delay(1000);
-        button = await window.getButton(modal, 'Apply');
+        button = await panel.getButton('Apply');
         assert.notEqual(button, null);
         await button.click();
         await ExtendedTestHelper.delay(1000);
@@ -156,7 +156,7 @@ describe('Testsuit - State', function () {
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('2');
         await ExtendedTestHelper.delay(1000);
-        button = await window.getButton(modal, 'Save');
+        button = await panel.getButton('Save');
         assert.notEqual(button, null);
         await button.click();
         await driver.wait(webdriver.until.alertIsPresent());

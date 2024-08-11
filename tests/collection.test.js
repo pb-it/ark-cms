@@ -71,30 +71,40 @@ describe('Testsuit - Collection', function () {
         await app.waitLoadingFinished(10);
 
         const modelModal = await window.getTopModal();
-        var button = await window.getButton(modelModal, 'Add Attribute');
+        assert.notEqual(modelModal, null);
+        var panel = await modelModal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Add Attribute');
         assert.notEqual(button, null, 'Button not found!');
         button.click();
         await app.waitLoadingFinished(10);
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
-        var form = await modal.findElement(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
-        const input = await window.getFormInput(form, 'name');
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        const input = await form.getFormInput('name');
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('galleries');
         await ExtendedTestHelper.delay(1000);
-        await form.findElement(webdriver.By.css('select#dataType > option[value="relation"]')).click();
+        await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="relation"]')).click();
         button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
         await ExtendedTestHelper.delay(1000);
 
         modal = await window.getTopModal();
-        form = await modal.findElement(webdriver.By.xpath('.//form[contains(@class, "crudform")]'));
-        var elem = await form.findElement(webdriver.By.css('select#model > option[value="gallery"]'));
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        var elem = await form.getElement().findElement(webdriver.By.css('select#model > option[value="gallery"]'));
         assert.notEqual(elem, null, 'Option not found!');
         await elem.click();
-        elem = await form.findElement(webdriver.By.xpath('.//select[@name="multiple"]/option[@value="true"]'));
+        elem = await form.getElement().findElement(webdriver.By.xpath('.//select[@name="multiple"]/option[@value="true"]'));
         assert.notEqual(elem, null, 'Option not found!');
         await elem.click();
         button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));

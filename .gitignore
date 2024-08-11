@@ -9,6 +9,8 @@ public/js/common/base64.js
 config/server-config.js
 tests/config/test-config.js
 
+*.log
+
 !.babelrc
 !.dockerignore
 !.gitattributes

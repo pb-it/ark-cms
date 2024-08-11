@@ -5,7 +5,7 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const { TestHelper } = require('@pb-it/ark-cms-selenium-test-helper');
 
-describe('Testsuit', function () {
+describe('Testsuit - Login', function () {
 
     let driver;
 
@@ -23,6 +23,9 @@ describe('Testsuit', function () {
         if (helper.getConfig()['api'])
             await app.setApiUrl(helper.getConfig()['api']);
         await app.reload();
+        await TestHelper.delay(1000);
+
+        await app.logout();
         await TestHelper.delay(1000);
 
         return Promise.resolve();
@@ -68,7 +71,9 @@ describe('Testsuit', function () {
         input = await modal.findElement(webdriver.By.css('input[id="password"]'));
         assert.notEqual(input, null, 'Input not found!');
         await input.sendKeys('admin');
-        var button = await window.getButton(modal, 'Login');
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Login');
         assert.notEqual(button, null, 'Login button not found!');
         await button.click();
 
@@ -76,7 +81,9 @@ describe('Testsuit', function () {
 
         modal = await window.getTopModal();
         if (modal) {
-            button = await window.getButton(modal, 'Skip');
+            panel = await modal.getPanel();
+            assert.notEqual(panel, null);
+            button = await panel.getButton('Skip');
             if (button)
                 button.click();
         }
