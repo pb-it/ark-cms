@@ -24,291 +24,302 @@ class BasicFormEntry extends FormEntry {
             this._$value = $('<div/>').addClass('value');
 
         const name = this._attribute['name'];
-        var size;
+        try {
+            var size;
 
-        if (this._attribute['dataType']) {
-            if (value == null || value == undefined) {
-                if (this._attribute.hasOwnProperty('defaultValue'))
-                    value = this._attribute['defaultValue'];
-                else
-                    value = '';
-            }
+            if (this._attribute['dataType']) {
+                if (value == null || value == undefined) {
+                    if (this._attribute.hasOwnProperty('defaultValue')) {
+                        if ((this._attribute['dataType'] !== 'timestamp' && this._attribute['dataType'] !== 'datetime') ||
+                            this._attribute['defaultValue'] !== 'CURRENT_TIMESTAMP')
+                            value = this._attribute['defaultValue'];
+                    } else
+                        value = '';
+                }
 
-            switch (this._attribute['dataType']) {
-                case "boolean":
-                    if (this._attribute['required'] && value !== '') {
-                        if (value == true || value == 1 || value == false || value == 0) {
-                            this._$input = $('<fieldset/>')
-                                .css({
-                                    'border': 0,
-                                    'padding': 0
-                                });
-                            this._$input.append($('<input/>')
-                                .attr('type', 'checkbox')
+                switch (this._attribute['dataType']) {
+                    case "boolean":
+                        if (this._attribute['required'] && value !== '') {
+                            if (value == true || value == 1 || value == false || value == 0) {
+                                this._$input = $('<fieldset/>')
+                                    .css({
+                                        'border': 0,
+                                        'padding': 0
+                                    });
+                                this._$input.append($('<input/>')
+                                    .attr('type', 'checkbox')
+                                    .attr('name', name)
+                                    .attr('id', this._id)
+                                    .prop('checked', (value == true || value == 1)));
+                                if (this._attribute['view'] === 'labelRight') {
+                                    var $label = $('<label/>')
+                                        .attr('for', this._id)
+                                        .text(' ' + this.getLabel());
+                                    this._$input.append($label);
+                                }
+                            } else
+                                throw new Error("Field '" + this._attribute['name'] + "' has no valid value");
+                        } else {
+                            this._$input = $('<select/>')
                                 .attr('name', name)
-                                .attr('id', this._id)
-                                .prop('checked', (value == true || value == 1)));
-                            if (this._attribute['view'] === 'labelRight') {
-                                var $label = $('<label/>')
-                                    .attr('for', this._id)
-                                    .text(' ' + this.getLabel());
-                                this._$input.append($label);
-                            }
-                        } else
-                            throw new Error("Field '" + this._attribute['name'] + "' has no valid value");
-                    } else {
-                        this._$input = $('<select/>')
-                            .attr('name', name)
-                            .attr('id', this._id);
+                                .attr('id', this._id);
 
-                        var $option = $('<option/>', { value: '' }).text('undefined');
-                        if (this._attribute.required)
-                            $option.attr('hidden', true);
-                        if (value === '')
-                            $option.prop('selected', true);
-                        this._$input.append($option);
+                            var $option = $('<option/>', { value: '' }).text('undefined');
+                            if (this._attribute.required)
+                                $option.attr('hidden', true);
+                            if (value === '')
+                                $option.prop('selected', true);
+                            this._$input.append($option);
 
-                        $option = $('<option/>', { value: 'true' }).text('true');
-                        if (value === true || value === 1)
-                            $option.prop('selected', true);
-                        this._$input.append($option);
+                            $option = $('<option/>', { value: 'true' }).text('true');
+                            if (value === true || value === 1)
+                                $option.prop('selected', true);
+                            this._$input.append($option);
 
-                        $option = $('<option/>', { value: 'false' }).text('false');
-                        if (value === false || value === 0) // ('' == 0) => true
-                            $option.prop('selected', true);
-                        this._$input.append($option);
-                    }
-                    break;
-                case "integer":
-                case "decimal":
-                case "double":
-                    if (this._attribute.size)
-                        size = this._attribute.size;
-                    else
-                        size = "10";
-
-                    this._$input = $('<input/>')
-                        .attr('type', 'text')
-                        .attr('size', size)
-                        .attr('name', name)
-                        .attr('id', this._id)
-                        .val(value);
-                    break;
-                case "time":
-                    if (this._attribute.size)
-                        size = this._attribute.size;
-                    else
-                        size = "25";
-
-                    this._$input = $('<input/>')
-                        .attr('size', size)
-                        .attr('name', name)
-                        .attr('id', this._id)
-                        .val(value);
-                    if (typeof $.timepicker === 'undefined')
-                        await BasicFormEntry.loadTimePicker();
-                    this._$input.timepicker();
-                    break;
-                case "date":
-                    if (this._attribute.size)
-                        size = this._attribute.size;
-                    else
-                        size = "25";
-
-                    if (value) {
-                        if (value.indexOf('T') != -1) {
-                            var date = new Date(value);
-                            date.setTime(date.getTime() - date.getTimezoneOffset() * 60000);
-                            value = date.toISOString().split('T')[0];
+                            $option = $('<option/>', { value: 'false' }).text('false');
+                            if (value === false || value === 0) // ('' == 0) => true
+                                $option.prop('selected', true);
+                            this._$input.append($option);
                         }
-                    }
+                        break;
+                    case "integer":
+                    case "decimal":
+                    case "double":
+                        if (this._attribute.size)
+                            size = this._attribute.size;
+                        else
+                            size = "10";
 
-                    this._$input = $('<input/>')
-                        .attr('size', size)
-                        .attr('name', name)
-                        .attr('id', this._id)
-                        .val(value);
-                    this._$input.datepicker({
-                        dateFormat: "yy-mm-dd"
-                    }); // ISO_8601
-                    //$input.datepicker($.datepicker.regional["de"]);
-                    break;
-                case "datetime":
-                case "timestamp":
-                    if (this._attribute.size)
-                        size = this._attribute.size;
-                    else
-                        size = "25";
+                        this._$input = $('<input/>')
+                            .attr('type', 'text')
+                            .attr('size', size)
+                            .attr('name', name)
+                            .attr('id', this._id)
+                            .val(value);
+                        break;
+                    case "time":
+                        if (this._attribute.size)
+                            size = this._attribute.size;
+                        else
+                            size = "25";
 
-                    if (value) {
-                        if (name != 'created_at' && name != 'updated_at') {
+                        this._$input = $('<input/>')
+                            .attr('size', size)
+                            .attr('name', name)
+                            .attr('id', this._id)
+                            .val(value);
+                        if (typeof $.timepicker === 'undefined')
+                            await BasicFormEntry.loadTimePicker();
+                        this._$input.timepicker();
+                        break;
+                    case "date":
+                        if (this._attribute.size)
+                            size = this._attribute.size;
+                        else
+                            size = "25";
+
+                        if (value) {
                             if (value.indexOf('T') != -1) {
                                 var date = new Date(value);
-                                if (value.endsWith('Z') && this._attribute['timeZone'] != 'UTC')
-                                    date.setTime(date.getTime() - date.getTimezoneOffset() * 60000);
-                                value = date.toISOString().replace('T', ' ').split('.')[0];
+                                date.setTime(date.getTime() - date.getTimezoneOffset() * 60000);
+                                value = date.toISOString().split('T')[0];
                             }
                         }
-                    }
 
-                    this._$input = $('<input/>')
-                        .attr('size', size)
-                        .attr('name', name)
-                        .attr('id', this._id)
-                        .val(value);
-                    if (typeof $.timepicker === 'undefined')
-                        await BasicFormEntry.loadTimePicker();
-                    this._$input.datetimepicker({
-                        dateFormat: 'yy-mm-dd',
-                        timeFormat: 'HH:mm:ss'
-                    });
-                    break;
-                case "string":
-                case "url":
-                    if (this._attribute.size)
-                        size = this._attribute.size;
-                    else
-                        size = "100";
-
-                    this._$input = $('<input/>')
-                        .attr('type', 'text')
-                        .attr('size', size)
-                        .attr('name', name)
-                        .attr('id', this._id)
-                        .val(value);
-                    break;
-                case "enumeration":
-                    var options = this._attribute['options'];
-                    if (!this._attribute['view'] || this._attribute['view'] === 'select') {
-                        this._$input = $('<select/>')
+                        this._$input = $('<input/>')
+                            .attr('size', size)
                             .attr('name', name)
-                            .attr('id', name);
+                            .attr('id', this._id)
+                            .val(value);
+                        this._$input.datepicker({
+                            dateFormat: "yy-mm-dd"
+                        }); // ISO_8601
+                        //$input.datepicker($.datepicker.regional["de"]);
+                        break;
+                    case "datetime":
+                    case "timestamp":
+                        if (this._attribute.size)
+                            size = this._attribute.size;
+                        else
+                            size = "25";
 
-                        var $option = $('<option/>', { value: '' }).text('undefined');
-                        if (this._attribute.required)
-                            $option.attr('hidden', true);
-                        else if (!value)
-                            $option.prop('selected', true);
-                        this._$input.append($option);
+                        if (value) {
+                            if (name != 'created_at' && name != 'updated_at') {
+                                if (value.indexOf('T') != -1) {
+                                    var date = new Date(value);
+                                    if (value.endsWith('Z') && this._attribute['timeZone'] != 'UTC')
+                                        date.setTime(date.getTime() - date.getTimezoneOffset() * 60000);
+                                    value = date.toISOString().replace('T', ' ').split('.')[0];
+                                }
+                            }
+                        }
 
-                        var v;
-                        if (options) {
+                        this._$input = $('<input/>')
+                            .attr('size', size)
+                            .attr('name', name)
+                            .attr('id', this._id)
+                            .val(value);
+                        if (typeof $.timepicker === 'undefined')
+                            await BasicFormEntry.loadTimePicker();
+                        this._$input.datetimepicker({
+                            dateFormat: 'yy-mm-dd',
+                            timeFormat: 'HH:mm:ss'
+                        });
+                        break;
+                    case "string":
+                    case "url":
+                        if (this._attribute.size)
+                            size = this._attribute.size;
+                        else
+                            size = "100";
+
+                        this._$input = $('<input/>')
+                            .attr('type', 'text')
+                            .attr('size', size)
+                            .attr('name', name)
+                            .attr('id', this._id)
+                            .val(value);
+                        break;
+                    case "enumeration":
+                        var options = this._attribute['options'];
+                        if (!this._attribute['view'] || this._attribute['view'] === 'select') {
+                            this._$input = $('<select/>')
+                                .attr('name', name)
+                                .attr('id', name);
+
+                            var $option = $('<option/>', { value: '' }).text('undefined');
+                            if (this._attribute.required)
+                                $option.attr('hidden', true);
+                            else if (!value)
+                                $option.prop('selected', true);
+                            this._$input.append($option);
+
+                            var v;
+                            if (options) {
+                                for (var o of options) {
+                                    v = o['value'];
+                                    $option = $('<option/>', { value: v }).text(o['label'] ? o['label'] : v);
+                                    $option.prop('disabled', o['disabled'])
+                                    if (value == v)
+                                        $option.prop('selected', true);
+                                    if (o['tooltip'])
+                                        $option.attr('title', o['tooltip']);
+                                    this._$input.append($option);
+                                }
+                            }
+                        } else if (this._attribute['view'] === 'radio') {
+                            this._$input = $('<fieldset/>')
+                                .attr('name', name);
+
+                            this._$input.append($('<legend/>').text(this.getLabel()));
+
+                            var $input;
+                            var $label;
+                            var v;
+                            var id;
                             for (var o of options) {
                                 v = o['value'];
-                                $option = $('<option/>', { value: v }).text(o['label'] ? o['label'] : v);
-                                $option.prop('disabled', o['disabled'])
-                                if (value == v)
-                                    $option.prop('selected', true);
+                                id = this._id + '-' + v;
+                                $input = $('<input/>')
+                                    .attr('type', 'radio')
+                                    .attr('name', this._id)
+                                    .attr('id', id)
+                                    .val(v)
+                                    .prop('disabled', o['disabled'])
+                                    .prop('checked', (value === v));
+                                this._$input.append($input);
+
+                                $label = $('<label/>')
+                                    .attr('for', id)
+                                    .text(v);
                                 if (o['tooltip'])
-                                    $option.attr('title', o['tooltip']);
-                                this._$input.append($option);
+                                    $label.attr('title', o['tooltip']);
+                                this._$input.append($label);
                             }
                         }
-                    } else if (this._attribute['view'] === 'radio') {
-                        this._$input = $('<fieldset/>')
-                            .attr('name', name);
-
-                        this._$input.append($('<legend/>').text(this.getLabel()));
-
-                        var $input;
-                        var $label;
-                        var v;
-                        var id;
-                        for (var o of options) {
-                            v = o['value'];
-                            id = this._id + '-' + v;
-                            $input = $('<input/>')
-                                .attr('type', 'radio')
-                                .attr('name', this._id)
-                                .attr('id', id)
-                                .val(v)
-                                .prop('disabled', o['disabled'])
-                                .prop('checked', (value === v));
-                            this._$input.append($input);
-
-                            $label = $('<label/>')
-                                .attr('for', id)
-                                .text(v);
-                            if (o['tooltip'])
-                                $label.attr('title', o['tooltip']);
-                            this._$input.append($label);
+                        break;
+                    case "text":
+                    case "json":
+                        if (this._attribute['dataType'] === "json") {
+                            if (value)
+                                value = JSON.stringify(value, null, '\t');
                         }
-                    }
-                    break;
-                case "text":
-                case "json":
-                    if (this._attribute['dataType'] === "json") {
-                        if (value)
-                            value = JSON.stringify(value, null, '\t');
-                    }
 
-                    var rows;
-                    var cols;
-                    if (this._attribute['size']) {
-                        var parts = this._attribute.size.split(',');
-                        if (parts.length > 0) {
-                            rows = parts[0];
-                        }
-                        if (parts.length > 1) {
-                            cols = parts[1];
-                        }
-                    }
-                    if (!rows) {
-                        var used;
-                        if (value)
-                            used = value.split('\n').length;
-                        if (used >= 5)
-                            rows = used;
-                        else
-                            rows = 5;
-                    }
-                    if (!cols)
-                        cols = 80;
-
-                    this._$input = $('<textarea/>')
-                        .attr('name', name)
-                        .attr('id', this._id)
-                        .attr('type', 'text')
-                        .attr('rows', rows)
-                        .attr('cols', cols)
-                        .val(value);
-                    this._$input.keydown(function (e) {
-                        if (e.keyCode == 9) { // TAB
-                            e.preventDefault();
-                            //TODO: ident selection
-                            var input = this._$input[0];
-                            if (input.selectionStart != undefined && input.selectionStart >= '0') {
-                                var cursorPosition = input.selectionStart;
-                                var txt = this._$input.val();
-                                this._$input.val(txt.slice(0, cursorPosition) + '\t' + txt.slice(cursorPosition));
-                                cursorPosition++;
-                                input.selectionStart = cursorPosition;
-                                input.selectionEnd = cursorPosition;
-                                input.focus();
+                        var rows;
+                        var cols;
+                        if (this._attribute['size']) {
+                            var parts = this._attribute.size.split(',');
+                            if (parts.length > 0) {
+                                rows = parts[0];
                             }
-                            return false;
-                        } else if (e.keyCode == 13) // ENTER
-                            e.stopPropagation(); //https://www.rockyourcode.com/assertion-failed-input-argument-is-not-an-htmlinputelement/
-                    }.bind(this));
-                    break;
-                default:
-                    var $dummy = $('<div/>')
-                        .addClass('value')
-                        .html("&lt;" + this._attribute['dataType'] + "&gt;");
-                    this._$value.append($dummy);
+                            if (parts.length > 1) {
+                                cols = parts[1];
+                            }
+                        }
+                        if (!rows) {
+                            var used;
+                            if (value)
+                                used = value.split('\n').length;
+                            if (used >= 5)
+                                rows = used;
+                            else
+                                rows = 5;
+                        }
+                        if (!cols)
+                            cols = 80;
+
+                        this._$input = $('<textarea/>')
+                            .attr('name', name)
+                            .attr('id', this._id)
+                            .attr('type', 'text')
+                            .attr('rows', rows)
+                            .attr('cols', cols)
+                            .val(value);
+                        this._$input.keydown(function (e) {
+                            if (e.keyCode == 9) { // TAB
+                                e.preventDefault();
+                                //TODO: ident selection
+                                var input = this._$input[0];
+                                if (input.selectionStart != undefined && input.selectionStart >= '0') {
+                                    var cursorPosition = input.selectionStart;
+                                    var txt = this._$input.val();
+                                    this._$input.val(txt.slice(0, cursorPosition) + '\t' + txt.slice(cursorPosition));
+                                    cursorPosition++;
+                                    input.selectionStart = cursorPosition;
+                                    input.selectionEnd = cursorPosition;
+                                    input.focus();
+                                }
+                                return false;
+                            } else if (e.keyCode == 13) // ENTER
+                                e.stopPropagation(); //https://www.rockyourcode.com/assertion-failed-input-argument-is-not-an-htmlinputelement/
+                        }.bind(this));
+                        break;
+                    default:
+                        var $dummy = $('<div/>')
+                            .addClass('value')
+                            .html("&lt;" + this._attribute['dataType'] + "&gt;");
+                        this._$value.append($dummy);
+                }
             }
-        }
-        if (this._$input) {
-            if (!this.isEditable())
-                this._$input.attr('disabled', true);
+            if (this._$input) {
+                if (!this.isEditable())
+                    this._$input.attr('disabled', true);
 
-            if (this._attribute['clickAction'])
-                this._$input.click(this._attribute['clickAction'].bind(this._$input));
-            if (this._attribute['changeAction'])
-                this._$input.change(function () { this._attribute['changeAction'](this) }.bind(this));
+                if (this._attribute['clickAction'])
+                    this._$input.click(this._attribute['clickAction'].bind(this._$input));
+                if (this._attribute['changeAction'])
+                    this._$input.change(function () { this._attribute['changeAction'](this) }.bind(this));
 
-            this._$value.append(this._$input);
+                this._$value.append(this._$input);
+            }
+        } catch (error) {
+            if (error['message'])
+                app.getController().showErrorMessage(name + ': ' + error['message']);
+            else
+                app.getController().showError(error);
+            this._$value.html("&lt;ERROR&gt;");
         }
+
         return Promise.resolve(this._$value);
     }
 

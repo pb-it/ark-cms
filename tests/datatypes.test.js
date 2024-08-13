@@ -59,6 +59,7 @@ describe('Testsuit - Datatypes', function () {
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Create');
         await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
 
         var canvas = await window.getCanvas();
         assert.notEqual(canvas, null);
@@ -124,6 +125,7 @@ describe('Testsuit - Datatypes', function () {
         await sidemenu.click('misc');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         var canvas = await window.getCanvas();
@@ -263,6 +265,7 @@ describe('Testsuit - Datatypes', function () {
         await sidemenu.click('time');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         var canvas = await window.getCanvas();
@@ -331,6 +334,7 @@ describe('Testsuit - Datatypes', function () {
         await sidemenu.click('misc');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         var canvas = await window.getCanvas();
@@ -404,6 +408,7 @@ describe('Testsuit - Datatypes', function () {
         await sidemenu.click('misc');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         var canvas = await window.getCanvas();
@@ -519,6 +524,127 @@ describe('Testsuit - Datatypes', function () {
 
         tmp = await ds.read('misc', null, null, null, null, null, null, true);
         assert.equal(tmp.length, count);
+
+        return Promise.resolve();
+    });
+
+    /**
+     * timestamp with defaultVaulue = 'CURRENT_TIMESTAMP'
+     */
+    it('#test timestamp default', async function () {
+        this.timeout(60000);
+
+        const app = helper.getApp();
+        await app.setDebugMode(true);
+        const ds = app.getDataService();
+
+        const models = await ds.read('_model');
+        var model;
+        for (var m of models) {
+            if (m['definition']['name'] === 'misc') {
+                model = m;
+                break;
+            }
+        }
+        assert.notEqual(model, null);
+
+        const definition = model['definition'];
+        for (var attr of definition['attributes']) {
+            if (attr['name'] === 'timestamp') {
+                attr['defaultValue'] = 'CURRENT_TIMESTAMP';
+                break;
+            }
+        }
+
+        var tmp = await ds.update('_model', model['id'], definition);
+        assert.equal(tmp, model['id']); // assert.notEqual(Object.keys(tmp).length, 0);
+
+        const window = app.getWindow();
+        var bIndexDB = false;
+        if (bIndexDB) {
+            await app.reload(); //TODO: why is cache not updated?
+            await ExtendedTestHelper.delay(1000);
+
+            var modal = await window.getTopModal();
+            assert.notEqual(modal, null, 'Missing Update-Modal');
+            var button = await modal.findElement(webdriver.By.xpath('//button[text()="Update"]'));
+            assert.notEqual(button, null, 'Update button not found');
+            await button.click();
+
+            await driver.wait(webdriver.until.alertIsPresent());
+            var alert = await driver.switchTo().alert();
+            var text = await alert.getText();
+            assert.equal(text, 'Updated successfully!');
+            await alert.accept();
+            await ExtendedTestHelper.delay(1000);
+        }
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        var menu = await sidemenu.getEntry('other');
+        if (menu) {
+            await sidemenu.click('other');
+            await ExtendedTestHelper.delay(1000);
+        }
+        await sidemenu.click('misc');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Create');
+        await ExtendedTestHelper.delay(1000);
+
+        alert = null;
+        try {
+            await this._driver.wait(webdriver.until.alertIsPresent(), 1000);
+            alert = await this._driver.switchTo().alert();
+            text = await alert.getText();
+            console.log(text);
+        } catch (error) {
+            ;
+        }
+        assert.equal(alert, null);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panel = await canvas.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('timestamp');
+        assert.notEqual(input, null);
+        var value = await input.getAttribute('value');
+        assert.equal(value, '');
+
+        button = await panel.getButton('Create');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        var bDebugMode = await app.isDebugModeActive();
+        if (bDebugMode) {
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+            await ExtendedTestHelper.delay(1000);
+        }
+        await app.waitLoadingFinished(10);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+
+        var obj = await ExtendedTestHelper.readJson(window, panels[0]);
+        assert.notEqual(obj['timestamp'], null);
 
         return Promise.resolve();
     });

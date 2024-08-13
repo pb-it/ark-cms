@@ -112,6 +112,7 @@ describe('Testsuit - DataService / Fetch', function () {
     }
 
     let bSetup;
+    let proxy;
     let driver;
 
     before('#setup', async function () {
@@ -128,8 +129,10 @@ describe('Testsuit - DataService / Fetch', function () {
             //await helper.getBrowser().teardown();
         }*/
 
-        const bProxy = (config['proxy'] != null);
-        if (bProxy) {
+        proxy = helper.getProxy();
+        var bSetupProxy;
+        if (!proxy && config['proxy']) {
+            bSetupProxy = true;
             const requiredArgs = ['proxy-bypass-list=<-loopback>', 'ignore-certificate-errors'];
             //const requiredArgs = ['proxy-bypass-list=<-loopback>', 'ignore-certificate-errors', 'disable-web-security', 'allow-insecure-localhost', 'allow-running-insecure-content']
             if (config['browser']['arguments']) {
@@ -149,11 +152,16 @@ describe('Testsuit - DataService / Fetch', function () {
                 config['browser']['arguments'] = requiredArgs;
         }
 
-        if (bSetup || bProxy)
-            await helper.setup(config, bProxy);
+        if (bSetup || bSetupProxy)
+            await helper.setup(config, bSetupProxy);
         driver = helper.getBrowser().getDriver();
         const app = helper.getApp();
         await ExtendedTestHelper.delay(1000);
+
+        proxy = helper.getProxy();
+        const bStrict = false;
+        if (bStrict)
+            assert.notEqual(proxy, null, 'Proxy not running!');
 
         await app.prepare(config['api'], config['username'], config['password']);
         await ExtendedTestHelper.delay(1000);
@@ -192,6 +200,17 @@ describe('Testsuit - DataService / Fetch', function () {
         const app = helper.getApp();
         await app.navigate('/');
         await app.waitLoadingFinished(10);
+
+        return Promise.resolve();
+    });
+
+    xit('#test ...', async function () {
+        this.timeout(30000);
+
+        if (proxy) {
+            // ...
+        } else
+            this.skip();
 
         return Promise.resolve();
     });

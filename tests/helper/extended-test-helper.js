@@ -2,6 +2,8 @@ const path = require('path');
 const fs = require('fs');
 
 const assert = require('assert');
+const webdriver = require('selenium-webdriver');
+//const test = require('selenium-webdriver/testing');
 
 const { TestHelper } = require("@pb-it/ark-cms-selenium-test-helper");
 

@@ -49,7 +49,7 @@ class ModelDefaultsController {
         }
         defaults[ModelDefaultsController.SORT_IDENT] = sort;
         await this._model.setDefinition(data, false);
-        return this._apiClient.requestData("PUT", "_model/" + this._model.getId() + "/defaults/sort", null, { 'sort': sort });
+        return this._apiClient.requestData("PUT", "_model/" + this._model.getId() + "/defaults/sort", null, sort);
     }
 
     getDefaultTitleProperty(bFallback = true) {

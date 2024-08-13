@@ -40,17 +40,17 @@ class EditSortPanel extends Panel {
     }
 
     async _renderContent() {
-        var $div = $('<div/>');
+        const $div = $('<div/>');
 
         var sort;
-        var state = app.controller.getStateController().getState();
+        const state = app.controller.getStateController().getState();
         this._model = state.getModel();
         if (state['sort'])
             sort = state['sort'];
         else
             sort = this._model.getModelDefaultsController().getDefaultSort();
         this._form = EditSortPanel.getSortForm(this._model, sort);
-        var $form = await this._form.renderForm();
+        const $form = await this._form.renderForm();
 
         $div.append($form);
 
@@ -61,18 +61,19 @@ class EditSortPanel extends Panel {
             .click(async function (event) {
                 event.stopPropagation();
 
-                app.controller.setLoadingState(true);
+                const controller = app.getController();
+                controller.setLoadingState(true);
                 try {
                     var sort;
                     var data = await this._form.readForm();
                     if (data['sortCriteria'])
                         sort = data['sortCriteria'] + ":" + data['sort'];
                     await this._model.getModelDefaultsController().setDefaultSort(sort);
-                    app.controller.setLoadingState(false);
+                    controller.setLoadingState(false);
                     alert('Changed successfully');
                 } catch (error) {
-                    app.controller.setLoadingState(false);
-                    app.controller.showError(error);
+                    controller.setLoadingState(false);
+                    controller.showError(error);
                 }
                 return Promise.resolve();
             }.bind(this))
@@ -83,17 +84,18 @@ class EditSortPanel extends Panel {
             .click(async function (event) {
                 event.preventDefault();
 
+                const controller = app.getController();
                 var sort;
                 var data = await this._form.readForm();
                 if (data['sortCriteria'])
                     sort = data['sortCriteria'] + ":" + data['sort'];
 
-                var state = app.controller.getStateController().getState();
+                var state = controller.getStateController().getState();
                 if (sort)
                     state['sort'] = sort;
                 else
                     delete state['sort'];
-                app.controller.loadState(state, false, true);
+                controller.loadState(state, false, true);
 
                 this.dispose();
                 return Promise.resolve();
