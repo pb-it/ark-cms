@@ -134,6 +134,9 @@ describe('Testsuit - Search', function () {
         return Promise.resolve();
     });
 
+    /**
+     * Test if search configuration is error-free after changing panelConfig
+     */
     it('#test search configuration', async function () {
         this.timeout(30000);
 
@@ -267,6 +270,111 @@ describe('Testsuit - Search', function () {
         await ExtendedTestHelper.delay(1000);
         modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
+
+        return Promise.resolve();
+    });
+
+    it('#test search string', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+
+        const model = {
+            "name": "text",
+            "options": {
+                "increments": true,
+                "timestamps": true
+            },
+            "attributes": [
+                {
+                    "name": "title",
+                    "dataType": "string"
+                },
+                {
+                    "name": "text",
+                    "dataType": "text"
+                }
+            ]
+        }
+        await app.getModelController().addModel(model);
+
+        const data = [
+            {
+                'title': 'original',
+                'text': 'Lorem ipsum dolor sit amet,...'
+            },
+            {
+                'title': 'twisted',
+                'text': 'Lorem dolor ipsum sit amet,...'
+            }
+        ];
+        await helper._setupData('text', data, true);
+
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('text');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 2);
+
+        const tnb = window.getTopNavigationBar();
+        const sb = tnb.getSearchBox();
+        await sb.openConfiguration();
+        await ExtendedTestHelper.delay(1000);
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var formEntry = await form.getElement().findElement(webdriver.By.xpath(`./div[@class="formentry" and starts-with(@id, "form:searchFields:")]`));
+        assert.notEqual(formEntry, null);
+        var button = await formEntry.findElement(webdriver.By.xpath('.//button[text()="Select All"]'));
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        button = await panel.getButton('Apply');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        await sb.search('Lorem Ipsum');
+        await ExtendedTestHelper.delay(100);
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 2);
+
+        await sb.clear();
+        await sb.search('"Lorem Ipsum"');
+        await ExtendedTestHelper.delay(100);
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+        var title = await panels[0].getElement().findElement(webdriver.By.xpath('div/p'));
+        assert.notEqual(title, null);
+        var text = await title.getText();
+        assert.equal(text, 'original');
 
         return Promise.resolve();
     });

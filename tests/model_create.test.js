@@ -43,7 +43,7 @@ describe('Testsuit - Create Model', function () {
 
         const app = helper.getApp();
         const window = app.getWindow();
-        const sidemenu = window.getSideMenu();
+        var sidemenu = window.getSideMenu();
         await sidemenu.click('Models');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('New');
@@ -163,7 +163,23 @@ describe('Testsuit - Create Model', function () {
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
-        //TODO: check
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        var menu = await sidemenu.getEntry('movie');
+        assert.notEqual(menu, null);
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Edit');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
 
         return Promise.resolve();
     });

@@ -499,11 +499,11 @@ class ContextMenuController {
                             }
                         }
                         controller.setLoadingState(false);
+                        return controller.reloadState();
                     } catch (error) {
                         controller.setLoadingState(false);
-                        controller.showError(error);
+                        return controller.showError(error);
                     }
-                    controller.reloadState();
                 }
             }
             return Promise.resolve();

@@ -90,7 +90,8 @@ class ModelSelect {
             if (this._$modelSelect && this._names) {
                 if (!data || (data['name'] && !this._names.includes(data['name']))) {
                     this._$modelSelect.empty();
-                    this._$mSelect = null;
+                    this._modelMenu = null;
+                    //this._$mSelect = null;
                     this._updateModelSelect(this._modelName);
                 }
             }

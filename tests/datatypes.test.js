@@ -7,6 +7,8 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
+const { Form } = require('@pb-it/ark-cms-selenium-test-helper');
+
 describe('Testsuit - Datatypes', function () {
 
     let driver;
@@ -559,15 +561,15 @@ describe('Testsuit - Datatypes', function () {
         var tmp = await ds.update('_model', model['id'], definition);
         assert.equal(tmp, model['id']); // assert.notEqual(Object.keys(tmp).length, 0);
 
+        await app.reload(); //TODO: why is cache not updated?
+        await ExtendedTestHelper.delay(1000);
+
         const window = app.getWindow();
         var bIndexDB = false;
         if (bIndexDB) {
-            await app.reload(); //TODO: why is cache not updated?
-            await ExtendedTestHelper.delay(1000);
-
             var modal = await window.getTopModal();
             assert.notEqual(modal, null, 'Missing Update-Modal');
-            var button = await modal.findElement(webdriver.By.xpath('//button[text()="Update"]'));
+            var button = await modal.findElement(webdriver.By.xpath('.//button[text()="Update"]'));
             assert.notEqual(button, null, 'Update button not found');
             await button.click();
 
@@ -582,7 +584,44 @@ describe('Testsuit - Datatypes', function () {
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
-        const sidemenu = window.getSideMenu();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('misc');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Edit');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        const modelModal = await window.getTopModal();
+        assert.notEqual(modelModal, null);
+        //const tabPanel = await modal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]'));
+        const tabPanel = await modelModal.getPanel();
+        assert.notEqual(tabPanel, null, 'Panel not found!');
+        var button = await tabPanel.getElement().findElement(webdriver.By.xpath('./div/div[@class="tab"]/button[text()="RAW"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        var panel = await modelModal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]/div/div/div[@class="panel"]'));
+        assert.notEqual(panel, null, 'Panel not found!');
+        var elems = await panel.findElements(webdriver.By.xpath('./div/form[contains(@class, "crudform")]'));
+        assert.equal(elems.length, 1);
+        var form = new Form(helper, elems[0]);
+        var input = await form.getFormInput('json');
+        assert.notEqual(input, null);
+        var value = await input.getAttribute('value');
+        var obj = JSON.parse(value);
+        var attr = obj['attributes'].filter((x) => x['name'] === 'timestamp');
+        assert.equal(attr.length, 1);
+        assert.equal(attr[0]['defaultValue'], 'CURRENT_TIMESTAMP');
+
+        await modelModal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
         await ExtendedTestHelper.delay(1000);
         var menu = await sidemenu.getEntry('other');
@@ -593,6 +632,7 @@ describe('Testsuit - Datatypes', function () {
         await sidemenu.click('misc');
         await ExtendedTestHelper.delay(1000);
         await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         alert = null;
@@ -613,11 +653,11 @@ describe('Testsuit - Datatypes', function () {
         assert.notEqual(canvas, null);
         var panel = await canvas.getPanel();
         assert.notEqual(panel, null);
-        var form = await panel.getForm();
+        form = await panel.getForm();
         assert.notEqual(form, null);
-        var input = await form.getFormInput('timestamp');
+        input = await form.getFormInput('timestamp');
         assert.notEqual(input, null);
-        var value = await input.getAttribute('value');
+        value = await input.getAttribute('value');
         assert.equal(value, '');
 
         button = await panel.getButton('Create');
@@ -628,7 +668,7 @@ describe('Testsuit - Datatypes', function () {
         if (bDebugMode) {
             modal = await window.getTopModal();
             assert.notEqual(modal, null);
-            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            button = await modal.findElement(webdriver.By.xpath('.//button[text()="OK"]'));
             assert.notEqual(button, null);
             await button.click();
             await ExtendedTestHelper.delay(1000);

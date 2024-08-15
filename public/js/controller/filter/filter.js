@@ -39,13 +39,15 @@ class Filter {
                             obj[prop] = str;
                             if (attribute['dataType'] != 'relation') {
                                 add = Filter._filter(items, obj, attribute);
-                                if (filtered_items.length == 0)
-                                    filtered_items = add;
-                                else {
-                                    //filtered_items = [...new Set(...filtered_items, ...add)];
-                                    for (let i = 0; i < add.length; i++) {
-                                        if (filtered_items.indexOf(add[i]) == -1)
-                                            filtered_items.push(add[i])
+                                if (add && Array.isArray(add) && add.length > 0) {
+                                    if (filtered_items.length == 0)
+                                        filtered_items = add;
+                                    else {
+                                        //filtered_items = [...new Set(...filtered_items, ...add)];
+                                        for (let i = 0; i < add.length; i++) {
+                                            if (filtered_items.indexOf(add[i]) == -1)
+                                                filtered_items.push(add[i])
+                                        }
                                     }
                                 }
                             }
@@ -103,7 +105,10 @@ class Filter {
                 case "double":
                     filtered_items = Filter.filterNumber(items, filter, field['name']);
                     break;
+                case "date":
+                case "time":
                 case "datetime":
+                case "timestamp":
                 case "string":
                 case "url":
                 case "text":
@@ -128,6 +133,8 @@ class Filter {
                         funcFilter = null;
                     if (funcFilter)
                         filtered_items = funcFilter(items, filter, field['name']);
+                    else
+                        filtered_items = [];
             }
         }
         return filtered_items;

@@ -126,7 +126,10 @@ class ExtensionSelect {
                                                         bRestart = info['state'] === 'openRestartRequest';
                                                     if (bRestart) {
                                                         msg += '\nAPI server application needs to be restarted for the changes to take effect!';
-                                                        controller.getView().initView();
+                                                        //controller.getView().initView(); // shows notification, but clears canvas
+                                                        //await reloadState();
+                                                        //controller.getView().getSideNavigationBar().updateSideNavigationBar(); // not updating notification
+                                                        controller.getView().getSideNavigationBar().renderSideNavigationBar();
                                                     } else {
                                                         controller.getView().getSideNavigationBar().close();
                                                         msg += '\nReload website for the changes to take effect!';
@@ -250,7 +253,7 @@ class ExtensionSelect {
                                 bRestart = info['state'] === 'openRestartRequest';
                             if (bRestart) {
                                 msg += '\nAPI server application needs to be restarted for the changes to take effect!';
-                                controller.getView().initView();
+                                controller.getView().getSideNavigationBar().renderSideNavigationBar();
                             } else {
                                 controller.getView().getSideNavigationBar().close();
                                 msg += '\nReload website for the changes to take effect!';
