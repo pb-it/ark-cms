@@ -336,8 +336,9 @@ describe('Testsuit - Filter', function () {
         await sidemenu.click('All');
         await ExtendedTestHelper.delay(1000);
 
-        const xpathPanel = `//*[@id="canvas"]/ul/li/div[contains(@class, 'panel')]`;
-        var panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
         assert.equal(panels.length, 5);
 
         const tnb = window.getTopNavigationBar();
@@ -345,17 +346,126 @@ describe('Testsuit - Filter', function () {
         await sb.search('$.[?(@.studio.id==3)]');
         await ExtendedTestHelper.delay(1000);
 
-        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
         assert.equal(panels.length, 1);
-        var elements = await panels[0].findElements(webdriver.By.xpath('div/p'));
+        var elements = await panels[0].getElement().findElements(webdriver.By.xpath('div/p'));
         assert.equal(elements.length, 1);
         var text = await elements[0].getText();
         assert.equal(text, 'Pirates of the Caribbean');
 
         await sb.clear();
         await ExtendedTestHelper.delay(1000);
-        panels = await driver.findElements(webdriver.By.xpath(xpathPanel));
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
         assert.equal(panels.length, 5);
+
+        return Promise.resolve();
+    });
+
+    it('#test backslash escaping', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const ds = app.getDataService();
+        const models = await ds.read('_model');
+        if (models.filter(function (x) { return x['definition']['name'] === 'text' }).length == 0) {
+            //await helper.setupModel(path.join(__dirname, './data/models/text.json'));
+            const model = {
+                "name": "text",
+                "options": {
+                    "increments": true,
+                    "timestamps": true
+                },
+                "attributes": [
+                    {
+                        "name": "title",
+                        "dataType": "string"
+                    },
+                    {
+                        "name": "text",
+                        "dataType": "text"
+                    }
+                ]
+            }
+            await app.getModelController().addModel(model);
+        }
+
+        const data = [
+            {
+                'title': 'original',
+                'text': 'Lorem ipsum dolor sit amet,...'
+            },
+            {
+                'title': 'twisted',
+                'text': 'Lorem dolor ipsum sit amet,...'
+            },
+            {
+                'title': 'javascript',
+                'text': 'data:text/javascript;charset=utf-8,...'
+            }
+        ];
+        await helper._setupData('text', data, true);
+
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        var menu = await sidemenu.getEntry('other');
+        if (menu) {
+            await sidemenu.click('other');
+            await ExtendedTestHelper.delay(1000);
+        }
+        await sidemenu.click('text');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await ExtendedTestHelper.delay(1000);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 3);
+
+        await window.getTopNavigationBar().openApplyFilter();
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('New');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('query');
+        assert.notEqual(input, null);
+        await input.sendKeys('$.[?(@.text =~ "/^data:text\\/javascript;charset=utf-8,(.*)$/s")]');
+        await ExtendedTestHelper.delay(1000);
+        button = await panel.getButton('Filter');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
 
         return Promise.resolve();
     });
