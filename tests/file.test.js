@@ -7,6 +7,8 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
+const { Form } = require('@pb-it/ark-cms-selenium-test-helper');
+
 describe('Testsuit - File', function () {
 
     let driver;
@@ -392,6 +394,372 @@ ${file}`;
         img = await thumb.getAttribute('src');
         const file = config['host'] + '/public/images/missing_image.png';
         assert.ok(img && img === file);
+
+        return Promise.resolve();
+    });
+
+    it('#test base64', async function () {
+        this.timeout(60000);
+
+        const app = helper.getApp();
+        await app.setDebugMode(true);
+        const bDebugMode = true;
+
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('New');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('logo');
+        var button = await modal.findElement(webdriver.By.xpath(`.//button[text()="Apply"]`));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        const modelModal = await window.getTopModal();
+        button = await modelModal.findElement(webdriver.By.xpath(`.//button[text()="Add Attribute"]`));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('name');
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('name');
+        var elem = await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="string"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(100);
+
+        button = await modelModal.findElement(webdriver.By.xpath(`.//button[text()="Add Attribute"]`));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('name');
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('url');
+        var elem = await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="url"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(100);
+
+        button = await modelModal.findElement(webdriver.By.xpath(`.//button[text()="Add Attribute"]`));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('name');
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('file64');
+        var elem = await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="file"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        var elem = await form.getElement().findElement(webdriver.By.css('select#storage > option[value="database(base64)"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        await ExtendedTestHelper.delay(1000);
+        elem = await form.getElement().findElement(webdriver.By.css('select#url_prop > option[value="url"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        await ExtendedTestHelper.delay(1000);
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(100);
+
+        button = await modelModal.findElement(webdriver.By.xpath('.//button[text()="Apply and Close"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Ignore"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        if (bDebugMode) {
+            await app.waitLoadingFinished(10);
+            await ExtendedTestHelper.delay(1000);
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+        }
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        var menu = await sidemenu.getEntry('other');
+        if (menu) {
+            await sidemenu.click('other');
+            await ExtendedTestHelper.delay(1000);
+        }
+        await sidemenu.click('logo');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panel = await canvas.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
+        assert.notEqual(input, null);
+        await input.sendKeys('Docker');
+        await ExtendedTestHelper.delay(1000);
+        var entry = await form.getFormEntry('file64');
+        assert.notEqual(entry, null);
+        var inputs = await entry.findElements(webdriver.By.xpath(`./div[@class="value"]/input`));
+        assert.equal(inputs.length, 2);
+        input = inputs[0];
+        await input.sendKeys('https://upload.wikimedia.org/wikipedia/commons/4/4e/Docker_%28container_engine%29_logo.svg');
+        await ExtendedTestHelper.delay(1000);
+        button = await panel.getButton('Create');
+        assert.notEqual(button, null);
+        await button.click();
+        if (bDebugMode) {
+            await ExtendedTestHelper.delay(1000);
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            panel = await modal.getPanel();
+            assert.notEqual(panel, null);
+            var elements = await panel.getElement().findElements(webdriver.By.xpath('.//textarea'));
+            assert.equal(elements.length, 2);
+            var text = await elements[1].getAttribute('value');
+            assert.equal(text, '{\n\t"name": "Docker",\n\t"file64": {\n\t\t"url": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Docker_%28container_engine%29_logo.svg"\n\t}\n}');
+
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+        }
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('logo');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Edit');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var tabPanel = await modal.getPanel();
+        assert.notEqual(tabPanel, null);
+        button = await tabPanel.getElement().findElement(webdriver.By.xpath('./div/div[@class="tab"]/button[text()="Defaults"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        panel = await tabPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]'));
+        assert.notEqual(panel, null, 'Panel not found!');
+        var forms = await panel.findElements(webdriver.By.xpath('./div/form[contains(@class, "crudform")]'));
+        assert.equal(forms.length, 7);
+
+        var option = await forms[0].findElement(webdriver.By.css('select#panelType > option[value="MediaPanel"]'));
+        assert.notEqual(option, null, 'Option not found!');
+        await option.click();
+        await ExtendedTestHelper.delay(1000);
+        option = await forms[0].findElement(webdriver.By.css('select#details > option[value="title"]'));
+        assert.notEqual(option, null, 'Option not found!');
+        await option.click();
+        await ExtendedTestHelper.delay(1000);
+
+        option = await forms[1].findElement(webdriver.By.css('select#title > option[value="name"]'));
+        assert.notEqual(option, null, 'Option not found!');
+        await option.click();
+        await ExtendedTestHelper.delay(1000);
+
+        form = new Form(helper, forms[4]);
+        input = await form.getFormInput('file');
+        assert.notEqual(input, null);
+        await input.sendKeys('file64');
+        await ExtendedTestHelper.delay(1000);
+
+        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        if (bDebugMode) {
+            await ExtendedTestHelper.delay(1000);
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+        }
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        await app.reload();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+
+        var contextmenu = await panels[0].openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Details');
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('logo');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Edit');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var tabPanel = await modal.getPanel();
+        assert.notEqual(tabPanel, null);
+        button = await tabPanel.getElement().findElement(webdriver.By.xpath('./div/div[@class="tab"]/button[text()="Defaults"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        panel = await tabPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]'));
+        assert.notEqual(panel, null, 'Panel not found!');
+        var forms = await panel.findElements(webdriver.By.xpath('./div/form[contains(@class, "crudform")]'));
+        assert.equal(forms.length, 7);
+
+        form = new Form(helper, forms[4]);
+        input = await form.getFormInput('thumbnail');
+        assert.notEqual(input, null);
+        await input.sendKeys('file64');
+        await ExtendedTestHelper.delay(1000);
+
+        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply and Close"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        if (bDebugMode) {
+            await ExtendedTestHelper.delay(1000);
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+        }
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        await app.reload();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+
+        var thumb = await panels[0].getElement().findElement(webdriver.By.xpath('./div/div[@class="thumbnail"]/img'));
+        var img = await thumb.getAttribute('src');
+        const file = config['host'] + '/public/images/missing_image.png';
+        assert.ok(img && img != file);
 
         return Promise.resolve();
     });

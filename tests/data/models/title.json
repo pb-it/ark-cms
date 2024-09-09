@@ -1,0 +1,24 @@
+{
+    "name": "title",
+    "options": {
+        "increments": true,
+        "timestamps": true
+    },
+    "defaults": {
+        "sort": "created_at:desc",
+        "title": "title"
+    },
+    "attributes": [
+        {
+            "name": "title",
+            "hidden": true,
+            "dataType": "string",
+            "persistent": false
+        }
+    ],
+    "_sys": {
+        "modules": {
+            "client": "function init() {\n    this._prepareDataAction = function (data) {\n        const date = new Date(data['created_at']);\n        var title = date.toLocaleString(app.getController().getLocale());\n        data['title'] = title;\n        return data;\n    }\n}\n\nexport { init };"
+        }
+    }
+}

@@ -225,10 +225,11 @@ class ModalController {
             controller.setLoadingState(true);
             const modal = controller.getModalController().addModal();
 
+            const panel = new Panel();
             const $div = $('<div/>');
 
-            const panel = new DiffJsonPanel(oldobj, newObj);
-            $div.append(await panel.render());
+            const diff = new DiffJsonPanel(oldobj, newObj);
+            $div.append(await diff.render());
 
             $div.append($('<button/>')
                 .text("Abort")
@@ -249,7 +250,8 @@ class ModalController {
                     resolve(true);
                 }.bind(this)));
 
-            modal.open($div);
+            panel.setContent($div);
+            modal.openPanel(panel);
             controller.setLoadingState(false);
             return Promise.resolve();
         });

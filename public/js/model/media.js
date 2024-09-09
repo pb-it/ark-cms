@@ -7,8 +7,10 @@ class Media {
         const path = model.getModelDefaultsController().getDefaultThumbnailProperty();
         if (path)
             media = Media._determineThumbnailMulti(model, data, path);
+        const propName = model.getModelDefaultsController().getDefaultFileProperty();
+        if (!media && propName)
+            media = new Media();
         if (media) {
-            const propName = model.getModelDefaultsController().getDefaultFileProperty();
             if (propName) {
                 const attr = model.getModelAttributesController().getAttribute(propName);
                 if (attr['dataType'] === 'url' || attr['dataType'] === 'file')

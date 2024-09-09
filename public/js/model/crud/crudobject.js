@@ -35,18 +35,19 @@ class CrudObject {
                             res[property] = id;
                         }
                     } else if (field['dataType'] == 'file') {
-                        if (field['storage'] == 'filesystem') {
-                            if (typeof data[property] === 'string' || data[property] instanceof String) {
+                        if (typeof data[property] === 'string' || data[property] instanceof String) {
+                            if (field['storage'] === 'base64' && data[property].length > 80)
+                                res[property] = data[property].substring(0, 80) + '...';
+                            else
                                 res[property] = data[property];
-                            } else {
-                                if (data[property]['base64']) {
-                                    res[property] = { ...data[property] };
-                                    res[property]['base64'] = data[property]['base64'].substring(0, 80) + '...';
-                                } else if (data[property]['url'])
-                                    res[property] = data[property];
-                                else if (data[property]['filename'])
-                                    res[property] = data[property]['filename'];
-                            }
+                        } else {
+                            if (data[property]['base64']) {
+                                res[property] = { ...data[property] };
+                                res[property]['base64'] = data[property]['base64'].substring(0, 80) + '...';
+                            } else if (data[property]['url'])
+                                res[property] = data[property];
+                            else if (data[property]['filename'])
+                                res[property] = data[property]['filename'];
                         }
                     } else
                         res[property] = data[property];

@@ -313,7 +313,7 @@ class CrudPanel extends CanvasPanel {
                 oldData = this._obj.getData();
             if (oldData) {
                 const newData = await this._readData(bValidate);
-                changed = await CrudObject.getChanges(this._skeleton, oldData, newData);
+                changed = await CrudObject.getChanges(this._skeleton, oldData, newData, false, false);
             }
         }
         return Promise.resolve(changed);

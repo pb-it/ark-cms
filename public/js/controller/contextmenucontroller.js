@@ -55,8 +55,11 @@ class ContextMenuController {
                     var file;
                     if (target.getClass() == MediaPanel) {
                         const thumb = target.getThumbnail();
-                        if (thumb)
-                            file = thumb.getMedia().getFile();
+                        if (thumb) {
+                            const media = thumb.getMedia();
+                            if (media)
+                                file = media.getFile();
+                        }
                     }
                     /*const attribute = model.getModelAttributesController().getAttribute(fileProperty);
                     if (attribute)

@@ -688,4 +688,61 @@ describe('Testsuit - Datatypes', function () {
 
         return Promise.resolve();
     });
+
+    it('#test calculated title', async function () {
+        this.timeout(60000);
+
+        const app = helper.getApp();
+        await app.setDebugMode(true);
+
+        await helper.setupModel(path.join(__dirname, './data/models/title.json'));
+
+        await app.reload();
+        await ExtendedTestHelper.delay(1000);
+
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        var menu = await sidemenu.getEntry('other');
+        if (menu) {
+            await sidemenu.click('other');
+            await ExtendedTestHelper.delay(1000);
+        }
+        await sidemenu.click('title');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Create');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panel = await canvas.getPanel();
+        assert.notEqual(panel, null);
+        /*var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('title');
+        assert.notEqual(input, null);*/
+
+        var button = await panel.getButton('Create');
+        assert.notEqual(button, null);
+        await button.click();
+        await driver.wait(webdriver.until.alertIsPresent(), 1000);
+        var alert = await driver.switchTo().alert();
+        text = await alert.getText();
+        assert.equal(text, 'Create empty entry?');
+        await alert.accept();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+
+        return Promise.resolve();
+    });
 });
