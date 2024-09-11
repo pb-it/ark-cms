@@ -306,6 +306,16 @@ class CrudPanel extends CanvasPanel {
         return Promise.resolve(data);
     }
 
+    /**
+     * Ignore hidden fields
+     * Include readOnly fields for the following reasons
+     * * programmatically changed
+     * * hidden fields will be rendered readOnly when 'setData' function gets called
+     * 
+     * @param {*} bValidate 
+     * @param {*} oldData 
+     * @returns 
+     */
     async getChanges(bValidate, oldData) {
         var changed;
         if (this._config.action == ActionEnum.create || this._config.action == ActionEnum.update) {
@@ -313,7 +323,7 @@ class CrudPanel extends CanvasPanel {
                 oldData = this._obj.getData();
             if (oldData) {
                 const newData = await this._readData(bValidate);
-                changed = await CrudObject.getChanges(this._skeleton, oldData, newData, false, false);
+                changed = await CrudObject.getChanges(this._skeleton, oldData, newData, false, true);
             }
         }
         return Promise.resolve(changed);
