@@ -174,11 +174,14 @@ class BasicFormEntry extends FormEntry {
                             size = "100";
 
                         this._$input = $('<input/>')
-                            .attr('type', 'text')
                             .attr('size', size)
                             .attr('name', name)
                             .attr('id', this._id)
                             .val(value);
+                        if (this._attribute['type'])
+                            this._$input.attr('type', this._attribute['type'])
+                        else
+                            this._$input.attr('type', 'text')
                         break;
                     case "enumeration":
                         var options = this._attribute['options'];
