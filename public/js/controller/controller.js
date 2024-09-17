@@ -285,7 +285,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
         }
     }
 
-    async _updateDatabase() {
+    async _updateDatabase(bForce) {
         const id = this._database.getChangeId();
         if (id) {
             const changes = await this._dataservice.getCache().getChanges(id);
@@ -293,7 +293,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                 const data = changes['data'];
                 if (data && data.length > 0) {
                     if (data[0]['id'] == id + 1) {
-                        if (this._configController.automaticUpdateIndexedDB()) {
+                        if (bForce || this._configController.automaticUpdateIndexedDB()) {
                             if (this._database)
                                 await this._database.updateDatabase(changes);
                             else

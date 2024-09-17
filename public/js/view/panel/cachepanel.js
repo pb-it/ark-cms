@@ -343,19 +343,29 @@ class CachePanel extends TabPanel {
                     .text('Update')
                     .click(async function (event) {
                         event.stopPropagation();
-                        if (controller._bOfflineMode) {
-                            const ds = controller.getDataService();
-                            if (ds._pending.length > 0) {
-                                for (var entry of ds._pending) {
+
+                        const controller = app.getController();
+                        try {
+                            controller.setLoadingState(true);
+                            if (controller._bOfflineMode) {
+                                const ds = controller.getDataService();
+                                if (ds._pending.length > 0) {
                                     controller._bOfflineMode = false;
-                                    ds.request(entry['typeString'], entry['action'], entry['id'], entry['data']);
+                                    for (var entry of ds._pending) {
+                                        await ds.request(entry['typeString'], entry['action'], entry['id'], entry['data']);
+                                    }
                                     controller._bOfflineMode = true;
+                                    ds._pending = [];
                                 }
-                                ds._pending = [];
                             }
+                            //await this._cache.update();
+                            await controller._updateDatabase(true);
+                            await this._$offlinePanel.render();
+                            controller.setLoadingState(false);
+                        } catch (error) {
+                            controller.setLoadingState(false);
+                            controller.showError(error);
                         }
-                        await this._cache.update();
-                        await this._$offlinePanel.render();
                         return Promise.resolve();
                     }.bind(this));
                 $div.append($button);
