@@ -33,6 +33,10 @@ class TopNavigationBar {
         this._$topNavigationBar.append(this._$searchContainer);
     }
 
+    getBreadcrumb() {
+        return this._breadcrumb;
+    }
+
     getSearchForm() {
         return this._searchForm;
     }

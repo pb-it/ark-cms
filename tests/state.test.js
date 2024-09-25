@@ -212,4 +212,43 @@ describe('Testsuit - State', function () {
 
         return Promise.resolve();
     });
+
+    it('#test state with function', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        await app.navigate('/');
+        await ExtendedTestHelper.delay(1000);
+
+        var response = await driver.executeAsyncScript(async () => {
+            const callback = arguments[arguments.length - 1];
+
+            var res;
+            try {
+                const controller = app.getController();
+                const state = new State();
+                //state.funcState = `alert('TestFunction')`;
+                state.funcState = `const controller = app.getController();
+const panels = [];
+await controller.getView().getCanvas().showPanels(panels);`;
+                await controller.loadState(state, true);
+                res = 'OK';
+            } catch (error) {
+                alert('Error');
+                console.error(error);
+                res = error;
+            } finally {
+                callback(res);
+            }
+        });
+        assert.equal(response, 'OK');
+
+        const xpathButton = `//*[@id="topnav"]/div/button`;
+        var button = await driver.findElements(webdriver.By.xpath(xpathButton));
+        assert.equal(button.length, 1);
+        var text = await button[0].getText();
+        assert.equal(text, '<undefined>::function');
+
+        return Promise.resolve();
+    });
 });
