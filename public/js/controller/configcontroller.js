@@ -30,7 +30,7 @@ class ConfigController {
         return Promise.resolve();
     }
 
-    async import(models, profiles, bookmarks, bForce) {
+    async import(models, profiles, bForce) {
         var bError = false;
         const controller = this._controller;
         controller.setLoadingState(true);
@@ -43,9 +43,6 @@ class ConfigController {
 
             if (profiles)
                 await controller.getProfileController().setProfiles(profiles);
-
-            if (bookmarks)
-                await controller.getBookmarkController().setBookmarks(bookmarks);
 
             controller.setLoadingState(false);
         } catch (error) {
@@ -100,9 +97,9 @@ class ConfigController {
         if (!models)
             models = controller.getModelController().getModels();
 
-        var config = {};
+        const config = {};
         const ac = controller.getApiController();
-        var info = ac.getApiInfo();
+        const info = ac.getApiInfo();
         config[MODEL_VERSION_IDENT] = info['version'];
 
         config[ModelController.MODELS_IDENT] = models.map(function (model) {
@@ -110,13 +107,9 @@ class ConfigController {
         });
         config[ModelController.MODELS_IDENT].sort((a, b) => a.name.localeCompare(b.name));
 
-        var profiles = controller.getProfileController().getProfileConfig();
+        const profiles = controller.getProfileController().getProfileConfig();
         if (profiles)
             config[ProfileController.CONFIG_PROFILE_IDENT] = profiles;
-
-        var bookmarks = controller.getBookmarkController().getBookmarks();
-        if (bookmarks)
-            config[BookmarkController.CONFIG_BOKKMARK_IDENT] = bookmarks;
 
         FileCreator.createFileFromText(`models_${FileCreator.createFilenameByDateTime()}.json`, JSON.stringify(config, null, '\t'));
 

@@ -291,25 +291,6 @@ class SideNavigationBar {
             menuItem = new MenuItem(conf);
             menuItems.push(menuItem);
 
-            if (controller.isInDebugMode() && controller.getConfigController().experimentalFeaturesEnabled()) {
-                conf = {
-                    'style': 'iconbar',
-                    'icon': new Icon('bookmark'),
-                    'tooltip': 'Bookmarks',
-                    'click': async function (event, icon) {
-                        event.preventDefault();
-                        event.stopPropagation();
-
-                        this.close();
-
-                        var config = { 'minWidth': '1000px' };
-                        return app.getController().getModalController().openPanelInModal(new ManageBookmarkPanel(config));
-                    }.bind(this)
-                };
-                menuItem = new MenuItem(conf);
-                menuItems.push(menuItem);
-            }
-
             if (this._topIconBarExtensions && this._topIconBarExtensions.length > 0) {
                 for (var ext of this._topIconBarExtensions) {
                     if (typeof ext.func === 'function') {

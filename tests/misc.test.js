@@ -32,6 +32,26 @@ async function openApi(path) {
     return Promise.resolve(text);
 }
 
+async function disableFileDialog() {
+    const driver = helper.getBrowser().getDriver();
+    //driver.setFileDetector(new remote.FileDetector());
+
+    // https://copyprogramming.com/howto/selenium-close-file-picker-dialog
+    await driver.executeScript(function () {
+        HTMLInputElement.prototype.click = function () {
+            if (this.type !== 'file') {
+                HTMLElement.prototype.click.call(this);
+            }
+            else if (!this.parentNode) {
+                this.style.display = 'none';
+                this.ownerDocument.documentElement.appendChild(this);
+                this.addEventListener('change', () => this.remove());
+            }
+        }
+    });
+    return Promise.resolve();
+}
+
 describe('Testsuit - Misc.', function () {
 
     let driver;
@@ -311,6 +331,121 @@ describe('Testsuit - Misc.', function () {
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
+
+        return Promise.resolve();
+    });
+
+    it('#test import/export models', async function () {
+        this.timeout(60000);
+
+        const app = helper.getApp();
+        await app.navigate('/');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Export');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Deselect All');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        const xpathCeckbox = './/div[@class="list"]/ul/li/div[@class="node"]/input[@type="checkbox" and starts-with(@id,"misc")]';
+        var checkbox = await panel.getElement().findElement(webdriver.By.xpath(xpathCeckbox));
+        assert.notEqual(checkbox, null);
+        var value = await checkbox.getAttribute('checked');
+        assert.equal(value, null);
+        await checkbox.click();
+        await ExtendedTestHelper.delay(1000);
+
+        button = await panel.getButton('Export');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        const downloads = await helper.getBrowser().getDownloads(true);
+        const file = downloads[0];
+        //console.log(file);
+        assert.notEqual(file, undefined, 'Download failed');
+        assert.equal(fs.existsSync(file), true, 'Download failed');
+
+        const str = fs.readFileSync(file, 'utf8');
+        const obj = JSON.parse(str);
+        assert.ok(obj['models'] && obj['models'].length === 1 && obj['models'][0]['name'] === 'misc');
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('misc');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Delete');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        button = await panel.getButton('Delete');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await app.getWindow().getTopModal();
+        assert.equal(modal, null);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        var menu = await sidemenu.getEntry('misc');
+        assert.equal(menu, null);
+        await disableFileDialog();
+        await sidemenu.click('Import');
+        await ExtendedTestHelper.delay(1000);
+        var xpath = `//input[@type="file"]`;
+        var input = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
+        assert.notEqual(input, null);
+        input.sendKeys(file);
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        checkbox = await panel.getElement().findElement(webdriver.By.xpath(xpathCeckbox));
+        assert.notEqual(checkbox, null);
+        value = await checkbox.getAttribute('checked');
+        assert.equal(value, 'true');
+        button = await panel.getButton('Import');
+        assert.notEqual(button, null);
+        await button.click();
+        await driver.wait(webdriver.until.alertIsPresent());
+        var alert = await driver.switchTo().alert();
+        var text = await alert.getText();
+        assert.equal(text, 'Application is going to reload in order to finish import!');
+        await alert.accept();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        menu = await sidemenu.getEntry('misc');
+        assert.notEqual(menu, null);
+        const body = await driver.findElement(webdriver.By.xpath('/html/body'));
+        assert.notEqual(body, null);
+        await body.click();
 
         return Promise.resolve();
     });

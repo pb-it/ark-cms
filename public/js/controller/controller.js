@@ -29,7 +29,6 @@ class Controller {
     _dataTypeController;
     _panelController;
     _extensionController;
-    _bookmarkController;
 
     _modalController;
 
@@ -111,10 +110,6 @@ class Controller {
         return this._extensionController;
     }
 
-    getBookmarkController() {
-        return this._bookmarkController;
-    }
-
     getDataService() {
         return this._dataservice;
     }
@@ -182,9 +177,6 @@ class Controller {
 
             this._profileController = new ProfileController();
             await this._profileController.init();
-
-            this._bookmarkController = new BookmarkController();
-            await this._bookmarkController.init();
 
             if (this._database)
                 await this._updateDatabase();

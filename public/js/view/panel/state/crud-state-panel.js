@@ -53,7 +53,6 @@ class CrudStatePanel extends Panel {
 
                         const msc = controller.getModelController().getModel(this._state['typeString']).getModelStateController();
                         await msc.saveState(this._state, this._action == ActionEnum.update);
-                        //TODO: await app.controller.getBookmarkController().addBookmark(newState);
 
                         //this.render();
                         controller.setLoadingState(false);

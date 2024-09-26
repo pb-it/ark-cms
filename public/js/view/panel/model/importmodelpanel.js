@@ -3,12 +3,11 @@ class ImportModelPanel extends Panel {
     _version;
     _models;
     _profiles;
-    _bookmarks;
 
     _form;
     _listVis;
 
-    constructor(version, models, profiles, bookmarks) {
+    constructor(version, models, profiles) {
         super();
 
         this._version = version;
@@ -19,26 +18,17 @@ class ImportModelPanel extends Panel {
             this._models = models;
 
         this._profiles = profiles;
-        this._bookmarks = bookmarks;
     }
 
     async _renderContent() {
-        var $div = $('<div/>')
+        const $div = $('<div/>')
             .css({ 'padding': '10' });
 
         if (this._profiles) {
-            var skeleton = [
+            const skeleton = [
                 {
                     name: "importProfiles",
                     label: "Import Profiles",
-                    dataType: "boolean",
-                    required: true,
-                    defaultValue: true,
-                    view: "labelRight"
-                },
-                {
-                    name: "importBookmarks",
-                    label: "Import Bookmarks",
                     dataType: "boolean",
                     required: true,
                     defaultValue: true,
@@ -51,12 +41,12 @@ class ImportModelPanel extends Panel {
             $div.append("<br/>");
         }
 
-        var list = new List();
+        const list = new List();
         for (var model of this._models) {
             list.addEntry(new SelectableListEntry(model.getName(), model, null, true));
         }
 
-        var vListConfig = {
+        const vListConfig = {
             alignment: 'vertical',
             selectButtons: true
         }
@@ -66,7 +56,7 @@ class ImportModelPanel extends Panel {
 
         $div.append('<br/>');
 
-        var $abortButton = $('<button/>')
+        const $abortButton = $('<button/>')
             .text("Abort")
             .click(async function (event) {
                 event.preventDefault();
@@ -75,23 +65,24 @@ class ImportModelPanel extends Panel {
             }.bind(this));
         $div.append($abortButton);
 
-        var $importButton = $('<button/>')
+        const $importButton = $('<button/>')
             .text("Import")
             .css({ 'float': 'right' })
             .click(async function (event) {
                 event.preventDefault();
 
+                const controller = app.getController();
                 try {
-                    var list = this._listVis.getList();
-                    var selectedEntries = list.getEntries().filter(function (x) { return x.isSelected() });
-                    var selectedModels = selectedEntries.map(function (x) { return x.getData() });
+                    const list = this._listVis.getList();
+                    const selectedEntries = list.getEntries().filter(function (x) { return x.isSelected() });
+                    const selectedModels = selectedEntries.map(function (x) { return x.getData() });
 
                     if (selectedModels && selectedModels.length > 0) {
-                        var models = app.controller.getModelController().getModels();
-                        var names = models.map(function (model) {
+                        const models = controller.getModelController().getModels();
+                        const names = models.map(function (model) {
                             return model.getName();
                         });
-                        var conflictingModels = [];
+                        const conflictingModels = [];
                         for (var model of selectedModels) {
                             if (names.indexOf(model.getName()) >= 0)
                                 conflictingModels.push(model);
@@ -100,9 +91,9 @@ class ImportModelPanel extends Panel {
                         if (conflictingModels.length == 0) {
                             this._import(selectedModels);
                         } else {
-                            var panel = new Panel();
+                            const panel = new Panel();
 
-                            var $div = $('<div/>')
+                            const $div = $('<div/>')
                                 .css({ 'padding': '10' });
 
                             $div.append(`<b>Information:</b><br/>
@@ -113,7 +104,7 @@ class ImportModelPanel extends Panel {
 
                             $div.append("<br/>");
 
-                            var $change = $('<button/>')
+                            const $change = $('<button/>')
                                 .text("Abort") //Abort
                                 .click(async function (event) {
                                     event.preventDefault();
@@ -124,7 +115,7 @@ class ImportModelPanel extends Panel {
                                 }.bind(this));
                             $div.append($change);
 
-                            var $ignore = $('<button/>')
+                            const $ignore = $('<button/>')
                                 .text("Continue")
                                 .css({ 'float': 'right' })
                                 .click(async function (event) {
@@ -141,12 +132,12 @@ class ImportModelPanel extends Panel {
                             $div.append("<br/>");
 
                             panel.setContent($div);
-                            await app.controller.getModalController().openPanelInModal(panel);
+                            await controller.getModalController().openPanelInModal(panel);
                         }
                     } else
                         alert('select at least one model');
                 } catch (error) {
-                    app.controller.showError(error);
+                    controller.showError(error);
                 }
 
                 return Promise.resolve();
@@ -157,15 +148,16 @@ class ImportModelPanel extends Panel {
     }
 
     async _import(models) {
+        const controller = app.getController();
         try {
-            app.controller.setLoadingState(true);
+            controller.setLoadingState(true);
 
             var bForce = false;
-            var ac = app.controller.getApiController();
-            var info = ac.getApiInfo();
+            const ac = controller.getApiController();
+            const info = ac.getApiInfo();
             if (!VersionController.compatible(this._version, info['version'])) {
-                app.controller.setLoadingState(false);
-                var bConfirmation = await app.controller.getModalController().openConfirmModal("Version of imported models may not be compatible with backend application version! Still force upload?");
+                controller.setLoadingState(false);
+                var bConfirmation = await controller.getModalController().openConfirmModal("Version of imported models may not be compatible with backend application version! Still force upload?");
                 if (bConfirmation)
                     bForce = true;
                 else
@@ -178,18 +170,12 @@ class ImportModelPanel extends Panel {
                 if (fData['importProfiles'])
                     profiles = this._profiles;
             }
-            var bookmarks;
-            if (this._bookmarks && this._form) {
-                var fData = await this._form.readForm();
-                if (fData['importBookmarks'])
-                    bookmarks = this._bookmarks;
-            }
-            await app.controller.getConfigController().import(models, profiles, bookmarks, bForce);
+            await controller.getConfigController().import(models, profiles, bForce);
 
             this.dispose();
         } catch (error) {
-            app.controller.setLoadingState(false);
-            app.controller.showError(error, "Import of models failed!");
+            controller.setLoadingState(false);
+            controller.showError(error, "Import of models failed!");
         }
         return Promise.resolve();
     }

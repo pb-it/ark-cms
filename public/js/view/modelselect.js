@@ -136,8 +136,8 @@ class ModelSelect {
             'click': function (event, item) {
                 event.stopPropagation();
 
-                app.controller.getView().getSideNavigationBar().close();
-
+                const controller = app.getController();
+                controller.getView().getSideNavigationBar().close();
                 try {
                     var $input = $('<input/>')
                         .prop('type', 'file')
@@ -149,13 +149,13 @@ class ModelSelect {
                                     var version;
                                     var models = [];
                                     var profiles;
-                                    var bookmarks;
+                                    const controller = app.getController();
                                     if (reader.result) {
                                         try {
-                                            var conf = JSON.parse(reader.result);
+                                            const conf = JSON.parse(reader.result);
                                             version = conf[MODEL_VERSION_IDENT];
 
-                                            var mDataArr = conf[ModelController.MODELS_IDENT];
+                                            const mDataArr = conf[ModelController.MODELS_IDENT];
                                             if (mDataArr) {
                                                 for (var mData of mDataArr) {
                                                     models.push(new XModel(mData, version));
@@ -163,13 +163,12 @@ class ModelSelect {
                                             }
 
                                             profiles = conf[ProfileController.CONFIG_PROFILE_IDENT];
-                                            bookmarks = conf[BookmarkController.CONFIG_BOOKMARK_IDENT];
                                         } catch (error) {
-                                            app.controller.showError(error);
+                                            controller.showError(error);
                                         }
                                     }
                                     if (models.length > 0 || profiles)
-                                        app.controller.getModalController().openPanelInModal(new ImportModelPanel(version, models, profiles, bookmarks));
+                                        controller.getModalController().openPanelInModal(new ImportModelPanel(version, models, profiles));
                                     else
                                         alert("File does not contain any applicable data");
                                 };
@@ -178,7 +177,7 @@ class ModelSelect {
                         });
                     $input.click();
                 } catch (error) {
-                    app.controller.showError(error, "Reading of file failed");
+                    controller.showError(error, "Reading of file failed");
                 }
             }.bind(this)
         };
@@ -190,8 +189,9 @@ class ModelSelect {
             'click': async function (event, item) {
                 event.stopPropagation();
 
-                app.controller.getView().getSideNavigationBar().close();
-                return app.controller.getModalController().openPanelInModal(new ExportModelPanel());
+                const controller = app.getController();
+                controller.getView().getSideNavigationBar().close();
+                return controller.getModalController().openPanelInModal(new ExportModelPanel());
             }.bind(this)
         };
         menuItem = new MenuItem(conf);
@@ -202,14 +202,15 @@ class ModelSelect {
             'click': async function (event, item) {
                 event.stopPropagation();
 
-                app.controller.getView().getSideNavigationBar().close();
+                app.getController().getView().getSideNavigationBar().close();
                 return ModelSelect.openCreateModelModal();
             }
         };
         menuItem = new MenuItem(conf);
         menuItems.push(menuItem);
 
-        var models = app.controller.getModelController().getModels(app.controller.isInDebugMode());
+        const controller = app.getController();
+        var models = controller.getModelController().getModels(controller.isInDebugMode());
         this._names = models.map(function (model) {
             return model.getName();
         });
@@ -254,11 +255,12 @@ class ModelSelect {
             'click': async function (event, item) {
                 event.stopPropagation();
 
-                app.controller.getView().getSideNavigationBar().close();
+                const controller = app.getController();
+                controller.getView().getSideNavigationBar().close();
 
-                var config = { 'minWidth': '1000px' };
-                var model = app.controller.getModelController().getModel(this._modelName);
-                return app.controller.getModalController().openPanelInModal(new EditModelPanel(config, model));
+                const config = { 'minWidth': '1000px' };
+                const model = controller.getModelController().getModel(this._modelName);
+                return controller.getModalController().openPanelInModal(new EditModelPanel(config, model));
             }.bind(this)
         };
         menuItem = new MenuItem(conf);
@@ -269,11 +271,12 @@ class ModelSelect {
             'click': async function (event, item) {
                 event.stopPropagation();
 
-                app.controller.getView().getSideNavigationBar().close();
+                const controller = app.getController();
+                controller.getView().getSideNavigationBar().close();
 
-                var model = app.controller.getModelController().getModel(this._modelName);
-                var panel = new DeleteModelPanel(model);
-                return app.controller.getModalController().openPanelInModal(panel);
+                const model = controller.getModelController().getModel(this._modelName);
+                const panel = new DeleteModelPanel(model);
+                return controller.getModalController().openPanelInModal(panel);
             }.bind(this)
         };
         menuItem = new MenuItem(conf);
