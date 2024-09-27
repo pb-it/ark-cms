@@ -51,12 +51,16 @@ class CrudStatePanel extends Panel {
                             newState.filters = JSON.parse(newState.filters);
                         this._state = newState;
 
-                        const msc = controller.getModelController().getModel(this._state['typeString']).getModelStateController();
-                        await msc.saveState(this._state, this._action == ActionEnum.update);
+                        const model = controller.getModelController().getModel(this._state['typeString']);
+                        if (model) {
+                            const msc = model.getModelStateController();
+                            await msc.saveState(this._state, this._action == ActionEnum.update);
 
-                        //this.render();
-                        controller.setLoadingState(false);
-                        alert(label + 'd successfully');
+                            //this.render();
+                            controller.setLoadingState(false);
+                            alert(label + 'd successfully');
+                        } else
+                            throw new Error("Model '" + this._state['typeString'] + "' not found");
                     } else {
                         this._form.getFormEntry('name').getInput().focus();
                         throw new Error("Field 'name' is required");

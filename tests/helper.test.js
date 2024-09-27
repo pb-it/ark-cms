@@ -28,6 +28,10 @@ describe('Testsuit - Helper', function () {
         const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
 
+        driver.executeScript(function () {
+            localStorage.setItem('bIndexedDB', 'false');
+        });
+
         return Promise.resolve();
     });
 
