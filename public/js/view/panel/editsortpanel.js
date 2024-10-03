@@ -4,12 +4,8 @@ class EditSortPanel extends Panel {
         var attributes = model.getModelAttributesController().getAttributes(true);
         var options = [];
         for (var attribute of attributes) {
-            if (!(attribute['dataType'] === 'relation' || attribute['dataType'] === 'file' && (attribute['storage'] === 'blob' || attribute['storage'] === 'base64'))) {
-                if (attribute['persistent'] === undefined || attribute['persistent'] === null || attribute['persistent'])
-                    options.push({ 'value': attribute['name'] });
-                else
-                    options.push({ 'value': attribute['name'], 'disabled': true, 'tooltip': '**INFO**: To sort according to an non-persistent field is currently not supported' });
-            }
+            if (!(attribute['dataType'] === 'relation' || attribute['dataType'] === 'file' && (attribute['storage'] === 'blob' || attribute['storage'] === 'base64')))
+                options.push({ 'value': attribute['name'] });
         }
         var skeleton = [
             {

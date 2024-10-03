@@ -56,7 +56,7 @@ class Tree {
     }
 
     setTreeConf(conf) {
-        if (Array.isArray(conf)) {
+        if (!conf || Array.isArray(conf)) {
             this._conf = {
                 'type': 'dummyRoot',
                 'nodes': conf

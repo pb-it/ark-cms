@@ -81,7 +81,7 @@ describe('Testsuit - Authentication/Authorization', function () {
         button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
-
+        await app.waitLoadingFinished(10);
         await TestHelper.delay(1000);
 
         modal = await window.getTopModal();
@@ -89,33 +89,35 @@ describe('Testsuit - Authentication/Authorization', function () {
         button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
-
+        await app.waitLoadingFinished(10);
         await TestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
         await app.logout();
+        await app.waitLoadingFinished(10);
         await TestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
 
         await app.login('user', 'user');
-
+        await app.waitLoadingFinished(10);
         await TestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
         await app.logout();
+        await app.waitLoadingFinished(10);
         await TestHelper.delay(1000);
 
         modal = await window.getTopModal();
         assert.notEqual(modal, null);
 
         await app.login();
-
+        await app.waitLoadingFinished(10);
         await TestHelper.delay(1000);
 
         modal = await window.getTopModal();

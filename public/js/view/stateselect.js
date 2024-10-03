@@ -489,15 +489,8 @@ class StateSelect {
             const model = app.getController().getModelController().getModel(this._model);
             if (model) {
                 const entries = model.getSideMenuEntries();
-                if (entries.length > 0) {
-                    var menuItem;
-                    for (var conf of entries) {
-                        menuItem = new MenuItem(conf);
-                        if (conf['panel'])
-                            menuItem.setSubMenu(new Menu());
-                        menuItems.push(menuItem);
-                    }
-                }
+                if (entries.length > 0)
+                    menuItems.push(...entries);
             }
         }
 

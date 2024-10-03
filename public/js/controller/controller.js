@@ -751,7 +751,9 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
     }
 
     async select(ctrl, shift, panel) {
-        this._view.getSideNavigationBar().close();
+        const modals = this._modalController.getModals();
+        if (!modals || modals.length === 0)
+            this._view.getSideNavigationBar().close();
         if (ctrl == true) {
             if (panel.isSelected()) {
                 this._selected.splice(this._selected.indexOf(panel), 1);

@@ -32,9 +32,13 @@ class Menu {
     }
 
     setItems(items) {
-        this._items = items;
-        for (var item of this._items) {
-            item.setMenu(this);
+        this._items = [];
+        for (var item of items) {
+            if (item instanceof MenuItem) {
+                this._items.push(item);
+                item.setMenu(this);
+            } else
+                console.error('Invalid MenuItem');
         }
     }
 

@@ -248,8 +248,7 @@ describe('Testsuit - Collection', function () {
         assert.notEqual(panel, null);
         var form = await panel.getForm();
         assert.notEqual(form, null);
-        //var entry = form.getFormEntry('form:galleries:');
-        var entry = form.getElement().findElement(webdriver.By.xpath('./div[@class="formentry" and starts-with(@id, "form:galleries:")]'));
+        var entry = await form.getFormEntry('galleries');
         assert.notEqual(entry, null);
         var button = await entry.findElement(webdriver.By.xpath('./div[@class="value"]/div[@class="select"]/ul/li/button[text()="Remove"]'));
         assert.notEqual(button, null);

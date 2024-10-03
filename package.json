@@ -58,10 +58,10 @@
         "express": "^4.21.0"
     },
     "devDependencies": {
-        "@babel/cli": "^7.25.6",
-        "@babel/core": "^7.25.2",
-        "@babel/plugin-transform-class-properties": "^7.25.4",
-        "@pb-it/ark-cms-selenium-test-helper": "0.1.24-beta",
+        "@babel/cli": "^7.25.7",
+        "@babel/core": "^7.25.7",
+        "@babel/plugin-transform-class-properties": "^7.25.7",
+        "@pb-it/ark-cms-selenium-test-helper": "0.1.25-beta",
         "babel-plugin-conditional-compile": "^0.0.5",
         "gulp": "^5.0.0",
         "gulp-mocha": "^10.0.1",

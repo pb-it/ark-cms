@@ -381,7 +381,7 @@ class EditAttributesPanel extends Panel {
                     ];
                     break;
                 case 'relation':
-                    var models = app.controller.getModelController().getModels();
+                    var models = app.getController().getModelController().getModels(true);
                     var allModelNames = models.map(function (model) {
                         return model.getDefinition()['name'];
                     });

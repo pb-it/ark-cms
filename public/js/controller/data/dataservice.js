@@ -88,13 +88,6 @@ class DataService {
             else
                 url += "/" + id;
         }
-        if (!id && !sort) {
-            var model = app.getController().getModelController().getModel(typeString);
-            if (model)
-                sort = model.getModelDefaultsController().getDefaultSort();
-            else
-                throw new Error("Model '" + typeString + "' is not defined");
-        }
         if (!id && !limit)
             limit = "-1";
         var tmp = State.createSearchParamString(where, sort, limit);
@@ -173,13 +166,25 @@ class DataService {
         var sortlessUrl;
         var bSort = false;
         const model = app.getController().getModelController().getModel(typeString);
+        if (!model)
+            throw new Error('Unknown model \'' + typeString + '\'');
+        if (!id && !sort) {
+            tmp = model.getModelDefaultsController().getDefaultSort();
+            if (tmp) {
+                var parts = tmp.split(':');
+                if (parts.length == 2) {
+                    var attribute = model.getModelAttributesController().getAttribute(parts[0]);
+                    if (attribute['persistent'] === undefined || attribute['persistent'] === null || attribute['persistent'])
+                        sort = tmp;
+                    else
+                        bSort = true;
+                }
+            }
+        }
         var cache = this._cache.getModelCache(typeString);
         if (!cache) {
-            if (model) {
-                if (model.getDefinition()['options']['increments'])
-                    cache = await this._cache.createModelCache(model);
-            } else
-                throw new Error('Unknown model \'' + typeString + '\'');
+            if (model.getDefinition()['options']['increments'])
+                cache = await this._cache.createModelCache(model);
         }
         if (cache && !bIgnoreCache) {
             if (id) {
@@ -324,6 +329,19 @@ class DataService {
         }
 
         if (res) {
+            const fPrepare = model.getPrepareDataAction();
+            if (fPrepare) {
+                if (Array.isArray(res)) {
+                    if (res.length > 0) {
+                        tmp = [];
+                        for (var data of res)
+                            tmp.push(fPrepare(data));
+                        res = tmp;
+                    }
+                } else
+                    res = fPrepare(res);
+            }
+
             if (filters && filters.length > 0) {
                 for (var filter of filters) {
                     if (typeof filter.query === 'string' || filter.query instanceof String) {
@@ -358,13 +376,10 @@ class DataService {
 
     async fetchObjectById(typeString, id) {
         var res;
-        var model = app.controller.getModelController().getModel(typeString);
-
-        var data = await this.fetchData(typeString, id);
-
+        const model = app.getController().getModelController().getModel(typeString);
+        const data = await this.fetchData(typeString, id);
         if (data) {
             var C;
-            var model = app.controller.getModelController().getModel(typeString);
             if (model.isCollection())
                 C = CrudContainer;
             else

@@ -17,12 +17,13 @@ class SelectStatePanel extends Panel {
     }
 
     async _renderContent() {
-        var $div = $('<div/>').css({
+        const $div = $('<div/>').css({
             'padding': '10px'
         });
 
+        const controller = app.getController();
         if (!this._tree) {
-            var msc = app.controller.getModelController().getModel(this._modelName).getModelStateController();
+            const msc = controller.getModelController().getModel(this._modelName).getModelStateController();
             var nodes;
             var tree = msc.getStateTree();
             if (tree)
@@ -38,12 +39,12 @@ class SelectStatePanel extends Panel {
                         node['actions'] = {};
 
                         node['actions']['clickAction'] = function (event) {
-                            app.controller.loadState(new State(this), true);
+                            controller.loadState(new State(this), true);
                         }.bind(node);
 
                         node['actions']['editAction'] = async function (state) {
                             var panel = new CrudStatePanel(ActionEnum.update, state);
-                            app.controller.getModalController().openPanelInModal(panel);
+                            controller.getModalController().openPanelInModal(panel);
                             return Promise.resolve(node);
                         }.bind(node);
                     }
@@ -63,11 +64,11 @@ class SelectStatePanel extends Panel {
 
                     //app.controller.getView().getSideNavigationBar().close();
 
-                    var state = new State();
+                    const state = new State();
                     state.typeString = this._modelName;
                     state.limit = -1;
-                    var panel = new CrudStatePanel(ActionEnum.create, state);
-                    return app.controller.getModalController().openPanelInModal(panel);
+                    const panel = new CrudStatePanel(ActionEnum.create, state);
+                    return app.getController().getModalController().openPanelInModal(panel);
                 }.bind(this))
             );
 
@@ -76,19 +77,19 @@ class SelectStatePanel extends Panel {
                 .click(async function (event) {
                     event.stopPropagation();
 
-                    var skeleton = [{
+                    const skeleton = [{
                         "name": "name",
                         "dataType": "string"
                     }];
-                    var panel = new FormPanel(null, skeleton);
+                    const panel = new FormPanel(null, skeleton);
                     panel.setApplyAction(async function () {
-                        var data = await panel.getForm().readForm();
+                        const data = await panel.getForm().readForm();
                         this._tree.addTreeNode(data.name);
                         panel.dispose();
                         this.render();
                         return Promise.resolve();
                     }.bind(this));
-                    return app.controller.getModalController().openPanelInModal(panel);
+                    return app.getController().getModalController().openPanelInModal(panel);
                 }.bind(this))
             );
 
@@ -98,16 +99,17 @@ class SelectStatePanel extends Panel {
                     .click(async function (event) {
                         event.stopPropagation();
                         var changed;
+                        const controller = app.getController();
                         try {
                             var nodes;
-                            var conf = this._tree.getTreeConf();
+                            var conf = this._tree.getTreeConf(true);
                             if (conf)
                                 nodes = conf.nodes;
-                            changed = await app.controller.getModalController().openEditJsonModal(nodes);
+                            changed = await controller.getModalController().openEditJsonModal(nodes);
                             this._tree.setTreeConf(changed);
                         } catch (error) {
                             if (error)
-                                app.controller.showError(error);
+                                controller.showError(error);
                         }
                         if (changed)
                             this.render();
@@ -119,8 +121,9 @@ class SelectStatePanel extends Panel {
             $div.append($('<button/>')
                 .text('save')
                 .click(this._tree, async function (event) {
+                    const controller = app.getController();
                     try {
-                        var msc = app.controller.getModelController().getModel(this._modelName).getModelStateController();
+                        var msc = controller.getModelController().getModel(this._modelName).getModelStateController();
                         var conf = event.data.getTreeConf(true);
                         if (conf) {
                             var newStates = conf.nodes;
@@ -128,8 +131,8 @@ class SelectStatePanel extends Panel {
                             var bChanged = !isEqualJson(oldStates, newStates);
                             if (bChanged) {
                                 var bSave = false;
-                                if (app.controller.getConfigController().confirmOnApply())
-                                    bSave = await app.controller.getModalController().openDiffJsonModal(oldStates, newStates);
+                                if (controller.getConfigController().confirmOnApply())
+                                    bSave = await controller.getModalController().openDiffJsonModal(oldStates, newStates);
                                 else
                                     bSave = true;
 
@@ -142,7 +145,7 @@ class SelectStatePanel extends Panel {
                         }
                     } catch (error) {
                         if (error)
-                            app.controller.showError(error);
+                            controller.showError(error);
                     }
                     return Promise.resolve();
                 }.bind(this))

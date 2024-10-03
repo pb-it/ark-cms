@@ -31,8 +31,8 @@ class Select {
 
         const model = app.getController().getModelController().getModel(this._typeString);
         if (model) {
-            const mpcc = model.getModelPanelConfigController();
-            //const panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);
+            /*const mpcc = model.getModelPanelConfigController();
+            const panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);*/
             const panelConfig = new MediaPanelConfig();
             const conf = { ...model.getModelDefaultsController().getDefaultPanelConfig() };
             delete conf['display'];

@@ -12,7 +12,15 @@ class ModelCache {
 
     constructor(model) {
         this._model = model;
-        this._defaultSort = model.getModelDefaultsController().getDefaultSort();
+        var tmp = model.getModelDefaultsController().getDefaultSort();
+        if (tmp) {
+            var parts = tmp.split(':');
+            if (parts.length == 2) {
+                var attribute = model.getModelAttributesController().getAttribute(parts[0]);
+                if (attribute['persistent'] === undefined || attribute['persistent'] === null || attribute['persistent'])
+                    this._defaultSort = tmp;
+            }
+        }
 
         this._dataCache = [];
         this._urls = [];
