@@ -52,6 +52,8 @@ class Tree {
                 delete node['actions'];
         } else
             conf = this._conf;
+        if (conf['type'] === 'dummyRoot')
+            conf = conf['nodes'];
         return conf;
     }
 

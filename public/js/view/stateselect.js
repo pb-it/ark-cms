@@ -33,7 +33,7 @@ class StateSelect {
                 this._modelMenu = null;
                 this._actionMenu = null;
                 this._showMenu = null;
-                this._panel = null;
+                //this._panel = null;
                 //this._$stateSelect.empty();
                 if (this._$profileSelect) {
                     this._$profileSelect.remove();
@@ -56,7 +56,7 @@ class StateSelect {
                     this._$panel = null;
                 }
 
-                this.updateStateSelect(this._profile, this._model, this._action, this._show);
+                this.updateStateSelect(this._profile, this._model, this._action, this._show, this._panel);
             }
         }.bind(this));
     }
@@ -489,8 +489,19 @@ class StateSelect {
             const model = app.getController().getModelController().getModel(this._model);
             if (model) {
                 const entries = model.getSideMenuEntries();
-                if (entries.length > 0)
-                    menuItems.push(...entries);
+                if (entries.length > 0) {
+                    for (var entry of entries) {
+                        if (entry instanceof MenuItem) {
+                            if (show && show === entry.getName().toLowerCase())
+                                entry.setActive();
+                            else
+                                entry.setInactive();
+                            menuItems.push(entry);
+                        } else
+                            console.error('Invalid MenuItem');
+                    }
+                }
+
             }
         }
 

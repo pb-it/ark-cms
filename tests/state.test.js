@@ -251,4 +251,178 @@ await controller.getView().getCanvas().showPanels(panels);`;
 
         return Promise.resolve();
     });
+
+    it('#test store state', async function () {
+        this.timeout(60000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        var menu = await sidemenu.getEntry('other');
+        if (menu) {
+            await sidemenu.click('other');
+            await ExtendedTestHelper.delay(1000);
+        }
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('State');
+        await ExtendedTestHelper.delay(1000);
+        var panel = await sidemenu.getPanel();
+        assert.notEqual(panel, null);
+        const xPathNode = './div/div[@class="tree"]/div[contains(@class, "treenode")]/div[contains(@class, "treegroup")]/div[@class="treenode"]';
+        var nodes = await panel.getElement().findElements(webdriver.By.xpath(xPathNode));
+        assert.equal(nodes.length, 1);
+        var button = await panel.getButton('new');
+        assert.notEqual(button, null, 'Button not found!');
+        button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
+        assert.notEqual(input, null);
+        await input.sendKeys('all');
+        await ExtendedTestHelper.delay(1000);
+        button = await panel.getButton('Save');
+        assert.notEqual(button, null);
+        await button.click();
+        //await app.waitLoadingFinished(10);
+        await driver.wait(webdriver.until.alertIsPresent(), 1000);
+        var alert = await driver.switchTo().alert();
+        var text = await alert.getText();
+        assert.equal(text, 'Saved successfully');
+        await alert.accept();
+        await ExtendedTestHelper.delay(1000);
+
+        await modal.closeModal();
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        panel = await sidemenu.getPanel();
+        assert.notEqual(panel, null);
+        nodes = await panel.getElement().findElements(webdriver.By.xpath(xPathNode));
+        assert.equal(nodes.length, 2);
+        await nodes[1].click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        const xPathSidePanel = '/html/body/div[@id="sidenav"]/div[@id="sidepanel"]';
+        var sidepanel = await driver.findElement(webdriver.By.xpath(xPathSidePanel));
+        assert.notEqual(sidepanel, null);
+        var rect = await sidepanel.getRect();
+        assert.equal(rect['width'], 0);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 5);
+
+        await app.reload();
+        await ExtendedTestHelper.delay(1000);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        menu = await sidemenu.getEntry('other');
+        if (menu) {
+            await sidemenu.click('other');
+            await ExtendedTestHelper.delay(1000);
+        }
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('State');
+        await ExtendedTestHelper.delay(1000);
+        panel = await sidemenu.getPanel();
+        assert.notEqual(panel, null);
+        nodes = await panel.getElement().findElements(webdriver.By.xpath(xPathNode));
+        assert.equal(nodes.length, 2);
+
+        button = await panel.getButton('edit json');
+        assert.notEqual(button, null, 'Button not found!');
+        button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var textarea = await panel.getElement().findElement(webdriver.By.xpath(`.//textarea`));
+        assert.notEqual(textarea, null);
+        await textarea.clear();
+        await textarea.sendKeys('[]');
+        button = await panel.getButton('Change');
+        assert.notEqual(button, null, 'Button not found!');
+        button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        panel = await sidemenu.getPanel();
+        assert.notEqual(panel, null);
+        button = await panel.getButton('save');
+        assert.notEqual(button, null, 'Button not found!');
+        var bDebugMode = await app.isDebugModeActive();
+        button.click();
+        if (bDebugMode) {
+            await ExtendedTestHelper.delay(1000);
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+        }
+        await driver.wait(webdriver.until.alertIsPresent(), 1000);
+        alert = await driver.switchTo().alert();
+        text = await alert.getText();
+        assert.equal(text, 'Saved successfully');
+        await alert.accept();
+        await ExtendedTestHelper.delay(1000);
+
+        nodes = await panel.getElement().findElements(webdriver.By.xpath(xPathNode));
+        assert.equal(nodes.length, 0);
+
+        await sidemenu.close();
+        sidepanel = await driver.findElement(webdriver.By.xpath(xPathSidePanel));
+        assert.notEqual(sidepanel, null);
+        rect = await sidepanel.getRect();
+        assert.equal(rect['width'], 0);
+
+        await app.reload();
+        await ExtendedTestHelper.delay(1000);
+
+        sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        menu = await sidemenu.getEntry('other');
+        if (menu) {
+            await sidemenu.click('other');
+            await ExtendedTestHelper.delay(1000);
+        }
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('State');
+        await ExtendedTestHelper.delay(1000);
+        panel = await sidemenu.getPanel();
+        assert.notEqual(panel, null);
+        nodes = await panel.getElement().findElements(webdriver.By.xpath(xPathNode));
+        assert.equal(nodes.length, 0);
+
+        return Promise.resolve();
+    });
 });

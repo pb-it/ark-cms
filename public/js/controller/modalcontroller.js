@@ -226,7 +226,8 @@ class ModalController {
             const modal = controller.getModalController().addModal();
 
             const panel = new Panel();
-            const $div = $('<div/>');
+            const $div = $('<div/>')
+                .css({ 'padding': '10' });
 
             const diff = new DiffJsonPanel(oldobj, newObj);
             $div.append(await diff.render());
@@ -262,10 +263,12 @@ class ModalController {
             const controller = app.getController();
             const modal = controller.getModalController().addModal();
 
-            const $div = $('<div/>');
+            const panel = new Panel();
+            const $div = $('<div/>')
+                .css({ 'padding': '10' });
 
             const $textarea = $('<textarea/>')
-                .attr('rows', 5)
+                .attr('rows', 20)
                 .attr('cols', 80)
                 .val(JSON.stringify(obj, null, '\t'));
             $textarea.keydown(function (e) {
@@ -306,8 +309,14 @@ class ModalController {
                 .click(async function (event) {
                     event.preventDefault();
                     event.stopPropagation();
-                    modal.close();
-                    resolve(JSON.parse($textarea.val()));
+
+                    try {
+                        const obj = JSON.parse($textarea.val());
+                        modal.close();
+                        resolve(obj);
+                    } catch (error) {
+                        app.getController().showError(error);
+                    }
                 }.bind(this)));
 
             $div.append($('<button/>')
@@ -322,7 +331,8 @@ class ModalController {
                     return Promise.resolve();
                 }.bind(this)));
 
-            modal.open($div);
+            panel.setContent($div);
+            modal.openPanel(panel);
             return Promise.resolve();
         });
     }

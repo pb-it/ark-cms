@@ -101,11 +101,8 @@ class SelectStatePanel extends Panel {
                         var changed;
                         const controller = app.getController();
                         try {
-                            var nodes;
-                            var conf = this._tree.getTreeConf(true);
-                            if (conf)
-                                nodes = conf.nodes;
-                            changed = await controller.getModalController().openEditJsonModal(nodes);
+                            const conf = this._tree.getTreeConf(true);
+                            changed = await controller.getModalController().openEditJsonModal(conf);
                             this._tree.setTreeConf(changed);
                         } catch (error) {
                             if (error)
@@ -123,26 +120,23 @@ class SelectStatePanel extends Panel {
                 .click(this._tree, async function (event) {
                     const controller = app.getController();
                     try {
-                        var msc = controller.getModelController().getModel(this._modelName).getModelStateController();
-                        var conf = event.data.getTreeConf(true);
-                        if (conf) {
-                            var newStates = conf.nodes;
-                            var oldStates = msc.getStateTree();
-                            var bChanged = !isEqualJson(oldStates, newStates);
-                            if (bChanged) {
-                                var bSave = false;
-                                if (controller.getConfigController().confirmOnApply())
-                                    bSave = await controller.getModalController().openDiffJsonModal(oldStates, newStates);
-                                else
-                                    bSave = true;
+                        const msc = controller.getModelController().getModel(this._modelName).getModelStateController();
+                        const newStates = event.data.getTreeConf(true);
+                        const oldStates = msc.getStateTree();
+                        const bChanged = !isEqualJson(oldStates, newStates);
+                        if (bChanged) {
+                            var bSave = false;
+                            if (controller.getConfigController().confirmOnApply())
+                                bSave = await controller.getModalController().openDiffJsonModal(oldStates, newStates);
+                            else
+                                bSave = true;
 
-                                if (bSave) {
-                                    await msc.updateStates(newStates);
-                                    alert('Saved successfully');
-                                }
-                            } else
-                                alert('Nothing changed');
-                        }
+                            if (bSave) {
+                                await msc.updateStates(newStates);
+                                alert('Saved successfully');
+                            }
+                        } else
+                            alert('Nothing changed');
                     } catch (error) {
                         if (error)
                             controller.showError(error);
