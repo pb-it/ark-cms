@@ -167,6 +167,11 @@ function isImage(url) {
         ext === "gif" || ext === "webp" || ext === "svg" || ext === "avif");
 }
 
+function isAudio(url) {
+    var ext = getFileExtensionFromUrl(url).toLowerCase();
+    return (ext === "mp3" || ext === "opus" || ext === "wav" || ext === "wma" || ext === "flac" || ext === "aiff");
+}
+
 function isVideo(url) {
     var ext = getFileExtensionFromUrl(url).toLowerCase();
     return (ext === "mp4" || ext === "avi" || ext === "webm" || ext === "mkv" || ext === "vid");

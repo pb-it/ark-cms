@@ -322,7 +322,7 @@ class ContextMenuController {
                             file = media.getFile();
                     }
                 }
-                bVisible = file && isVideo(file);
+                bVisible = file && (isAudio(file) || isVideo(file));
             }
             return Promise.resolve(bVisible);
         });

@@ -133,9 +133,13 @@ class Thumbnail {
                         if (isImage(this._file))
                             $thumb = Thumbnail.renderThumbnailImage(this._file, this._config, this._bLazy);
                         break;
+                    case 'audio':
+                        if (isAudio(this._file))
+                            $thumb = Thumbnail.renderThumbnailImage(window.location.origin + "/public/images/audio_icon.png", this._config, this._bLazy);
+                        break;
                     case 'file':
                         if (this._file.endsWith('.pdf'))
-                            $thumb = Thumbnail.renderThumbnailImage(window.location.origin + "/public/images/application_pdf.png", this._config, this._bLazy);
+                            $thumb = Thumbnail.renderThumbnailImage(window.location.origin + "/public/images/pdf_icon.png", this._config, this._bLazy);
                         break;
                     default:
                         //TODO: improve visualization of rendering errors
@@ -166,7 +170,7 @@ class Thumbnail {
         if (mediaType && mediaType === 'video') {
             var $hint = $(document.createElement('img'))
                 .attr({
-                    "src": window.location.origin + "/public/images/video_file.png",
+                    "src": window.location.origin + "/public/images/video_icon.png",
                 })
                 .css({
                     "width": 30,
