@@ -82,6 +82,7 @@ class Media {
                             media.setProperty(name);
                     }
                 } else if (attr['dataType'] === "url") {
+                    media = new Media();
                     if (attr['cdn'])
                         media.setThumbnail(CrudObject._buildUrl(attr.cdn, data[name]));
                     else

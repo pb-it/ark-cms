@@ -269,7 +269,7 @@ class BasicFormEntry extends FormEntry {
                                 rows = 5;
                         }
                         if (!cols)
-                            cols = 80;
+                            cols = 100;
 
                         this._$input = $('<textarea/>')
                             .attr('name', name)

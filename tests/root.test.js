@@ -57,6 +57,7 @@ describe("Root Suite", function () {
     require('./sort.test.js');
     require('./filter.test.js');
     require('./view.test.js');
+    require('./thumbnail.test.js');
     require('./cache.test.js');
     require('./idb.test.js');
     require('./file.test.js');

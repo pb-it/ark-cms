@@ -305,6 +305,7 @@ class ContextMenuController {
             }
             return Promise.resolve();
         });
+        createPlaylistEntry.setIcon(new Icon('file-lines'));
         createPlaylistEntry.setVisibilityFunction(async function (target) {
             var bVisible;
             const obj = target.getObject();
