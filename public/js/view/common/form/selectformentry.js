@@ -13,12 +13,7 @@ class SelectFormEntry extends FormEntry {
             this._$value = $('<div/>').addClass('value');
 
         try {
-            if (this._attribute['readonly']) {
-                this._value = value;
-
-                var $list = await DataView.renderRelation(this._attribute, value);
-                this._$value.append($list);
-            } else {
+            if (this._bEditable) {
                 this._select = new Select(this._id, this._attribute['model'], this._attribute['multiple'] ? -1 : 1, this._form.getCallback());
 
                 const backlink = this._attribute['via'];
@@ -41,6 +36,11 @@ class SelectFormEntry extends FormEntry {
                 await this._select.initSelect(); // TODO: Add option for lazy init
 
                 this._$value.append(await this._select.render());
+            } else {
+                this._value = value;
+
+                const $list = await DataView.renderRelation(this._attribute, value);
+                this._$value.append($list);
             }
         } catch (error) {
             app.getController().showError(error);

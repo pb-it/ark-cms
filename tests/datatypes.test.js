@@ -804,6 +804,52 @@ describe('Testsuit - Datatypes', function () {
         await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(100);
 
+        button = await modelModal.findElement(webdriver.By.xpath(`.//button[text()="Add Attribute"]`));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('name');
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('readonlyRel');
+        elem = await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="relation"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        elem = await form.getElement().findElement(webdriver.By.css('select#model > option[value="_user"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        elem = await form.getElement().findElement(webdriver.By.xpath('.//select[@name="multiple"]/option[@value="true"]'));
+        assert.notEqual(elem, null, 'Option not found!');
+        await elem.click();
+        entry = await form.getFormEntry('readonly');
+        assert.notEqual(entry, null);
+        checkbox = await entry.findElement(webdriver.By.xpath('.//input[@type="checkbox"]'));
+        assert.notEqual(checkbox, null);
+        await checkbox.click();
+        await ExtendedTestHelper.delay(100);
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(100);
+
         button = await modelModal.findElement(webdriver.By.xpath('.//button[text()="Apply and Close"]'));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();
@@ -851,6 +897,11 @@ describe('Testsuit - Datatypes', function () {
         var bReadonly = await input.getAttribute('readonly');
         assert.equal(bReadonly, null);
         await input.sendKeys('readonly');
+        await ExtendedTestHelper.delay(100);
+        entry = await form.getFormEntry('readonlyRel');
+        assert.notEqual(entry, null);
+        input = await entry.findElement(webdriver.By.xpath('.//input'));
+        assert.notEqual(input, null);
         await ExtendedTestHelper.delay(1000);
 
         await driver.executeScript('window.scrollTo(0, document.body.scrollHeight)');
@@ -894,6 +945,11 @@ describe('Testsuit - Datatypes', function () {
         assert.equal(bReadonly, null);
         value = await input.getAttribute('value');
         assert.equal(value, 'readonly');
+        entry = await form.getFormEntry('readonlyRel');
+        assert.notEqual(entry, null);
+        input = await entry.findElements(webdriver.By.xpath('.//input'));
+        assert.equal(input.length, 0);
+        await ExtendedTestHelper.delay(1000);
 
         await modal.closeModal();
         await ExtendedTestHelper.delay(1000);

@@ -122,7 +122,10 @@ class Thumbnail {
             if (mediaType) {
                 switch (mediaType) {
                     case 'image':
-                        if (isImage(this._file))
+                        const ext = getFileExtensionFromUrl(this._file).toLowerCase();
+                        if (ext === 'tiff')
+                            $thumb = Thumbnail.renderThumbnailImage(window.location.origin + "/public/images/unknown_icon.png", this._config, this._bLazy);
+                        else if (isImage(ext))
                             $thumb = Thumbnail.renderThumbnailImage(this._file, this._config, this._bLazy);
                         break;
                     case 'clip':

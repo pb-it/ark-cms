@@ -537,6 +537,24 @@ describe('Testsuit - Thumbnail', function () {
         assert.equal(thumb, url);
         await ExtendedTestHelper.delay(1000);
 
+        contextmenu = await panels[0].openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Thumbnail');
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Remove');
+        await ExtendedTestHelper.delay(1000);
+
+        await driver.wait(webdriver.until.alertIsPresent(), 1000);
+        alert = await driver.switchTo().alert();
+        var text = await alert.getText();
+        assert.equal(text, 'Remove thumbnail?');
+        await alert.accept();
+        await ExtendedTestHelper.delay(1000);
+
+        thumb = await getThumbnail(panels[0].getElement());
+        assert.equal(thumb, miss);
+        await ExtendedTestHelper.delay(1000);
+
         return Promise.resolve();
     });
 });

@@ -141,9 +141,11 @@ See [changelog](./CHANGELOG.md)
  - Most icons are from [Font Awesome](https://fontawesome.com), [CC BY 4.0 License](https://fontawesome.com/license/free)
  - Loading icon is from [Ahm masum, CC BY-SA 4.0 <https://creativecommons.org/licenses/by-sa/4.0>, via Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Loading_icon.gif)
  - 'image_missing.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/image-missing/92832)
+ - 'image_icon.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/image-generic/92742)
  - 'video_icon.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/playlist/92725)
  - 'audio_icon.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/audio-generic/92734)
  - 'pdf_icon.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/application-pdf/92726)
+ - 'unknown_icon.png' is from [Papirus Development Team, Free for commercial use](https://icon-icons.com/icon/unknown/92761)
 
 
 ### Credits for Dependencies
