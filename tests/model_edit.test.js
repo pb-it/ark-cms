@@ -789,4 +789,101 @@ module.exports = test;`
 
         return Promise.resolve();
     });
+
+    /**
+     * removing new attribite again before transmission; with tab change
+     */
+    it('#add attribute and remove instantly', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        await app.setDebugMode(true);
+
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Edit');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        const modelModal = await window.getTopModal();
+        assert.notEqual(modelModal, null);
+        var panel = await modelModal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Add Attribute');
+        assert.notEqual(button, null, 'Button not found!');
+        button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('dummy');
+        await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="string"]')).click();
+        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        const tabPanel = await modelModal.getPanel();
+        assert.notEqual(tabPanel, null, 'Panel not found!');
+        button = await tabPanel.getElement().findElement(webdriver.By.xpath('./div/div[@class="tab"]/button[text()="RAW"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        button = await tabPanel.getElement().findElement(webdriver.By.xpath('./div/div[@class="tab"]/button[text()="Attributes"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        const attrPanel = await modelModal.getPanel();
+        assert.notEqual(attrPanel, null);
+        var attr = await attrPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]/div/div[@class="list"]/ul/li/div[@class="node" and text()="dummy: string"]'));
+        assert.notEqual(attr, null);
+        var contextmenu = await window.openContextMenu(attr);
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Delete');
+        await ExtendedTestHelper.delay(1000);
+
+        button = await modelModal.findElement(webdriver.By.xpath('.//button[text()="Apply and Close"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var text = await panel.getElement().getText();
+        assert.equal(text, 'No changes detected! Close window?\n\nNo\nYes');
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Yes"]'));
+        assert.notEqual(button, null);
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        await app.setDebugMode(false);
+
+        return Promise.resolve();
+    });
 });

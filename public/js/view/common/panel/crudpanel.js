@@ -81,14 +81,17 @@ class CrudPanel extends CanvasPanel {
     async _renderCreate() {
         const $div = $('<div/>')
             .addClass('data');
-        this._form = new Form(this._skeleton, this._obj.getData());
+        const data = this._obj.getData();
+        this._form = new Form(this._skeleton, data);
         const $form = await this._form.renderForm();
-        var attr;
-        for (var entry of this._form.getEntries()) {
-            if (entry.isVisible() && !entry.isEditable()) {
-                attr = entry.getAttribute();
-                if (attr['readonly'])
-                    await entry.enable();
+        if (!data || Object.keys(data).length == 0) {
+            var attr;
+            for (var entry of this._form.getEntries()) {
+                if (entry.isVisible() && !entry.isEditable()) {
+                    attr = entry.getAttribute();
+                    if (attr['readonly'])
+                        await entry.enable();
+                }
             }
         }
         $div.append($form);

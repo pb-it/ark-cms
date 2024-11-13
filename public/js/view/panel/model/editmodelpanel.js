@@ -120,6 +120,8 @@ class EditModelPanel extends TabPanel {
                 const changes = this._$attributesPanel.getChanges();
                 if (changes && changes.length > 0)
                     definition['changes'] = this._$attributesPanel.getChanges();
+                else if (definition.hasOwnProperty('changes'))
+                    delete definition['changes'];
             } else if (tab == this._$defaultsPanel) {
                 var defaults = shrink(await this._$defaultsPanel.getData());
                 if (defaults)
@@ -275,6 +277,9 @@ which may not be very convenient to work with in search fields.<br/><br/>`);
         controller.setLoadingState(true);
         const id = this._model.getId();
         await this._model.setDefinition(current, true, bForce);
+        const definition = this._model.getDefinition();
+        if (definition.hasOwnProperty('changes'))
+            delete definition['changes'];
         if (!id)
             await controller.getModelController().init(); //TODO: quickfix: reload all models if new one was created
         else

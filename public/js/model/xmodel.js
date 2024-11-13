@@ -61,9 +61,17 @@ class XModel {
     }
 
     async setDefinition(data, bUpload = true, bForce) {
-        this._data = data;
-        if (bUpload)
-            await this.uploadData(bForce);
+        if (bUpload) {
+            const backup = this._data;
+            this._data = data;
+            try {
+                await this.uploadData(bForce);
+            } catch (error) {
+                this._data = backup;
+                throw error;
+            }
+        } else
+            this._data = data;
         return Promise.resolve();
     }
 

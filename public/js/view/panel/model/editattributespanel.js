@@ -6,6 +6,7 @@ class EditAttributesPanel extends Panel {
 
     _list;
     _listVis;
+    _options;
 
     _form;
     _data;
@@ -17,60 +18,21 @@ class EditAttributesPanel extends Panel {
     }
 
     async _renderContent() {
-        var $div = $('<div/>')
+        const $div = $('<div/>')
             .css({ 'padding': '10' });
 
-        var mac = this._model.getModelAttributesController();
+        const mac = this._model.getModelAttributesController();
         this._attributes = mac.getAttributes();
 
         this._list = new List();
         if (this._attributes) {
-            const renameEntry = new ContextMenuEntry("Rename", async function (event, target) {
-                const node = target.getNode();
-                const from = node.getData()['name'];
-                const modal = await this._rename(node);
-                await modal.waitClosed();
-                if (this._model.getId()) {
-                    const to = node.getData()['name'];
-                    if (from !== to) {
-                        const change = { 'rename': { 'from': from, 'to': to } };
-                        if (this._changes)
-                            this._changes.push(change);
-                        else
-                            this._changes = [change];
-                    }
-                }
-                const vis = target.getParent();
-                vis.init();
-                vis.renderList();
-                return Promise.resolve();
-            }.bind(this));
-
-            const editEntry = new ContextMenuEntry("Edit", async function (event, target) {
-                //TODO:
-                return Promise.resolve();
-            }.bind(this));
-            editEntry.setEnabledFunction(async function (target) {
-                return Promise.resolve(false);
-            });
-            editEntry.setIcon(new Icon('pen-to-square'));
-
-            const options = { 'cmEntries': [renameEntry, editEntry] };
-            if (this._model.getId()) {
-                options['cbRemove'] = function (entry) {
-                    const change = { 'delete': entry.getData()['name'] };
-                    if (this._changes)
-                        this._changes.push(change);
-                    else
-                        this._changes = [change];
-                }.bind(this);
-            }
+            this._options = this._initContextMenu();
             for (var a of this._attributes) {
-                this._list.addEntry(new ListEntry(a['name'] + ": " + a['dataType'], a, options));
+                this._list.addEntry(new ListEntry(a['name'] + ": " + a['dataType'], a, this._options));
             }
         }
 
-        var vListConfig = {
+        const vListConfig = {
             alignment: 'vertical',
             editable: true
         }
@@ -80,7 +42,7 @@ class EditAttributesPanel extends Panel {
 
         $div.append('<br/>');
 
-        var $button = $('<button>')
+        const $button = $('<button>')
             .text('Add Attribute')
             .click(async function (event) {
                 event.stopPropagation();
@@ -89,6 +51,65 @@ class EditAttributesPanel extends Panel {
         $div.append($button);
 
         return Promise.resolve($div);
+    }
+
+    _initContextMenu() {
+        const renameEntry = new ContextMenuEntry("Rename", async function (event, target) {
+            const node = target.getNode();
+            const from = node.getData()['name'];
+            const modal = await this._rename(node);
+            await modal.waitClosed();
+            if (this._model.getId()) {
+                const to = node.getData()['name'];
+                if (from !== to) {
+                    const change = { 'rename': { 'from': from, 'to': to } };
+                    if (this._changes)
+                        this._changes.push(change);
+                    else
+                        this._changes = [change];
+                }
+            }
+            const vis = target.getParent();
+            vis.init();
+            vis.renderList();
+            return Promise.resolve();
+        }.bind(this));
+
+        const editEntry = new ContextMenuEntry("Edit", async function (event, target) {
+            //TODO:
+            return Promise.resolve();
+        }.bind(this));
+        editEntry.setEnabledFunction(async function (target) {
+            return Promise.resolve(false);
+        });
+        editEntry.setIcon(new Icon('pen-to-square'));
+
+        const options = { 'cmEntries': [renameEntry, editEntry] };
+        if (this._model.getId()) {
+            options['cbRemove'] = function (entry) {
+                const name = entry.getData()['name'];
+                var index = -1;
+                if (this._changes) {
+                    var entry;
+                    for (var i = 0; i < this._changes.length; i++) {
+                        entry = this._changes[i];
+                        if (entry.hasOwnProperty('create') && entry['create'] == name) {
+                            index = i;
+                            break;
+                        }
+                    }
+                }
+                if (index == -1) {
+                    const change = { 'delete': name };
+                    if (this._changes)
+                        this._changes.push(change);
+                    else
+                        this._changes = [change];
+                } else
+                    this._changes.splice(index, 1);
+            }.bind(this);
+        }
+        return options;
     }
 
     async _rename(node) {
@@ -143,7 +164,15 @@ class EditAttributesPanel extends Panel {
     }
 
     _addAttributeEntry(data) {
-        this._list.addEntry(new ListEntry(data['name'] + ": " + data['dataType'], data));
+        if (this._model.getId()) {
+            const change = { 'create': data['name'] };
+            if (this._changes)
+                this._changes.push(change);
+            else
+                this._changes = [change];
+        }
+
+        this._list.addEntry(new ListEntry(data['name'] + ": " + data['dataType'], data, this._options));
         this._listVis.init();
         this._listVis.renderList();
     }
