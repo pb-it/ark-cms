@@ -9,6 +9,8 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
+const { Form } = require('@pb-it/ark-cms-selenium-test-helper');
+
 describe('Testsuit - Edit Model', function () {
 
     async function openDefaultsTab() {
@@ -54,6 +56,9 @@ describe('Testsuit - Edit Model', function () {
 
         const modal = await app.getWindow().getTopModal();
         assert.equal(modal, null);
+
+        //await helper.setupScenario(1);
+        //await app.setDebugMode(false);
 
         return Promise.resolve();
     });
@@ -882,6 +887,204 @@ module.exports = test;`
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
+        await app.setDebugMode(false);
+
+        return Promise.resolve();
+    });
+
+    /**
+     * add attribite and rename; multiple rename
+     */
+    it('#add attribute and rename instantly', async function () {
+        this.timeout(60000);
+
+        const app = helper.getApp();
+        //await helper.setupScenario(1);
+        await app.setDebugMode(true);
+
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Models');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Edit');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        const modelModal = await window.getTopModal();
+        assert.notEqual(modelModal, null);
+        var panel = await modelModal.getPanel();
+        assert.notEqual(panel, null);
+        var button = await panel.getButton('Add Attribute');
+        assert.notEqual(button, null, 'Button not found!');
+        button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
+        assert.notEqual(input, null, 'Input not found!');
+        await input.sendKeys('dummy');
+        await form.getElement().findElement(webdriver.By.css('select#dataType > option[value="string"]')).click();
+        button = await modal.findElement(webdriver.By.xpath('//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Apply"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var attrPanel = await modelModal.getPanel();
+        assert.notEqual(attrPanel, null);
+        var attr = await attrPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]/div/div[@class="list"]/ul/li/div[@class="node" and text()="dummy: string"]'));
+        assert.notEqual(attr, null);
+        var contextmenu = await window.openContextMenu(attr);
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Rename');
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('name');
+        assert.notEqual(input, null);
+        await input.clear();
+        await ExtendedTestHelper.delay(1000);
+        await input.sendKeys('dummy2');
+        await ExtendedTestHelper.delay(1000);
+        var button = await panel.getButton('Apply');
+        assert.notEqual(button, null);
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        attr = await attrPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]/div/div[@class="list"]/ul/li/div[@class="node" and text()="name: string"]'));
+        assert.notEqual(attr, null);
+        contextmenu = await window.openContextMenu(attr);
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Rename');
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        input = await form.getFormInput('name');
+        assert.notEqual(input, null);
+        await input.clear();
+        await ExtendedTestHelper.delay(1000);
+        await input.sendKeys('name2');
+        await ExtendedTestHelper.delay(1000);
+        var button = await panel.getButton('Apply');
+        assert.notEqual(button, null);
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        attr = await attrPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]/div/div[@class="list"]/ul/li/div[@class="node" and text()="stars: relation"]'));
+        assert.notEqual(attr, null);
+        contextmenu = await window.openContextMenu(attr);
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Rename');
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var text = await panel.getElement().getText();
+        assert.equal(text, 'Please commit current changes first.\n\nOK');
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="OK"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        contextmenu = await window.openContextMenu(attr);
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Delete');
+        await ExtendedTestHelper.delay(1000);
+
+        button = await attrPanel.getButton('Add Attribute');
+        assert.notEqual(button, null, 'Button not found!');
+        button.click();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        text = await panel.getElement().getText();
+        assert.equal(text, 'Please commit current changes first.\n\nOK');
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="OK"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        const tabPanel = await modelModal.getPanel();
+        assert.notEqual(tabPanel, null, 'Panel not found!');
+        button = await tabPanel.getElement().findElement(webdriver.By.xpath('./div/div[@class="tab"]/button[text()="RAW"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+
+        panel = await modelModal.findElement(webdriver.By.xpath('./div[@class="modal-content"]/div[@class="panel"]/div/div/div[@class="panel"]'));
+        assert.notEqual(panel, null, 'Panel not found!');
+        var elems = await panel.findElements(webdriver.By.xpath('./div/form[contains(@class, "crudform")]'));
+        assert.equal(elems.length, 1);
+        form = new Form(helper, elems[0]);
+        input = await form.getFormInput('json');
+        assert.notEqual(input, null);
+        var value = await input.getAttribute('value');
+        var obj = JSON.parse(value);
+        assert.ok(obj['changes'] && obj['changes'].length == 3 && obj['changes'][0]['create'] == 'dummy2');
+
+        /*button = await modelModal.findElement(webdriver.By.xpath('.//button[text()="Apply and Close"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        var bDebugMode = await app.isDebugModeActive();
+        if (bDebugMode) {
+            await ExtendedTestHelper.delay(1000);
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('.//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+        }
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);*/
+
+        await modelModal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        text = await panel.getElement().getText();
+        assert.equal(text, 'Discard changes?\n\nNo\nYes');
+        button = await modal.findElement(webdriver.By.xpath('.//button[text()="Yes"]'));
+        assert.notEqual(button, null, 'Button not found!');
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        //await helper.setupScenario(1, true);
         await app.setDebugMode(false);
 
         return Promise.resolve();

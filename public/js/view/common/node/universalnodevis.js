@@ -99,13 +99,16 @@ class UniversalNodeVis {
                 }
                 if (options['bRemovable']) {
                     const removeEntry = new ContextMenuEntry("Delete", async function (event, target) {
+                        var bRemove = true;
                         if (options.hasOwnProperty('cbRemove') && typeof options.cbRemove == 'function')
-                            options.cbRemove(target.getNode());
-                        const vis = target.getParent();
-                        const list = vis.getList();
-                        list.removeEntry(target.getNode());
-                        vis.init();
-                        vis.renderList();
+                            bRemove = (options.cbRemove(target.getNode()) !== false);
+                        if (bRemove) {
+                            const vis = target.getParent();
+                            const list = vis.getList();
+                            list.removeEntry(target.getNode());
+                            vis.init();
+                            vis.renderList();
+                        }
                         return Promise.resolve();
                     });
                     removeEntry.setIcon(new Icon('trash'));

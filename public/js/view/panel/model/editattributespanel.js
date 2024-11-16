@@ -46,7 +46,12 @@ class EditAttributesPanel extends Panel {
             .text('Add Attribute')
             .click(async function (event) {
                 event.stopPropagation();
-                return this._renderForm1();
+
+                if (this._isChangePermitted())
+                    await this._renderForm1();
+                else
+                    this._commitChangesFirstModal();
+                return Promise.resolve();
             }.bind(this));
         $div.append($button);
 
@@ -55,23 +60,39 @@ class EditAttributesPanel extends Panel {
 
     _initContextMenu() {
         const renameEntry = new ContextMenuEntry("Rename", async function (event, target) {
-            const node = target.getNode();
-            const from = node.getData()['name'];
-            const modal = await this._rename(node);
-            await modal.waitClosed();
-            if (this._model.getId()) {
-                const to = node.getData()['name'];
-                if (from !== to) {
-                    const change = { 'rename': { 'from': from, 'to': to } };
-                    if (this._changes)
-                        this._changes.push(change);
-                    else
-                        this._changes = [change];
+            if (this._isChangePermitted()) {
+                const node = target.getNode();
+                const from = node.getData()['name'];
+                const modal = await this._rename(node);
+                await modal.waitClosed();
+                if (this._model.getId()) {
+                    const to = node.getData()['name'];
+                    if (from !== to) {
+                        var entry;
+                        if (this._changes && this._changes.length > 0) {
+                            for (var change of this._changes) {
+                                if (change.hasOwnProperty('create') && change['create'] == from) {
+                                    entry = change;
+                                    break;
+                                }
+                            }
+                        }
+                        if (entry)
+                            entry['create'] = to;
+                        else {
+                            const change = { 'rename': { 'from': from, 'to': to } };
+                            if (this._changes)
+                                this._changes.push(change);
+                            else
+                                this._changes = [change];
+                        }
+                    }
                 }
-            }
-            const vis = target.getParent();
-            vis.init();
-            vis.renderList();
+                const vis = target.getParent();
+                vis.init();
+                vis.renderList();
+            } else
+                this._commitChangesFirstModal();
             return Promise.resolve();
         }.bind(this));
 
@@ -89,13 +110,22 @@ class EditAttributesPanel extends Panel {
             options['cbRemove'] = function (entry) {
                 const name = entry.getData()['name'];
                 var index = -1;
+                var from;
                 if (this._changes) {
                     var entry;
                     for (var i = 0; i < this._changes.length; i++) {
                         entry = this._changes[i];
-                        if (entry.hasOwnProperty('create') && entry['create'] == name) {
-                            index = i;
-                            break;
+                        if (entry.hasOwnProperty('create')) {
+                            if (entry['create'] == name) {
+                                index = i;
+                                break;
+                            }
+                        } else if (entry.hasOwnProperty('rename')) {
+                            if (entry['rename']['to'] == name) {
+                                index = i;
+                                from = entry['rename']['from'];
+                                break;
+                            }
                         }
                     }
                 }
@@ -105,11 +135,46 @@ class EditAttributesPanel extends Panel {
                         this._changes.push(change);
                     else
                         this._changes = [change];
-                } else
+                } else if (from)
+                    this._changes[index] = { 'delete': from };
+                else
                     this._changes.splice(index, 1);
             }.bind(this);
         }
         return options;
+    }
+
+    _isChangePermitted() {
+        var bChangePermitted = true;
+        if (this._changes && this._changes.length > 0) {
+            for (var change of this._changes) {
+                if (change.hasOwnProperty('rename') || change.hasOwnProperty('delete')) {
+                    bChangePermitted = false;
+                    break;
+                }
+            }
+        }
+        return bChangePermitted;
+    }
+
+    _commitChangesFirstModal() {
+        const controller = app.getController();
+        const modal = controller.getModalController().addModal();
+        const panel = new Panel();
+
+        const $d = $('<div/>')
+            .html("Please commit current changes first.<br/><br/>");
+        $d.append($('<button/>')
+            .text("OK")
+            .css({ 'float': 'right' })
+            .click(async function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                modal.close();
+            }.bind(this)));
+
+        panel.setContent($d);
+        modal.openPanel(panel);
     }
 
     async _rename(node) {
