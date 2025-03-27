@@ -56,18 +56,18 @@
     "dependencies": {
         "body-parser": "^1.20.2",
         "cors": "^2.8.5",
-        "express": "^4.21.1"
+        "express": "^4.21.2"
     },
     "devDependencies": {
-        "@babel/cli": "^7.25.9",
-        "@babel/core": "^7.26.0",
+        "@babel/cli": "^7.27.0",
+        "@babel/core": "^7.26.10",
         "@babel/plugin-transform-class-properties": "^7.25.9",
         "@pb-it/ark-cms-selenium-test-helper": "0.1.26-beta",
         "babel-plugin-conditional-compile": "^0.0.5",
         "gulp": "^5.0.0",
         "gulp-mocha": "^10.0.1",
         "mocha": "^10.8.2",
-        "selenium-webdriver": "^4.26.0",
-        "typescript": "^5.6.3"
+        "selenium-webdriver": "^4.30.0",
+        "typescript": "^5.8.2"
     }
 }

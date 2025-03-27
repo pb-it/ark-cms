@@ -378,4 +378,67 @@ describe('Testsuit - Search', function () {
 
         return Promise.resolve();
     });
+
+    it('#test search while filter is active', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        await app.navigate('/data/star');
+        await ExtendedTestHelper.delay(1000);
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+
+        await app.navigate('/data/star?_filter=%24.[%3F(%40.name%3D%3D"jane")]');
+        await ExtendedTestHelper.delay(1000);
+        canvas = await window.getCanvas();
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 0);
+        const tnb = window.getTopNavigationBar();
+        const sb = tnb.getSearchBox();
+        await sb.search('john');
+        await ExtendedTestHelper.delay(100);
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        canvas = await window.getCanvas();
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 0);
+
+        const ds = app.getDataService();
+        var res = await ds.create('star', { 'name': 'John Wick' });
+        assert.notEqual(Object.keys(res).length, 0);
+        const id = res['id'];
+
+        await app.navigate('/data/star');
+        await ExtendedTestHelper.delay(1000);
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 2);
+
+        //confirm that limits are applied before search
+        await app.navigate('/data/star?_sort=created_at:desc&_limit=1');
+        await ExtendedTestHelper.delay(1000);
+        canvas = await window.getCanvas();
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+        var elements = await panels[0].getElement().findElements(webdriver.By.xpath('div/div/p'));
+        assert.equal(elements.length, 1);
+        var text = await elements[0].getText();
+        assert.equal(text, 'John Wick');
+
+        await sb.search('Doe');
+        await ExtendedTestHelper.delay(100);
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        canvas = await window.getCanvas();
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 0);
+
+        await ds.delete('star', id);
+
+        return Promise.resolve();
+    });
 });

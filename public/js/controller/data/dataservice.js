@@ -357,9 +357,6 @@ class DataService {
                 }
             }
 
-            if (search)
-                res = Filter.filterStr(typeString, res, search);
-
             if (bSort || (id && Array.isArray(id) && sort)) {
                 if (!sort)
                     sort = model.getModelDefaultsController().getDefaultSort();
@@ -369,6 +366,9 @@ class DataService {
 
             if (limit && limit != -1 && res.length > limit)
                 res = res.slice(0, limit);
+
+            if (search)
+                res = Filter.filterStr(typeString, res, search);
         }
 
         return Promise.resolve(res);
