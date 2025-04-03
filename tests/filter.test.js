@@ -105,11 +105,7 @@ describe('Testsuit - Filter', function () {
         button = await panel.getButton('Filter');
         assert.notEqual(button, null);
         await button.click();
-        await ExtendedTestHelper.delay(1000);
-
-        modal = await window.getTopModal();
-        assert.notEqual(modal, null);
-        await modal.closeModal();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -142,11 +138,7 @@ describe('Testsuit - Filter', function () {
         button = await panel.getButton('Filter');
         assert.notEqual(button, null);
         await button.click();
-        await ExtendedTestHelper.delay(1000);
-
-        modal = await window.getTopModal();
-        assert.notEqual(modal, null);
-        await modal.closeModal();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -297,11 +289,7 @@ describe('Testsuit - Filter', function () {
         button = await filterPanel.getButton('Filter');
         assert.notEqual(button, null);
         await button.click();
-        await ExtendedTestHelper.delay(1000);
-
-        modal = await window.getTopModal();
-        assert.notEqual(modal, null);
-        await modal.closeModal();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -453,11 +441,7 @@ describe('Testsuit - Filter', function () {
         button = await panel.getButton('Filter');
         assert.notEqual(button, null);
         await button.click();
-        await ExtendedTestHelper.delay(1000);
-
-        modal = await window.getTopModal();
-        assert.notEqual(modal, null);
-        await modal.closeModal();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);

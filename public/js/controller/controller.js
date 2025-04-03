@@ -599,7 +599,8 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                     var modals = this._modalController.getModals();
                     if (modals && modals.length > 0) {
                         this.setLoadingState(false);
-                        await modals[0].waitClosed();
+                        for (var modal of modals)
+                            await modal.waitClosed();
                         this.setLoadingState(true);
                     }
                     this._bFirstLoadAfterInit = false;

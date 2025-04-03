@@ -62,7 +62,8 @@ class ModalController {
         var modal = new Modal();
         var $modal = modal.getModalDomElement();
         $modal.on("remove.stack", function () {
-            this._stack.pop(); //TODO: case where not the topmost removed?
+            if (arguments[0].currentTarget == this._stack[this._stack.length - 1]._$modal[0]) //TODO: case where not the topmost removed?
+                this._stack.pop();
             return true;
         }.bind(this));
         this._stack.push(modal);
@@ -71,8 +72,8 @@ class ModalController {
 
     closeAll() {
         var modal;
-        while (this._stack.length > 0) {
-            modal = this._stack.pop();
+        for (var i = this._stack.length - 1; i >= 0; i--) {
+            modal = this._stack[i]; // remove/pop will be done in remove action
             modal.close();
         }
     }

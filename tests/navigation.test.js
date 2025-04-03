@@ -5,6 +5,8 @@ const assert = require('assert');
 const webdriver = require('selenium-webdriver');
 //const test = require('selenium-webdriver/testing');
 
+const { Panel, Form } = require('@pb-it/ark-cms-selenium-test-helper');
+
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
@@ -473,6 +475,165 @@ describe('Testsuit - Navigation', function () {
         assert.equal(icons.length, 1);
         var title = await icons[0].getAttribute('title');
         assert.equal(title, 'Extensions');
+
+        return Promise.resolve();
+    });
+
+    it('#test close all modals when loading new state', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('star');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+
+        var contextmenu = await panels[0].openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Edit');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var entry = await form.getFormEntry('movies');
+        assert.notEqual(entry, null);
+        var button = await entry.findElement(webdriver.By.xpath('.//button[text()="Create"]'));
+        assert.notEqual(button, null);
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('name');
+        assert.notEqual(input, null);
+        await input.sendKeys('Test');
+        await ExtendedTestHelper.delay(1000);
+        button = await panel.getButton('Create');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        var bDebugMode = await app.isDebugModeActive();
+        if (bDebugMode) {
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('.//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+            await ExtendedTestHelper.delay(1000);
+        }
+        await app.waitLoadingFinished(10);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        button = await panel.getButton('Update');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        if (bDebugMode) {
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('.//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+            await ExtendedTestHelper.delay(1000);
+        }
+        await app.waitLoadingFinished(10);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+        contextmenu = await panels[0].openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Edit');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        form = await panel.getForm();
+        assert.notEqual(form, null);
+        entry = await form.getFormEntry('movies');
+        assert.notEqual(entry, null);
+        var elements = await entry.findElements(webdriver.By.xpath('./div[@class="value"]/div[@class="select"]/ul/li/div[contains(@class, "panel")]'));
+        assert.equal(panels.length, 1);
+
+        panel = new Panel(helper, elements[0]);
+        contextmenu = await panel.openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Details');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        elements = await panel.getElement().findElements(webdriver.By.xpath('.//div[contains(@class, "panel")]'));
+        assert.equal(panels.length, 1);
+        panel = new Panel(helper, elements[0]);
+        contextmenu = await panel.openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Open');
+        await app.waitLoadingFinished(10);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+        contextmenu = await panels[0].openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Details');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        elements = await panel.getElement().findElements(webdriver.By.xpath('.//div[contains(@class, "panel")]'));
+        assert.equal(panels.length, 1);
+        panel = new Panel(helper, elements[0]);
+        contextmenu = await panel.openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Delete');
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        elements = await modal.findElements(webdriver.By.xpath(`.//input[@type="submit" and @name="confirm"]`));
+        assert.equal(elements.length, 1);
+        button = elements[0];
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
 
         return Promise.resolve();
     });
