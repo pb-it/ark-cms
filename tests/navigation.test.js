@@ -637,4 +637,39 @@ describe('Testsuit - Navigation', function () {
 
         return Promise.resolve();
     });
+
+    it('#test context menu gets closed on browser navigation / popstate', async function () {
+        this.timeout(10000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+        var sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('star');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+
+        var contextmenu = await panels[0].openContextMenu();
+        var xpath = `/html/body/ul[@class="contextmenu"]`;
+        var item = await driver.wait(webdriver.until.elementLocated({ 'xpath': xpath }), 1000);
+        assert.notEqual(item, null, 'ContextMenu not found');
+
+        await driver.navigate().back();
+        await app.waitLoadingFinished(10);
+
+        var elements = await driver.findElements(webdriver.By.xpath(xpath));
+        assert.equal(elements.length, 0, 'ContextMenu still open');
+
+        return Promise.resolve();
+    });
 });

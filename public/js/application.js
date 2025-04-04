@@ -73,7 +73,7 @@ $(window).on('beforeunload', function (e) {
     console.log('beforeunload');
 });
 
-$(window).on('popstate ', async function (e) {
+$(window).on('popstate', async function (e) {
     var bError = false;
     const controller = app.getController();
     if (!controller.hasConnection()) {
@@ -92,4 +92,5 @@ $(window).on('popstate ', async function (e) {
             state = State.getStateFromUrl();
         controller.loadState(state);
     }
+    return Promise.resolve();
 });

@@ -42,6 +42,9 @@ class ContextMenu {
                 this._remove();
             };
         }.bind(this));
+
+        $(window).on("popstate", this._remove.bind(this));
+
         return Promise.resolve();
     }
 
@@ -102,5 +105,6 @@ class ContextMenu {
     _remove() {
         this._$menu.remove();
         $(document).unbind("mousedown.menu");
+        $(window).off("popstate", this._remove.bind(this));
     }
 }
