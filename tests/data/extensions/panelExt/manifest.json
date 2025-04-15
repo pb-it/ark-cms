@@ -1,0 +1,8 @@
+{
+    "name": "panelExt",
+    "version": "0.1.0",
+    "description": "Helper Extension for testing panels",
+    "app_version": "^0.6.5",
+    "npm_dependencies": {},
+    "ext_dependencies": {}
+}

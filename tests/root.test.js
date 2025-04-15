@@ -62,5 +62,6 @@ describe("Root Suite", function () {
     require('./idb.test.js');
     require('./file.test.js');
     require('./auth.test.js');
+    require('./extensions.test.js');
     require('./misc.test.js');
 });
