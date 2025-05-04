@@ -73,27 +73,29 @@ class FileFormEntry extends FormEntry {
             this._$value.append("<br/>");
         }
 
-        this._$value.append('URL: ');
-        this._$inputUrl = $('<input/>')
-            .attr('type', 'text')
-            .attr('size', size)
-            .on('input', function () {
-                var val = this._$inputUrl.val();
-                if (val.startsWith('http')) {
-                    try {
-                        var pathname = new URL(val).pathname;
-                        var index = pathname.lastIndexOf('/');
-                        if (index !== -1)
-                            this._$inputFilename.val(pathname.substring(index + 1));
-                    } catch (error) {
-                        ;
+        if (!this._attribute.hasOwnProperty('url') || this._attribute['url'] === true) {
+            this._$value.append('URL: ');
+            this._$inputUrl = $('<input/>')
+                .attr('type', 'text')
+                .attr('size', size)
+                .on('input', function () {
+                    var val = this._$inputUrl.val();
+                    if (val.startsWith('http')) {
+                        try {
+                            var pathname = new URL(val).pathname;
+                            var index = pathname.lastIndexOf('/');
+                            if (index !== -1)
+                                this._$inputFilename.val(pathname.substring(index + 1));
+                        } catch (error) {
+                            ;
+                        }
                     }
-                }
-            }.bind(this));
-        if (this._value && this._value['url'])
-            this._$inputUrl.val(this._value['url']);
-        this._$value.append(this._$inputUrl);
-        this._$value.append("<br/>");
+                }.bind(this));
+            if (this._value && this._value['url'])
+                this._$inputUrl.val(this._value['url']);
+            this._$value.append(this._$inputUrl);
+            this._$value.append("<br/>");
+        }
 
         this._$inputFile = $('<input/>').attr({ 'type': 'file', 'id': this._id, 'name': this._attribute.name, 'value': '', 'multiple': false })
             .on('change', function () {
@@ -144,7 +146,7 @@ class FileFormEntry extends FormEntry {
                 //const fileToBlob = async (file) => new Blob([new Uint8Array(await file.arrayBuffer())], { type: file.type });
                 //data[name] = await fileToBlob(value);
             }
-        } else if (this._attribute['storage'] === "base64" || this._attribute['storage'] === "filesystem") {
+        } else { // if (this._attribute['storage'] === "base64" || this._attribute['storage'] === "filesystem")
             if (file)
                 data['base64'] = await Base64.encodeObject(file);
             else if (this._value && this._value['base64'])
