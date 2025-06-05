@@ -125,13 +125,17 @@ class Cache {
                     for (const [key, value] of Object.entries(changed)) {
                         cache = this._modelCacheArr[key];
                         if (cache) {
+                            id = null;
                             rs = await cache.getCompleteRecordSet();
                             if (rs)
-                                entry = value;
-                            else
+                                id = value;
+                            else {
                                 entry = cache.getEntry(value);
-                            if (entry.length > 0)
-                                promises.push(ds.fetchData(key, entry, null, null, null, null, null, true));
+                                if (entry.length > 0)
+                                    id = entry.map(x => x['id']);
+                            }
+                            if (id)
+                                promises.push(ds.fetchData(key, id, null, null, null, null, null, true));
                         }
                     }
                     if (promises.length > 0)
