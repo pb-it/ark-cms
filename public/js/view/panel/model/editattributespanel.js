@@ -333,20 +333,40 @@ class EditAttributesPanel extends Panel {
                     break;
                 case 'integer':
                     skeleton = [
-                        { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'integer' },
+                        { 'name': 'length', 'tooltip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'integer' }
+                    ];
+                    var info = app.getController().getApiController().getApiInfo();
+                    var client = info['db']['client'];
+                    if (client === 'mysql' || client === 'mysql2') {
+                        skeleton.push(
+                            {
+                                'name': 'type',
+                                'tooltip': 'Info:\nFor information regarding Required Storage and Range of supported Integer Types read the documentation of your DMBS',
+                                'dataType': 'enumeration',
+                                'options': [
+                                    { 'value': 'TINYINT' },
+                                    { 'value': 'SMALLINT' },
+                                    { 'value': 'MEDIUMINT' },
+                                    { 'value': 'INT' },
+                                    { 'value': 'BIGINT' }
+                                ],
+                                'view': 'select'
+                            });
+                    }
+                    skeleton.push([
                         { 'name': 'unsigned', 'dataType': 'boolean', 'required': true, 'defaultValue': false },
                         { 'name': 'defaultValue', 'dataType': 'integer' }
-                    ];
+                    ]);
                     break;
                 case 'decimal':
                     skeleton = [
-                        { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
+                        { 'name': 'length', 'tooltip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
                         { 'name': 'defaultValue', 'dataType': 'decimal' }
                     ];
                     break;
                 case 'double':
                     skeleton = [
-                        { 'name': 'length', 'tooptip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
+                        { 'name': 'length', 'tooltip': 'Info:\nThis value is only used for format information within the database', 'dataType': 'string' },
                         { 'name': 'defaultValue', 'dataType': 'double' }
                     ];
                     break;
@@ -356,7 +376,7 @@ class EditAttributesPanel extends Panel {
                     skeleton = [
                         { 'name': 'length', 'dataType': 'string', 'tooltip': '**Info**: Constraints depend on database and character encoding. Default is 255 for \'string\' and 65,535 for \'text\'' }
                     ];
-                    var info = app.controller.getApiController().getApiInfo();
+                    var info = app.getController().getApiController().getApiInfo();
                     var client = info['db']['client'];
                     if (client === 'mysql' || client === 'mysql2') {
                         skeleton.push(
@@ -751,6 +771,8 @@ class EditAttributesPanel extends Panel {
                         } else
                             throw new Error("Field 'length' is not a number");
                     }
+                    if (data['type'])
+                        this._data['type'] = data['type'];
                     if (data['unsigned'])
                         this._data['unsigned'] = data['unsigned'];
                     break;

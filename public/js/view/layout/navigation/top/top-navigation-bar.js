@@ -63,7 +63,30 @@ class TopNavigationBar {
             this._$searchContainer.empty();
         }
 
+        this._$menu.empty();
+        if (controller.getConfigController().experimentalFeaturesEnabled())
+            this._renderNotifications();
         this._renderMenu();
+    }
+
+    _renderNotifications() {
+        var conf = {
+            'icon': new Icon('bell'),
+            'click': async function (event, item) {
+                event.stopPropagation();
+                alert('TODO');
+                return Promise.resolve();
+            }.bind(this)
+        };
+        const menuItem = new MenuItem(conf);
+        const notifications = app.getController().getNotificationController().getNotifications();
+        if (notifications && notifications.length > 0)
+            menuItem.setNotification(notifications.length);
+        const $vis = new MenuItemVis(menuItem).renderMenuItem()
+        $vis.css({
+            'display': 'inline-block'
+        });
+        this._$menu.append($vis);
     }
 
     _renderMenu() {
@@ -152,7 +175,6 @@ class TopNavigationBar {
 
         rootMenuItem.setSubMenu(subMenu);
 
-        this._$menu.empty();
         this._$menu.append(new MenuItemVis(rootMenuItem).renderMenuItem());
     }
 }

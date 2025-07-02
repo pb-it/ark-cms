@@ -92,6 +92,10 @@ class SideNavigationBar {
     _checkNotification() {
         const controller = app.getController();
         var bNotification = false;
+
+        /*const notifications = controller.getNotificationController().getNotifications();
+        if (notifications && notifications.length > 0)
+            bNotification = true;*/
         if (controller.hasConnection()) {
             const info = controller.getApiController().getApiInfo();
             if (info) {
@@ -290,6 +294,24 @@ class SideNavigationBar {
             };
             menuItem = new MenuItem(conf);
             menuItems.push(menuItem);
+
+            if (controller.getConfigController().experimentalFeaturesEnabled()) {
+                conf = {
+                    'style': 'iconbar',
+                    'icon': new Icon('clock-rotate-left'),
+                    'tooltip': 'Chronik',
+                    'click': async function (event, icon) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        alert('TODO');
+
+                        return Promise.resolve();
+                    }.bind(this)
+                };
+                menuItem = new MenuItem(conf);
+                menuItems.push(menuItem);
+            }
 
             if (this._topIconBarExtensions && this._topIconBarExtensions.length > 0) {
                 for (var ext of this._topIconBarExtensions) {

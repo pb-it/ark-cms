@@ -6,6 +6,7 @@ class Controller {
     _logger;
     _database;
 
+    _notificationController;
     _storageController;
     _configController;
     _apiController;
@@ -56,6 +57,10 @@ class Controller {
             this._logger[name] = logger;
         }
         return logger;
+    }
+
+    getNotificationController() {
+        return this._notificationController;
     }
 
     getDatabase() {
@@ -130,6 +135,8 @@ class Controller {
         var bInitDone = false;
         this._bConnection = false;
         this.setLoadingState(true);
+
+        this._notificationController = new NotificationController();
 
         $(document).bind('click', async function (e) {
             if (e.target == document.body) {
