@@ -334,7 +334,7 @@ Do you want to continue?`))
                 .css({ 'padding': '10' });
 
             for (var entry of app.getController().getLogger().getAllLogEntries()) {
-                $div.append(entry.toString() + "<br/>");
+                $div.append(encodeText(entry.toString()) + '<br/>');
             }
 
             return Promise.resolve($div);
