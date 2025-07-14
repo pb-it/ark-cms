@@ -3,6 +3,7 @@ class Modal {
     _panel;
     _bDispose;
     _closeCallback;
+    _selectionController;
 
     _$modal;
     _$close;
@@ -25,6 +26,8 @@ class Modal {
             .addClass('clear'));
 
         this._$modal.append(this._$modalContent);
+
+        this._selectionController = new SelectionController();
     }
 
     setCloseCallback(cb) {
@@ -33,6 +36,10 @@ class Modal {
 
     getModalDomElement() { // getComponent
         return this._$modal;
+    }
+
+    getSelectionController() {
+        return this._selectionController;
     }
 
     async openPanel(panel) {
@@ -56,11 +63,17 @@ class Modal {
             .click(async function (event) {
                 event.stopPropagation();
 
+                const controller = app.getController();
                 try {
                     if (event.target == this._$modal[0])
                         await this._closeOnConfirm();
+                    else {
+                        const sc = controller.getSelectionController();
+                        if (sc)
+                            await sc.clearSelected();
+                    }
                 } catch (error) {
-                    app.controller.showError(error);
+                    controller.showError(error);
                 }
                 return Promise.resolve();
             }.bind(this));

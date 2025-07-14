@@ -13,6 +13,8 @@
         "**/*.js",
         "dist",
         "types",
-        "node_modules"
+        "node_modules",
+        "scripts",
+        "tests"
     ]
 }

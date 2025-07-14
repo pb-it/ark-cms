@@ -90,7 +90,9 @@ class CanvasPanel extends Panel {
             window.getSelection()?.removeAllRanges(); //TODO: close side navigation bar
 
             //if (event.target == this._$panel[0]) {
-            await app.getController().select(event.ctrlKey, event.shiftKey, this);
+            const sc = app.getController().getSelectionController();
+            if (sc)
+                await sc.select(event.ctrlKey, event.shiftKey, this);
             this._clicks++;
             if (this._clicks == 1) {
                 this._timer = setTimeout(function () {
@@ -121,8 +123,11 @@ class CanvasPanel extends Panel {
                 const controller = app.getController();
                 try {
                     controller.setLoadingState(true, false);
-                    if (!this._bSelected)
-                        await app.getController().select(event.ctrlKey, event.shiftKey, this);
+                    if (!this._bSelected) {
+                        const sc = controller.getSelectionController();
+                        if (sc)
+                            await sc.select(event.ctrlKey, event.shiftKey, this);
+                    }
                     await ContextMenuController.renderContextMenu(event.pageX, event.pageY, this);
                     controller.setLoadingState(false);
                 } catch (error) {
@@ -157,8 +162,11 @@ class CanvasPanel extends Panel {
 
     async _drag(event) {
         event.stopPropagation(); // prevent draging parent container
-        if (!this._bSelected)
-            await app.getController().select(event.ctrlKey, event.shiftKey, this);
+        if (!this._bSelected) {
+            const sc = app.getController().getSelectionController();
+            if (sc)
+                await sc.select(event.ctrlKey, event.shiftKey, this);
+        }
         return Promise.resolve();
     }
 

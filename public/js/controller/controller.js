@@ -18,7 +18,6 @@ class Controller {
     _bConnection = false;
 
     _bLoading = false;
-    _selected;
 
     _dataservice;
 
@@ -40,8 +39,6 @@ class Controller {
     constructor(model, view) {
         this._model = model;
         this._view = view;
-
-        this._selected = [];
     }
 
     getLogger(name) {
@@ -141,7 +138,9 @@ class Controller {
         $(document).bind('click', async function (e) {
             if (e.target == document.body) {
                 e.preventDefault();
-                await this.clearSelected();
+                var sc = this.getSelectionController();
+                if (sc)
+                    await sc.clearSelected();
             }
             return Promise.resolve();
         }.bind(this));
@@ -353,10 +352,14 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                                 e.preventDefault();
                                 e.stopPropagation();
 
-                                try {
-                                    await this.selectAll();
-                                } catch (error) {
-                                    this.showError(error);
+                                if (!this.getModalController().isModalOpen()) {
+                                    try {
+                                        var sc = this.getSelectionController();
+                                        if (sc)
+                                            await sc.selectAll();
+                                    } catch (error) {
+                                        this.showError(error);
+                                    }
                                 }
                             }
                             break;
@@ -624,7 +627,9 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                         }
                     }
                 }
-                await this.clearSelected();
+                var sc = this.getSelectionController();
+                if (sc)
+                    await sc.clearSelected();
 
                 var bHome = false;
                 if (state) {
@@ -758,84 +763,17 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
         return Promise.resolve();
     }
 
-    async select(ctrl, shift, panel) {
-        const modals = this._modalController.getModals();
-        if (!modals || modals.length === 0)
-            this._view.getSideNavigationBar().close();
-        if (ctrl == true) {
-            if (panel.isSelected()) {
-                this._selected.splice(this._selected.indexOf(panel), 1);
-                await panel.select(false);
-            } else {
-                this._selected.push(panel);
-                await panel.select(true);
-            }
-        } else if (shift == true) {
-            var last = this._selected[this._selected.length - 1];
-            this._selected = [];
-            var panels = this._view.getCanvas().getPanels();
-            var p;
-            var bSelect = false;
-            var bSecondMatch = false;
-            for (var i = 0; i < panels.length; i++) {
-                p = panels[i];
-                if (!bSecondMatch && (p == last || p == panel)) {
-                    if (bSelect)
-                        bSecondMatch = true;
-                    else
-                        bSelect = true;
-                }
-
-                if (bSelect)
-                    this._selected.push(p);
-                if (p.isSelected() != bSelect)
-                    await p.select(bSelect);
-
-                if (bSelect && bSecondMatch)
-                    bSelect = false;
-            }
+    getSelectionController() {
+        var sc;
+        var mc = this.getModalController();
+        var modals = mc.getModals();
+        if (modals && modals.length > 0) {
+            var modal = modals[modals.length - 1];
+            sc = modal.getSelectionController();
         } else {
-            await this.clearSelected();
-            this._selected.push(panel);
-            await panel.select(true);
+            sc = this._view.getCanvas().getSelectionController();
         }
-        return Promise.resolve();
-    }
-
-    async clearSelected() {
-        var item;
-        for (var i = 0; i < this._selected.length; i++) {
-            item = this._selected[i];
-            await item.select(false);
-        }
-        this._selected = [];
-        return Promise.resolve();
-    }
-
-    async selectAll() {
-        this._selected = [];
-        var item;
-        var panels = this._view.getCanvas().getPanels();
-        for (var i = 0; i < panels.length; i++) {
-            item = panels[i];
-            await item.select(true);
-            this._selected.push(item);
-        }
-        return Promise.resolve();
-    }
-
-    getSelected() {
-        return this._selected;
-    }
-
-    getSelectedObjects() {
-        var items;
-        if (this._selected.length > 0) {
-            items = this._selected.map(function (panel) {
-                return panel.getObject();
-            });
-        }
-        return items;
+        return sc;
     }
 
     getLoadingState() {
@@ -909,7 +847,10 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
 
     async copy() {
         var text;
-        var selected = app.getController().getSelectedObjects();
+        var selected;
+        const sc = this.getSelectionController();
+        if (sc)
+            selected = sc.getSelectedObjects();
         if (selected && selected.length > 0) {
             var state = new State();
             state.typeString = selected[0].getTypeString();

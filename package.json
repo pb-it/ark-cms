@@ -1,6 +1,6 @@
 {
     "name": "ark-cms",
-    "version": "0.7.4-beta",
+    "version": "0.7.5-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
@@ -41,6 +41,8 @@
         "test:search": "mocha --timeout 10000 tests/search.test.js",
         "test:filter": "mocha --timeout 10000 tests/filter.test.js",
         "test:panel": "mocha --timeout 10000 tests/panel.test.js",
+        "test:modal": "mocha --timeout 10000 tests/modal.test.js",
+        "test:selection": "mocha --timeout 10000 tests/selection.test.js",
         "test:collection": "mocha --timeout 10000 tests/collection.test.js",
         "test:contextmenu": "mocha --bail --timeout 10000 tests/contextmenu.test.js",
         "test:state": "mocha --bail --timeout 10000 tests/state.test.js",

@@ -84,8 +84,13 @@ class ContextMenu {
                 $li.click(debounce(function (e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (entry.click(e, this._target))
-                        this._remove();
+
+                    try {
+                        if (entry.click(e, this._target))
+                            this._remove();
+                    } catch (error) {
+                        app.getController().showError(error);
+                    }
                 }.bind(this), 250, true));
                 if (entry.entries) {
                     var $d = $('<div/>').addClass('contextmenu');

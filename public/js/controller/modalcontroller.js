@@ -1,49 +1,5 @@
 class ModalController {
 
-    static async changeIds(obj, property, addIds, removeIds) {
-        var oldList;
-        var data = obj.getData();
-        if (data && data[property]) {
-            oldList = data[property].map(function (item) {
-                if (isNaN(item))
-                    return item['id'];
-                else
-                    return item;
-            });
-        } else
-            oldList = [];
-
-        var newList;
-        var changed = false;
-        if (removeIds && removeIds.length > 0) {
-            newList = [];
-            for (var id of oldList) {
-                if (removeIds.indexOf(id) == -1)
-                    newList.push(id);
-                else
-                    changed = true;
-            }
-        } else
-            newList = oldList;
-        if (addIds && addIds.length > 0) {
-            for (var newId of addIds) {
-                if (newList.indexOf(newId) == -1) {
-                    newList.push(newId);
-                    changed = true;
-                }
-            }
-        }
-        if (changed) {
-            if (obj.getId()) {
-                var change = {};
-                change[property] = newList;
-                await obj.update(change);
-            } else
-                data[property] = newList;
-        }
-        return Promise.resolve();
-    }
-
     _stack;
 
     constructor() {
@@ -79,7 +35,7 @@ class ModalController {
     }
 
     async openPanelInModal(panel) {
-        var controller = app.getController();
+        const controller = app.getController();
         var bLoading = controller.getLoadingState();
         controller.setLoadingState(true);
 

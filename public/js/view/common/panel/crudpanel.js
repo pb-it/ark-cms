@@ -527,7 +527,10 @@ class CrudPanel extends CanvasPanel {
                 const state = new State();
                 state.typeString = this._obj.getTypeString();
 
-                const selected = app.getController().getSelectedObjects();
+                var selected;
+                const sc = app.getController().getSelectionController();
+                if (sc)
+                    selected = sc.getSelectedObjects();
                 if (selected) {
                     if (selected.length == 1)
                         state.id = selected[0].getData()['id'];
@@ -540,7 +543,6 @@ class CrudPanel extends CanvasPanel {
                 //console.log(url);
                 dT.setData("text/plain", url);
                 dT.dropEffect = 'copy'; // 'move'
-
             }
         }
         return Promise.resolve();

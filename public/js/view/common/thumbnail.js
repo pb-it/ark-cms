@@ -193,7 +193,9 @@ class Thumbnail {
     }
 
     playVideo() {
-        app.controller.clearSelected();
+        var sc = app.getController().getSelectionController();
+        if (sc)
+            sc.clearSelected();
         this._$thumbnail.empty();
 
         this._$video = $('<video/>', {

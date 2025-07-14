@@ -49,6 +49,8 @@ describe("Root Suite", function () {
     require('./form.test.js');
     require('./delete.test.js');
     require('./panel.test.js');
+    require('./modal.test.js');
+    require('./selection.test.js');
     require('./collection.test.js');
     require('./contextmenu.test.js');
     require('./navigation.test.js');

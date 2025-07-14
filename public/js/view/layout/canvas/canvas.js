@@ -10,6 +10,7 @@ class Canvas {
     _loaded;
     _loadInterval;
     _loading;
+    _selectionController;
 
     _max_scroll_height;
 
@@ -20,6 +21,7 @@ class Canvas {
         this._loaded = 0;
         this._loadInterval = -1;
         this._loading = false;
+        this._selectionController = new SelectionController();
 
         /*this._lazy_list = [];
         this._bLazy_flag = 0;
@@ -74,10 +76,14 @@ class Canvas {
 
         $(window).off('click.canvas');
         $(window).on('click.canvas', async function (event) {
-            if (!app.controller.getModalController().isModalOpen()) {
+            const controller = app.getController();
+            if (!controller.getModalController().isModalOpen()) {
                 try {
-                    if (!(event.ctrlKey || event.shiftKey))
-                        await app.controller.clearSelected();
+                    if (!(event.ctrlKey || event.shiftKey)) {
+                        var sc = controller.getSelectionController();
+                        if (sc)
+                            await sc.clearSelected();
+                    }
                 } catch (error) {
                     console.log(error);
                 }
@@ -308,5 +314,9 @@ class Canvas {
 
     isLoading() {
         return this._loading;
+    }
+
+    getSelectionController() {
+        return this._selectionController;
     }
 }

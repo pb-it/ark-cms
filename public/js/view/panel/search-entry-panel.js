@@ -24,8 +24,10 @@ class SearchEntryPanel extends Panel {
     }
 
     async _renderContent() {
-        var $div = $('<div/>')
+        const $div = $('<div/>')
             .css({ 'padding': '10' });
+
+        const controller = app.getController();
 
         var options = this._optData;
         if (this._filter.length > 0) {
@@ -78,7 +80,7 @@ class SearchEntryPanel extends Panel {
                     await this.render();
                     return Promise.resolve();
                 }.bind(this));
-                return app.controller.getModalController().openPanelInModal(panel);
+                return app.getController().getModalController().openPanelInModal(panel);
             }.bind(this)));
         $div.append('<br>');
 
@@ -106,7 +108,7 @@ class SearchEntryPanel extends Panel {
         $div.append('<br>');
 
         if (options && options.length > 0) {
-            var model = app.controller.getModelController().getModel(this._modelName);
+            var model = controller.getModelController().getModel(this._modelName);
             var mpcc = model.getModelPanelConfigController();
             var panelConfig = mpcc.getPanelConfig();
 
@@ -148,16 +150,19 @@ class SearchEntryPanel extends Panel {
                 event.preventDefault();
                 event.stopPropagation();
 
-                var selected = app.getController().getSelected();
-                if (selected && selected.length > 0) {
-                    if (this._iUpperBound == -1 || selected.length <= this._iUpperBound) {
-                        var data = selected.map(function (panel) {
-                            return panel.getObject().getData();
-                        });
-                        await this._select.addSelectedValues(data);
-                        this.dispose();
-                    } else
-                        alert("The number of items is limited to " + this._iUpperBound + "!")
+                var sc = app.getController().getSelectionController();
+                if (sc) {
+                    selected = sc.getSelected();
+                    if (selected && selected.length > 0) {
+                        if (this._iUpperBound == -1 || selected.length <= this._iUpperBound) {
+                            var data = selected.map(function (panel) {
+                                return panel.getObject().getData();
+                            });
+                            await this._select.addSelectedValues(data);
+                            this.dispose();
+                        } else
+                            alert("The number of items is limited to " + this._iUpperBound + "!")
+                    }
                 }
                 return Promise.resolve();
             }.bind(this))
@@ -170,7 +175,9 @@ class SearchEntryPanel extends Panel {
         $div.bind("click", async function (e) {
             if (e.target == $div[0]) {
                 e.preventDefault();
-                await app.getController().clearSelected();
+                var sc = app.getController().getSelectionController();
+                if (sc)
+                    await sc.clearSelected();
             }
             return Promise.resolve();
         }.bind(this));

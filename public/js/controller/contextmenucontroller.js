@@ -16,9 +16,15 @@ class ContextMenuController {
         const reloadEntry = new ContextMenuEntry("Reload", async function (event, target) {
             try {
                 controller.setLoadingState(true);
-                var objs = controller.getSelectedObjects();
-                if (!objs)
-                    objs = [target._obj];
+                var objs;
+                var selected;
+                const sc = controller.getSelectionController();
+                if (sc)
+                    selected = sc.getSelectedObjects();
+                if (selected && selected.length > 0)
+                    objs = selected;
+                else
+                    objs = [target.getObject()];
                 var typeString = objs[0].getTypeString();
                 var ids = objs.map(function (x) { return x.getData()['id'] });
                 await controller.getDataService().fetchData(typeString, ids, null, null, null, null, null, true);
@@ -224,7 +230,10 @@ class ContextMenuController {
         const createDuplicateEntry = new ContextMenuEntry("Duplicate", async function (event, target) {
             controller.setLoadingState(true);
             try {
-                var items = controller.getSelected();
+                var items;
+                const sc = controller.getSelectionController();
+                if (sc)
+                    items = sc.getSelected();
                 if (!items || (items.length == 1 && items[0] == target)) {
                     var data = { ...target._obj.getData() };
 
@@ -253,15 +262,21 @@ class ContextMenuController {
         createGroup.push(createDuplicateEntry);
 
         const createCsvEntry = new ContextMenuEntry("CSV", async function (event, target) {
-            var items;
+            var objs;
+            const controller = app.getController();
             if (model.isCollection())
-                items = target._obj.getAllItems();
+                objs = target._obj.getAllItems();
             else {
-                items = controller.getSelectedObjects();
-                if (!items)
-                    items = [target._obj];
+                var selected;
+                const sc = controller.getSelectionController();
+                if (sc)
+                    selected = sc.getSelectedObjects();
+                if (selected && selected.length > 0)
+                    objs = selected;
+                else
+                    objs = [target.getObject()];
             }
-            return controller.getModalController().openPanelInModal(new CreateCsvPanel(model, items));
+            return controller.getModalController().openPanelInModal(new CreateCsvPanel(model, objs));
         });
         createGroup.push(createCsvEntry);
 
@@ -273,7 +288,10 @@ class ContextMenuController {
                 if (model.isCollection())
                     objects = obj.getAllItems();
                 else {
-                    const selected = app.getController().getSelectedObjects();
+                    var selected;
+                    const sc = app.getController().getSelectionController();
+                    if (sc)
+                        selected = sc.getSelectedObjects();
                     if (selected && selected.length > 0)
                         objects = selected;
                     else
@@ -340,7 +358,10 @@ class ContextMenuController {
 
         const openGroup = [];
         const openInNewTabEntry = new ContextMenuEntry("Open in new Tab", function (event, target) {
-            var items = app.getController().getSelected();
+            var items;
+            const sc = app.getController().getSelectionController();
+            if (sc)
+                items = sc.getSelected();
             if (!items || (items.length == 1 && items[0] == target)) {
                 target.openInNewTab(ActionEnum.read);
             } else {
@@ -366,12 +387,15 @@ class ContextMenuController {
         entries.push(new ContextMenuEntry("Open", async function (event, target) {
             const controller = app.getController();
             try {
-                var items = controller.getSelected();
+                var items;
                 var typeString;
                 var model;
                 var def;
                 var id;
                 var where;
+                const sc = controller.getSelectionController();
+                if (sc)
+                    items = sc.getSelected();
                 if (!items || (items.length == 1 && items[0] == target)) {
                     typeString = target._obj.getTypeString();
                     model = target._obj.getModel();
@@ -458,7 +482,10 @@ class ContextMenuController {
 
         const deleteEntry = new ContextMenuEntry("Delete", async function (event, target) {
             const controller = app.getController();
-            var selected = controller.getSelected();
+            var selected;
+            const sc = controller.getSelectionController();
+            if (sc)
+                selected = sc.getSelected();
             if (!selected || selected.length == 0 || (selected.length == 1 && selected[0] == target)) {
                 var parentPanel = target.parent;
                 if (parentPanel && parentPanel.getClass() == CollectionPanel) {
@@ -544,15 +571,16 @@ class ContextMenuController {
                         if (attr['model']) {
                             entry = new ContextMenuEntry(attr['name'], async function (event, target) {
                                 var objs;
-                                var selected = app.getController().getSelectedObjects();
+                                var selected;
+                                const controller = app.getController();
+                                const sc = controller.getSelectionController();
+                                if (sc)
+                                    selected = sc.getSelectedObjects();
                                 if (selected && selected.length > 0)
                                     objs = selected;
                                 else
                                     objs = [target.getObject()];
-
-                                var state = ContextMenuController._getState(model, attr, objs);
-
-                                const controller = app.getController();
+                                const state = ContextMenuController._getState(model, attr, objs);
                                 if (controller.getConfigController().experimentalFeaturesEnabled()) {
                                     var current = controller.getStateController().getState();
                                     var name = this['name'];
@@ -575,14 +603,18 @@ class ContextMenuController {
                             if (attr['multiple'] && !attr['readonly']) {
                                 entry = new ContextMenuEntry(attr['name'], function (event, target) {
                                     var objs;
-                                    var selected = app.getController().getSelectedObjects();
+                                    var selected;
+                                    const controller = app.getController();
+                                    const sc = controller.getSelectionController();
+                                    if (sc)
+                                        selected = sc.getSelectedObjects();
                                     if (selected && selected.length > 0)
                                         objs = selected;
                                     else
                                         objs = [target.getObject()];
 
                                     const panel = ContextMenuController._getAddPanel(model, attr, objs, target);
-                                    return app.getController().getModalController().openPanelInModal(panel);
+                                    return controller.getModalController().openPanelInModal(panel);
                                 });
                                 addGroup.push(entry);
                                 bAddSetEntry = false;
@@ -608,7 +640,10 @@ class ContextMenuController {
                                 const data = await p.getForm().readForm({ bSkipNullValues: false });
 
                                 var objs;
-                                const selected = controller.getSelectedObjects();
+                                var selected;
+                                const sc = controller.getSelectionController();
+                                if (sc)
+                                    selected = sc.getSelectedObjects();
                                 if (selected && selected.length > 0)
                                     objs = selected;
                                 else
