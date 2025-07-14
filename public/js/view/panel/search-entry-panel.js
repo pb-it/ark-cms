@@ -150,9 +150,9 @@ class SearchEntryPanel extends Panel {
                 event.preventDefault();
                 event.stopPropagation();
 
-                var sc = app.getController().getSelectionController();
+                const sc = app.getController().getSelectionController();
                 if (sc) {
-                    selected = sc.getSelected();
+                    var selected = sc.getSelected();
                     if (selected && selected.length > 0) {
                         if (this._iUpperBound == -1 || selected.length <= this._iUpperBound) {
                             var data = selected.map(function (panel) {
