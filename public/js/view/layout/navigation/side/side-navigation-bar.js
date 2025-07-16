@@ -373,13 +373,7 @@ class SideNavigationBar {
                         event.stopPropagation();
 
                         this.close();
-                        //TODO:
-                        alert('TODO');
-
-                        /*const panel = null;
-                        return app.getController().getModalController().openPanelInModal(panel);*/
-
-                        return Promise.resolve();
+                        return controller.loadState(new State({ customRoute: '/apps' }), true);
                     }.bind(this)
                 };
                 menuItem = new MenuItem(conf);

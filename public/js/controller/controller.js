@@ -501,7 +501,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
     }
 
     _initRoutes() {
-        const route = {
+        var route = {
             "regex": "^/help$",
             "fn": async function () {
                 const controller = app.getController();
@@ -515,6 +515,23 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
             }
         };
         this._routeController.addRoute(route);
+
+        if (this._configController.experimentalFeaturesEnabled()) {
+            route = {
+                "regex": "^/apps$",
+                "fn": async function () {
+                    const controller = app.getController();
+                    try {
+                        const panel = new AppsPanel();
+                        await controller.getView().getCanvas().showPanels([panel]);
+                    } catch (error) {
+                        controller.showError(error);
+                    }
+                    return Promise.resolve();
+                }
+            };
+            this._routeController.addRoute(route);
+        }
     }
 
     hasConnection() {

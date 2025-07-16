@@ -72,9 +72,9 @@ class ApiController {
         return this._session;
     }
 
-    async reloadModels() {
-        await this._apiClient.request("GET", "/sys/reload");
-        return Promise.resolve();
+    async reloadModels(bForceMigration) {
+        await this._apiClient.request("GET", "/sys/reload" + bForceMigration ? "?forceMigration=true" : "");
+        return Promise.resolve('OK');
     }
 
     async restartApi(bWaitReady) {

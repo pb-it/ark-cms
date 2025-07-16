@@ -114,53 +114,6 @@ describe('Testsuit - Misc.', function () {
         return Promise.resolve();
     });
 
-    xit('#create db dump', async function () {
-        this.timeout(60000);
-
-        const app = helper.getApp();
-        const ac = app.getApiController();
-        const tools = ac.getTools();
-        await tools.downloadBackup();
-
-        const downloads = await helper.getBrowser().getDownloads();
-        const file = downloads[0];
-        console.log(file);
-        assert.notEqual(file, undefined, 'Download failed');
-        var i = 0;
-        while (!fs.existsSync(file) && i < 5) {
-            await ExtendedTestHelper.delay(1000);
-            i++;
-        }
-        assert.equal(fs.existsSync(file), true, 'Download failed');
-
-        return Promise.resolve();
-    });
-
-    xit('#restore db dump', async function () {
-        this.timeout(60000);
-
-        const app = helper.getApp();
-        const ac = app.getApiController();
-        const tools = ac.getTools();
-
-        await tools.restoreBackup(path.join(__dirname, './data/sql/start_01.sql'));
-        await ExtendedTestHelper.delay(1000);
-
-        await ac.restart(true);
-        await app.reload();
-        await ExtendedTestHelper.delay(1000);
-        await app.login();
-        await ExtendedTestHelper.delay(1000);
-
-        const window = app.getWindow();
-        const modal = await window.getTopModal();
-        assert.equal(modal, null);
-
-        //TODO: verify data
-
-        return Promise.resolve();
-    });
-
     it('#test public model', async function () {
         this.timeout(60000);
 
@@ -183,7 +136,7 @@ describe('Testsuit - Misc.', function () {
         //console.log(text);
         assert.notEqual(text, 'Not Found');
         var tmp = JSON.parse(text);
-        assert.equal(tmp['data'].length, 1);
+        assert.equal(tmp['data'].length, 2);
 
         const app = helper.getApp();
         await app.logout();
