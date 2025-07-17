@@ -206,8 +206,15 @@ Do you want to continue?`))
                     return Promise.resolve();
                 }.bind(this));
             $div.append($check);
-
             $div.append('<br/><br/>');
+
+            $div.append('CDN:<br/>');
+            if (info && info['cdn']) {
+                for (var cdn of info['cdn']) {
+                    $div.append('&nbsp;&nbsp;&nbsp;' + cdn['url'] + '<br/>');
+                }
+            }
+            $div.append('<br/>');
 
             $div.append('Extensions:<br/>');
             const ec = controller.getExtensionController();
@@ -235,7 +242,6 @@ Do you want to continue?`))
                     }
                 }
             }
-
             $div.append('<br/><br/>');
 
             var $clear = $('<button>')

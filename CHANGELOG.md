@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 
+## [0.7.6-beta](https://github.com/pb-it/ark-cms/releases/tag/0.7.6-beta) (2025-07-17)
+
+* Minor changes
+
+
 ## [0.7.5-beta](https://github.com/pb-it/ark-cms/releases/tag/0.7.5-beta) (2025-07-14)
 
 * Added SelectionController

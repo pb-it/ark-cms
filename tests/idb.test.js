@@ -305,7 +305,7 @@ module.exports = test;`
             var data = JSON.parse(res);
             assert.equal(data['name'], 'Titanic');
             cmd = `async function test() {
-    const knex = controller.getKnex();
+    const knex = controller.getDatabaseController().getKnex();
     //const rs = await knex.raw("TRUNCATE TABLE _change;");
     const rs = await knex.raw("DELETE FROM _change WHERE id > 0;");
     return Promise.resolve('OK');
