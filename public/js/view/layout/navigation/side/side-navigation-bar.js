@@ -393,11 +393,15 @@ class SideNavigationBar {
                         const activeIcon = this._bottomIconBar.getActiveItem();
                         this.close();
 
-                        const item = icon.getMenuItem();
-                        if (activeIcon != item) {
-                            this._bottomIconBar.setActiveItem(item);
-                            this.updateSideNavigationBar();
-                            await this._sidePanel.show(this._extensionSelect.renderExtensionSelect());
+                        if (app.getController().getConfigController().experimentalFeaturesEnabled()) {
+                            controller.loadState(new State({ customRoute: '/extensions' }), true);
+                        } else {
+                            const item = icon.getMenuItem();
+                            if (activeIcon != item) {
+                                this._bottomIconBar.setActiveItem(item);
+                                this.updateSideNavigationBar();
+                                await this._sidePanel.show(this._extensionSelect.renderExtensionSelect());
+                            }
                         }
                         return Promise.resolve();
                     }.bind(this)
@@ -418,7 +422,9 @@ class SideNavigationBar {
 
                             this.close();
 
-                            var config = { 'minWidth': '400px' };
+                            var config = {
+                                'css': { 'minWidth': '400px' }
+                            };
                             return app.getController().getModalController().openPanelInModal(new CachePanel(config));
                         }.bind(this)
                     };

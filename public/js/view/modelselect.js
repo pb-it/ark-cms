@@ -60,7 +60,9 @@ class ModelSelect {
                         delete data.timestamps;
                         data.options = { increments: true, timestamps: true };
                         var model = new XModel(data);
-                        var config = { 'minWidth': '1000px' };
+                        var config = {
+                            'css': { 'minWidth': '1000px' }
+                        };
                         await controller.getModalController().openPanelInModal(new EditModelPanel(config, model));
                     } else
                         throw new Error("For field 'name' " + strRestrict);
@@ -258,7 +260,9 @@ class ModelSelect {
                 const controller = app.getController();
                 controller.getView().getSideNavigationBar().close();
 
-                const config = { 'minWidth': '1000px' };
+                const config = {
+                    'css': { 'minWidth': '1000px' }
+                };
                 const model = controller.getModelController().getModel(this._modelName);
                 return controller.getModalController().openPanelInModal(new EditModelPanel(config, model));
             }.bind(this)

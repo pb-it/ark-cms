@@ -65,19 +65,17 @@ class Panel {
             } else
                 this._$panel.css({ 'display': 'block' }); //block is default because of collection
 
-            if (this._config.float && this._config.float === 'left') {
-                this._$panel.css({ 'float': 'left' });
-            } else {
-                //this._$panel.css({ 'float': 'none' });
-                this._$panel.css({ 'clear': 'both' });
+            if (!this._config.display || this._config.display !== 'inline-block') {
+                if (this._config.float && this._config.float === 'left') {
+                    this._$panel.css({ 'float': 'left' });
+                } else {
+                    //this._$panel.css({ 'float': 'none' });
+                    this._$panel.css({ 'clear': 'both' });
+                }
             }
 
-            /*if (this._config.width)
-                this._$panel.css({ "width": this._config.width })
-            if (this._config.height)
-                this._$panel.css({ "height": this._config.height })*/
-            if (this._config.minWidth)
-                this._$panel.css({ 'min-width': this._config.minWidth })
+            if (this._config['css'])
+                this._$panel.css(this._config['css']);
         }
         return Promise.resolve();
     }

@@ -22,6 +22,11 @@ class Icon {
             else
                 $i = $("<i class='fa fa-" + this._name + "' aria-hidden='true'>");
         }
+        if ($i)
+            $i.css({
+                'min-width': '16px',
+                'text-align': 'center'
+            });
         return $i;
     }
 }

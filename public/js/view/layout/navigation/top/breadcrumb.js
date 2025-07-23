@@ -51,6 +51,8 @@ class Breadcrumb {
             this._renderAdd();
             this._renderState(state, defaultSort);
             this._renderIconBar();
+        } else if (state['customRoute'] && state['customRoute'] === '/extensions') {
+            this._renderAddExtension();
         } else if (state.funcState)
             this._renderState(state);
 
@@ -437,5 +439,33 @@ class Breadcrumb {
 
             this._$breadcrumb.append($div);
         }
+    }
+
+    _renderAddExtension() {
+        const $div = $('<div/>')
+            .css({
+                'display': 'inline-block',
+                'vertical-align': 'top'
+            });
+
+        const conf = {
+            'icon': new Icon('plus'),
+            'tooltip': 'Add',
+            'root': true,
+            'click': async function (event, icon) {
+                const controller = app.getController();
+                try {
+                    await controller.getExtensionController().openExtensionUpload();
+                } catch (error) {
+                    controller.showError(error);
+                }
+                return Promise.resolve();
+            }.bind(this)
+        };
+        const $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
+        $d.css({ 'margin': '0 1 0 1' });
+        $div.append($d);
+
+        this._$breadcrumb.append($div);
     }
 }
