@@ -457,10 +457,10 @@ describe('Testsuit - Navigation', function () {
         assert.ok(clazz.indexOf('active') != -1);
 
         sidemenu = window.getSideMenu();
-        await sidemenu.click('Extensions');
+        await sidemenu.click('Models');
 
-        const xpathExtensionsIcon = `//div[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title='Extensions']`;
-        icons = await driver.findElements(webdriver.By.xpath(xpathExtensionsIcon));
+        const xpathModelsIcon = `//div[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title='Models']`;
+        icons = await driver.findElements(webdriver.By.xpath(xpathModelsIcon));
         assert.equal(icons.length, 1);
         clazz = await icons[0].getAttribute('class');
         assert.ok(clazz.indexOf('active') != -1);
@@ -474,7 +474,7 @@ describe('Testsuit - Navigation', function () {
         icons = await driver.findElements(webdriver.By.xpath(xpathActiveIcon));
         assert.equal(icons.length, 1);
         var title = await icons[0].getAttribute('title');
-        assert.equal(title, 'Extensions');
+        assert.equal(title, 'Models');
 
         return Promise.resolve();
     });

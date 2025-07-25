@@ -22,7 +22,7 @@ class DashPanel extends Panel {
         var icon;
         var $icon;
         if (this._config['icon'])
-            icon = new Icon(this._config['icon']);
+            icon = this._config['icon'];
         else
             icon = new Icon('rectangle-xmark');
         if (icon)
@@ -47,13 +47,25 @@ class DashPanel extends Panel {
 
         if (this._config['click']) {
             this._$panel.click(async function (event) {
-                return this._config['click']();
+                const controller = app.getController();
+                try {
+                    await this._config['click'](event);
+                } catch (error) {
+                    controller.showError(error);
+                }
+                return Promise.resolve();
             }.bind(this));
         }
 
         if (this._config['dblclick']) {
             this._$panel.on('dblclick', async function (event) {
-                return this._config['dblclick']();
+                const controller = app.getController();
+                try {
+                    await this._config['dblclick'](event);
+                } catch (error) {
+                    controller.showError(error);
+                }
+                return Promise.resolve();
             }.bind(this));
         }
 

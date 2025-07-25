@@ -44,6 +44,33 @@ class AuthController {
         return this._user;
     }
 
+    async getUserSettings() {
+        var settings;
+
+        /*var tmp = await this._controller.getDataService().fetchData('_user', this._user['id']);
+        if (tmp)
+            settings = tmp['settings'];
+
+        const apiClient = this._controller.getApiController().getApiClient();
+        tmp = await apiClient.request('GET', apiClient.getDataPath() + '_user?id=' + this._user['id']);
+        if (tmp) {
+            tmp = JSON.parse(tmp);
+            if (tmp['data'] && tmp['data'].length == 1)
+                settings = tmp['data'][0]['settings'];
+        }*/
+
+        const obj = new CrudObject('_user', { 'id': this._user['id'] });
+        await obj.read();
+        settings = obj.getData()['settings'];
+
+        return Promise.resolve(settings);
+    }
+
+    async setUserSettings(settings) {
+        const obj = new CrudObject('_user', { 'id': this._user['id'] });
+        return obj.update({ 'settings': settings });
+    }
+
     isAdministrator() {
         return this._bAdministrator;
     }

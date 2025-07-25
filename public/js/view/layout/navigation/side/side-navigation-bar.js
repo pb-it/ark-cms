@@ -352,9 +352,8 @@ class SideNavigationBar {
 
         const controller = app.getController();
         if (controller && controller.hasConnection()) {
-            if (controller.getConfigController().experimentalFeaturesEnabled()) {
-                var icon = new Icon();
-                icon.setSvg(`<svg width="16px" height="16px" viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            var icon = new Icon();
+            icon.setSvg(`<svg width="16px" height="16px" viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="Dribbble-Light-Preview" transform="translate(-219.000000, -200.000000)" fill="#000000">
             <g id="icons" transform="translate(56.000000, 160.000000)">
@@ -364,21 +363,20 @@ class SideNavigationBar {
     </g>
 </svg>`);
 
-                conf = {
-                    'style': 'iconbar',
-                    'icon': icon,
-                    'tooltip': 'Apps',
-                    'click': async function (event, icon) {
-                        event.preventDefault();
-                        event.stopPropagation();
+            conf = {
+                'style': 'iconbar',
+                'icon': icon,
+                'tooltip': 'Apps',
+                'click': async function (event, icon) {
+                    event.preventDefault();
+                    event.stopPropagation();
 
-                        this.close();
-                        return controller.loadState(new State({ customRoute: '/apps' }), true);
-                    }.bind(this)
-                };
-                menuItem = new MenuItem(conf);
-                menuItems.push(menuItem);
-            }
+                    this.close();
+                    return controller.loadState(new State({ customRoute: '/apps' }), true);
+                }.bind(this)
+            };
+            menuItem = new MenuItem(conf);
+            menuItems.push(menuItem);
 
             const authController = controller.getAuthController();
             if (authController && authController.isAdministrator()) {
@@ -393,7 +391,7 @@ class SideNavigationBar {
                         const activeIcon = this._bottomIconBar.getActiveItem();
                         this.close();
 
-                        if (app.getController().getConfigController().experimentalFeaturesEnabled()) {
+                        if (true) {
                             controller.loadState(new State({ customRoute: '/extensions' }), true);
                         } else {
                             const item = icon.getMenuItem();

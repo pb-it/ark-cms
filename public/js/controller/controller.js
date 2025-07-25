@@ -184,6 +184,7 @@ class Controller {
             this._dataTypeController = new DataTypeController();
             this._panelController = new PanelController();
             this._appController = new AppController();
+            await this._appController.initAppController();
             this._extensionController = new ExtensionController();
             await this._extensionController.initExtensionController();
 
@@ -524,91 +525,140 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
         };
         this._routeController.addRoute(route);
 
-        if (this._configController.experimentalFeaturesEnabled()) {
-            route = {
-                "regex": "^/apps$",
-                "fn": async function () {
-                    const controller = app.getController();
-                    try {
-                        const ac = controller.getAppController();
-                        const apps = ac.getApps().sort((a, b) => a['name'].localeCompare(b['name']));
+        route = {
+            "regex": "^/apps$",
+            "fn": async function () {
+                const controller = app.getController();
+                try {
+                    const ac = controller.getAppController();
+                    const apps = ac.getApps().sort((a, b) => a['name'].localeCompare(b['name']));
 
-                        const panels = [];
-                        var config;
-                        for (var application of apps) {
-                            config = {
-                                'name': application['name']
-                            };
+                    const panels = [];
+                    var config;
+                    var menu;
+                    var bPinned;
+                    var tmp;
+                    var settings = await app.getController().getAuthController().getUserSettings();
+                    for (let application of apps) {
+                        config = {
+                            'name': application['name']
+                        };
 
-                            if (application['icon'])
-                                config['icon'] = application['icon'];
-                            else
-                                config['icon'] = 'rectangle-xmark';
+                        if (application['icon'])
+                            config['icon'] = application['icon'];
+                        else
+                            config['icon'] = new Icon('rectangle-xmark');
 
-                            panels.push(new DashPanel(config));
+                        if (application['start'] && typeof application['start'] == 'function')
+                            config['dblclick'] = application['start'];
+
+                        menu = [];
+                        bPinned = false;
+                        if (settings && settings['apps']) {
+                            tmp = settings['apps'].filter(x => x['name'] === application['name']);
+                            if (tmp && tmp.length == 1)
+                                bPinned = tmp[0]['bPinned'];
                         }
-                        await controller.getView().getCanvas().showPanels(panels);
-                    } catch (error) {
-                        controller.showError(error);
-                    }
-                    return Promise.resolve();
-                }
-            };
-            this._routeController.addRoute(route);
-        }
-
-        if (this._configController.experimentalFeaturesEnabled()) {
-            route = {
-                "regex": "^/extensions$",
-                "fn": async function () {
-                    const controller = app.getController();
-                    try {
-                        const ec = controller.getExtensionController();
-                        const extensions = ec.getExtensions().sort((a, b) => a['name'].localeCompare(b['name']));
-
-                        const panels = [];
-                        var config;
-                        var menu;
-                        var module;
-                        for (var ext of extensions) {
-                            config = {
-                                'name': ext['name']
-                            };
-
-                            if (ext['icon'])
-                                config['icon'] = extension['icon'];
-                            else
-                                config['icon'] = 'rectangle-xmark';
-
-                            menu = [];
-                            module = ext['module'];
-                            if (module && typeof module['configure'] == 'function') {
-                                menu.push({
-                                    'name': 'Configure',
-                                    'icon': new Icon('screwdriver-wrench'),
-                                    'click': module['configure']
-                                });
-                            }
+                        if (bPinned) {
                             menu.push({
-                                'name': 'Delete',
-                                'icon': new Icon('trash'),
+                                'name': 'Unpin',
+                                'icon': new Icon('thumbtack-slash'),
                                 'click': async function () {
-                                    return app.getController().getExtensionController().deleteExtension(ext['name']);
+                                    const controller = app.getController();
+                                    var tmp = settings['apps'].filter(x => x['name'] === application['name']);
+                                    if (tmp && tmp.length == 1)
+                                        tmp[0]['bPinned'] = false;
+                                    await controller.getAuthController().setUserSettings(settings);
+                                    //return controller.reloadState(); // renderSideNavigationBar does not clear old list
+                                    return controller.reloadApplication(true);
                                 }
-                            })
-                            config['menu'] = menu;
-
-                            panels.push(new DashPanel(config));
+                            });
+                        } else {
+                            menu.push({
+                                'name': 'Pin to Sidemenu',
+                                'icon': new Icon('thumbtack'),
+                                'click': async function () {
+                                    const controller = app.getController();
+                                    if (settings) {
+                                        if (settings['apps']) {
+                                            var tmp = settings['apps'].filter(x => x['name'] === application['name']);
+                                            if (tmp && tmp.length == 1)
+                                                tmp[0]['bPinned'] = true;
+                                            else
+                                                settings['apps'].push({ 'name': application['name'], 'bPinned': true });
+                                        } else
+                                            settings['apps'] = [{ 'name': application['name'], 'bPinned': true }];
+                                    } else
+                                        settings = { 'apps': [{ 'name': application['name'], 'bPinned': true }] };
+                                    await controller.getAuthController().setUserSettings(settings);
+                                    //return controller.reloadState();
+                                    return controller.reloadApplication(true);
+                                }
+                            });
                         }
-                        await controller.getView().getCanvas().showPanels(panels);
-                    } catch (error) {
-                        controller.showError(error);
+                        config['menu'] = menu;
+
+                        panels.push(new DashPanel(config));
                     }
-                    return Promise.resolve();
+                    await controller.getView().getCanvas().showPanels(panels);
+                } catch (error) {
+                    controller.showError(error);
                 }
-            };
-            this._routeController.addRoute(route);
-        }
+                return Promise.resolve();
+            }
+        };
+        this._routeController.addRoute(route);
+
+        route = {
+            "regex": "^/extensions$",
+            "fn": async function () {
+                const controller = app.getController();
+                try {
+                    const ec = controller.getExtensionController();
+                    const extensions = ec.getExtensions().sort((a, b) => a['name'].localeCompare(b['name']));
+
+                    const panels = [];
+                    var config;
+                    var menu;
+                    var module;
+                    for (var ext of extensions) {
+                        config = {
+                            'name': ext['name']
+                        };
+
+                        if (ext['icon'])
+                            config['icon'] = ext['icon'];
+                        else
+                            config['icon'] = new Icon('rectangle-xmark');
+
+                        menu = [];
+                        module = ext['module'];
+                        if (module && typeof module['configure'] == 'function') {
+                            menu.push({
+                                'name': 'Configure',
+                                'icon': new Icon('screwdriver-wrench'),
+                                'click': module['configure']
+                            });
+                        }
+                        menu.push({
+                            'name': 'Delete',
+                            'icon': new Icon('trash'),
+                            'click': async function () {
+                                return app.getController().getExtensionController().deleteExtension(ext['name']);
+                            }
+                        })
+                        config['menu'] = menu;
+
+                        panels.push(new DashPanel(config));
+                    }
+                    await controller.getView().getCanvas().showPanels(panels);
+                } catch (error) {
+                    controller.showError(error);
+                }
+                return Promise.resolve();
+            }
+        };
+        this._routeController.addRoute(route);
     }
 
     hasConnection() {

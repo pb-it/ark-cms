@@ -197,36 +197,39 @@ class ExtensionController {
         const controller = app.getController();
         try {
             const ext = this.getExtension(name);
-            const module = ext['module'];
+            if (ext) {
+                const module = ext['module'];
 
-            var bConfirm;
-            if (module && typeof module['teardown'] == 'function')
-                bConfirm = await module.teardown();
-            else
-                bConfirm = confirm("Delete extension '" + name + "'?");
-            if (bConfirm) {
-                controller.setLoadingState(true);
-                var res = await this._deleteExtension(name);
-                controller.setLoadingState(false);
+                var bConfirm;
+                if (module && typeof module['teardown'] == 'function')
+                    bConfirm = await module.teardown();
+                else
+                    bConfirm = confirm("Delete extension '" + name + "'?");
+                if (bConfirm) {
+                    controller.setLoadingState(true);
+                    var res = await this._deleteExtension(name);
+                    controller.setLoadingState(false);
 
-                if (res == 'OK') {
-                    var msg = 'Deleted extension successfully!';
-                    var bRestart;
-                    var ac = controller.getApiController();
-                    var info = await ac.fetchApiInfo();
-                    if (info)
-                        bRestart = info['state'] === 'openRestartRequest';
-                    if (bRestart) {
-                        msg += '\nAPI server application needs to be restarted for the changes to take effect!';
-                        controller.getView().getSideNavigationBar().renderSideNavigationBar();
-                    } else {
-                        controller.getView().getSideNavigationBar().close();
-                        msg += '\nReload website for the changes to take effect!';
-                    }
-                    alert(msg);
-                } else
-                    alert('Something went wrong!');
-            }
+                    if (res == 'OK') {
+                        var msg = 'Deleted extension successfully!';
+                        var bRestart;
+                        var ac = controller.getApiController();
+                        var info = await ac.fetchApiInfo();
+                        if (info)
+                            bRestart = info['state'] === 'openRestartRequest';
+                        if (bRestart) {
+                            msg += '\nAPI server application needs to be restarted for the changes to take effect!';
+                            controller.getView().getSideNavigationBar().renderSideNavigationBar();
+                        } else {
+                            controller.getView().getSideNavigationBar().close();
+                            msg += '\nReload website for the changes to take effect!';
+                        }
+                        alert(msg);
+                    } else
+                        alert('Something went wrong!');
+                }
+            } else
+                alert('Extension \'' + name + '\' not found!');
         } catch (error) {
             controller.setLoadingState(false);
             controller.showError(error);

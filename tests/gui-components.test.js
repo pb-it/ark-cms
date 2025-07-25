@@ -8,6 +8,8 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
+const { Menu } = require('@pb-it/ark-cms-selenium-test-helper');
+
 describe('Testsuit - GUI Components', function () {
 
     let driver;
@@ -53,10 +55,20 @@ describe('Testsuit - GUI Components', function () {
             const window = app.getWindow();
             const sidemenu = window.getSideMenu();
             await sidemenu.click('Extensions');
+            await app.waitLoadingFinished(10);
             await ExtendedTestHelper.delay(1000);
-            await sidemenu.click('panelExt');
+
+            var canvas = await window.getCanvas();
+            assert.notEqual(canvas, null);
+            var panel = await canvas.getPanel('panelExt');
+            assert.notEqual(panel, null);
+            var xpath = `.//div[contains(@class, 'menuitem') and contains(@class, 'root')]`;
+            var element = await panel.getElement().findElement(webdriver.By.xpath(xpath));
+            assert.notEqual(element, null);
+            var menu = new Menu(helper, element);
+            await menu.open();
             await ExtendedTestHelper.delay(1000);
-            await sidemenu.click('Configure');
+            await menu.click('Configure');
             await ExtendedTestHelper.delay(1000);
 
             modal = await app.getWindow().getTopModal();
@@ -117,10 +129,20 @@ describe('Testsuit - GUI Components', function () {
             const window = app.getWindow();
             const sidemenu = window.getSideMenu();
             await sidemenu.click('Extensions');
+            await app.waitLoadingFinished(10);
             await ExtendedTestHelper.delay(1000);
-            await sidemenu.click('panelExt');
+
+            var canvas = await window.getCanvas();
+            assert.notEqual(canvas, null);
+            var panel = await canvas.getPanel('panelExt');
+            assert.notEqual(panel, null);
+            var xpath = `.//div[contains(@class, 'menuitem') and contains(@class, 'root')]`;
+            var element = await panel.getElement().findElement(webdriver.By.xpath(xpath));
+            assert.notEqual(element, null);
+            var menu = new Menu(helper, element);
+            await menu.open();
             await ExtendedTestHelper.delay(1000);
-            await sidemenu.click('Configure');
+            await menu.click('Configure');
             await ExtendedTestHelper.delay(1000);
 
             modal = await app.getWindow().getTopModal();
