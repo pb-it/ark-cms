@@ -32,8 +32,8 @@ class ContextMenu {
             })
             .appendTo($("body"));
 
-        for (var i = 0; i < this._entries.length; i++) {
-            await this._renderEntry(this._$menu, this._entries[i]);
+        for await (var entry of this._entries) {
+            await this._renderEntry(this._$menu, entry);
         }
 
         $(document).bind("mousedown.menu", function (e) {
@@ -96,7 +96,7 @@ class ContextMenu {
                     var $d = $('<div/>').addClass('contextmenu');
                     var $menu = $('<ul/>').addClass('contextmenu');
                     for (var e of entry.entries) {
-                        this._renderEntry($menu, e);
+                        await this._renderEntry($menu, e);
                     }
                     $d.append($menu);
                     $li.append($d);

@@ -194,12 +194,18 @@ class ContextMenuController {
                 return Promise.resolve();
             });
             pasteEntry.setEnabledFunction(async function (target) {
-                var text;
-                if (window.location.protocol == 'https:' || window.location.hostname == 'localhost') {
-                    if (navigator && navigator.clipboard && navigator.clipboard.readText)
-                        text = await navigator.clipboard.readText();
+                var bEnabled = false;
+                if (window.location.protocol == 'https:' || window.location.hostname !== 'localhost') {
+                    if (navigator && navigator.clipboard && navigator.clipboard.readText) {
+                        try {
+                            var text = await navigator.clipboard.readText();
+                            bEnabled = true;
+                        } catch (error) {
+                            ;
+                        }
+                    }
                 }
-                return Promise.resolve(text != null);
+                return Promise.resolve(bEnabled);
             });
             pasteEntry.setIcon(new Icon('paste'));
             pasteEntry.setShortcut('Ctrl + V');
