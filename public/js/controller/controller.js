@@ -621,7 +621,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                     var config;
                     var menu;
                     var module;
-                    for (var ext of extensions) {
+                    for (let ext of extensions) {
                         config = {
                             'name': ext['name']
                         };
@@ -629,7 +629,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                         if (ext['icon'])
                             config['icon'] = ext['icon'];
                         else
-                            config['icon'] = new Icon('rectangle-xmark');
+                            config['icon'] = new Icon('puzzle-piece'); // rectangle-xmark
 
                         menu = [];
                         module = ext['module'];
