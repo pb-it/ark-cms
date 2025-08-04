@@ -195,8 +195,8 @@ class ContextMenuController {
             });
             pasteEntry.setEnabledFunction(async function (target) {
                 var bEnabled = false;
-                if (window.location.protocol == 'https:' || window.location.hostname !== 'localhost') {
-                    if (navigator && navigator.clipboard && navigator.clipboard.readText) {
+                if (navigator && (navigator.userAgent.indexOf('Chrome') != -1 || window.location.protocol == 'https:' || window.location.hostname !== 'localhost')) {
+                    if (navigator.clipboard && navigator.clipboard.readText) {
                         try {
                             var text = await navigator.clipboard.readText();
                             bEnabled = true;

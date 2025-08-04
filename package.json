@@ -1,6 +1,6 @@
 {
     "name": "ark-cms",
-    "version": "0.7.7-beta",
+    "version": "0.7.8-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
@@ -71,6 +71,6 @@
         "gulp-mocha": "^10.0.1",
         "mocha": "^10.8.2",
         "selenium-webdriver": "^4.34.0",
-        "typescript": "^5.8.3"
+        "typescript": "^5.9.2"
     }
 }
