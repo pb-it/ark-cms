@@ -647,7 +647,7 @@ class ContextMenuController {
 
                                 var objs;
                                 var selected;
-                                const sc = controller.getSelectionController();
+                                const sc = controller.getSelectionController(-1);
                                 if (sc)
                                     selected = sc.getSelectedObjects();
                                 if (selected && selected.length > 0)

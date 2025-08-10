@@ -907,15 +907,38 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
         return Promise.resolve();
     }
 
-    getSelectionController() {
+    getSelectionController(index) {
         var sc;
-        var mc = this.getModalController();
-        var modals = mc.getModals();
-        if (modals && modals.length > 0) {
-            var modal = modals[modals.length - 1];
-            sc = modal.getSelectionController();
+        if (index) {
+            if (index === 0)
+                sc = this._view.getCanvas().getSelectionController();
+            else if (index === -1) {
+                var mc = this.getModalController();
+                var modals = mc.getModals();
+                if (modals) {
+                    if (modals.length === 1)
+                        sc = this._view.getCanvas().getSelectionController();
+                    else if (modals.length > 1) {
+                        var modal = modals[modals.length - 2];
+                        sc = modal.getSelectionController();
+                    }
+                }
+            } else if (index > 0) {
+                var mc = this.getModalController();
+                var modals = mc.getModals();
+                if (modals && modals.length >= index) {
+                    var modal = modals[index - 1];
+                    sc = modal.getSelectionController();
+                }
+            }
         } else {
-            sc = this._view.getCanvas().getSelectionController();
+            var mc = this.getModalController();
+            var modals = mc.getModals();
+            if (modals && modals.length > 0) {
+                var modal = modals[modals.length - 1];
+                sc = modal.getSelectionController();
+            } else
+                sc = this._view.getCanvas().getSelectionController();
         }
         return sc;
     }

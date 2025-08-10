@@ -42,6 +42,28 @@ describe('Testsuit - Selection', function () {
             allPassed = allPassed && (this.currentTest.state === 'passed');
     });
 
+    xit('#test prepare', async function () {
+        this.timeout(30000);
+
+        await helper.setupScenario(1, true);
+
+        const app = helper.getApp();
+        await app.navigate('/data/studio');
+        const window = app.getWindow();
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 3);
+
+        await app.navigate('/data/movie');
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 5);
+
+        return Promise.resolve();
+    });
+
     it('#test selection', async function () {
         this.timeout(30000);
 
@@ -136,6 +158,7 @@ describe('Testsuit - Selection', function () {
         assert.notEqual(modal, null, 'Missing modal');
 
         panel = await modal.getPanel();
+        assert.notEqual(panel, null);
         panels = await panel.getElement().findElements(webdriver.By.xpath('.//div[contains(@class, "panel")]'));
         assert.equal(panels.length, 1);
 
@@ -186,6 +209,79 @@ describe('Testsuit - Selection', function () {
             callback(selected.length);
         });
         assert.equal(response, 1, 'Wrong selection count');
+
+        return Promise.resolve();
+    });
+
+    it('#test selection within modal 2 - set relation from contextmenu', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const window = app.getWindow();
+
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('misc');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 7);
+
+        const cmdCtrl = os.platform().includes('darwin') ? webdriver.Key.COMMAND : webdriver.Key.CONTROL;
+        await driver.actions()
+            .click(panels[0].getElement())
+            .keyDown(cmdCtrl)
+            .sendKeys('a')
+            .keyUp(cmdCtrl)
+            .perform();
+        await ExtendedTestHelper.delay(1000);
+
+        var contextmenu = await panels[0].openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Set');
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('relation');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getElement().findElement(webdriver.By.xpath('.//div[@class="select"]/input[starts-with(@list,"relation")]'));
+        assert.notEqual(input, null);
+        var option = await form.getElement().findElement(webdriver.By.xpath('.//div[@class="select"]/datalist[starts-with(@id,"relation")]/option[text()="admin"]'));
+        assert.notEqual(option, null);
+        var value = await option.getAttribute('value');
+        await input.sendKeys(value);
+        await input.sendKeys(webdriver.Key.ENTER);
+        await ExtendedTestHelper.delay(1000);
+
+        var button = await panel.getButton('Apply');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        panels = await canvas.getPanels();
+        assert.equal(panels.length, 7);
+
+        var obj = await ExtendedTestHelper.readJson(window, panels[0]);
+        assert.notEqual(obj['relation'], null);
+        obj = await ExtendedTestHelper.readJson(window, panels[6]);
+        assert.notEqual(obj['relation'], null);
 
         return Promise.resolve();
     });
