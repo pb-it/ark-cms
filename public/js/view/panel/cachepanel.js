@@ -276,9 +276,7 @@ class CachePanel extends TabPanel {
 
                     try {
                         controller.setLoadingState(true);
-
-                        await this._db.deleteDatabase();
-                        await this._db.initDatabase();
+                        await this._db.initDatabase(null, true);
                         controller.setLoadingState(false);
                         alert('Database cleared!');
                     } catch (error) {

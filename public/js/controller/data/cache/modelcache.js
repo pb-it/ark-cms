@@ -134,7 +134,7 @@ class ModelCache {
             }
         }
 
-        if (this._db && id) {
+        if (this._db) {
             const name = this._model.getName();
             await this._db.initObjectStore(name, data, id);
         }

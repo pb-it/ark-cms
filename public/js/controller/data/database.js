@@ -224,10 +224,10 @@ class Database {
         return this._meta;
     }
 
-    async initDatabase(callback) {
+    async initDatabase(callback, bDelete) {
         const sc = app.getController().getStorageController();
         const version = sc.loadLocal(Database.VERSION_IDENT);
-        if (!version) {
+        if (!version || bDelete) {
             if (await Database._databaseExists(this._name))
                 await this.deleteDatabase();
         }

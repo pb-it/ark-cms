@@ -329,7 +329,7 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
             .text('Delete Copy')
             .click(async function (event) {
                 event.stopPropagation();
-                await this._database.deleteDatabase();
+                await this._database.initDatabase(null, true);
                 await this.getDataService().getCache().deleteModelCache();
                 alert('Done');
                 panel.dispose();
