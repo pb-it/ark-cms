@@ -237,48 +237,44 @@ class DataService {
                 }
                 for (var part of ids)
                     typeUrl.push(DataService._getUrl(typeString, part, where, sort, limit));
-            } else {
-                if (typeUrl) {
-                    if (bFullFetch && fetchConfig && fetchConfig['iBatchSize']) {
-                        typeUrl = [];
-                        tmp = await this._apiClient.request("GET", this._apiClient.getDataPath() + DataService._getUrl(typeString, null, null, 'id:desc', 1));
-                        if (tmp) {
-                            var o = JSON.parse(tmp);
-                            if (o['data'] && o['data'].length == 1) {
-                                const last = o['data'][0]['id'];
-                                var blockCount = Math.ceil(last / fetchConfig['iBatchSize']);
-                                var start = 0;
-                                var end;
-                                var whereBlock;
-                                for (var i = 0; i < blockCount; i++) {
-                                    if (i > 0)
-                                        start = i * fetchConfig['iBatchSize'];
-                                    else
-                                        start = 0;
-                                    if (i == blockCount - 1)
-                                        end = -1;
-                                    else
-                                        end = start + fetchConfig['iBatchSize'];
-                                    if (start != 0)
-                                        whereBlock = 'id_gt=' + start;
-                                    else
-                                        whereBlock = '';
-                                    if (end != -1) {
-                                        if (whereBlock)
-                                            whereBlock += '&';
-                                        whereBlock += 'id_lte=' + end;
-                                    }
-                                    typeUrl.push(DataService._getUrl(typeString, null, whereBlock, 'id:asc'));
-                                }
+            } else if (bFullFetch && fetchConfig && fetchConfig['iBatchSize']) {
+                typeUrl = [];
+                tmp = await this._apiClient.request("GET", this._apiClient.getDataPath() + DataService._getUrl(typeString, null, null, 'id:desc', 1));
+                if (tmp) {
+                    var o = JSON.parse(tmp);
+                    if (o['data'] && o['data'].length == 1) {
+                        const last = o['data'][0]['id'];
+                        var blockCount = Math.ceil(last / fetchConfig['iBatchSize']);
+                        var start = 0;
+                        var end;
+                        var whereBlock;
+                        for (var i = 0; i < blockCount; i++) {
+                            if (i > 0)
+                                start = i * fetchConfig['iBatchSize'];
+                            else
+                                start = 0;
+                            if (i == blockCount - 1)
+                                end = -1;
+                            else
+                                end = start + fetchConfig['iBatchSize'];
+                            if (start != 0)
+                                whereBlock = 'id_gt=' + start;
+                            else
+                                whereBlock = '';
+                            if (end != -1) {
+                                if (whereBlock)
+                                    whereBlock += '&';
+                                whereBlock += 'id_lte=' + end;
                             }
+                            typeUrl.push(DataService._getUrl(typeString, null, whereBlock, 'id:asc'));
                         }
-                        bSort = true;
                     }
-                } else {
-                    typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
-                    if (sort)
-                        sortlessUrl = DataService._getUrl(typeString, id, where, null, limit);
                 }
+                bSort = true;
+            } else {
+                typeUrl = DataService._getUrl(typeString, id, where, sort, limit);
+                if (sort)
+                    sortlessUrl = DataService._getUrl(typeString, id, where, null, limit);
             }
 
             var timestamp;
