@@ -187,6 +187,14 @@ describe('Testsuit - Create #2', function () {
         assert.notEqual(panel, null);
         var form = await panel.getForm();
         assert.notEqual(form, null);
+        var input = await form.getFormInput('id');
+        assert.notEqual(input, null);
+        var bDisabled = await input.getAttribute('disabled');
+        assert.equal(bDisabled, 'true');
+        input = await form.getFormInput('created_at');
+        assert.notEqual(input, null);
+        bDisabled = await input.getAttribute('disabled');
+        assert.equal(bDisabled, 'true');
         var entry = await form.getFormEntry('profiles');
         assert.notEqual(entry, null);
         var button = await entry.findElement(webdriver.By.xpath('.//button[text()="Create"]'));

@@ -12,6 +12,8 @@ class HttpError extends Error {
                 message = 'ERR_CONNECTION_REFUSED';
             if (response.url)
                 message += ' - ' + response.url;
+            if (response.body)
+                message += '\n' + response.body;
         }
         super(message);
         this.name = this.constructor.name;

@@ -195,4 +195,82 @@ describe('Testsuit - GUI Components', function () {
 
         return Promise.resolve();
     });
+
+    it('#test progress bar', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const ds = app.getDataService();
+        var tmp = await ds.read('_extension', null, 'name=panelExt');
+        if (tmp.length == 1) {
+            const window = app.getWindow();
+            const sidemenu = window.getSideMenu();
+            await sidemenu.click('Extensions');
+            await app.waitLoadingFinished(10);
+            await ExtendedTestHelper.delay(1000);
+
+            var canvas = await window.getCanvas();
+            assert.notEqual(canvas, null);
+            var panel = await canvas.getPanel('panelExt');
+            assert.notEqual(panel, null);
+            var xpath = `.//div[contains(@class, 'menuitem') and contains(@class, 'root')]`;
+            var element = await panel.getElement().findElement(webdriver.By.xpath(xpath));
+            assert.notEqual(element, null);
+            var menu = new Menu(helper, element);
+            await menu.open();
+            await ExtendedTestHelper.delay(1000);
+            await menu.click('Configure');
+            await ExtendedTestHelper.delay(1000);
+
+            modal = await app.getWindow().getTopModal();
+            assert.notEqual(modal, null);
+            var panel = await modal.getPanel();
+            assert.notEqual(panel, null);
+            var form = await panel.getForm();
+            assert.notEqual(form, null);
+            var input = await form.getFormInput('code');
+            assert.notEqual(input, null);
+            var code = fs.readFileSync(path.join(__dirname, './data/panels/progressbar-test-panel.js'), 'utf8');
+            await input.sendKeys(code);
+            await ExtendedTestHelper.delay(1000);
+            var button = await panel.getButton('Apply');
+            assert.notEqual(button, null);
+            await button.click();
+            await ExtendedTestHelper.delay(1000);
+
+            await driver.wait(webdriver.until.alertIsPresent(), 1000);
+            alert = await driver.switchTo().alert();
+            var text = await alert.getText();
+            assert.equal(text, 'Changes applied successfully.\nReload website for the changes to take effect!');
+            await alert.accept();
+            await ExtendedTestHelper.delay(1000);
+
+            await app.reload();
+            await ExtendedTestHelper.delay(1000);
+
+            await app.navigate('/test-panel');
+            var canvas = await window.getCanvas();
+            assert.notEqual(canvas, null);
+            var panels = await canvas.getPanels();
+            assert.equal(panels.length, 1);
+
+            var elem = panels[0].getElement();
+            var bar = await elem.findElement(webdriver.By.xpath('.//div[@class="progressbar"]/div[1]'));
+            assert.notEqual(bar, null);
+            var value = await bar.getCssValue('width');
+            assert.equal(value, '0px');
+            var label = await elem.findElement(webdriver.By.xpath('.//div[@class="progressbar"]/div[2]'));
+            assert.notEqual(label, null);
+            var text = await label.getText();
+            assert.equal(text, '0%');
+            await ExtendedTestHelper.delay(10000);
+            value = await bar.getCssValue('width');
+            assert.notEqual(value, '0px');
+            text = await label.getText();
+            assert.equal(text, '100%');
+        } else
+            this.skip();
+
+        return Promise.resolve();
+    });
 });

@@ -145,10 +145,12 @@ class ModalController {
             });
             const panel = new Panel();
 
-            var $d = $('<div/>')
-                .html("<br/>ERROR:\n" + msg + "<br/><br/>")
-                .addClass('pre');
-
+            var $d = $('<div/>');
+            $d.append("<h2>ERROR</h2>");
+            $d.append($('<div/>')
+                .html(msg)
+                .addClass('pre'));
+            $d.append("<br/><br/>");
             $d.append($('<button/>')
                 .text("Send E-Mail")
                 .click(async function (event) {

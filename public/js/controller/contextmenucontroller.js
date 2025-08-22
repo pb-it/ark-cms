@@ -478,6 +478,9 @@ class ContextMenuController {
                     for (var entry of entries) {
                         if (!entry.isVisible())
                             await entry.show();
+                        if (!entry.isEditable()) {
+                            await entry.enable();
+                        }
                     }
                 }
             }

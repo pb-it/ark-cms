@@ -85,10 +85,16 @@ class CrudPanel extends CanvasPanel {
         this._form = new Form(this._skeleton, data);
         const $form = await this._form.renderForm();
         if (!data || Object.keys(data).length == 0) {
+            const model = this._obj.getModel();
+            const def = model.getDefinition();
             var attr;
             for (var entry of this._form.getEntries()) {
-                if (entry.isVisible() && !entry.isEditable()) {
-                    attr = entry.getAttribute();
+                attr = entry.getAttribute();
+                if (attr['name'] === 'id' && def['options']['increments'])
+                    continue;
+                else if ((attr['name'] === 'created_at' || attr['name'] === 'updated_at') && def['options']['timestamps'])
+                    continue;
+                else if (entry.isVisible() && !entry.isEditable()) {
                     if (attr['readonly'])
                         await entry.enable();
                 }
