@@ -308,7 +308,7 @@ class CrudPanel extends CanvasPanel {
                 else
                     copy.push(attribute);
             }
-            this._obj.setSkeleton(copy);
+            this.setSkeleton(copy);
         }
 
         var dataBackup = this._obj.getData();
