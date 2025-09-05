@@ -463,28 +463,13 @@ class ContextMenuController {
         }, openGroup));
 
         const detailsEntry = new ContextMenuEntry("Details", async function (event, target) {
-            return target.openInModal(ActionEnum.read);
+            return target.openInModal(ActionEnum.read, event.ctrlKey);
         });
         detailsEntry.setIcon(new Icon('list'));
         entries.push(detailsEntry);
 
         const editEntry = new ContextMenuEntry("Edit", async function (event, target) {
-            const modal = await target.openInModal(ActionEnum.update);
-            if (event.ctrlKey) {
-                var panel = modal.getPanel();
-                var form = panel.getForm();
-                var entries = form.getFormEntry();
-                if (entries) {
-                    for (var entry of entries) {
-                        if (!entry.isVisible())
-                            await entry.show();
-                        if (!entry.isEditable()) {
-                            await entry.enable();
-                        }
-                    }
-                }
-            }
-            return Promise.resolve();
+            return target.openInModal(ActionEnum.update, event.ctrlKey);
         });
         editEntry.setIcon(new Icon('pen-to-square'));
         entries.push(editEntry);

@@ -17,19 +17,25 @@ class CrudPanel extends CanvasPanel {
         return this._obj;
     }
 
+    setSkeleton(skeleton) {
+        this._skeleton = skeleton;
+    }
+
     getForm() {
         return this._form;
     }
 
     async _init() {
-        const skeleton = this._obj.getSkeleton(true);
-        if (this._config['detailsAttr']) {
-            const attr = this._config['detailsAttr'];
-            this._skeleton = skeleton.filter(function (x) {
-                return (attr.indexOf(x['name']) > -1);
-            });
-        } else
-            this._skeleton = skeleton;
+        if (!this._skeleton) {
+            const skeleton = this._obj.getSkeleton(true);
+            if (this._config['detailsAttr']) {
+                const attr = this._config['detailsAttr'];
+                this._skeleton = skeleton.filter(function (x) {
+                    return (attr.indexOf(x['name']) > -1);
+                });
+            } else
+                this._skeleton = skeleton;
+        }
 
         const action = this._config['action'];
         if ((!action || action == ActionEnum.read) && this._config['details'] != DetailsEnum.all) {
@@ -626,14 +632,32 @@ class CrudPanel extends CanvasPanel {
         return Promise.resolve();
     }
 
-    async openInModal(action) {
+    async openInModal(action, ctrl) {
         const model = this._obj.getModel();
         const mpcc = model.getModelPanelConfigController();
         const panelConfig = mpcc.getPanelConfig(action, DetailsEnum.all);
 
-        const panel = PanelController.createPanelForObject(this._obj, panelConfig);
+        var obj;
+        var skeleton;
+        if (ctrl) {
+            skeleton = JSON.parse(JSON.stringify(this._obj.getSkeleton(true)));
+            for (var attr of skeleton) {
+                if (attr['hidden'])
+                    attr['hidden'] = false;
+                if (attr['readonly'])
+                    attr['readonly'] = false;
+            }
+
+            obj = new CrudObject(this._obj.getTypeString(), { ...this._obj.getData() });
+        } else
+            obj = this._obj;
+        const panel = PanelController.createPanelForObject(obj, panelConfig);
+        if (skeleton)
+            panel.setSkeleton(skeleton);
 
         panelConfig.crudCallback = async function (data) {
+            if (ctrl)
+                this._obj.setData(data);
             await this.render();
             return Promise.resolve(true);
         }.bind(this);

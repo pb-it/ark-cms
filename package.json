@@ -40,6 +40,7 @@
         "test:modules": "mocha --timeout 10000 tests/modules.test.js",
         "test:search": "mocha --timeout 10000 tests/search.test.js",
         "test:filter": "mocha --timeout 10000 tests/filter.test.js",
+        "test:form": "mocha --timeout 10000 tests/form.test.js",
         "test:panel": "mocha --timeout 10000 tests/panel.test.js",
         "test:modal": "mocha --timeout 10000 tests/modal.test.js",
         "test:selection": "mocha --timeout 10000 tests/selection.test.js",
@@ -62,15 +63,16 @@
         "express": "^4.21.2"
     },
     "devDependencies": {
-        "@babel/cli": "^7.28.0",
-        "@babel/core": "^7.28.0",
+        "@babel/cli": "^7.28.3",
+        "@babel/core": "^7.28.3",
         "@babel/plugin-transform-class-properties": "^7.27.1",
         "@pb-it/ark-cms-selenium-test-helper": "0.1.29-beta",
         "babel-plugin-conditional-compile": "^0.0.5",
+        "chromedriver": "139.0.0",
         "gulp": "^5.0.1",
         "gulp-mocha": "^10.0.1",
         "mocha": "^10.8.2",
-        "selenium-webdriver": "^4.34.0",
+        "selenium-webdriver": "^4.35.0",
         "typescript": "^5.9.2"
     }
 }

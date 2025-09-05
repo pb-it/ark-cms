@@ -1,3 +1,4 @@
+const os = require('os');
 const path = require('path');
 
 const assert = require('assert');
@@ -124,6 +125,56 @@ describe('Testsuit - Form', function () {
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
+
+        contextmenu = await panels[0].openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        var entry = contextmenu.getEntry('Edit');
+        assert.notEqual(entry, null);
+        const cmdCtrl = os.platform().includes('darwin') ? webdriver.Key.COMMAND : webdriver.Key.CONTROL;
+        await driver.actions()
+            .keyDown(cmdCtrl)
+            .click(entry)
+            .keyUp(cmdCtrl)
+            .perform();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var form = await panel.getForm();
+        assert.notEqual(form, null);
+        var input = await form.getFormInput('readonly');
+        assert.notEqual(input, null);
+        assert.ok(await input.isEnabled());
+        input = await form.getFormInput('hidden');
+        assert.notEqual(input, null);
+        assert.ok(await input.isEnabled());
+        await input.clear();
+        await ExtendedTestHelper.delay(1000);
+        await input.sendKeys('xyz');
+        await ExtendedTestHelper.delay(1000);
+
+        var button = await panel.getButton('Update');
+        assert.notEqual(button, null);
+        await button.click();
+        await ExtendedTestHelper.delay(1000);
+        var bDebugMode = await app.isDebugModeActive();
+        if (bDebugMode) {
+            modal = await window.getTopModal();
+            assert.notEqual(modal, null);
+            button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+            assert.notEqual(button, null);
+            await button.click();
+        }
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        var obj = await ExtendedTestHelper.readJson(window, panels[0]);
+        assert.equal(obj['hidden'], 'xyz');
 
         return Promise.resolve();
     });
