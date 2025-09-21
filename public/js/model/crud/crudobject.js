@@ -73,7 +73,7 @@ class CrudObject {
                 if ((!field['hidden'] || bIncludeHidden) && (!field['readonly'] || bIncludeReadonly)) {
                     property = field.name;
                     if (newdata[property] === null || newdata[property] === undefined) {
-                        if (olddata && olddata[property] !== null && olddata[property] !== undefined) {
+                        if (olddata && olddata[property] !== null && olddata[property] !== undefined && !(Array.isArray(olddata[property]) && olddata[property].length == 0)) {
                             if (field['dataType'] === 'string' || field['dataType'] === 'text' || field['dataType'] === 'json') {
                                 if (olddata[property] !== '')
                                     relevant[property] = null;
