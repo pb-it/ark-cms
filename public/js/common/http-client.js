@@ -12,8 +12,19 @@ class HttpError extends Error {
                 message = 'ERR_CONNECTION_REFUSED';
             if (response.url)
                 message += ' - ' + response.url;
-            if (response.body)
-                message += '\n' + response.body;
+
+            if (response.body) {
+                var bHtml;
+                var headers = response['headers'];
+                if (headers) {
+                    var type = headers[Object.keys(headers).find(key => key.toLowerCase() === 'content-type')];
+                    bHtml = (type && (type == 'text/html; charset=UTF-8'));
+                }
+                if (bHtml || response.body.startsWith('<!DOCTYPE html>') || response.body.endsWith('</html>'))
+                    message += '\n\nResponse:\n' + encodeText(response.body);
+                else
+                    message += '\n\nResponse:\n' + response.body;
+            }
         }
         super(message);
         this.name = this.constructor.name;
