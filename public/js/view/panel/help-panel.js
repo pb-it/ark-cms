@@ -12,7 +12,13 @@ class HelpPanel extends Panel {
         <ul>\
         <li>Help: <kbd>Shift</kbd> + <kbd>?</kbd></li>\
         <li>Hard Refresh: <kbd>Ctrl</kbd> + <kbd>R</kbd></li>\
+        <li>Close/Escape: <kbd>Ctrl</kbd> + <kbd>X</kbd></li>\
         <li>Search: <kbd>Ctrl</kbd> + <kbd>K</kbd></li>\
+        <li>Configuration: <kbd>Ctrl</kbd> + <kbd>,</kbd></li>\
+        </ul>\
+        <ul>\
+        <li>Console: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></li>\
+        <li>Cache: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd></li>\
         </ul>');
 
         $div.append('<br/><br/>');

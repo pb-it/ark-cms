@@ -68,11 +68,10 @@
         "@babel/plugin-transform-class-properties": "^7.27.1",
         "@pb-it/ark-cms-selenium-test-helper": "0.1.29-beta",
         "babel-plugin-conditional-compile": "^0.0.5",
-        "chromedriver": "139.0.0",
         "gulp": "^5.0.1",
         "gulp-mocha": "^10.0.1",
         "mocha": "^10.8.2",
-        "selenium-webdriver": "^4.36.0",
+        "selenium-webdriver": "^4.37.0",
         "typescript": "^5.9.3"
     }
 }

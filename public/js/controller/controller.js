@@ -462,21 +462,39 @@ You can also try to reset your cache via the 'Cache-Panel'.`);
                     }
                 } else {
                     switch (e.keyCode) {
+                        case 67: // Ctrl + Shift + c
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!this.getLoadingState()) {
+                                this.setLoadingState(true);
+                                try {
+                                    if (typeof CmdPanel === 'undefined')
+                                        await loadScript('/public/js/view/panel/cmd-panel.js');
+                                    var config = {
+                                        'css': { 'minWidth': '400px' }
+                                    };
+                                    await this.getModalController().openPanelInModal(new CmdPanel(config));
+                                    this.setLoadingState(false);
+                                } catch (error) {
+                                    this.setLoadingState(false);
+                                    this.showError(error);
+                                }
+                            }
+                            break;
                         case 68: // Ctrl + Shift + d
                             e.preventDefault();
                             e.stopPropagation();
-
-                            try {
-                                if (!this.getLoadingState()) {
+                            if (!this.getLoadingState()) {
+                                try {
                                     var config = {
                                         'css': { 'minWidth': '400px' }
                                     };
                                     await this.getModalController().openPanelInModal(new CachePanel(config));
+                                } catch (error) {
+                                    this.showError(error);
                                 }
-                                break;
-                            } catch (error) {
-                                this.showError(error);
                             }
+                            break;
                     }
                 }
             } else if (e.shiftKey) {

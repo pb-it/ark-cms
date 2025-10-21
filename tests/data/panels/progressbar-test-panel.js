@@ -27,7 +27,7 @@ class TestPanel extends Panel {
         do {
             await sleep(1000);
             this._percent += 10;
-            this._progressBar.set(this._percent);
+            this._progressBar.setPercentage(this._percent);
         } while (this._percent < 100)
         /*var id = setInterval(update.bind(this), 1000);
         function update() {

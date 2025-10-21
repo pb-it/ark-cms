@@ -102,6 +102,20 @@ Edit test configuration `./tests/config/test-config.js`
 npm run test
 ```
 
+### ChromeDriver
+
+[https://www.npmjs.com/package/chromedriver](https://www.npmjs.com/package/chromedriver)
+
+global(recommended):
+```bash
+npm install --global chromedriver --chromedriver_version=LATEST
+# npm update -g chromedriver
+```
+local:
+```bash
+npm install --save-dev chromedriver --chromedriver_version=LATEST
+```
+
 
 ## Documentation
 

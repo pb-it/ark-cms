@@ -157,6 +157,22 @@ class TopNavigationBar {
 
         conf = {
             'icon': new Icon('question-circle'),
+            'name': 'Help',
+            'click': async function (event, item) {
+                const controller = app.getController();
+                try {
+                    const mc = controller.getModalController();
+                    await mc.openPanelInModal(new HelpPanel());
+                } catch (error) {
+                    controller.showError(error);
+                }
+                return Promise.resolve();
+            }.bind(this)
+        };
+        menuItems.push(new MenuItem(conf));
+
+        conf = {
+            'icon': new Icon('comments'),
             'name': 'FAQ',
             'click': async function (event, item) {
                 const win = window.open('https://github.com/pb-it/ark-cms/discussions/categories/q-a', '_blank');

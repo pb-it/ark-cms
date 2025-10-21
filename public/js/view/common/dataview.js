@@ -184,7 +184,7 @@ class DataView {
                             value = CrudObject._buildUrl(attribute['cdn'], data[name]);
                         else
                             value = data[name];
-                        $value.html("<a href='" + value + "' target='_blank'>" + data[name] + "</a><br>");
+                        $value.html("<a href='" + value.replace(/'/g, '%27') + "' target='_blank'>" + data[name] + "</a><br>");
                     }
                     break;
                 case "relation":
