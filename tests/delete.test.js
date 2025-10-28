@@ -5,6 +5,8 @@ const webdriver = require('selenium-webdriver');
 const config = require('./config/test-config.js');
 const ExtendedTestHelper = require('./helper/extended-test-helper.js');
 
+const { Panel } = require('@pb-it/ark-cms-selenium-test-helper');
+
 describe('Testsuit - Delete', function () {
 
     let driver;
@@ -156,12 +158,108 @@ describe('Testsuit - Delete', function () {
         button = await modal.findElement(webdriver.By.xpath(`//input[@type="submit" and @name="confirm"]`));
         assert.notEqual(button, null);
         await button.click();
+        await driver.wait(webdriver.until.alertIsPresent(), 1000);
+        alert = await driver.switchTo().alert();
+        var text = await alert.getText();
+        assert.equal(text, 'Reload State?');
+        await alert.accept();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
         canvas = await window.getCanvas();
         assert.notEqual(canvas, null);
         panels = await canvas.getPanels();
         assert.equal(panels.length, 2);
+
+        return Promise.resolve();
+    });
+
+    it.only('#test delete within modal', async function () {
+        this.timeout(30000);
+
+        const app = helper.getApp();
+        const ds = app.getDataService();
+        var tmp = await ds.read('movie');
+        assert.equal(tmp.length, 1);
+        assert.equal(tmp[0]['name'], 'TestMovie');
+        var id = tmp[0]['id'];
+
+        const entry = {
+            'id': 1,
+            'name': 'John Doe',
+            'gender': 'male',
+            'movies': [id]
+        };
+        tmp = await ds.read('star');
+        if (tmp.length === 0) {
+            tmp = await ds.create('star', entry);
+            console.log(tmp);
+            assert.notEqual(Object.keys(tmp).length, 0);
+        }
+
+        const window = app.getWindow();
+        const sidemenu = window.getSideMenu();
+        await sidemenu.click('Data');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('movie');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('Show');
+        await ExtendedTestHelper.delay(1000);
+        await sidemenu.click('All');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        var canvas = await window.getCanvas();
+        assert.notEqual(canvas, null);
+        var panels = await canvas.getPanels();
+        assert.equal(panels.length, 1);
+        var panel = panels[0];
+        var elements = await panel.getElement().findElements(webdriver.By.xpath('div/p'));
+        assert.equal(elements.length, 1);
+        var text = await elements[0].getText();
+        assert.equal(text, 'TestMovie');
+
+        var contextmenu = await panel.openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Details');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var xpath = `.//div[contains(@class,"panel")]//p[text()="John Doe"]`;
+        var element = await panel.getElement().findElement(webdriver.By.xpath(xpath));
+        assert.notEqual(element, null);
+        panel = new Panel(helper, element);
+        assert.notEqual(panel, null);
+        contextmenu = await panel.openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Delete');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        //button = await modal.findElement(webdriver.By.xpath('.//button[text()="Confirm"]'));
+        button = await modal.findElement(webdriver.By.xpath(`.//input[@type="submit" and @name="confirm"]`));
+        assert.notEqual(button, null);
+        await button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        //restore
+        tmp = await ds.create('star', entry);
+        console.log(tmp);
+        assert.notEqual(Object.keys(tmp).length, 0);
 
         return Promise.resolve();
     });

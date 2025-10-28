@@ -633,6 +633,11 @@ describe('Testsuit - Navigation', function () {
         await button.click();
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
         assert.equal(modal, null);
 
         return Promise.resolve();

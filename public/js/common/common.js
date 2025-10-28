@@ -180,9 +180,10 @@ function isVideo(url) {
 async function formatCode(code, language) {
     var res;
     if (language) {
-        if (language === 'json')
-            res = JSON.stringify(JSON.parse(code), null, '\t');
-        else {
+        if (language === 'json') {
+            var tmp = code.replace(/'([^']*)'/g, '"$1"');
+            res = JSON.stringify(JSON.parse(tmp), null, '\t');
+        } else {
             var parser;
             switch (language) {
                 /*case 'jsonx':

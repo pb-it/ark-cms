@@ -500,8 +500,31 @@ class ContextMenuController {
                         return Promise.resolve(true);
                     };
                     var modal = await controller.getModalController().openPanelInModal(panel);
-                } else
-                    target.openInModal(ActionEnum.delete)
+                } else {
+                    var obj = target.getObject();
+                    const modals = controller.getModalController().getModals();
+                    var modal = await target.openInModal(ActionEnum.delete);
+                    await modal.waitClosed();
+                    await sleep(200); //TODO: check closed
+                    if (obj.isDeleted()) {
+                        if (!modals || modals.length === 0) {
+                            if (confirm('Reload State?'))
+                                controller.reloadState();
+                        } else {
+                            var top = modals[modals.length - 1];
+                            var panel = top.getPanel();
+                            if (panel && panel.getClass() == CrudPanel) {
+                                var config = panel.getConfig();
+
+                                if (!config['action'] || config['action'] === ActionEnum.read || confirm('Reload Data?')) {
+                                    var obj = panel.getObject();
+                                    await obj.read();
+                                    await panel.render();
+                                }
+                            }
+                        }
+                    }
+                }
             } else {
                 var bConfirmation = await controller.getModalController().openConfirmModal("Delete all selected items?");
                 if (bConfirmation) {

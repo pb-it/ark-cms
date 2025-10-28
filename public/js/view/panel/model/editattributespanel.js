@@ -27,8 +27,12 @@ class EditAttributesPanel extends Panel {
         this._list = new List();
         if (this._attributes) {
             this._options = this._initContextMenu();
+            var label;
             for (var a of this._attributes) {
-                this._list.addEntry(new ListEntry(a['name'] + ": " + a['dataType'], a, this._options));
+                label = a['name'] + ": " + a['dataType'];
+                if (a['dataType'] === 'relation')
+                    label += '[' + a['model'] + ']';
+                this._list.addEntry(new ListEntry(label, a, this._options));
             }
         }
 

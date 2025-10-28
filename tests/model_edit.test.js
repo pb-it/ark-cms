@@ -605,6 +605,12 @@ module.exports = test;`
         button = elements[0];
         assert.notEqual(button, null);
         await button.click();
+        await driver.wait(webdriver.until.alertIsPresent(), 1000);
+        alert = await driver.switchTo().alert();
+        var text = await alert.getText();
+        assert.equal(text, 'Reload State?');
+        await alert.accept();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -995,7 +1001,7 @@ module.exports = test;`
         await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
 
-        attr = await attrPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]/div/div[@class="list"]/ul/li/div[@class="node" and text()="stars: relation"]'));
+        attr = await attrPanel.getElement().findElement(webdriver.By.xpath('./div/div/div[@class="panel"]/div/div[@class="list"]/ul/li/div[@class="node" and text()="stars: relation[star]"]'));
         assert.notEqual(attr, null);
         contextmenu = await window.openContextMenu(attr);
         await ExtendedTestHelper.delay(1000);

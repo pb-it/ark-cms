@@ -268,8 +268,58 @@ describe('Testsuit - GUI Components', function () {
             assert.notEqual(value, '0px');
             text = await label.getText();
             assert.equal(text, '100%');
+
+            await app.navigate('/');
+            await app.waitLoadingFinished(10);
         } else
             this.skip();
+
+        return Promise.resolve();
+    });
+
+    it('#test edit-json-modal', async function () {
+        this.timeout(10000);
+
+        const app = helper.getApp();
+        var obj = {
+            'prop': 'Test'
+        };
+        var response = await driver.executeAsyncScript(async () => {
+            const callback = arguments[arguments.length - 1];
+
+            const controller = app.getController();
+            controller.getModalController().openEditJsonModal(arguments[0]);
+
+            callback('OK');
+        }, obj);
+        assert.equal(response, 'OK');
+        await ExtendedTestHelper.delay(1000);
+
+        const window = app.getWindow();
+        var modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        var panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var textarea = await panel.getElement().findElement(webdriver.By.xpath('.//textarea'));
+        assert.notEqual(textarea, null);
+        var text = await textarea.getAttribute('value');
+        assert.equal(text, JSON.stringify(obj, null, '\t'));
+        await textarea.clear();
+        var text2 = `{'dummy':'value'}`;
+        await textarea.sendKeys(text2);
+        var button = await panel.getButton('Format');
+        assert.notEqual(button, null, 'Button not found!');
+        button.click();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        text = await textarea.getAttribute('value');
+        var expected = '{\n\t"dummy": "value"\n}';
+        assert.equal(text, expected);
+
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
 
         return Promise.resolve();
     });

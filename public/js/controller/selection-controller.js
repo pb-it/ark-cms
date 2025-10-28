@@ -64,12 +64,12 @@ class SelectionController {
 
     async selectAll() {
         this._selected = [];
-        var item;
         var panels = app.getController().getView().getCanvas().getPanels();
-        for (var i = 0; i < panels.length; i++) {
-            item = panels[i];
-            await item.select(true);
-            this._selected.push(item);
+        for (var panel of panels) {
+            if (panel instanceof CanvasPanel) {
+                await panel.select(true);
+                this._selected.push(panel);
+            }
         }
         return Promise.resolve();
     }
