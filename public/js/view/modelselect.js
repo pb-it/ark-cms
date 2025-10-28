@@ -40,6 +40,7 @@ class ModelSelect {
             increments: true,
             timestamps: true
         };
+        var modal;
         const panel = new FormPanel(null, skeleton, data);
         panel.setApplyAction(async function () {
             const controller = app.getController();
@@ -63,16 +64,18 @@ class ModelSelect {
                         var config = {
                             'css': { 'minWidth': '1000px' }
                         };
+                        panel.dispose();
+                        await modal.waitClosed();
                         await controller.getModalController().openPanelInModal(new EditModelPanel(config, model));
                     } else
                         throw new Error("For field 'name' " + strRestrict);
                 } else
                     throw new Error("Field 'name' must not start with an underscore");
             }
-            panel.dispose();
             return Promise.resolve();
         });
-        return controller.getModalController().openPanelInModal(panel);
+        modal = await controller.getModalController().openPanelInModal(panel);
+        return Promise.resolve(modal);
     }
 
     _modelMenu;

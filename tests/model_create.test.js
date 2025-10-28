@@ -51,6 +51,14 @@ describe('Testsuit - Create Model', function () {
 
         var modal = await window.getTopModal();
         assert.notEqual(modal, null);
+        var response = await driver.executeAsyncScript(async () => {
+            const callback = arguments[arguments.length - 1];
+
+            const controller = app.getController();
+            const modals = controller.getModalController().getModals();
+            callback(modals.length);
+        });
+        assert.equal(response, 1);
         var panel = await modal.getPanel();
         assert.notEqual(panel, null);
         var form = await panel.getForm();
@@ -64,6 +72,15 @@ describe('Testsuit - Create Model', function () {
         await ExtendedTestHelper.delay(1000);
 
         const modelModal = await window.getTopModal();
+        assert.notEqual(modelModal, null);
+        response = await driver.executeAsyncScript(async () => {
+            const callback = arguments[arguments.length - 1];
+
+            const controller = app.getController();
+            const modals = controller.getModalController().getModals();
+            callback(modals.length);
+        });
+        assert.equal(response, 1);
         button = await modelModal.findElement(webdriver.By.xpath(`.//button[text()="Add Attribute"]`));
         assert.notEqual(button, null, 'Button not found!');
         await button.click();

@@ -1,7 +1,6 @@
 class Modal {
 
     _panel;
-    _bDispose;
     _closeCallback;
     _selectionController;
 
@@ -84,8 +83,7 @@ class Modal {
         }.bind(this));
 
         $content.on("dispose", function (event) {
-            this._bDispose = true;
-            this.close();
+            this.close(true);
         }.bind(this));
 
         this._$modal.show();
@@ -113,26 +111,30 @@ class Modal {
         return Promise.resolve();
     }
 
-    close() {
+    close(bDisposed) {
         if (this._panel) {
-            if (!this._bDispose) {
-                this._bDispose = true;
+            if (this._$modal && !bDisposed)
                 this._panel.dispose();
-            }
             this._panel = null;
         }
-        if (this._$modal)
+        if (this._$modal) {
             this._$modal.remove();
+            this._$modal = null;
+        }
         if (this._closeCallback)
             this._closeCallback();
     }
 
     async waitClosed() {
-        return new Promise(async (resolve) => {
-            this._$modal.on("remove", function () {
-                console.log('modal closed');
-                resolve();
+        if (!this._$modal)
+            return Promise.resolve();
+        else {
+            return new Promise(async (resolve) => {
+                this._$modal.on("remove", function () {
+                    console.log('modal closed');
+                    resolve();
+                });
             });
-        });
+        }
     }
 }

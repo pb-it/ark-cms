@@ -660,6 +660,7 @@ describe('Testsuit - Datatypes', function () {
         value = await input.getAttribute('value');
         assert.equal(value, '');
 
+        await driver.executeScript('window.scrollTo(0, document.body.scrollHeight)');
         button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();

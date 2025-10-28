@@ -174,7 +174,7 @@ describe('Testsuit - Delete', function () {
         return Promise.resolve();
     });
 
-    it.only('#test delete within modal', async function () {
+    it('#test delete within modal', async function () {
         this.timeout(30000);
 
         const app = helper.getApp();
