@@ -66,7 +66,7 @@
         "@babel/cli": "^7.28.3",
         "@babel/core": "^7.28.5",
         "@babel/plugin-transform-class-properties": "^7.27.1",
-        "@pb-it/ark-cms-selenium-test-helper": "0.1.30-beta",
+        "@pb-it/ark-cms-selenium-test-helper": "0.1.31-beta",
         "babel-plugin-conditional-compile": "^0.0.5",
         "gulp": "^5.0.1",
         "gulp-mocha": "^10.0.1",

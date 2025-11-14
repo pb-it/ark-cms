@@ -1,6 +1,7 @@
 class SideNavigationBar {
 
     _$sideNav;
+    _$sideMenu;
 
     _topIconBar;
     _topIconBarVis;
@@ -75,8 +76,11 @@ class SideNavigationBar {
             this._$sidePanel.detach();
         this._$sideNav.empty();
 
-        this._initTopIconBar();
-        this._initBottomIconBar();
+        this._$sideMenu = $('<div/>')
+            .prop('id', 'sidemenu');
+        this._$sideMenu.append(this._initTopIconBar());
+        this._$sideMenu.append(this._initBottomIconBar());
+        this._$sideNav.append(this._$sideMenu);
 
         this._checkNotification();
 
@@ -330,7 +334,11 @@ class SideNavigationBar {
         this._topIconBarVis = new MenuVis(this._topIconBar);
         this._$topIconBar = this._topIconBarVis.renderMenu();
         this._$topIconBar.addClass('iconbar');
-        this._$sideNav.append(this._$topIconBar);
+        this._$topIconBar.css({
+            'position': 'absolute',
+            'z-index': 1
+        });
+        return this._$topIconBar;
     }
 
     _initBottomIconBar() {
@@ -472,7 +480,7 @@ class SideNavigationBar {
         this._$bottomIconBar = this._bottomIconBarVis.renderMenu();
         this._$bottomIconBar.addClass('iconbar');
         this._$bottomIconBar.css({ 'position': 'absolute', 'bottom': 0, 'left': 0 });
-        this._$sideNav.append(this._$bottomIconBar);
+        return this._$bottomIconBar;
     }
 
     updateSideNavigationBar() {

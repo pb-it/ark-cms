@@ -371,7 +371,7 @@ describe('Testsuit - cache', function () {
         modal = await window.getTopModal();
         assert.equal(modal, null);
 
-        const xpathBubble = `//div[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title='Cache']/span[@class='bubble' and text()='!']`;
+        const xpathBubble = `//div[@id="sidemenu"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title='Cache']/span[@class='bubble' and text()='!']`;
         var notification = await driver.findElements(webdriver.By.xpath(xpathBubble));
         assert.equal(notification.length, 1);
 

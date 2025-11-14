@@ -267,4 +267,8 @@ class State {
         this.query = arr;
         this.where = arr.join('&');
     }
+
+    setUserData(data) {
+        this.data = data;
+    }
 }

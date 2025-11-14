@@ -9,9 +9,7 @@ class DataView {
     }
 
     static async parseMarkdown(text) {
-        text = text.replace(/\[([^\]\r\n]*)\]\((\/(data|ext)\/(\([^()]*\)|.)*?)\)/gm, function (match, c1, c2) {
-            return "<a href='" + c2 + "' onclick='app.getController().navigate(\"" + c2 + "\");return false;'>" + c1 + "</a>";
-        });
+        text = DataView.replaceInternalLinks(text);
         if (typeof showdown === 'undefined') {
             var buildUrl = "https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/";
             await loadScript(buildUrl + "showdown.min.js");
@@ -19,6 +17,12 @@ class DataView {
         const converter = new showdown.Converter({ tables: true });
         text = converter.makeHtml(text);
         return Promise.resolve(text);
+    }
+
+    static replaceInternalLinks(text) {
+        return text.replace(/\[([^\]\r\n]*)\]\((\/(data|ext)\/(\([^()]*\)|.)*?)\)/gm, function (match, c1, c2) {
+            return "<a href='" + c2 + "' onclick='app.getController().navigate(\"" + c2 + "\");return false;'>" + c1 + "</a>";
+        });
     }
 
     static async highlightBlock(block) {

@@ -13,6 +13,14 @@ body>div#sidenav {
 
     float: left;
     z-index: 2;
+}
+
+body>div#sidenav>div#sidemenu {
+    display: block;
+    float: left;
+
+    width: 54px;
+    height: 100%;
     background-color: #282a35;
 }
 

@@ -450,7 +450,7 @@ describe('Testsuit - Navigation', function () {
         var sidemenu = window.getSideMenu();
         await sidemenu.click('Data');
 
-        const xpathDataIcon = `//div[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title='Data']`;
+        const xpathDataIcon = `//div[@id="sidemenu"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title='Data']`;
         var icons = await driver.findElements(webdriver.By.xpath(xpathDataIcon));
         assert.equal(icons.length, 1);
         var clazz = await icons[0].getAttribute('class');
@@ -459,7 +459,7 @@ describe('Testsuit - Navigation', function () {
         sidemenu = window.getSideMenu();
         await sidemenu.click('Models');
 
-        const xpathModelsIcon = `//div[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title='Models']`;
+        const xpathModelsIcon = `//div[@id="sidemenu"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and @title='Models']`;
         icons = await driver.findElements(webdriver.By.xpath(xpathModelsIcon));
         assert.equal(icons.length, 1);
         clazz = await icons[0].getAttribute('class');
@@ -470,7 +470,7 @@ describe('Testsuit - Navigation', function () {
         var clazz = await icons[0].getAttribute('class');
         assert.ok(clazz.indexOf('active') == -1);
 
-        const xpathActiveIcon = `//div[@id="sidenav"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and contains(@class, 'active')]`;
+        const xpathActiveIcon = `//div[@id="sidemenu"]/div[contains(@class, 'menu') and contains(@class, 'iconbar')]/div[contains(@class, 'menuitem') and contains(@class, 'active')]`;
         icons = await driver.findElements(webdriver.By.xpath(xpathActiveIcon));
         assert.equal(icons.length, 1);
         var title = await icons[0].getAttribute('title');
