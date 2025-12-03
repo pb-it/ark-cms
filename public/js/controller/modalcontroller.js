@@ -285,8 +285,13 @@ class ModalController {
                     event.preventDefault();
                     event.stopPropagation();
 
-                    var text = await formatCode($textarea.val(), 'json');
-                    $textarea.val(text);
+                    try {
+                        var text = await formatCode($textarea.val(), 'json');
+                        $textarea.val(text);
+                    } catch (error) {
+                        app.getController().showError(error);
+                    }
+
                     return Promise.resolve();
                 }.bind(this)));
 

@@ -1,6 +1,6 @@
 {
     "name": "ark-cms",
-    "version": "0.7.9-beta",
+    "version": "0.7.10-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
@@ -58,9 +58,9 @@
         "test:misc": "mocha --timeout 10000 tests/misc.test.js"
     },
     "dependencies": {
-        "body-parser": "^1.20.2",
+        "body-parser": "^1.20.4",
         "cors": "^2.8.5",
-        "express": "^4.21.2"
+        "express": "^4.22.1"
     },
     "devDependencies": {
         "@babel/cli": "^7.28.3",
