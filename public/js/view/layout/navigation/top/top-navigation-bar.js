@@ -9,6 +9,8 @@ class TopNavigationBar {
     _$searchForm;
     _$searchContainer;
 
+    _rightIconBarExtensions;
+    _rightMenuItems;
     _$menu;
 
     constructor() {
@@ -18,6 +20,8 @@ class TopNavigationBar {
         this._breadcrumb = new Breadcrumb();
         this._$breadcrumb = this._breadcrumb.initBreadcrumb();
         this._$topNavigationBar.append(this._$breadcrumb);
+
+        this._rightIconBarExtensions = [];
 
         this._$menu = $('<div/>')
             .css({ 'float': 'right' });
@@ -64,9 +68,59 @@ class TopNavigationBar {
         }
 
         this._$menu.empty();
+        this._rightMenuItems = [];
+        if (this._rightIconBarExtensions.length > 0) {
+            var tmp;
+            var menuItem;
+            var menuItemVis;
+            var $vis;
+            for (var ext of this._rightIconBarExtensions) {
+                if (typeof ext.func === 'function') {
+                    try {
+                        tmp = ext.func();
+                        if (tmp) {
+                            if (tmp instanceof MenuItem)
+                                menuItem = tmp;
+                            else
+                                menuItem = new MenuItem(tmp);
+                            menuItemVis = new MenuItemVis(menuItem);
+                            $vis = menuItemVis.renderMenuItem();
+                            $vis.css({
+                                'display': 'inline-block'
+                            });
+                            this._$menu.append($vis);
+                            this._rightMenuItems.push({ 'name': ext['name'], 'menu': menuItemVis });
+                        }
+                    } catch (error) {
+                        controller.showError(error);
+                    }
+                }
+            }
+        }
         if (controller.getConfigController().experimentalFeaturesEnabled())
             this._renderNotifications();
         this._renderMenu();
+    }
+
+    addIconBarItem(ext) {
+        if (ext['name'])
+            this._rightIconBarExtensions = this._rightIconBarExtensions.filter(function (x) {
+                return x['name'] !== ext['name'];
+            });
+        this._rightIconBarExtensions.push(ext);
+    }
+
+    getIconBarItem(name) {
+        var item;
+        if (name) {
+            var tmp = this._rightMenuItems.filter(function (x) {
+                return x['name'] === name;
+            });
+            if (tmp.length === 1)
+                item = tmp[0];
+        } else
+            item = this._rightMenuItems;
+        return item;
     }
 
     _renderNotifications() {

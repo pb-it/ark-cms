@@ -320,10 +320,14 @@ class SideNavigationBar {
             if (this._topIconBarExtensions && this._topIconBarExtensions.length > 0) {
                 for (var ext of this._topIconBarExtensions) {
                     if (typeof ext.func === 'function') {
-                        conf = ext.func();
-                        if (conf) {
-                            menuItem = new MenuItem(conf);
-                            menuItems.push(menuItem);
+                        try {
+                            conf = ext.func();
+                            if (conf) {
+                                menuItem = new MenuItem(conf);
+                                menuItems.push(menuItem);
+                            }
+                        } catch (error) {
+                            controller.showError(error);
                         }
                     }
                 }

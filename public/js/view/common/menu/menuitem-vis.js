@@ -21,10 +21,13 @@ class MenuItemVis {
     renderMenuItem() {
         const $div = this._$div;
         $div.empty();
+        $div.unbind('click');
 
         $div.addClass('menuitem');
         if (this._menuItem.isActive())
             $div.addClass('active');
+        else
+            $div.removeClass('active');
 
         const conf = this._menuItem.getMenuItemConfig();
         if (conf) {

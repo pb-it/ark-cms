@@ -1,6 +1,6 @@
 {
     "name": "ark-cms",
-    "version": "0.7.10-beta",
+    "version": "0.7.11-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
