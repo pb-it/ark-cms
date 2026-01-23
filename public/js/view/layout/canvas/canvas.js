@@ -319,4 +319,8 @@ class Canvas {
     getSelectionController() {
         return this._selectionController;
     }
+
+    setSelectionController(selectionController) {
+        this._selectionController = selectionController;
+    }
 }

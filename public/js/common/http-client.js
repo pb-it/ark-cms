@@ -20,7 +20,7 @@ class HttpError extends Error {
                     var type = headers[Object.keys(headers).find(key => key.toLowerCase() === 'content-type')];
                     bHtml = (type && (type == 'text/html; charset=UTF-8'));
                 }
-                if (bHtml || response.body.startsWith('<!DOCTYPE html>') || response.body.endsWith('</html>'))
+                if (bHtml || response.body.substring(15).localeCompare('<!DOCTYPE html>', undefined, { sensitivity: 'accent' }) === 0 || response.body.trimEnd().endsWith('</html>'))
                     message += '\n\nResponse:\n' + encodeText(response.body);
                 else
                     message += '\n\nResponse:\n' + response.body;

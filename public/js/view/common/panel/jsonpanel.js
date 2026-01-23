@@ -11,13 +11,14 @@ class JsonPanel extends Panel {
         var html;
         if (this._obj) {
             if (typeof this._obj === 'object')
-                html = JSON.stringify(this._obj, null, '&emsp;').replace(/(?:\r\n|\r|\n)/g, '<br>');
+                html = encodeText(JSON.stringify(this._obj, null, '\t'));
             else if (typeof this._obj === 'string')
                 html = this._obj;
         }
         if (!html)
             html = '';
         var $div = $('<div/>')
+            .addClass('pre')
             .html(html);
         return Promise.resolve($div);
     }

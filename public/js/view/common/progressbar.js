@@ -56,9 +56,9 @@ class ProgressBar {
 
     setValue(value) {
         if (this._max) {
-            const percent = Math.round((value / max) * 100);
+            const percent = Math.round((value / this._max) * 100);
             this._$bar[0].style.width = percent + '%';
-            this._$label[0].innerHTML = value + '/' + max;
+            this._$label[0].innerHTML = value + '/' + this._max;
         } else
             throw new Error('Missing \'max\' value');
     }

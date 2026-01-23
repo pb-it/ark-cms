@@ -41,6 +41,10 @@ class Modal {
         return this._selectionController;
     }
 
+    setSelectionController(selectionController) {
+        this._selectionController = selectionController;
+    }
+
     async openPanel(panel) {
         this._panel = panel;
         this.open(await panel.render());
