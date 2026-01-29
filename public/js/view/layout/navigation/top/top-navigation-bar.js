@@ -101,6 +101,7 @@ class TopNavigationBar {
         if (controller.getConfigController().experimentalFeaturesEnabled())
             this._renderNotifications();
         this._renderMenu();
+        this._$topNavigationBar.css('visibility', 'visible');
     }
 
     addIconBarItem(ext) {
