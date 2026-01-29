@@ -107,8 +107,10 @@ class MenuItemVis {
         return $div;
     }
 
-    addNotification(text) {
+    addNotification(text, top) {
         const $bubble = $('<span/>').addClass('bubble').text(text);
+        if (top)
+            $bubble.addClass('top');
         this._$div.append($bubble);
     }
 

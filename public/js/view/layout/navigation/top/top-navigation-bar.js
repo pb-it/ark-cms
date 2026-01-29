@@ -86,7 +86,8 @@ class TopNavigationBar {
                             menuItemVis = new MenuItemVis(menuItem);
                             $vis = menuItemVis.renderMenuItem();
                             $vis.css({
-                                'display': 'inline-block'
+                                'display': 'inline-block',
+                                'width': '18px'
                             });
                             this._$menu.append($vis);
                             this._rightMenuItems.push({ 'name': ext['name'], 'menu': menuItemVis });

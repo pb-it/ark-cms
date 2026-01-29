@@ -45,7 +45,6 @@ div.menuitem.iconbar:hover:not(.active)>i>svg>g>g {
 
 span.bubble {
     position: relative;
-    top: -8px;
     display: inline-block;
     text-align: center;
     font-size: .75rem;
@@ -54,4 +53,13 @@ span.bubble {
     border-radius: .5rem;
     color: #fff;
     background: #f9423a
+}
+
+span.bubble.top {
+    top: -8px;
+}
+
+span.bubble:not(.top) {
+    top: 6px;
+    left: -8px;
 }

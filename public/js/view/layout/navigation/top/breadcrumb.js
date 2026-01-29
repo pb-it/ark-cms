@@ -463,7 +463,7 @@ class Breadcrumb {
             }.bind(this)
         };
         const $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
-        $d.css({ 'margin': '0 1 0 1' });
+        $d.css({ 'margin': '0 1 0 0' });
         $div.append($d);
 
         this._$breadcrumb.append($div);
