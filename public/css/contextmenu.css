@@ -1,5 +1,5 @@
 ul.contextmenu {
-    z-index: 1000;
+    z-index: 200;
     display: block;
     position: absolute;
     padding: 0;
