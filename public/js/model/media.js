@@ -16,10 +16,10 @@ class Media {
                 if (attr['dataType'] === 'url' || attr['dataType'] === 'file')
                     media.setFile(obj.getAttributeValue(propName));
                 else {
-                    if (attr['cdn'])
+                    if (!data[propName].startsWith('/') && attr['cdn'])
                         media.setFile(CrudObject._buildUrl(attr['cdn'], data[propName]));
                     else
-                        media.setFile(data[propName]);
+                        media.setFile(app.getController().getApiController().getApiOrigin() + data[propName]);
                 }
             }
             if (!media.getMediaType()) {

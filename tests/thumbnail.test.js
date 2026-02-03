@@ -419,6 +419,37 @@ describe('Testsuit - Thumbnail', function () {
             await button.click();
         }
         await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        var iRetry = 3;
+        while (modal && iRetry > 0) {
+            panel = await modal.getPanel();
+            assert.notEqual(panel, null);
+            var text = await panel.getElement().getText();
+            if (text.indexOf('Response:\n[http] 429:') !== -1) { // HTTP 429 Too Many Requests -> retry
+                await modal.closeModal();
+                await ExtendedTestHelper.delay(1000);
+                panel = await canvas.getPanel();
+                assert.notEqual(panel, null);
+                button = await panel.getButton('Create');
+                assert.notEqual(button, null);
+                await button.click();
+                await ExtendedTestHelper.delay(1000);
+                bDebugMode = await app.isDebugModeActive();
+                if (bDebugMode) {
+                    modal = await window.getTopModal();
+                    assert.notEqual(modal, null);
+                    button = await modal.findElement(webdriver.By.xpath('//button[text()="OK"]'));
+                    assert.notEqual(button, null);
+                    await button.click();
+                }
+                await app.waitLoadingFinished(10);
+                await ExtendedTestHelper.delay(1000);
+                modal = await window.getTopModal();
+                iRetry--;
+            } else
+                iRetry = 0;
+        }
 
         modal = await window.getTopModal();
         assert.equal(modal, null);
