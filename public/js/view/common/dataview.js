@@ -184,10 +184,12 @@ class DataView {
                     break;
                 case "url":
                     if (data && data[name]) {
-                        if (!data[name].startsWith('/') && attribute['cdn'])
+                        if (data[name].match(/^https?:\/\//))
+                            value = data[name];
+                        else if (!data[name].startsWith('/') && attribute['cdn'])
                             value = CrudObject._buildUrl(attribute['cdn'], data[name]);
                         else
-                            value = app.getController().getApiController().getApiOrigin() + data[name];
+                            value = app.getController().getApiController().getApiOrigin() + '/' + data[name];
                         $value.html("<a href='" + value.replace(/'/g, '%27') + "' target='_blank'>" + data[name] + "</a><br>");
                     }
                     break;

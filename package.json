@@ -40,6 +40,7 @@
         "test:modules": "mocha --timeout 10000 tests/modules.test.js",
         "test:search": "mocha --timeout 10000 tests/search.test.js",
         "test:filter": "mocha --timeout 10000 tests/filter.test.js",
+        "test:datatypes": "mocha --timeout 10000 tests/datatypes.test.js",
         "test:form": "mocha --timeout 10000 tests/form.test.js",
         "test:panel": "mocha --timeout 10000 tests/panel.test.js",
         "test:modal": "mocha --timeout 10000 tests/modal.test.js",

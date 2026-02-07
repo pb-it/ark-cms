@@ -148,7 +148,8 @@ describe('Testsuit - Datatypes', function () {
         await ExtendedTestHelper.delay(1000);
         input = await form.getFormInput('url');
         assert.notEqual(input, null);
-        await input.sendKeys('https://example.com/');
+        const exampleUrl = 'https://example.com/';
+        await input.sendKeys(exampleUrl);
         await ExtendedTestHelper.delay(1000);
         input = await form.getFormInput('json');
         assert.notEqual(input, null);
@@ -176,6 +177,7 @@ describe('Testsuit - Datatypes', function () {
         var button = await panel.getButton('Create');
         assert.notEqual(button, null);
         await button.click();
+        await app.waitLoadingFinished(10);
         await ExtendedTestHelper.delay(1000);
         modal = await window.getTopModal();
         assert.equal(modal, null);
@@ -205,7 +207,7 @@ describe('Testsuit - Datatypes', function () {
         input = await form.getFormInput('url');
         assert.notEqual(input, null);
         var value = await input.getAttribute('value');
-        assert.equal(value, 'https://example.com/');
+        assert.equal(value, exampleUrl);
         input = await form.getFormInput('json');
         assert.notEqual(input, null);
         var value = await input.getAttribute('value');
@@ -226,6 +228,26 @@ describe('Testsuit - Datatypes', function () {
         assert.notEqual(input, null);
         var value = await input.getAttribute('value');
         assert.equal(value, '00:00:01.000');
+
+        await modal.closeModal();
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.equal(modal, null);
+
+        contextmenu = await panels[0].openContextMenu();
+        await ExtendedTestHelper.delay(1000);
+        await contextmenu.click('Details');
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        modal = await window.getTopModal();
+        assert.notEqual(modal, null);
+        panel = await modal.getPanel();
+        assert.notEqual(panel, null);
+        var xpath = `./div[@class="data"]/div[@class="details"]/div[@class="value" and preceding-sibling::div[@class="name" and string()="url:"][1]]/a`;
+        var element = await panel.getElement().findElement(webdriver.By.xpath(xpath));
+        assert.notEqual(element, null);
+        var url = await element.getAttribute('href');
+        assert.equal(url, exampleUrl);
 
         await modal.closeModal();
         await ExtendedTestHelper.delay(1000);
