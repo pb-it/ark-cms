@@ -101,6 +101,10 @@ class HttpClient {
             }
 
             xhr.open(method, url); //3rd parameter 'false' would make the request synchronous
+            if (options && options['headers']) {
+                for (let [key, value] of Object.entries(options['headers']))
+                    xhr.setRequestHeader(key, value);
+            }
             if (options && options['responseType'])
                 xhr.responseType = options['responseType']; //text, document, json, blob, ...
             if (options && options['timeout'])
@@ -125,9 +129,10 @@ class HttpClient {
                     var type;
                     if (options && options['headers'])
                         type = options['headers']['Content-type']
-                    if (!type)
+                    if (!type) {
                         type = 'text/plain';
-                    xhr.setRequestHeader('Content-type', type);
+                        xhr.setRequestHeader('Content-type', type);
+                    }
                     body = data;
                 } else
                     throw new Error('Type of data not supported');

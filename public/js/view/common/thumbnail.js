@@ -32,27 +32,32 @@ class Thumbnail {
         return $img;
     }
 
-    static renderThumbnailClip(file, config, bLazy) {
+    static renderThumbnailClip(file, poster, config, bLazy) {
         var autoplay;
         if (config['autoplay'])
             autoplay = config['autoplay'];
         else
             autoplay = false;
-        var $video = $('<video/>')
-            .attr({
-                //"data-src": file,
-                'autoplay': autoplay,
-                'loop': true,
-                'controls': true
-            })
-            .prop('muted', true);
+        var attributes = {
+            //"data-src": file,
+            'autoplay': autoplay,
+            'loop': true,
+            'controls': true
+        };
+        if (!poster)
+            poster = window.location.origin + "/public/images/missing_image.png";
         if (bLazy) {
-            $video.addClass('lazy')
-                .attr({
-                    'data-poster': window.location.origin + "/public/images/missing_image.png",
-                    'data-preload': 'auto', //auto|metadata|none
-                });
+            attributes['data-poster'] = poster;
+            attributes['preload'] = 'metadata'; //auto|metadata|none
+        } else {
+            attributes['poster'] = poster;
+            attributes['preload'] = 'none';
         }
+        var $video = $('<video/>')
+            .attr(attributes)
+            .prop('muted', true);
+        if (bLazy)
+            $video.addClass('lazy')
 
         if (config.width) {
             $video.css('max-width', config.width);
@@ -130,7 +135,13 @@ class Thumbnail {
                         break;
                     case 'clip':
                         if (isVideo(this._file))
-                            $thumb = Thumbnail.renderThumbnailClip(this._file, this._config, this._bLazy);
+                            $thumb = Thumbnail.renderThumbnailClip(this._file, null, this._config, this._bLazy);
+                        else if (isImage(this._file)) {
+                            var file;
+                            if (this._media)
+                                file = this._media.getFile();
+                            $thumb = Thumbnail.renderThumbnailClip(file, this._file, this._config, false);
+                        }
                         break;
                     case 'video':
                         if (isImage(this._file))
