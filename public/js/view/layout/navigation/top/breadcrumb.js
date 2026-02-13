@@ -145,7 +145,7 @@ class Breadcrumb {
                 'root': true,
                 'click': async function (event, icon) {
                     const state = new State();
-                    state.typeString = app.controller.getStateController().getState().typeString;
+                    state.typeString = app.getController().getStateController().getState().typeString;
                     state.action = ActionEnum.create;
                     return app.getController().loadState(state, true);
                 }.bind(this)
@@ -193,10 +193,10 @@ class Breadcrumb {
             .css({ 'margin': '0 1 0 1' })
             .click(function (event) {
                 event.stopPropagation();
-                var state = app.controller.getStateController().getState();
+                var state = app.getController().getStateController().getState();
                 delete state.name;
                 delete state.id;
-                app.controller.loadState(state, true);
+                app.getController().loadState(state, true);
             });
         this._$breadcrumb.append($button);
     }
@@ -428,11 +428,15 @@ class Breadcrumb {
             var $d;
             for (var ext of this._breadcrumbExtensions) {
                 if (typeof ext.func === 'function') {
-                    conf = ext.func();
-                    if (conf) {
-                        $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
-                        $d.css({ 'margin': '0 1 0 1' });
-                        $div.append($d);
+                    try {
+                        conf = ext.func();
+                        if (conf) {
+                            $d = new MenuItemVis(new MenuItem(conf)).renderMenuItem();
+                            $d.css({ 'margin': '0 1 0 1' });
+                            $div.append($d);
+                        }
+                    } catch (error) {
+                        app.getController().showError(error);
                     }
                 }
             }

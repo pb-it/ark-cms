@@ -1,6 +1,6 @@
 {
     "name": "ark-cms",
-    "version": "0.7.11-beta",
+    "version": "0.7.12-beta",
     "description": "Client-side rendered CMS",
     "keywords": [
         "CMS",
@@ -60,19 +60,19 @@
     },
     "dependencies": {
         "body-parser": "^1.20.4",
-        "cors": "^2.8.5",
+        "cors": "^2.8.6",
         "express": "^4.22.1"
     },
     "devDependencies": {
-        "@babel/cli": "^7.28.3",
-        "@babel/core": "^7.28.5",
-        "@babel/plugin-transform-class-properties": "^7.27.1",
+        "@babel/cli": "^7.28.6",
+        "@babel/core": "^7.29.0",
+        "@babel/plugin-transform-class-properties": "^7.28.6",
         "@pb-it/ark-cms-selenium-test-helper": "0.1.31-beta",
         "babel-plugin-conditional-compile": "^0.0.5",
         "gulp": "^5.0.1",
         "gulp-mocha": "^10.0.1",
         "mocha": "^10.8.2",
-        "selenium-webdriver": "^4.38.0",
+        "selenium-webdriver": "^4.40.0",
         "typescript": "^5.9.3"
     }
 }
