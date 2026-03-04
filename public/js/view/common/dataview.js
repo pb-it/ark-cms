@@ -299,7 +299,7 @@ class DataView {
         const panelConfig = mpcc.getPanelConfig(ActionEnum.read, DetailsEnum.title);
         var panel;
         if (data) {
-            if (attribute['multiple'] && Array.isArray(data)) {
+            if ((attribute['multiple'] || attribute['via']) && Array.isArray(data)) {
                 const ids = data.map(function (x) {
                     if (isNaN(x))
                         return x['id'];

@@ -253,14 +253,14 @@ class State {
 
         if (data.panelConfig) {
             this.panelConfig = new MediaPanelConfig();
-            this.panelConfig.initPanelConfig(app.controller.getModelController().getModel(this.typeString), this.action, data.panelConfig);
+            this.panelConfig.initPanelConfig(app.getController().getModelController().getModel(this.typeString), this.action, data.panelConfig);
         }
 
         this.bIgnoreCache = data.bIgnoreCache
     }
 
     getModel() {
-        return app.controller.getModelController().getModel(this.typeString);
+        return app.getController().getModelController().getModel(this.typeString);
     }
 
     setQuery(arr) {
