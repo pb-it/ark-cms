@@ -83,9 +83,12 @@ class DataService {
         var url = typeString;
         var query = "";
         if (id) {
-            if (Array.isArray(id))
-                query += "&id_in=" + id.join(',');
-            else
+            if (Array.isArray(id)) {
+                if (id.length > 0)
+                    query += "&id_in=" + id.join(',');
+                else
+                    throw new Error('Received empty array!');
+            } else
                 url += "/" + id;
         }
         if (!id && !limit)
@@ -229,8 +232,11 @@ class DataService {
                 for (var i = 0; i < blockCount; i++) {
                     if (i > 0)
                         start = i * DataService.BLOCK_SIZE;
-                    if (i == blockCount - 1)
-                        length = id.length % DataService.BLOCK_SIZE;
+                    if (i == blockCount - 1) {
+                        tmp = id.length % DataService.BLOCK_SIZE;
+                        if (tmp !== 0)
+                            length = tmp;
+                    }
                     ids[i] = new Array(length);
                     for (var j = 0; j < length; j++)
                         ids[i][j] = id[start + j];

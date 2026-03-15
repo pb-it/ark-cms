@@ -191,26 +191,79 @@ describe('Testsuit - DataService / Fetch', function () {
             allPassed = allPassed && (this.currentTest.state === 'passed');
     });
 
-    it('#test confirm dialog on fetch all', async function () {
+    it('#test block size', async function () {
         this.timeout(30000);
 
-        await editModelDefaults();
-        await loadAll();
-
         const app = helper.getApp();
+        /*const ds = app.getDataService();
+        var tmp = await ds.read('dummy', null, null, null, null, null, null, true);*/
+
+        const response = await driver.executeAsyncScript(async () => {
+            const callback = arguments[arguments.length - 1];
+
+            var res;
+            try {
+                const controller = app.getController();
+                const ds = controller.getDataService();
+                var tmp = await ds.fetchData('dummy', null, null, null, null, null, null, true);
+                if (tmp && tmp.length > 0) {
+                    const id = tmp[0]['id'];
+                    const arr = [];
+                    for (var i = 0; i < 200; i++) {
+                        arr.push(id);
+                    }
+                    tmp = await ds.fetchData('dummy', arr, null, null, null, null, null, true);
+                } else
+                    throw new Error('NOK');
+                res = 'OK';
+            } catch (error) {
+                alert('Error');
+                console.error(error);
+                res = error;
+            } finally {
+                callback(res);
+            }
+        });
+        assert.equal(response, 'OK', 'ERROR: Execution of script failed!');
+
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+        var alert;
+        try {
+            alert = await driver.switchTo().alert();
+        } catch (error) {
+            if (!(error instanceof webdriver.error.NoSuchAlertError))
+                throw error;
+        }
+        assert.equal(alert, null);
+
+        const window = app.getWindow();
+        var modal = await window.getTopModal();
+        assert.equal(modal, null);
+
         await app.navigate('/');
         await app.waitLoadingFinished(10);
 
         return Promise.resolve();
     });
 
-    xit('#test ...', async function () {
+    it('#test confirm dialog on fetch all', async function () {
         this.timeout(30000);
 
-        if (proxy) {
-            // ...
-        } else
-            this.skip();
+        await editModelDefaults();
+
+        const app = helper.getApp();
+        await app.navigate('/');
+        await app.waitLoadingFinished(10);
+
+        await app.reload();
+        await app.waitLoadingFinished(10);
+        await ExtendedTestHelper.delay(1000);
+
+        await loadAll();
+
+        await app.navigate('/');
+        await app.waitLoadingFinished(10);
 
         return Promise.resolve();
     });
